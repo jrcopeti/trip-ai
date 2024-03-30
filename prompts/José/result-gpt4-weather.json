@@ -1,0 +1,63 @@
+{
+  "city": "Berlin",
+  "country": "Germany",
+  "userName": "José",
+  "title": "José's Breathtaking Berlin Blitz: Germany Awaits",
+  "objectsList": [
+    {
+      "quantity": 5,
+      "item": "T-shirts",
+      "description": "For comfortable day-trip wear"
+    },
+    {
+      "quantity": 3,
+      "item": "Jeans",
+      "description": "Versatile for both daytime outings and evening clubbing"
+    },
+    {
+      "quantity": 2,
+      "item": "Leather jackets",
+      "description": "Perfect for the clubbing scene and to keep warm"
+    },
+    {
+      "quantity": 7,
+      "item": "Pairs of socks",
+      "description": "A clean pair for each day"
+    },
+    {
+      "quantity": 2,
+      "item": "Packets of cigarretes",
+      "description": "For personal use"
+    },
+    {
+      "quantity": 7,
+      "item": "Underwear",
+      "description": "A clean pair for each day"
+    },
+    {
+      "quantity": 1,
+      "item": "Pair of boots",
+      "description": "Comfortable for walking and stylish for clubbing"
+    },
+    {
+      "quantity": 1,
+      "item": "Travel umbrella",
+      "description": "For any stray showers"
+    },
+    {
+      "quantity": 1,
+      "item": "Sunglasses",
+      "description": "Protect your eyes during the day"
+    },
+    { "quantity": 2, "item": "Scarves", "description": "For additional warmth" }
+  ],
+  "mustHave": ["Passport", "Tickets", "Money", "Charger"],
+  "requiredItems": ["cigarretes", "leather jacket"],
+  "description": "José, an adventurous spirit from Brazil, has decided to immerse himself in the culture and experiences of the historic city of Berlin, Germany. For ten rich days from October 12th to the 20th, José plans to explore the city's unparalleled architecture, dive into its unforgettable nightlife, and capture a side of Germany that goes beyond just its monuments and landmarks. Staying in private accommodations that allow a deeper connection to the locale, his activities will encompass sightseeing, clubbing, and a special need to party in Berghain, one of the city's most iconic clubs.",
+  "countryCode": "DE",
+  "tour": [
+    "As a first activity, taking a guided tour to see Berlin's iconic landmarks is a must. Given his interest in sightseeing, José should start at the historic Brandenburg Gate, then make his way to explore the solemn Holocaust Memorial, Museum Island, and the beautiful Berlin Dome. The day should ideally finish with a visit to the East Side Gallery, a national and international memorial for freedom and the longest open-air gallery in the world.\n\nJosé should not forget his camera for this trip, as Berlin's iconic landmarks offer stunning visuals. Enjoying a traditional currywurst or pretzel along the way would make this sightseeing tour a true German experience.",
+    "For the ultimate Berlin clubbing experience, Berghain is a must. Often called the world's best club, Berghain offers an endless night of electronic music in a repurposed power station. With this party lasting typically from Saturday until Monday morning, José will absolutely enjoy this.\n\nYet, it's important to note that getting into Berghain can be hard, given its strict and mysterious door policy. Dressing casually, arriving in small groups, and understanding a bit about the club's music and DJ lineup can increase the chances of experiencing this heart of Berlin's clubbing culture. José should make sure to rest well before this night.",
+    "As a cultural activity, a visit to the German Historical Museum will provide a deeper understanding of Berlin and Germany's multifaceted history. Situated in the Zeughaus, the oldest preserved building in Berlin, the permanent exhibition German History in Images and Testimonials contains around 8,000 individual exhibits.\n\nThe following day, a more somber visit could be to the Topography of Terror, an outdoor and indoor museum built on the grounds of the most important institutions of the Nazi regime. This emotional yet important experience provides insight into the darker chapters of German history."
+  ]
+}

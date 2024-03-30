@@ -1,11 +1,15 @@
+import Form from "@/components/Form";
 import GetWeather from "@/components/GetWeather";
 import { Button } from "@nextui-org/react";
 
-async function Homepage() {
+function Homepage() {
   return (
-    <div>
-      <GetWeather />
-    </div>
+    <section className="p-24">
+      <div className="container">
+        {/* <GetWeather /> */}
+        <Form />
+      </div>
+    </section>
   );
 }
 
