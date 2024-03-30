@@ -4,6 +4,7 @@ import { useCountries } from "@/hooks/useCountries";
 import { Progress, Select, Input, SelectItem } from "@nextui-org/react";
 
 import { useState } from "react";
+import { DatePicker } from "./DatePicker";
 
 const steps = [
   { id: "step 1", name: "Personal Information" },
@@ -70,6 +71,8 @@ function Form() {
                   <SelectItem key={country.value}>{country.label}</SelectItem>
                 )}
               </Select>
+
+              <DatePicker />
             </div>
           </>
         )}
