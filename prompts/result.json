@@ -1,0 +1,80 @@
+{
+  "city": "Curitiba",
+  "country": "Brazil",
+  "userName": "José",
+  "title": "José's Solo Sojourn in Curitiba, Brazil",
+  "objectsList": [
+    {
+      "quantity": 4,
+      "item": "T-shirts",
+      "description": "Given the mild temperatures in Curitiba, light clothing such as T-shirts will be most comfortable for daily wear."
+    },
+    {
+      "quantity": 2,
+      "item": "Adidas shoes",
+      "description": "To keep you comfortable during your sightseeing, choose comfortable footwear. Remember you asked for this specific brand."
+    },
+    {
+      "quantity": 2,
+      "item": "Long pants",
+      "description": "For those cooler evenings or breezy days, it's a good idea to have a few pairs of long pants."
+    },
+    {
+      "quantity": 2,
+      "item": "Shorts",
+      "description": "Perfect for warmer weather activities, shorts are a must-have for your trip."
+    },
+    {
+      "quantity": 1,
+      "item": "Gift for a friend",
+      "description": "Don't forget the important gift for your friend living in Curitiba!"
+    },
+    {
+      "quantity": 2,
+      "item": "Light jackets",
+      "description": "A light jacket is good to keep off the chill during the cooler days."
+    },
+    {
+      "quantity": 6,
+      "item": "Underwear",
+      "description": "Essential clothing items for every day of the trip."
+    },
+    {
+      "quantity": 5,
+      "item": "Pairs of socks",
+      "description": "Enough to last your trip and keep your feet dry and comfortable."
+    },
+    {
+      "quantity": 3,
+      "item": "Night outfits",
+      "description": "Prepare outfits for clubbing. Curitiba has a vibrant night scene you should enjoy."
+    },
+    {
+      "quantity": 1,
+      "item": "Swimwear",
+      "description": "You never know when you might want to take a dip. Include a swimsuit just in case!"
+    }
+  ],
+  "mustHave": [
+    "Passport",
+    "Brazilian Real (R$)",
+    "Hotel reservation",
+    "Charger",
+    "Bank cards",
+    "Tickets",
+    "Travel insurance documents",
+    "Basic medications",
+    "Copies of travel documents"
+  ],
+  "requiredItems": [
+    "adidas shoes",
+    "a gift for a friend who lives in Curitiba"
+  ],
+  "description": "Join José on his Solo Sojourn in Curitiba, Brazil. Curitiba, the capital of the southern Brazilian state of Paraná, is known for its innovative urban planning and for its vibrant cultural mix. During his solo journey, José is eagerly looking forward to immersing himself in the unique culture, rich history, and magnificent architecture the city has to offer. From eating out local cuisine, to sightseeing the beautiful parks and historical sites, and enjoying the vibrant nightlife, José is set to make the most of his solo Brazilian adventure!\n\nThis journey will be an unparalleled mix of relaxation, discovery, and adventure. Your suitcase will be packed to the brim with all the essentials for this thrilling trip, ensuring that you can focus on creating unforgettable memories. Let’s embark upon this beautiful journey and unleash the thrill-seeker in José.",
+  "countryCode": "BR",
+  "tour": [
+    "Botanical Garden of Curitiba - A breathtakingly beautiful garden featuring unique flora and fauna, a greenhouse, and a vast collection of national and international plants.",
+    "Oscar Niemeyer Museum - Learn about the modernist architecture of Brazil's beloved architect, Oscar Niemeyer.",
+    "Visit a traditional 'feira' - No trip to Brazil is complete without tasting regional culinary specialties at a traditional 'feira', or street market."
+  ]
+}

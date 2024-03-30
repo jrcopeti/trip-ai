@@ -1,12 +1,12 @@
+import GetWeather from "@/components/GetWeather";
 import { Button } from "@nextui-org/react";
 
-function Homepage() {
-  return <div>Homepage
-
-    
-
-  </div>;
-
+async function Homepage() {
+  return (
+    <div>
+      <GetWeather />
+    </div>
+  );
 }
 
 export default Homepage;

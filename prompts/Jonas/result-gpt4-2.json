@@ -1,0 +1,73 @@
+{
+  "city": "Rio de Janeiro",
+  "country": "Brazil",
+  "userName": "Jonas",
+  "title": "Jonas' Jovial Jaunt in Rio de Janeiro, Brazil",
+  "objectsList": [
+    {
+      "quantity": 1,
+      "item": "Adidas T-shirt",
+      "description": "Jonas' preferred brand for comfortable sightseeing attire. It can also be a great casual clubbing outfit."
+    },
+    {
+      "quantity": 2,
+      "item": "Pair of lightweight trousers",
+      "description": "Perfect for both sightseeing and clubbing. Light material will be suitable for Rio's warm climate."
+    },
+    {
+      "quantity": 2,
+      "item": "Swim shorts",
+      "description": "Given the heat in Rio, going to the beach is inevitable. These should come in handy."
+    },
+    {
+      "quantity": 1,
+      "item": "Sturdy pair of walking shoes",
+      "description": "For all the sightseeing Jonas is planning to do."
+    },
+    {
+      "quantity": 1,
+      "item": "Formal shoes",
+      "description": "Can be used for clubbing."
+    },
+    {
+      "quantity": 10,
+      "item": "Packs of cigarettes",
+      "description": "This is a particular preference of Jonas."
+    },
+    {
+      "quantity": 1,
+      "item": "Sunglasses",
+      "description": "A must-have for that bright Rio sun."
+    },
+    {
+      "quantity": 1,
+      "item": "Travel-size sunscreen SPF50+",
+      "description": "To protect from the strong sun during outdoor activities."
+    },
+    {
+      "quantity": 1,
+      "item": "Brazilian Power Adapter",
+      "description": "To make sure Jonas can keep his electronics charged."
+    },
+    {
+      "quantity": 3,
+      "item": "Carnival Outfits",
+      "description": "Jonas indicated that he'd like to attend the Carnival. The quantity should suffice for a few Carnival parades."
+    }
+  ],
+  "mustHave": [
+    "Passport",
+    "Airline Tickets",
+    "Credit Cards/Cash",
+    "Mobile Charger",
+    "Carnival Tickets"
+  ],
+  "requiredItems": ["Adidas T-Shirt", "Cigarettes"],
+  "description": "Experience an unforgettable solo adventure in the vibrant city of Rio de Janeiro, affectionately known as 'Cidade Maravilhosa', or 'Marvelous City'. With stunning natural wonders in every direction, world-class restaurants, lively nightlife, and, of course, the city's famous carnival, Jonas is set to have an unforgettable time on his Brazilian getaway. This vivacious city promises to keep Jonas entertained throughout his month-long stay, from its iconic landmarks to its sizzling samba beats heard around every corner.",
+  "countryCode": "BR",
+  "tour": [
+    "1. Corcovado Mountain: Make your visit to Rio unforgettable by scaling the Corcovado Mountain to see the Christ the Redeemer statue up close. The impressive monument is a symbol of Brazilian Christianity and an icon for the Rio de Janeiro and Brazil. Hike through the wild vegetation of the Tijuca Forest to reach the imposing statue for a breathtaking panoramic view of Rio.\n\nAlternatively, opt for an easier way up by taking the famous Corcovado Rack Railway. Regardless of how you choose to get there, the sight of the city sprawling out below from the statue's base is a vision you are unlikely to forget anytime soon.",
+    "2. Copacabana Beach: A trip to Rio is incomplete without a visit to the vibrant Copacabana beach. Admire the breathtaking stretch of white sand, surf the crashing waves, and enjoy fresh coconut water from the beach stalls. At night, the area turns into a lit party hub with live music and samba dancing.\n\nMake sure to stop by the emblematic Copacabana Palace, an Art Deco masterpiece that is a magnet for celebrities and royalty. Besides, the mosaic of sidewalk which is a signature of Rio’s beaches is also a sight to behold.",
+    "3. Carnival Experience: Calling Rio de Janeiro the Carnival Capital of the world doesn't feel like an overstatement. Experience first-hand the city's annual Carnival celebration that transforms the city into a riot of color and sound. Don a sequined outfit, join the samba dancers, or simply marvel at the grandeur of the floats passing by.\n\nFor an authentic carnival experience, visit the Sambródromo, the official venue of Rio's Carnival parades. Here, you'll witness the Samba schools of the city put on spectacular performances that captivate millions from around the world."
+  ]
+}
