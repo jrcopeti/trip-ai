@@ -15,29 +15,40 @@ datasource db {
 }
 
 
-enum Reason {
+enum Type {
   family
   adventure
   romantic
   solo
   business
+  cultural
+  beach
+  festival
+  gastronomy
+  nature
 }
-
 model Trip {
-id Int @id @default(autoincrement())
-userName String
-age Int
-title String?
-destination String
-startDate DateTime
-EndDate DateTime
-accommodation String
-reason Reason
-activities Json?
-preferences Json?
-notes String @db.Text
-countryFlag String
-createdAt  DateTime @default(now())
-updatedAt DateTime @updatedAt
-
+  id Int @id @default(autoincrement())
+  userName String
+  age Int
+  nationality String
+  type Type
+  city String
+  country String
+  startDate DateTime
+  endDate DateTime
+  lugaggeSize String
+  accommodation String
+  requiredItems Json?
+  interests String[]
+  note String?
+  title String
+  description String @db.Text
+  objectsList Json[]
+  mustHave String[]
+  countryCode String
+  weatherForecast Json?
+  tours Json
+  createdAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
