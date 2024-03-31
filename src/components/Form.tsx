@@ -11,15 +11,19 @@ import {
   ButtonGroup,
   CheckboxGroup,
   Textarea,
+  Autocomplete,
+  AutocompleteItem,
+  RadioGroup,
+  Radio,
 } from "@nextui-org/react";
 import CustomCheckbox from "./CustomCheckbox";
 import { z } from "zod";
 
-import { useState } from "react";
-import { DatePicker } from "./DatePicker";
+import React, { useState } from "react";
+import DatePicker from "./DatePicker";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { FormDataSchema } from "@/lib/schema";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 type Inputs = z.infer<typeof FormDataSchema>;
@@ -65,7 +69,7 @@ const types = [
   { value: "business", label: "Business" },
   { value: "cultural", label: "Cultural" },
   { value: "festival", label: "Festival" },
-  { value: "gastonomy", label: "Gastronomy" },
+  { value: "gastronomy", label: "Gastronomy" },
   { value: "nature", label: "Nature" },
 ];
 const sortedTypes = [...types.sort((a, b) => a.label.localeCompare(b.label))];
@@ -136,12 +140,35 @@ function Form() {
     register,
     handleSubmit,
     control,
+    watch,
     reset,
     trigger,
     getValues,
+    setValue,
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(FormDataSchema),
+    defaultValues: {
+      userName: "",
+      age: 0,
+      nationality: "",
+      type: "",
+      city: "",
+      country: "",
+      luggageSize: "",
+      accommodation: "",
+      requiredItems: [{ item: "" }],
+      interests: [],
+      note: "",
+      startDate: "",
+      endDate: "",
+      weatherForecast: "",
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "requiredItems",
   });
 
   const stepValue = steps[currentStep].stepValue;
@@ -174,6 +201,9 @@ function Form() {
   const processForm = (data: Inputs) => {
     console.log(data);
   };
+  const startDate = watch("startDate");
+
+  console.log(startDate);
 
   return (
     <>
@@ -193,55 +223,76 @@ function Form() {
             </p>
 
             <div className="md mt-10 flex flex-col gap-x-6 gap-y-8 md:flex-row ">
-              <Controller
-                name="userName"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    label="Name"
-                    type="text"
-                    placeholder="What's your name?"
-                    errorMessage={errors?.userName?.message}
-                  />
+              <div>
+                <Controller
+                  name="userName"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="Name"
+                      id="userName"
+                      type="text"
+                      placeholder="What's your name?"
+                      className="max-w-md"
+                    />
+                  )}
+                />
+                {errors.userName?.message && (
+                  <p className="mt-2 text-sm text-red-500">
+                    {errors.userName.message}
+                  </p>
                 )}
-              />
+              </div>
+              <div>
+                <Controller
+                  name="age"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="Age"
+                      id="age"
+                      type="number"
+                      placeholder="How old are you?"
+                      className="max-w-md"
+                    />
+                  )}
+                />
+                {errors.age?.message && (
+                  <p className="mt-2 text-sm text-red-500">
+                    {errors.age.message}
+                  </p>
+                )}
+              </div>
 
-              <Controller
-                name="age"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    label="Age"
-                    type="text"
-                    placeholder="How old are you?"
-                    errorMessage={errors?.age?.message}
-                  />
+              <div>
+                <Controller
+                  name="nationality"
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      {...field}
+                      id="nationality"
+                      defaultItems={countries}
+                      label="Nationality"
+                      placeholder="Select a country"
+                      className="max-w-md"
+                    >
+                      {(country) => (
+                        <AutocompleteItem key={country.value}>
+                          {country.label}
+                        </AutocompleteItem>
+                      )}
+                    </Autocomplete>
+                  )}
+                />
+                {errors.nationality?.message && (
+                  <p className="mt-2 text-sm text-red-500">
+                    {errors.nationality.message}
+                  </p>
                 )}
-              />
-
-              <Controller
-                name="nationality"
-                control={control}
-                render={({ field: { onChange, value } }) => (
-                  <Select
-                    items={countries}
-                    label="Nationality"
-                    placeholder="Select a country"
-                    className="max-w-md"
-                    value={value}
-                    onChange={onChange}
-                    errorMessage={errors?.nationality?.message}
-                  >
-                    {(country) => (
-                      <SelectItem key={country.value}>
-                        {country.label}
-                      </SelectItem>
-                    )}
-                  </Select>
-                )}
-              />
+              </div>
             </div>
           </>
         )}
@@ -254,58 +305,80 @@ function Form() {
             </p>
 
             <div className="mt-10 grid grid-cols-1 justify-items-center gap-x-6 gap-y-8 ">
-              <Input
-                label="City"
-                id="city"
-                type="text"
-                placeholder="Where do you want to go?"
-                className="max-w-md"
-              />
-              <Select
-                items={countries}
-                label="Country"
-                placeholder="Select a country"
-                className="max-w-md"
-              >
-                {(country) => (
-                  <SelectItem key={country.value}>{country.label}</SelectItem>
+              <div>
+                <Controller
+                  name="city"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="City"
+                      id="city"
+                      type="text"
+                      placeholder="What's your name?"
+                      className="max-w-md"
+                    />
+                  )}
+                />
+                {errors.city?.message && (
+                  <p className="mt-2 text-sm text-red-500">
+                    {errors.city.message}
+                  </p>
                 )}
-              </Select>
-
-              {/* <Select
-                items={sortedTypes}
-                label="Type of Travel"
-                id="type"
-                placeholder="What describes your trip?"
-                className="max-w-md"
-              >
-                {(type) => (
-                  <SelectItem key={type.value}>{type.label}</SelectItem>
-                )}
-              </Select> */}
-              <div className="justify-items-center">
-                <CheckboxGroup
-                  id="interests"
-                  className="gap-4"
-                  label="How do you describe your trip?"
-                  orientation="horizontal"
-                  value={checkboxTypes}
-                  onChange={setCheckboxTypes}
-                >
-                  {sortedTypes.map((type) => (
-                    <CustomCheckbox
-                      key={type.value}
-                      value={type.value}
-                      isSelected={checkboxTypes.includes(type.value)}
-                      isDisabled={
-                        checkboxTypes.length >= 3 &&
-                        !checkboxTypes.includes(type.value)
-                      }
+              </div>
+              <div>
+                <Controller
+                  name="country"
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      {...field}
+                      defaultItems={countries}
+                      id="country"
+                      label="Country"
+                      placeholder="Select a country"
+                      className="max-w-md"
                     >
-                      {type.label}
-                    </CustomCheckbox>
-                  ))}
-                </CheckboxGroup>
+                      {(country) => (
+                        <AutocompleteItem key={country.value}>
+                          {country.label}
+                        </AutocompleteItem>
+                      )}
+                    </Autocomplete>
+                  )}
+                />
+                {errors.country?.message && (
+                  <p className="mt-2 text-sm text-red-500">
+                    {errors.country.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="justify-items-center">
+                <Controller
+                  name="type"
+                  control={control}
+                  render={({ field }) => (
+                    <RadioGroup
+                      {...field}
+                      id="type"
+                      label="How do you describe your trip?"
+                      orientation="horizontal"
+                    >
+                      {sortedTypes.map((type) => (
+                        <Radio key={type.value} value={type.value}>
+                          {type.label}
+                        </Radio>
+                      ))}
+                    </RadioGroup>
+                  )}
+                />
+
+                {errors.type?.message && (
+                  <p className="mt-2 text-sm text-red-500">
+                    {errors.type.message}
+                  </p>
+                )}
               </div>
             </div>
           </>
@@ -319,69 +392,91 @@ function Form() {
             </p>
 
             <div className="mt-10 grid grid-cols-1 justify-items-center gap-8 lg:grid-cols-2   ">
-              <Select
-                items={luggageSizes}
-                label="Luggage Size"
-                id="luggageSize"
-                placeholder="How big is your luggage"
-                className="max-w-xs"
-              >
-                {(lugaggeSize) => (
-                  <SelectItem key={lugaggeSize.value}>
-                    {lugaggeSize.label}
-                  </SelectItem>
+              <div>
+                <Controller
+                  name="luggageSize"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      items={luggageSizes}
+                      label="Luggage Size"
+                      id="luggageSize"
+                      placeholder="How big is your luggage"
+                      className="max-w-xs"
+                    >
+                      {(luggageSize) => (
+                        <SelectItem key={luggageSize.value}>
+                          {luggageSize.label}
+                        </SelectItem>
+                      )}
+                    </Select>
+                  )}
+                />
+                {errors.luggageSize?.message && (
+                  <p className="mt-2 text-sm text-red-500">
+                    {errors.luggageSize.message}
+                  </p>
                 )}
-              </Select>
+              </div>
 
-              <Select
-                items={sortedAccommodations}
-                label="Accommodation Type"
-                id="accomodation"
-                placeholder="Where are you staying?"
-                className="max-w-xs"
-              >
-                {(accomodation) => (
-                  <SelectItem key={accomodation.value}>
-                    {accomodation.label}
-                  </SelectItem>
+              <div>
+                <Controller
+                  name="accommodation"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      items={sortedAccommodations}
+                      label="Accommodation Type"
+                      id="accomodation"
+                      placeholder="Where are you staying?"
+                      className="max-w-xs"
+                    >
+                      {(accomodation) => (
+                        <SelectItem key={accomodation.value}>
+                          {accomodation.label}
+                        </SelectItem>
+                      )}
+                    </Select>
+                  )}
+                />
+                {errors.accommodation?.message && (
+                  <p className="mt-2 text-sm text-red-500">
+                    {errors.accommodation.message}
+                  </p>
                 )}
-              </Select>
+              </div>
             </div>
 
             <h2 className="mb-2 mt-4 flex justify-center">Required Items</h2>
             <p className=" mb-2 mt-1 flex justify-center text-sm leading-6 text-default-400">
               Something you can't forget to take with you
             </p>
-            <div className="grid grid-cols-2 gap-8 ">
-              <Input
-                label="Required Items"
-                id="requiredItems"
-                type="text"
-                placeholder="Item 1"
-                className="max-w-xs"
-              />
-              <Input
-                label="Required Items"
-                id="requiredItems"
-                type="text"
-                placeholder="Item 2"
-                className="max-w-xs"
-              />
-
-              <Input
-                label="Required Items"
-                id="requiredItems"
-                type="text"
-                placeholder="Item 3"
-                className="max-w-xs"
-              />
-              <Input
-                label="Required Items"
-                id="requiredItems"
-                type="text"
-                placeholder="Item 4"
-                className="max-w-xs"
-              />
+            <div className="grid grid-cols-1 gap-8 ">
+              {fields.map((field, index) => (
+                <div className="flex" key={field.id}>
+                  <Controller
+                    control={control}
+                    name={`requiredItems[${index}].item`}
+                    render={({ field }) => (
+                      <Input {...field} label={`Item ${index + 1}`} />
+                    )}
+                  />
+                  <Button type="button" onClick={() => remove(index)}>
+                    X
+                  </Button>
+                </div>
+              ))}
+              <div>
+                <Button
+                  className="place-items-center"
+                  type="button"
+                  onClick={() => append({ item: "" })}
+                >
+                  Add Item
+                </Button>
+              </div>
             </div>
           </>
         )}
@@ -402,19 +497,39 @@ function Form() {
               </Checkbox>
               {!isWeatherSelected ? (
                 <>
-                  <DatePicker
-                    label="Start Date"
-                    id="startDate"
-                    placeholder="When do your trip start?"
+                  <Controller
+                    name="startDate"
+                    control={control}
+                    render={({ field }) => (
+                      <DatePicker
+                        {...field}
+                        label="Start Date"
+                        id="startDate"
+                        placeholder="When do your trip start?"
+                      />
+                    )}
                   />
-                  <DatePicker
-                    label="End Date"
-                    id="endDate"
-                    placeholder="When does it end?"
+
+                  <Controller
+                    name="endDate"
+                    control={control}
+                    render={({ field }) => (
+                      <DatePicker
+                        {...field}
+                        label="End Date"
+                        id="endDate"
+                        placeholder="When does it end?"
+                      />
+                    )}
                   />
                 </>
               ) : (
                 <div>Go to next step</div>
+              )}
+              {errors.endDate?.message && (
+                <p className="mt-2 text-sm text-red-500">
+                  {errors.endDate.message}
+                </p>
               )}
             </div>
           </>
@@ -428,34 +543,51 @@ function Form() {
             </p>
 
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8  ">
-              <CheckboxGroup
-                id="interests"
-                className="gap-4"
-                label="Select up to 3 interest"
-                orientation="horizontal"
-                value={checkboxInterests}
-                onChange={setCheckboxInterests}
-              >
-                {sortedInterest.map((interest) => (
-                  <CustomCheckbox
-                    key={interest.value}
-                    value={interest.value}
-                    isSelected={checkboxInterests.includes(interest.value)}
-                    isDisabled={
-                      checkboxInterests.length >= 3 &&
-                      !checkboxInterests.includes(interest.value)
-                    }
+              <Controller
+                name="interests"
+                control={control}
+                render={({ field }) => (
+                  <CheckboxGroup
+                    {...field}
+                    name="interests"
+                    className="gap-4"
+                    label="Select up to 3 interest"
+                    orientation="horizontal"
+                    value={field.value}
                   >
-                    {interest.label}
-                  </CustomCheckbox>
-                ))}
-              </CheckboxGroup>
+                    {sortedInterest.map((interest) => (
+                      <CustomCheckbox
+                        key={interest.value}
+                        value={interest.value}
+                        isDisabled={
+                          field.value.length >= 3 &&
+                          !field.value.includes(interest.value)
+                        }
+                      >
+                        {interest.label}
+                      </CustomCheckbox>
+                    ))}
+                    {errors.interests?.message && (
+                      <p className="text-sm text-red-500">
+                        {errors.interests.message}
+                      </p>
+                    )}
+                  </CheckboxGroup>
+                )}
+              />
 
-              <Textarea
-                label="Notes"
-                id="notes"
-                placeholder="Anything you want to add?"
-                className="max-w-md"
+              <Controller
+                name="note"
+                control={control}
+                render={({ field }) => (
+                  <Textarea
+                    {...field}
+                    label="Notes"
+                    id="notes"
+                    placeholder="Anything you want to add?"
+                    className="max-w-md"
+                  />
+                )}
               />
             </div>
           </>
@@ -477,7 +609,11 @@ function Form() {
             Previous
           </Button>
 
-          <Button type="button" size="lg" onClick={next}>
+          <Button
+            type={currentStep === 4 ? "submit" : "button"}
+            size="lg"
+            onClick={next}
+          >
             {currentStep === 4 ? "Submit" : "Next"}
           </Button>
         </div>
