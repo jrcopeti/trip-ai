@@ -10,24 +10,51 @@ import {
   Checkbox,
   ButtonGroup,
   CheckboxGroup,
+  Textarea,
 } from "@nextui-org/react";
 import CustomCheckbox from "./CustomCheckbox";
-
+import { z } from "zod";
 
 import { useState } from "react";
 import { DatePicker } from "./DatePicker";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
+import { FormDataSchema } from "@/lib/schema";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+type Inputs = z.infer<typeof FormDataSchema>;
 
 const steps = [
-  { id: "step 1", name: "Personal Information", stepValue: 0 },
-  { id: "step 2", name: "Destination", stepValue: 25 },
+  {
+    id: "step 1",
+    name: "Personal Information",
+    stepValue: 0,
+    fields: ["username", "age", "nationality"],
+  },
+  {
+    id: "step 2",
+    name: "Destination",
+    stepValue: 25,
+    fields: ["city", "country", "type"],
+  },
   {
     id: "step 3",
     name: "Dates of Travel and Weather Preferences",
     stepValue: 50,
+    fields: ["luggageSize", "accommodation", "requiredItems"],
   },
-  { id: "step 4", name: "Interests and Notes", stepValue: 75 },
-  { id: "step 5", name: "Review and Submit", stepValue: 100 },
+  {
+    id: "step 4",
+    name: "Interests and Notes",
+    stepValue: 75,
+    fields: ["startDate", "endDate", "weatherForecast"],
+  },
+  {
+    id: "step 5",
+    name: "Review and Submit",
+    stepValue: 100,
+    fields: ["interests", "notes"],
+  },
 ];
 
 const types = [
@@ -54,8 +81,8 @@ const luggageSizes = [
 const accommodations = [
   { value: "hotel", label: "Hotel" },
   { value: "private acommodation", label: "Private Accomodation" },
-  { value: "hostel", label: "hostel" },
-  { value: "apartment", label: "apartment" },
+  { value: "hostel", label: "Hostel" },
+  { value: "apartment", label: "Apartment" },
   { value: "friend's house", label: "Friend's Place" },
   { value: "bed and breakfast", label: "Bed and Breakfast" },
   { value: "resort", label: "Resort" },
@@ -81,7 +108,7 @@ const interests = [
   { value: "museums", label: "Museums" },
   { value: "wine", label: "wine" },
   { value: "coffee", label: "Coffee" },
-  { value: "wellness", label: "wellness" },
+  { value: "wellness", label: "Wellness" },
   { value: "dating", label: "Dating" },
   { value: "music", label: "Music" },
   { value: "hiking", label: "Hiking" },
@@ -101,8 +128,21 @@ const sortedInterest = [
 function Form() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isWeatherSelected, setIsWeatherSelected] = useState(false);
-  const [checkboxSelected, setCheckboxSelected] = useState<string[]>([]);
+  const [checkboxTypes, setCheckboxTypes] = useState<string[]>([]);
+  const [checkboxInterests, setCheckboxInterests] = useState<string[]>([]);
   const { countries, isLoading: isLoadingCountries } = useCountries();
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    trigger,
+    getValues,
+    formState: { errors },
+  } = useForm<Inputs>({
+    resolver: zodResolver(FormDataSchema),
+  });
 
   const stepValue = steps[currentStep].stepValue;
 
@@ -110,8 +150,17 @@ function Form() {
   //   return <div>Loading countries...</div>;
   // }
 
-  const next = () => {
+  type FieldName = keyof Inputs;
+
+  const next = async () => {
+    const fields = steps[currentStep].fields;
+    const output = await trigger(fields as FieldName[], { shouldFocus: true });
+
     if (currentStep < steps.length - 1) {
+      if (currentStep === 4) {
+        await handleSubmit(processForm)();
+      }
+
       setCurrentStep((step) => step + 1);
     }
   };
@@ -122,9 +171,16 @@ function Form() {
     }
   };
 
+  const processForm = (data: Inputs) => {
+    console.log(data);
+  };
+
   return (
     <>
-      <section className="flex w-full max-w-xl flex-col gap-6">
+      <section
+        onSubmit={handleSubmit(processForm)}
+        className="flex w-full max-w-xl flex-col gap-6"
+      >
         <Progress color="default" aria-label="Loading..." value={stepValue} />
       </section>
 
@@ -137,30 +193,55 @@ function Form() {
             </p>
 
             <div className="md mt-10 flex flex-col gap-x-6 gap-y-8 md:flex-row ">
-              <Input
-                label="Name"
+              <Controller
                 name="userName"
-                type="text"
-                placeholder="What's your name?"
-                variant="underlined"
-              />
-              <Input
-                label="Age"
-                name="age"
-                type="number"
-                placeholder="How old are you?"
-              />
-              <Select
-                items={countries}
-                name="nationality"
-                label="Nationality"
-                placeholder="Select a country"
-                className="max-w-md"
-              >
-                {(country) => (
-                  <SelectItem key={country.value}>{country.label}</SelectItem>
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    label="Name"
+                    type="text"
+                    placeholder="What's your name?"
+                    errorMessage={errors?.userName?.message}
+                  />
                 )}
-              </Select>
+              />
+
+              <Controller
+                name="age"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    label="Age"
+                    type="text"
+                    placeholder="How old are you?"
+                    errorMessage={errors?.age?.message}
+                  />
+                )}
+              />
+
+              <Controller
+                name="nationality"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <Select
+                    items={countries}
+                    label="Nationality"
+                    placeholder="Select a country"
+                    className="max-w-md"
+                    value={value}
+                    onChange={onChange}
+                    errorMessage={errors?.nationality?.message}
+                  >
+                    {(country) => (
+                      <SelectItem key={country.value}>
+                        {country.label}
+                      </SelectItem>
+                    )}
+                  </Select>
+                )}
+              />
             </div>
           </>
         )}
@@ -172,10 +253,10 @@ function Form() {
               Tell us where you want to go
             </p>
 
-            <div className="md mt-10 flex flex-col gap-x-6 gap-y-8 md:flex-row ">
+            <div className="mt-10 grid grid-cols-1 justify-items-center gap-x-6 gap-y-8 ">
               <Input
                 label="City"
-                name="city"
+                id="city"
                 type="text"
                 placeholder="Where do you want to go?"
                 className="max-w-md"
@@ -191,17 +272,41 @@ function Form() {
                 )}
               </Select>
 
-              <Select
+              {/* <Select
                 items={sortedTypes}
                 label="Type of Travel"
-                name="type"
+                id="type"
                 placeholder="What describes your trip?"
                 className="max-w-md"
               >
                 {(type) => (
                   <SelectItem key={type.value}>{type.label}</SelectItem>
                 )}
-              </Select>
+              </Select> */}
+              <div className="justify-items-center">
+                <CheckboxGroup
+                  id="interests"
+                  className="gap-4"
+                  label="How do you describe your trip?"
+                  orientation="horizontal"
+                  value={checkboxTypes}
+                  onChange={setCheckboxTypes}
+                >
+                  {sortedTypes.map((type) => (
+                    <CustomCheckbox
+                      key={type.value}
+                      value={type.value}
+                      isSelected={checkboxTypes.includes(type.value)}
+                      isDisabled={
+                        checkboxTypes.length >= 3 &&
+                        !checkboxTypes.includes(type.value)
+                      }
+                    >
+                      {type.label}
+                    </CustomCheckbox>
+                  ))}
+                </CheckboxGroup>
+              </div>
             </div>
           </>
         )}
@@ -213,11 +318,11 @@ function Form() {
               If you want to your answer based on weather forecast, select
             </p>
 
-            <div className="mt-10 grid grid-cols-1 justify-items-center gap-y-6 lg:grid-cols-2   ">
+            <div className="mt-10 grid grid-cols-1 justify-items-center gap-8 lg:grid-cols-2   ">
               <Select
                 items={luggageSizes}
                 label="Luggage Size"
-                name="luggageSize"
+                id="luggageSize"
                 placeholder="How big is your luggage"
                 className="max-w-xs"
               >
@@ -231,7 +336,7 @@ function Form() {
               <Select
                 items={sortedAccommodations}
                 label="Accommodation Type"
-                name="accomodation"
+                id="accomodation"
                 placeholder="Where are you staying?"
                 className="max-w-xs"
               >
@@ -243,26 +348,39 @@ function Form() {
               </Select>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-8 lg:grid-cols-3">
+            <h2 className="mb-2 mt-4 flex justify-center">Required Items</h2>
+            <p className=" mb-2 mt-1 flex justify-center text-sm leading-6 text-default-400">
+              Something you can't forget to take with you
+            </p>
+            <div className="grid grid-cols-2 gap-8 ">
               <Input
                 label="Required Items"
-                name="requiredItems"
+                id="requiredItems"
                 type="text"
-                placeholder="Something you can't forget to take with you"
+                placeholder="Item 1"
+                className="max-w-xs"
               />
               <Input
                 label="Required Items"
-                name="requiredItems"
+                id="requiredItems"
                 type="text"
-                placeholder="Something you can't forget to take with you"
+                placeholder="Item 2"
+                className="max-w-xs"
               />
 
               <Input
                 label="Required Items"
-                name="requiredItems"
+                id="requiredItems"
                 type="text"
-                placeholder="Something you can't forget to take with you"
-                className="col-span-2 lg:col-auto"
+                placeholder="Item 3"
+                className="max-w-xs"
+              />
+              <Input
+                label="Required Items"
+                id="requiredItems"
+                type="text"
+                placeholder="Item 4"
+                className="max-w-xs"
               />
             </div>
           </>
@@ -286,12 +404,12 @@ function Form() {
                 <>
                   <DatePicker
                     label="Start Date"
-                    name="startDate"
+                    id="startDate"
                     placeholder="When do your trip start?"
                   />
                   <DatePicker
                     label="End Date"
-                    name="endDate"
+                    id="endDate"
                     placeholder="When does it end?"
                   />
                 </>
@@ -306,29 +424,39 @@ function Form() {
           <>
             <h2 className="font-bold text-primary">Date of travel</h2>
             <p className="mt-1 text-sm leading-6 text-default-400">
-              If you want to your answer based on weather forecast, select
+              Interests and personal notes
             </p>
 
-            <h2 className="font-bold text-primary">Date of travel</h2>
-            <p className="mt-1 text-sm leading-6 text-default-400">
-              If you want to your answer based on weather forecast, select
-            </p>
-
-            <div className="md mt-10 flex flex-col gap-x-6 gap-y-8 md:flex-row ">
+            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8  ">
               <CheckboxGroup
-                name="interests"
-                className="gap-1"
+                id="interests"
+                className="gap-4"
                 label="Select up to 3 interest"
                 orientation="horizontal"
-                value={checkboxSelected}
-                onChange={setCheckboxSelected}
+                value={checkboxInterests}
+                onChange={setCheckboxInterests}
               >
                 {sortedInterest.map((interest) => (
-                  <CustomCheckbox key={interest.value} value={interest.value}>
+                  <CustomCheckbox
+                    key={interest.value}
+                    value={interest.value}
+                    isSelected={checkboxInterests.includes(interest.value)}
+                    isDisabled={
+                      checkboxInterests.length >= 3 &&
+                      !checkboxInterests.includes(interest.value)
+                    }
+                  >
                     {interest.label}
                   </CustomCheckbox>
                 ))}
               </CheckboxGroup>
+
+              <Textarea
+                label="Notes"
+                id="notes"
+                placeholder="Anything you want to add?"
+                className="max-w-md"
+              />
             </div>
           </>
         )}
@@ -350,7 +478,7 @@ function Form() {
           </Button>
 
           <Button type="button" size="lg" onClick={next}>
-            Next
+            {currentStep === 4 ? "Submit" : "Next"}
           </Button>
         </div>
       </div>
