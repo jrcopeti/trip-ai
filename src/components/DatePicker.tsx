@@ -52,16 +52,20 @@ export function DatePicker({
           }
           endContent={
             date && (
-              <FaXmark
-                size="14px"
-                className="cursor-pointer"
-                onClick={(e) => {
-                  e?.stopPropagation();
-                  e?.preventDefault();
-                  setDate("");
-                  onChange?.(undefined);
-                }}
-              />
+              <div className=" -translate-y-3 truncate text-left text-small font-normal text-foreground-500">
+
+
+                <FaXmark
+                  size="14px"
+                  className="cursor-pointer"
+                  onClick={(e) => {
+                    e?.stopPropagation();
+                    e?.preventDefault();
+                    setDate("");
+                    onChange?.(undefined);
+                  }}
+                />
+              </div>
             )
           }
           placeholder={placeholder}

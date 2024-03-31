@@ -10,6 +10,6 @@ export function formatDate(dateString?: string, includeTime = true) {
   if (!dateString) return "";
 
   return dayjs(dateString).format(
-    includeTime ? "DD/MM/YYYY hh:mm A" : "DD/MM/YYYY",
+    includeTime ? "DD MMM YYYY hh:mm A" : "DD MMM YYYY",
   );
 }

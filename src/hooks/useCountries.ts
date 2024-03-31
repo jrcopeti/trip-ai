@@ -37,7 +37,6 @@ export function useCountries() {
 
     fetchCountries();
   }, []);
-  console.log(countries);
 
   return { countries, isLoading };
 }
