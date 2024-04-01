@@ -25,7 +25,11 @@ import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { FormDataSchema } from "@/lib/schema";
 import { Controller, useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { on } from "events";
+
+import { useTrip } from "@/hooks/useTrip";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+
 
 type Inputs = z.infer<typeof FormDataSchema>;
 
@@ -104,6 +108,12 @@ const sortedAccommodations = [
   ...accommodations.sort((a, b) => a.label.localeCompare(b.label)),
 ];
 
+const budgets = [
+  { value: "low", label: "Low Budget" },
+  { value: "comfort", label: "Comfort" },
+  { value: "luxury", label: "Luxury" },
+];
+
 const interests = [
   { value: "mountain", label: "Mountain" },
   { value: "city", label: "City" },
@@ -163,6 +173,7 @@ function Form() {
       country: "",
       luggageSize: "",
       accommodation: "",
+      budget: "",
       requiredItems: [{ item: "" }],
       interests: [],
       note: "",
@@ -177,10 +188,11 @@ function Form() {
     control,
     name: "requiredItems",
   });
-  console.log("is valid", isValid);
+
+  const { generateResponse, isPending } = useTrip();
 
   const stepValue = steps[currentStep].stepValue;
-  console.log(currentStep);
+  const router = useRouter();
 
   // workaround to get the right value from the autocomplete
   const handleSelectionAutocomplete = (selectedKey: any, fieldName: any) => {
@@ -196,19 +208,13 @@ function Form() {
   //   return <div>Loading countries...</div>;
   // }
 
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
+
   type FieldName = keyof Inputs;
 
   const next = async () => {
-    // if (currentStep < steps.length - 1) {
-    //   const fields = steps[currentStep].fields;
-    //   const output = await trigger(fields as FieldName[], {
-    //     shouldFocus: true,
-    //   });
-    //   if (!output) return;
-    //   setCurrentStep((step) => step + 1);
-    // } else {
-    //   return;
-    // }
     const fields = steps[currentStep].fields;
     const output = await trigger(fields as FieldName[], {
       shouldFocus: true,
@@ -216,10 +222,6 @@ function Form() {
     if (!output) return;
 
     setCurrentStep((step) => step + 1);
-
-    // if (currentStep === 5) {
-    //   await handleSubmit(processForm)();
-    // }
   };
 
   const prev = () => {
@@ -228,9 +230,15 @@ function Form() {
     }
   };
 
+  const submmittedData = getValues();
+  console.log(submmittedData);
+
   const processForm = (data: Inputs) => {
-    console.log("hi");
-    console.log(data);
+    const requiredItems = data.requiredItems?.map((item) => item.item) ?? [];
+
+    const promptModel = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. The trip is scheduled from ${data.startDate} to ${data.endDate}. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${requiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the average weather for ${data.city}, ${data.country} during the trip, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each.`;
+
+    generateResponse(promptModel);
   };
 
   const calculatedSteps = currentStep < steps.length - 1 ? "yes" : "no";
@@ -498,6 +506,27 @@ function Form() {
                   </RadioGroup>
                 )}
               />
+
+              <Controller
+                name="budget"
+                control={control}
+                render={({ field }) => (
+                  <RadioGroup
+                    {...field}
+                    id="budget"
+                    label="Where are you staying?"
+                    orientation="horizontal"
+                    isInvalid={!!errors.budget}
+                    errorMessage={errors.budget?.message}
+                  >
+                    {budgets.map((budget) => (
+                      <Radio key={budget.value} value={budget.value}>
+                        {budget.label}
+                      </Radio>
+                    ))}
+                  </RadioGroup>
+                )}
+              />
             </div>
 
             <h2 className="mb-2 mt-4 flex justify-center">Required Items</h2>
@@ -674,9 +703,11 @@ function Form() {
         <div className="mt-8 max-w-xl pt-5">
           <div className="flex justify-between">
             {currentStep === steps.length - 1 && (
-              <Button type="submit" size="lg" isDisabled={!isValid}>
-                Submit
-              </Button>
+              <Link href="/trip">
+                <Button type="submit" size="lg" isDisabled={!isValid} onClick={()=> router.push("/trip")}>
+                  Submit
+                </Button>
+              </Link>
             )}
           </div>
         </div>

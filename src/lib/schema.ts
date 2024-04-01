@@ -10,6 +10,7 @@ export const FormDataSchema = z.object({
   luggageSize: z.string().min(1, "Lugagge size is required"),
   requiredItems: z.object({item: z.string()}).array().optional(),
   accommodation: z.string().min(1, "Accommodation is required"),
+  budget: z.string().min(1, "Budget is required"),
   interests: z.string().array().nonempty("At least one interest is required"),
   note: z.string().optional(),
   startDate: z.string().datetime().min(1, "Start date is required"),
