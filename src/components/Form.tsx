@@ -32,38 +32,39 @@ type Inputs = z.infer<typeof FormDataSchema>;
 const steps = [
   {
     id: "step 1",
-    name: "Personal Information",
+    title: "Personal Information",
     stepValue: 0,
     fields: ["userName", "age", "nationality"],
   },
   {
     id: "step 2",
-    name: "Destination",
+    title: "Destination",
     stepValue: 20,
     fields: ["city", "country", "type"],
   },
   {
     id: "step 3",
-    name: "Dates of Travel and Weather Preferences",
+    title: "Dates of Travel and Weather Preferences",
     stepValue: 40,
     fields: ["luggageSize", "accommodation"],
   },
   {
     id: "step 4",
-    name: "Interests and Notes",
+    title: "Interests and Notes",
     stepValue: 60,
     fields: ["startDate", "endDate"],
   },
   {
     id: "step 5",
-    name: "Review and Submit",
+    title: "Review and Submit",
     stepValue: 80,
     fields: ["interests"],
   },
   {
     id: "step 6",
-    name: "Review and Submit",
+    title: "Review and Submit",
     stepValue: 100,
+    fields: [],
   },
 ];
 
@@ -150,7 +151,7 @@ function Form() {
     trigger,
     getValues,
     setValue,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm<Inputs>({
     resolver: zodResolver(FormDataSchema),
     defaultValues: {
@@ -168,6 +169,7 @@ function Form() {
       startDate: "",
       endDate: "",
       weatherForecast: "",
+      agreement: false,
     },
   });
 
@@ -175,6 +177,7 @@ function Form() {
     control,
     name: "requiredItems",
   });
+  console.log("is valid", isValid);
 
   const stepValue = steps[currentStep].stepValue;
   console.log(currentStep);
@@ -196,13 +199,23 @@ function Form() {
   type FieldName = keyof Inputs;
 
   const next = async () => {
+    // if (currentStep < steps.length - 1) {
+    //   const fields = steps[currentStep].fields;
+    //   const output = await trigger(fields as FieldName[], {
+    //     shouldFocus: true,
+    //   });
+    //   if (!output) return;
+    //   setCurrentStep((step) => step + 1);
+    // } else {
+    //   return;
+    // }
     const fields = steps[currentStep].fields;
-    const output = await trigger(fields as FieldName[], { shouldFocus: true });
-    // if (!output) return;
+    const output = await trigger(fields as FieldName[], {
+      shouldFocus: true,
+    });
+    if (!output) return;
 
-    if (currentStep < steps.length - 1) {
-      setCurrentStep((step) => step + 1);
-    }
+    setCurrentStep((step) => step + 1);
 
     // if (currentStep === 5) {
     //   await handleSubmit(processForm)();
@@ -220,6 +233,9 @@ function Form() {
     console.log(data);
   };
 
+  const calculatedSteps = currentStep < steps.length - 1 ? "yes" : "no";
+  console.log(calculatedSteps);
+
   return (
     <>
       <section className="flex w-full max-w-xl flex-col gap-6">
@@ -232,7 +248,9 @@ function Form() {
       >
         {currentStep === 0 && (
           <>
-            <h2 className="font-bold text-primary">Personal Information</h2>
+            <h2 className="font-bold text-primary">
+              {steps[currentStep].title}
+            </h2>
             <p className="mt-1 text-sm leading-6 text-default-400">
               Provide your personal details
             </p>
@@ -303,7 +321,9 @@ function Form() {
 
         {currentStep === 1 && (
           <>
-            <h2 className="font-bold text-primary">Travel Destination</h2>
+            <h2 className="font-bold text-primary">
+              {steps[currentStep].title}
+            </h2>
             <p className="mt-1 text-sm leading-6 text-default-400">
               Tell us where you want to go
             </p>
@@ -380,7 +400,9 @@ function Form() {
 
         {currentStep === 2 && (
           <>
-            <h2 className="font-bold text-primary">Travel details</h2>
+            <h2 className="font-bold text-primary">
+              {steps[currentStep].title}
+            </h2>
             <p className="mt-1 text-sm leading-6 text-default-400">
               Tell us more about your trip
             </p>
@@ -512,7 +534,9 @@ function Form() {
 
         {currentStep === 3 && (
           <>
-            <h2 className="font-bold text-primary">Date of travel</h2>
+            <h2 className="font-bold text-primary">
+              {steps[currentStep].title}
+            </h2>
             <p className="mt-1 text-sm leading-6 text-default-400">
               If you want to your answer based on weather forecast, select
             </p>
@@ -571,7 +595,9 @@ function Form() {
 
         {currentStep === 4 && (
           <>
-            <h2 className="font-bold text-primary">Date of travel</h2>
+            <h2 className="font-bold text-primary">
+              {steps[currentStep].title}
+            </h2>
             <p className="mt-1 text-sm leading-6 text-default-400">
               Interests and personal notes
             </p>
@@ -625,32 +651,47 @@ function Form() {
 
         {currentStep === 5 && (
           <>
-            <h2 className="font-bold text-primary">Date of travel</h2>
+            <h2 className="font-bold text-primary">
+              {steps[currentStep].title}
+            </h2>
             <p className="mt-1 text-sm leading-6 text-default-400">
-              If you want to your answer based on weather forecast, select
+              Do you agree with the terms?
             </p>
+
+            <Controller
+              name="agreement"
+              control={control}
+              render={({ field }) => (
+                <Checkbox
+                  isSelected={field.value}
+                  onValueChange={field.onChange}
+                  isInvalid={!!errors.agreement}
+                ></Checkbox>
+              )}
+            />
           </>
         )}
         <div className="mt-8 max-w-xl pt-5">
           <div className="flex justify-between">
-            {currentStep > 0 && (
-              <Button type="button" size="lg" onClick={prev}>
-                Previous
-              </Button>
-            )}
-
-            {currentStep < steps.length - 1 ? (
-              <Button type="button" size="lg" onClick={next}>
-                Next
-              </Button>
-            ) : (
-              <Button type="button" size="lg">
+            {currentStep === steps.length - 1 && (
+              <Button type="submit" size="lg" isDisabled={!isValid}>
                 Submit
               </Button>
             )}
           </div>
         </div>
       </form>
+      {currentStep > 0 && (
+        <Button type="button" size="lg" onClick={prev}>
+          Previous
+        </Button>
+      )}
+
+      {currentStep < steps.length - 1 && (
+        <Button type="button" size="lg" onClick={next}>
+          Next
+        </Button>
+      )}
     </>
   );
 }
