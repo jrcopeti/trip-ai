@@ -5,9 +5,10 @@ import { BsCheck } from "react-icons/bs";
 
 interface CustomCheckboxProps {
   children?: ReactNode;
-  value: string; // Adding 'value' prop
+  value: string;
   isSelected?: boolean;
   onChange?: () => void;
+  isDisabled?: boolean;
 }
 
 const checkbox = tv({
@@ -50,7 +51,7 @@ const CustomCheckbox: React.FC<CustomCheckboxProps> = (props) => {
         <input {...getInputProps()} />
       </VisuallyHidden>
       <Chip
-  
+
         classNames={{
           base: styles.base(),
           content: styles.content(),

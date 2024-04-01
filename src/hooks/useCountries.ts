@@ -6,6 +6,7 @@ const COUNTRY_MAX_LENGTH = 25;
 interface Country {
   value: string;
   label: string;
+  code: string;
 }
 
 export function useCountries() {
@@ -21,10 +22,11 @@ export function useCountries() {
 
         const countryOptions: Country[] = Object.entries(data).map(
           ([code, name]) => ({
-            value: code,
+            value: name,
             label:
               name.slice(0, COUNTRY_MAX_LENGTH) +
               (name.length > COUNTRY_MAX_LENGTH ? "..." : ""),
+              code: code,
           }),
         );
         setCountries(countryOptions);

@@ -10,24 +10,61 @@ import {
   Checkbox,
   ButtonGroup,
   CheckboxGroup,
+  Textarea,
+  Autocomplete,
+  AutocompleteItem,
+  RadioGroup,
+  Radio,
 } from "@nextui-org/react";
 import CustomCheckbox from "./CustomCheckbox";
+import { z } from "zod";
 
-
-import { useState } from "react";
-import { DatePicker } from "./DatePicker";
+import React, { useState } from "react";
+import DatePicker from "./DatePicker";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
+import { FormDataSchema } from "@/lib/schema";
+import { Controller, useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { on } from "events";
+
+type Inputs = z.infer<typeof FormDataSchema>;
 
 const steps = [
-  { id: "step 1", name: "Personal Information", stepValue: 0 },
-  { id: "step 2", name: "Destination", stepValue: 25 },
+  {
+    id: "step 1",
+    name: "Personal Information",
+    stepValue: 0,
+    fields: ["userName", "age", "nationality"],
+  },
+  {
+    id: "step 2",
+    name: "Destination",
+    stepValue: 20,
+    fields: ["city", "country", "type"],
+  },
   {
     id: "step 3",
     name: "Dates of Travel and Weather Preferences",
-    stepValue: 50,
+    stepValue: 40,
+    fields: ["luggageSize", "accommodation"],
   },
-  { id: "step 4", name: "Interests and Notes", stepValue: 75 },
-  { id: "step 5", name: "Review and Submit", stepValue: 100 },
+  {
+    id: "step 4",
+    name: "Interests and Notes",
+    stepValue: 60,
+    fields: ["startDate", "endDate"],
+  },
+  {
+    id: "step 5",
+    name: "Review and Submit",
+    stepValue: 80,
+    fields: ["interests"],
+  },
+  {
+    id: "step 6",
+    name: "Review and Submit",
+    stepValue: 100,
+  },
 ];
 
 const types = [
@@ -38,7 +75,7 @@ const types = [
   { value: "business", label: "Business" },
   { value: "cultural", label: "Cultural" },
   { value: "festival", label: "Festival" },
-  { value: "gastonomy", label: "Gastronomy" },
+  { value: "gastronomy", label: "Gastronomy" },
   { value: "nature", label: "Nature" },
 ];
 const sortedTypes = [...types.sort((a, b) => a.label.localeCompare(b.label))];
@@ -54,8 +91,8 @@ const luggageSizes = [
 const accommodations = [
   { value: "hotel", label: "Hotel" },
   { value: "private acommodation", label: "Private Accomodation" },
-  { value: "hostel", label: "hostel" },
-  { value: "apartment", label: "apartment" },
+  { value: "hostel", label: "Hostel" },
+  { value: "apartment", label: "Apartment" },
   { value: "friend's house", label: "Friend's Place" },
   { value: "bed and breakfast", label: "Bed and Breakfast" },
   { value: "resort", label: "Resort" },
@@ -81,7 +118,7 @@ const interests = [
   { value: "museums", label: "Museums" },
   { value: "wine", label: "wine" },
   { value: "coffee", label: "Coffee" },
-  { value: "wellness", label: "wellness" },
+  { value: "wellness", label: "Wellness" },
   { value: "dating", label: "Dating" },
   { value: "music", label: "Music" },
   { value: "hiking", label: "Hiking" },
@@ -101,19 +138,75 @@ const sortedInterest = [
 function Form() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isWeatherSelected, setIsWeatherSelected] = useState(false);
-  const [checkboxSelected, setCheckboxSelected] = useState<string[]>([]);
+
   const { countries, isLoading: isLoadingCountries } = useCountries();
 
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    reset,
+    trigger,
+    getValues,
+    setValue,
+    formState: { errors },
+  } = useForm<Inputs>({
+    resolver: zodResolver(FormDataSchema),
+    defaultValues: {
+      userName: "",
+      age: "",
+      nationality: "",
+      type: "",
+      city: "",
+      country: "",
+      luggageSize: "",
+      accommodation: "",
+      requiredItems: [{ item: "" }],
+      interests: [],
+      note: "",
+      startDate: "",
+      endDate: "",
+      weatherForecast: "",
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "requiredItems",
+  });
+
   const stepValue = steps[currentStep].stepValue;
+  console.log(currentStep);
+
+  // workaround to get the right value from the autocomplete
+  const handleSelectionAutocomplete = (selectedKey: any, fieldName: any) => {
+    const selectedCountry = countries.find(
+      (country) => country.code === selectedKey,
+    );
+    if (selectedCountry) {
+      setValue(fieldName, selectedCountry.value);
+    }
+  };
 
   // if (isLoadingCountries) {
   //   return <div>Loading countries...</div>;
   // }
 
-  const next = () => {
+  type FieldName = keyof Inputs;
+
+  const next = async () => {
+    const fields = steps[currentStep].fields;
+    const output = await trigger(fields as FieldName[], { shouldFocus: true });
+    // if (!output) return;
+
     if (currentStep < steps.length - 1) {
       setCurrentStep((step) => step + 1);
     }
+
+    // if (currentStep === 5) {
+    //   await handleSubmit(processForm)();
+    // }
   };
 
   const prev = () => {
@@ -122,13 +215,21 @@ function Form() {
     }
   };
 
+  const processForm = (data: Inputs) => {
+    console.log("hi");
+    console.log(data);
+  };
+
   return (
     <>
       <section className="flex w-full max-w-xl flex-col gap-6">
         <Progress color="default" aria-label="Loading..." value={stepValue} />
       </section>
 
-      <form className="mt-6 max-w-3xl py-2">
+      <form
+        onSubmit={handleSubmit(processForm)}
+        className="mt-6 max-w-3xl py-2"
+      >
         {currentStep === 0 && (
           <>
             <h2 className="font-bold text-primary">Personal Information</h2>
@@ -137,30 +238,65 @@ function Form() {
             </p>
 
             <div className="md mt-10 flex flex-col gap-x-6 gap-y-8 md:flex-row ">
-              <Input
-                label="Name"
+              <Controller
                 name="userName"
-                type="text"
-                placeholder="What's your name?"
-                variant="underlined"
-              />
-              <Input
-                label="Age"
-                name="age"
-                type="number"
-                placeholder="How old are you?"
-              />
-              <Select
-                items={countries}
-                name="nationality"
-                label="Nationality"
-                placeholder="Select a country"
-                className="max-w-md"
-              >
-                {(country) => (
-                  <SelectItem key={country.value}>{country.label}</SelectItem>
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    label="Name"
+                    id="userName"
+                    type="text"
+                    placeholder="What's your name?"
+                    className="max-w-md"
+                    isInvalid={!!errors.userName}
+                    errorMessage={errors.userName?.message}
+                  />
                 )}
-              </Select>
+              />
+
+              <Controller
+                name="age"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    label="Age"
+                    id="age"
+                    type="text"
+                    placeholder="How old are you?"
+                    className="max-w-md"
+                    isInvalid={!!errors.age}
+                    errorMessage={errors.age?.message}
+                  />
+                )}
+              />
+
+              <Controller
+                name="nationality"
+                control={control}
+                render={({ field }) => (
+                  <Autocomplete
+                    {...field}
+                    id="nationality"
+                    defaultItems={countries}
+                    label="Nationality"
+                    placeholder="Select a country"
+                    className="max-w-md"
+                    onSelectionChange={(selectedKey) =>
+                      handleSelectionAutocomplete(selectedKey, "nationality")
+                    }
+                    isInvalid={!!errors.nationality}
+                    errorMessage={errors.nationality?.message}
+                  >
+                    {(country) => (
+                      <AutocompleteItem key={country.code}>
+                        {country.label}
+                      </AutocompleteItem>
+                    )}
+                  </Autocomplete>
+                )}
+              />
             </div>
           </>
         )}
@@ -172,98 +308,204 @@ function Form() {
               Tell us where you want to go
             </p>
 
-            <div className="md mt-10 flex flex-col gap-x-6 gap-y-8 md:flex-row ">
-              <Input
-                label="City"
-                name="city"
-                type="text"
-                placeholder="Where do you want to go?"
-                className="max-w-md"
-              />
-              <Select
-                items={countries}
-                label="Country"
-                placeholder="Select a country"
-                className="max-w-md"
-              >
-                {(country) => (
-                  <SelectItem key={country.value}>{country.label}</SelectItem>
-                )}
-              </Select>
+            <div className="mt-10 grid grid-cols-1 justify-items-center gap-x-6 gap-y-8 ">
+              <div>
+                <Controller
+                  name="city"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="City"
+                      id="city"
+                      type="text"
+                      placeholder="What's your name?"
+                      className="max-w-md"
+                      isInvalid={!!errors.city}
+                      errorMessage={errors.city?.message}
+                    />
+                  )}
+                />
+              </div>
 
-              <Select
-                items={sortedTypes}
-                label="Type of Travel"
-                name="type"
-                placeholder="What describes your trip?"
-                className="max-w-md"
-              >
-                {(type) => (
-                  <SelectItem key={type.value}>{type.label}</SelectItem>
+              <Controller
+                name="country"
+                control={control}
+                render={({ field }) => (
+                  <Autocomplete
+                    {...field}
+                    id="country"
+                    defaultItems={countries}
+                    label="Country"
+                    placeholder="Select a country"
+                    className="max-w-md"
+                    onSelectionChange={(selectedKey) =>
+                      handleSelectionAutocomplete(selectedKey, "country")
+                    }
+                    isInvalid={!!errors.country}
+                    errorMessage={errors.country?.message}
+                  >
+                    {(country) => (
+                      <AutocompleteItem key={country.code}>
+                        {country.label}
+                      </AutocompleteItem>
+                    )}
+                  </Autocomplete>
                 )}
-              </Select>
+              />
+
+              <Controller
+                name="type"
+                control={control}
+                render={({ field }) => (
+                  <RadioGroup
+                    {...field}
+                    id="type"
+                    label="How do you describe your trip?"
+                    orientation="horizontal"
+                    isInvalid={!!errors.type}
+                    errorMessage={errors.type?.message}
+                  >
+                    {sortedTypes.map((type) => (
+                      <Radio key={type.value} value={type.value}>
+                        {type.label}
+                      </Radio>
+                    ))}
+                  </RadioGroup>
+                )}
+              />
             </div>
           </>
         )}
 
         {currentStep === 2 && (
           <>
-            <h2 className="font-bold text-primary">Date of travel</h2>
+            <h2 className="font-bold text-primary">Travel details</h2>
             <p className="mt-1 text-sm leading-6 text-default-400">
-              If you want to your answer based on weather forecast, select
+              Tell us more about your trip
             </p>
 
-            <div className="mt-10 grid grid-cols-1 justify-items-center gap-y-6 lg:grid-cols-2   ">
-              <Select
-                items={luggageSizes}
-                label="Luggage Size"
+            <div className="mt-10 grid grid-cols-1 justify-items-center gap-8 lg:grid-cols-2   ">
+              {/* <Controller
                 name="luggageSize"
-                placeholder="How big is your luggage"
-                className="max-w-xs"
-              >
-                {(lugaggeSize) => (
-                  <SelectItem key={lugaggeSize.value}>
-                    {lugaggeSize.label}
-                  </SelectItem>
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    items={luggageSizes}
+                    label="Luggage Size"
+                    id="luggageSize"
+                    placeholder="How big is your luggage"
+                    isInvalid={!!errors.luggageSize}
+                    errorMessage={errors.luggageSize?.message}
+                    className="max-w-xs"
+                  >
+                    {(luggageSize) => (
+                      <SelectItem key={luggageSize.value}>
+                        {luggageSize.label}
+                      </SelectItem>
+                    )}
+                  </Select>
                 )}
-              </Select>
+              /> */}
 
-              <Select
-                items={sortedAccommodations}
-                label="Accommodation Type"
-                name="accomodation"
-                placeholder="Where are you staying?"
-                className="max-w-xs"
-              >
-                {(accomodation) => (
-                  <SelectItem key={accomodation.value}>
-                    {accomodation.label}
-                  </SelectItem>
+              <Controller
+                name="luggageSize"
+                control={control}
+                render={({ field }) => (
+                  <RadioGroup
+                    {...field}
+                    id="luggageSize"
+                    label="What's the size of your luggage?"
+                    orientation="horizontal"
+                    isInvalid={!!errors.luggageSize}
+                    errorMessage={errors.luggageSize?.message}
+                  >
+                    {luggageSizes.map((luggageSize) => (
+                      <Radio key={luggageSize.value} value={luggageSize.value}>
+                        {luggageSize.label}
+                      </Radio>
+                    ))}
+                  </RadioGroup>
                 )}
-              </Select>
+              />
+
+              {/* <Controller
+                name="accommodation"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    items={sortedAccommodations}
+                    label="Accommodation Type"
+                    id="accomodation"
+                    placeholder="Where are you staying?"
+                    isInvalid={!!errors.accommodation}
+                    errorMessage={errors.accommodation?.message}
+                    className="max-w-xs"
+                  >
+                    {(accomodation) => (
+                      <SelectItem key={accomodation.value}>
+                        {accomodation.label}
+                      </SelectItem>
+                    )}
+                  </Select>
+                )}
+              /> */}
+
+              <Controller
+                name="accommodation"
+                control={control}
+                render={({ field }) => (
+                  <RadioGroup
+                    {...field}
+                    id="accommodation"
+                    label="Where are you staying?"
+                    orientation="horizontal"
+                    isInvalid={!!errors.accommodation}
+                    errorMessage={errors.accommodation?.message}
+                  >
+                    {sortedAccommodations.map((accommodation) => (
+                      <Radio
+                        key={accommodation.value}
+                        value={accommodation.value}
+                      >
+                        {accommodation.label}
+                      </Radio>
+                    ))}
+                  </RadioGroup>
+                )}
+              />
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-8 lg:grid-cols-3">
-              <Input
-                label="Required Items"
-                name="requiredItems"
-                type="text"
-                placeholder="Something you can't forget to take with you"
-              />
-              <Input
-                label="Required Items"
-                name="requiredItems"
-                type="text"
-                placeholder="Something you can't forget to take with you"
-              />
-
-              <Input
-                label="Required Items"
-                name="requiredItems"
-                type="text"
-                placeholder="Something you can't forget to take with you"
-                className="col-span-2 lg:col-auto"
-              />
+            <h2 className="mb-2 mt-4 flex justify-center">Required Items</h2>
+            <p className=" mb-2 mt-1 flex justify-center text-sm leading-6 text-default-400">
+              Something you can't forget to take with you
+            </p>
+            <div className="grid grid-cols-1 gap-8 ">
+              {fields.map((field, index) => (
+                <div className="flex" key={field.id}>
+                  <Controller
+                    control={control}
+                    name={`requiredItems[${index}].item`}
+                    render={({ field }) => (
+                      <Input {...field} label={`Item ${index + 1}`} />
+                    )}
+                  />
+                  <Button type="button" onClick={() => remove(index)}>
+                    X
+                  </Button>
+                </div>
+              ))}
+              <div>
+                <Button
+                  className="place-items-center"
+                  type="button"
+                  onClick={() => append({ item: "" })}
+                >
+                  Add Item
+                </Button>
+              </div>
             </div>
           </>
         )}
@@ -275,7 +517,7 @@ function Form() {
               If you want to your answer based on weather forecast, select
             </p>
 
-            <div className="md mt-10 flex flex-col gap-x-6 gap-y-8 md:flex-row ">
+            <div className="md mt-10 flex flex-col gap-x-6 gap-y-8  ">
               <Checkbox
                 isSelected={isWeatherSelected}
                 onValueChange={setIsWeatherSelected}
@@ -284,19 +526,44 @@ function Form() {
               </Checkbox>
               {!isWeatherSelected ? (
                 <>
-                  <DatePicker
-                    label="Start Date"
+                  <Controller
                     name="startDate"
-                    placeholder="When do your trip start?"
+                    control={control}
+                    render={({ field }) => (
+                      <DatePicker
+                        {...field}
+                        label="Start Date"
+                        id="startDate"
+                        placeholder="When do your trip start?"
+                      />
+                    )}
                   />
-                  <DatePicker
-                    label="End Date"
+                  {errors.startDate?.message && (
+                    <p className="mt-2 text-sm text-red-500">
+                      {errors.startDate.message}
+                    </p>
+                  )}
+
+                  <Controller
                     name="endDate"
-                    placeholder="When does it end?"
+                    control={control}
+                    render={({ field }) => (
+                      <DatePicker
+                        {...field}
+                        label="End Date"
+                        id="endDate"
+                        placeholder="When does it end?"
+                      />
+                    )}
                   />
                 </>
               ) : (
                 <div>Go to next step</div>
+              )}
+              {errors.endDate?.message && (
+                <p className="mt-2 text-sm text-red-500">
+                  {errors.endDate.message}
+                </p>
               )}
             </div>
           </>
@@ -306,29 +573,52 @@ function Form() {
           <>
             <h2 className="font-bold text-primary">Date of travel</h2>
             <p className="mt-1 text-sm leading-6 text-default-400">
-              If you want to your answer based on weather forecast, select
+              Interests and personal notes
             </p>
 
-            <h2 className="font-bold text-primary">Date of travel</h2>
-            <p className="mt-1 text-sm leading-6 text-default-400">
-              If you want to your answer based on weather forecast, select
-            </p>
-
-            <div className="md mt-10 flex flex-col gap-x-6 gap-y-8 md:flex-row ">
-              <CheckboxGroup
+            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8  ">
+              <Controller
                 name="interests"
-                className="gap-1"
-                label="Select up to 3 interest"
-                orientation="horizontal"
-                value={checkboxSelected}
-                onChange={setCheckboxSelected}
-              >
-                {sortedInterest.map((interest) => (
-                  <CustomCheckbox key={interest.value} value={interest.value}>
-                    {interest.label}
-                  </CustomCheckbox>
-                ))}
-              </CheckboxGroup>
+                control={control}
+                render={({ field }) => (
+                  <CheckboxGroup
+                    {...field}
+                    name="interests"
+                    className="gap-4"
+                    label="Select up to 3 interest"
+                    orientation="horizontal"
+                    isInvalid={!!errors.interests}
+                    errorMessage={errors.interests?.message}
+                  >
+                    {sortedInterest.map((interest) => (
+                      <CustomCheckbox
+                        key={interest.value}
+                        value={interest.value}
+                        isDisabled={
+                          field.value.length >= 3 &&
+                          !field.value.includes(interest.value)
+                        }
+                      >
+                        {interest.label}
+                      </CustomCheckbox>
+                    ))}
+                  </CheckboxGroup>
+                )}
+              />
+
+              <Controller
+                name="note"
+                control={control}
+                render={({ field }) => (
+                  <Textarea
+                    {...field}
+                    label="Notes"
+                    id="notes"
+                    placeholder="Anything you want to add?"
+                    className="max-w-md"
+                  />
+                )}
+              />
             </div>
           </>
         )}
@@ -341,19 +631,26 @@ function Form() {
             </p>
           </>
         )}
-      </form>
+        <div className="mt-8 max-w-xl pt-5">
+          <div className="flex justify-between">
+            {currentStep > 0 && (
+              <Button type="button" size="lg" onClick={prev}>
+                Previous
+              </Button>
+            )}
 
-      <div className="mt-8 max-w-xl pt-5">
-        <div className="flex justify-between">
-          <Button type="button" size="lg" onClick={prev}>
-            Previous
-          </Button>
-
-          <Button type="button" size="lg" onClick={next}>
-            Next
-          </Button>
+            {currentStep < steps.length - 1 ? (
+              <Button type="button" size="lg" onClick={next}>
+                Next
+              </Button>
+            ) : (
+              <Button type="button" size="lg">
+                Submit
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
+      </form>
     </>
   );
 }
