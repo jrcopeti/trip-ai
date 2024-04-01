@@ -83,10 +83,10 @@ const DatePicker = forwardRef(
             mode="single"
             selected={dayjs(date).toDate()}
             onSelect={(_val) => {
-              const _date = dayjs(_val).format("YYYY-MM-DD");
-              const _formattedDate = new Date(_date).toISOString();
-              setDate(_formattedDate);
-              onChange?.(_formattedDate);
+              const formattedDate = dayjs(_val).toISOString();
+
+              setDate(formattedDate);
+              onChange?.(formattedDate);
               actions.onHidden();
             }}
             initialFocus
@@ -96,7 +96,6 @@ const DatePicker = forwardRef(
     );
   },
 );
-
 DatePicker.displayName = "DatePicker";
 
 export default DatePicker;

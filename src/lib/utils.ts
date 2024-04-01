@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatDate(dateString?: string, includeTime = true) {
+export function formatDate(dateString?: string | Date, includeTime = true) {
   if (!dateString) return "";
 
   return dayjs(dateString).format(
