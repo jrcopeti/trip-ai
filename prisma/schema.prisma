@@ -16,6 +16,7 @@ datasource db {
 
 
 
+
 model Trip {
   id Int @id @default(autoincrement())
   userName String
@@ -34,12 +35,15 @@ model Trip {
   budget String
   agreement Boolean
   weatherForecast String?
-  title String
-  description String @db.Text
-  objectsList Json
+  flagUrl String
+  tripUrl String?
+  imageUrl String?
+  saved Boolean @default(false)
+  title String?
+  description String? @db.Text
+  objectsList Json?
   mustHave String[]
-  countryCode String
-  tours Json
+  tours Json?
   createdAt  DateTime @default(now())
   updatedAt DateTime @updatedAt
 

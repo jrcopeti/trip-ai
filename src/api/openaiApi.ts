@@ -80,10 +80,6 @@ const functionData = {
         description:
           "A brief description of the trip, capturing its essence in a maximum of three paragraphs.",
       },
-      countryCode: {
-        type: "string",
-        description: "The ISO-3166 country code for the trip destination in 2 digits and lower case.",
-      },
       tours: {
         type: "array",
         description:
@@ -107,9 +103,7 @@ const functionData = {
   },
 };
 
-
-
-export const fetchResponse = async (prompt: string) => {
+export const fetchResponseAI = async (prompt: string) => {
   console.log("Generating response");
   try {
     const response = await openai.chat.completions.create({
@@ -119,16 +113,17 @@ export const fetchResponse = async (prompt: string) => {
         { role: "user", content: prompt },
       ],
       tools: [{ type: "function", function: functionData }],
-      tool_choice: {type: "function", function: {name: "displayData"}},
+      tool_choice: { type: "function", function: { name: "displayData" } },
       temperature: 0.5,
     });
     console.log("responsing");
-    const data = response?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments ?? null;
+    const data =
+      response?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments ??
+      null;
     const parsedData = JSON.parse(data ?? "{}");
     console.log("Data:", data);
     console.log("parsedData:", parsedData);
     return parsedData;
-
   } catch (error) {
     console.error("Error:", error);
   }

@@ -35,6 +35,7 @@ import { useFormData } from "@/hooks/useFormData";
 import { createTripInDB } from "@/actions/actions";
 import type { Trip } from "@prisma/client";
 import { useMutation } from "@tanstack/react-query";
+import { useImage } from "@/hooks/useImage";
 
 type Inputs = z.infer<typeof FormDataSchema>;
 
@@ -204,6 +205,8 @@ function Form() {
       endDate: new Date().toISOString(),
       weatherForecast: "",
       agreement: false,
+      flagUrl: "",
+      tripUrl: crypto.randomUUID().slice(0, 5),
     },
   });
 
@@ -212,27 +215,36 @@ function Form() {
     name: "requiredItems",
   });
 
-  const { generateResponse, isPending } = useTrip();
+  const { generateResponseAI, isPendingResponseAI } = useTrip();
   const { generateWeather, weatherData } = useWeather();
   const { setFormData } = useFormData();
+  const { generateImage } = useImage();
 
   const stepValue = steps[currentStep].stepValue;
 
   // workaround to get the right value from the autocomplete
-  const handleSelectionAutocomplete = (selectedKey: any, fieldName: any) => {
+  const handleSelectionAutocomplete = (
+    selectedKey: string,
+    fieldName: string,
+  ) => {
     const selectedCountry = countries.find(
       (country) => country.code === selectedKey,
     );
     if (selectedCountry) {
       setValue(fieldName, selectedCountry.value);
+      if (fieldName === "country") {
+        setValue("flagUrl", selectedCountry.flagUrl);
+      }
     }
   };
+
+  const handleFlagUrl = () => {};
 
   // if (isLoadingCountries) {
   //   return <div>Loading countries...</div>;
   // }
 
-  if (isPending) {
+  if (isPendingResponseAI) {
     return <div>Loading...</div>;
   }
 
@@ -246,7 +258,13 @@ function Form() {
     const output = await trigger(fields as FieldName[], {
       shouldFocus: true,
     });
+
     // if (!output) return;
+
+    if (currentStep === steps.length - 4) {
+      console.log("get image unsplash!!!!!!!!!!!");
+      generateImage(cityWatch);
+    }
 
     if (isWeatherSelected && currentStep === steps.length - 3) {
       generateWeather(cityWatch, countryWatch);
@@ -265,7 +283,11 @@ function Form() {
     }
   };
 
-  const processForm = (data: Inputs) => {
+  interface ProcessFormType {
+    (data: Inputs): void;
+  }
+
+  const processForm: ProcessFormType = (data: Inputs) => {
     const requiredItems = data.requiredItems?.map((item) => item.item) ?? [];
 
     const promptModel = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. The trip is scheduled from ${data.startDate} to ${data.endDate}. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${requiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the average weather for ${data.city}, ${data.country} during the trip, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each.`;
@@ -273,10 +295,10 @@ function Form() {
     const promptModelWeather = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${requiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the weather forecast that is in the end of the prompt, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each. Weather forecast for ${data.city}, ${data.country}: ${weatherData}.`;
     if (isWeatherSelected) {
       console.log("weather selected GERA WEATHER");
-      generateResponse(promptModelWeather);
+      generateResponseAI(promptModelWeather);
     } else {
       console.log("weather not selected");
-      generateResponse(promptModel);
+      generateResponseAI(promptModel);
     }
 
     const finalData = {

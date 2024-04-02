@@ -12,3 +12,23 @@ export const createTripInDB = async (trip: any) => {
     data: trip,
   });
 };
+
+export const getAllTrips = async () => {
+  const allTrips = await prisma.trip.findMany({
+    where: {
+      saved: true,
+    },
+    orderBy: {
+      city: "asc",
+    },
+  });
+  return allTrips;
+};
+
+export const getSingleSavedTrip = async (id: number | string ) => {
+  return prisma.trip.findUnique({
+    where: {
+      id,
+    },
+  });
+};
