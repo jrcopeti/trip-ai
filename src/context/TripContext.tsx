@@ -13,7 +13,7 @@ interface TripContextType {
 }
 
 const defaultContextValue: TripContextType = {
-  tripData: null, // Default to null or an appropriate initial value
+  tripData: null,
   generateResponse: () => {},
   isPending: false,
   error: null,
@@ -35,7 +35,7 @@ function TripProvider({ children }: { children: React.ReactNode }) {
 
     onSuccess: (responseData) => {
       console.log("success ");
-      // router.push("/trip");
+      router.push("/trip");
     },
     onError: (error) => {
       console.log(error);

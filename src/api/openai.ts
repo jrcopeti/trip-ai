@@ -129,7 +129,7 @@ export const fetchResponse = async (prompt: string) => {
     console.log("Data:", data);
     console.log("parsedData:", parsedData);
     return parsedData;
-    redirect("/trip");
+
   } catch (error) {
     console.error("Error:", error);
   }

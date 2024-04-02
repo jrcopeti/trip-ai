@@ -29,7 +29,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTrip } from "@/hooks/useTrip";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
+// import { getWeather } from "@/actions/getWeather";
+import { useWeather } from "@/hooks/useWeather";
 
 type Inputs = z.infer<typeof FormDataSchema>;
 
@@ -48,19 +49,19 @@ const steps = [
   },
   {
     id: "step 3",
-    title: "Dates of Travel and Weather Preferences",
+    title: "Travel Details",
     stepValue: 40,
     fields: ["luggageSize", "accommodation"],
   },
   {
     id: "step 4",
-    title: "Interests and Notes",
+    title: "Dates and Weather",
     stepValue: 60,
     fields: ["startDate", "endDate"],
   },
   {
     id: "step 5",
-    title: "Review and Submit",
+    title: "Interests and Notes",
     stepValue: 80,
     fields: ["interests"],
   },
@@ -177,8 +178,8 @@ function Form() {
       requiredItems: [{ item: "" }],
       interests: [],
       note: "",
-      startDate: "",
-      endDate: "",
+      startDate: new Date().toISOString(),
+      endDate: new Date().toISOString(),
       weatherForecast: "",
       agreement: false,
     },
@@ -190,6 +191,8 @@ function Form() {
   });
 
   const { generateResponse, isPending } = useTrip();
+  const { generateWeather, weatherData } = useWeather();
+  console.log("weatherData", weatherData);
 
   const stepValue = steps[currentStep].stepValue;
   const router = useRouter();
@@ -214,12 +217,22 @@ function Form() {
 
   type FieldName = keyof Inputs;
 
+  const cityWatch = watch("city");
+  const countryWatch = watch("country");
+
   const next = async () => {
     const fields = steps[currentStep].fields;
     const output = await trigger(fields as FieldName[], {
       shouldFocus: true,
     });
-    if (!output) return;
+
+    if (isWeatherSelected && currentStep === steps.length - 3) {
+      generateWeather(cityWatch, countryWatch);
+    }
+
+    if (isWeatherSelected && currentStep === steps.length - 2) {
+      setValue("weatherForecast", weatherData);
+    }
 
     setCurrentStep((step) => step + 1);
   };
@@ -230,19 +243,24 @@ function Form() {
     }
   };
 
-  const submmittedData = getValues();
-  console.log(submmittedData);
-
   const processForm = (data: Inputs) => {
     const requiredItems = data.requiredItems?.map((item) => item.item) ?? [];
 
     const promptModel = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. The trip is scheduled from ${data.startDate} to ${data.endDate}. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${requiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the average weather for ${data.city}, ${data.country} during the trip, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each.`;
 
-    generateResponse(promptModel);
+    const promptModelWeather = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${requiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the weather forecast that is in the end of the prompt, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each. Weather forecast for ${data.city}, ${data.country}: ${weatherData}.`;
+    if (isWeatherSelected) {
+      console.log("weather selected GERA WEATHER");
+      generateResponse(promptModelWeather);
+    } else {
+      console.log("weather not selected");
+      generateResponse(promptModel);
+    }
   };
 
-  const calculatedSteps = currentStep < steps.length - 1 ? "yes" : "no";
-  console.log(calculatedSteps);
+  const submittedData = getValues();
+  console.log("submittedData", submittedData);
+  console.log("isValid", isValid);
 
   return (
     <>
@@ -704,7 +722,7 @@ function Form() {
           <div className="flex justify-between">
             {currentStep === steps.length - 1 && (
               <Link href="/trip">
-                <Button type="submit" size="lg" isDisabled={!isValid} onClick={()=> router.push("/trip")}>
+                <Button type="submit" size="lg" isDisabled={!isValid}>
                   Submit
                 </Button>
               </Link>
