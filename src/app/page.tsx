@@ -1,9 +1,7 @@
-"use client";
-import Form from "@/components/Form";
-import GetWeather from "@/components/GetWeather";
-import Trip from "@/components/Trip";
 
-import { Button } from "@nextui-org/react";
+import Form from "@/components/Form";
+// import GetWeather from "@/components/GetWeather";
+
 
 function Homepage() {
   return (

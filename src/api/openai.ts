@@ -70,7 +70,7 @@ const functionData = {
       requiredItems: {
         type: "array",
         description:
-          "Include the items the user has writen in as required items. If there's no item, return empty array.",
+          "Include the items the user has writen in the required items field. If there is no item, return an empty array.",
         items: {
           type: "string",
         },
@@ -82,9 +82,9 @@ const functionData = {
       },
       countryCode: {
         type: "string",
-        description: "The ISO-3166 country code for the trip destination.",
+        description: "The ISO-3166 country code for the trip destination in 2 digits and lower case.",
       },
-      tour: {
+      tours: {
         type: "array",
         description:
           "Three suggested tours or activities in the city or location in 2 paragraphs each.",
@@ -107,8 +107,7 @@ const functionData = {
   },
 };
 
-const promptModel =
-  "José, a 35-year-old traveler from Brazil, is planning a solo trip to Berlin, Germany. The trip is scheduled from 10/12/2024 to 20/12/2024. José prefers to travel with a medium size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: cigarretes, leather jacket. If there is no required items, return an empty array. Staying in a private accommodation, José is interested in sightseeing, clubbing. Additionally, José has noted he/she would specifically like to have: go party in Berghain. If there is no note, ignore the note part. Based on José's preferences and trip details, plus the average weather for Berlin, Germany during the trip, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes José, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each.";
+
 
 export const fetchResponse = async (prompt: string) => {
   console.log("Generating response");
@@ -129,7 +128,7 @@ export const fetchResponse = async (prompt: string) => {
     console.log("Data:", data);
     console.log("parsedData:", parsedData);
     return parsedData;
-    redirect("/trip");
+
   } catch (error) {
     console.error("Error:", error);
   }

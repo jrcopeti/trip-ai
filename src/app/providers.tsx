@@ -5,6 +5,8 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { NextUIProvider } from "@nextui-org/react";
 import { useState } from "react";
 import { TripProvider } from "@/context/TripContext";
+import { WeatherProvider } from "@/context/WeatherContext";
+import { FormProvider } from "@/context/FormContext";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -23,10 +25,14 @@ function Providers({ children }: ProvidersProps) {
   );
   return (
     <QueryClientProvider client={queryClient}>
-      <TripProvider>
-        <NextUIProvider>{children}</NextUIProvider>;
-        <ReactQueryDevtools initialIsOpen={false} />
-      </TripProvider>
+      <FormProvider>
+        <WeatherProvider>
+          <TripProvider>
+            <NextUIProvider>{children}</NextUIProvider>;
+            <ReactQueryDevtools initialIsOpen={false} />
+          </TripProvider>
+        </WeatherProvider>
+      </FormProvider>
     </QueryClientProvider>
   );
 }
