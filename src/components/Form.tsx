@@ -31,6 +31,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 // import { getWeather } from "@/actions/getWeather";
 import { useWeather } from "@/hooks/useWeather";
+import { useFormData } from "@/hooks/useFormData";
+import { createTripInDB } from "@/actions/actions";
+import type { Trip } from "@prisma/client";
+import { useMutation } from "@tanstack/react-query";
 
 type Inputs = z.infer<typeof FormDataSchema>;
 
@@ -153,6 +157,24 @@ function Form() {
 
   const { countries, isLoading: isLoadingCountries } = useCountries();
 
+  // const {
+  //   mutate: createTrip,
+
+  //   isPending: isCreatingTrip,
+  //   error: createTripError,
+  // } = useMutation({
+  //   mutationKey: ["createTrip"],
+  //   mutationFn: (data: Inputs) => createTripInDB(data),
+
+  //   onSuccess: (responseData) => {
+  //     console.log("success createTrip ");
+  //     alert("Trip created successfully");
+  //   },
+  //   onError: (error) => {
+  //     console.log(error);
+  //   },
+  // });
+
   const {
     register,
     handleSubmit,
@@ -192,10 +214,9 @@ function Form() {
 
   const { generateResponse, isPending } = useTrip();
   const { generateWeather, weatherData } = useWeather();
-  console.log("weatherData", weatherData);
+  const { setFormData } = useFormData();
 
   const stepValue = steps[currentStep].stepValue;
-  const router = useRouter();
 
   // workaround to get the right value from the autocomplete
   const handleSelectionAutocomplete = (selectedKey: any, fieldName: any) => {
@@ -225,6 +246,7 @@ function Form() {
     const output = await trigger(fields as FieldName[], {
       shouldFocus: true,
     });
+    // if (!output) return;
 
     if (isWeatherSelected && currentStep === steps.length - 3) {
       generateWeather(cityWatch, countryWatch);
@@ -256,6 +278,15 @@ function Form() {
       console.log("weather not selected");
       generateResponse(promptModel);
     }
+
+    const finalData = {
+      ...data,
+      requiredItems,
+      weatherForecast: weatherData,
+    };
+    console.log("finalData", finalData);
+    setFormData(finalData);
+    // createTrip(finalData as any);
   };
 
   const submittedData = getValues();

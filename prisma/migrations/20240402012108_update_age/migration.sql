@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Trip" ALTER COLUMN "age" SET DATA TYPE TEXT;
