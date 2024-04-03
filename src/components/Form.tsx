@@ -35,6 +35,7 @@ import { useFormData } from "@/hooks/useFormData";
 import { createTripInDB } from "@/actions/actions";
 import type { Trip } from "@prisma/client";
 import { useMutation } from "@tanstack/react-query";
+import { useImage } from "@/hooks/useImage";
 
 type Inputs = z.infer<typeof FormDataSchema>;
 
@@ -42,36 +43,50 @@ const steps = [
   {
     id: "step 1",
     title: "Personal Information",
+    subtitle: "Let's get to know you better!",
     stepValue: 0,
     fields: ["userName", "age", "nationality"],
   },
   {
     id: "step 2",
     title: "Destination",
-    stepValue: 20,
+    subtitle: "What's your next trip ?",
+    stepValue: 16,
     fields: ["city", "country", "type"],
   },
   {
     id: "step 3",
     title: "Travel Details",
-    stepValue: 40,
+    subtitle: "How do you like to travel?",
+    stepValue: 32,
     fields: ["luggageSize", "accommodation"],
   },
   {
     id: "step 4",
-    title: "Dates and Weather",
-    stepValue: 60,
-    fields: ["startDate", "endDate"],
+    title: "Required Items",
+    subtitle: "What you can't forget to pack!",
+    stepValue: 48,
+    fields: ["luggageSize", "accommodation"],
   },
   {
     id: "step 5",
+    title: "Dates and Weather",
+    subtitle:
+      "Choose between trip plans based on weather forecast or actual dates",
+    stepValue: 64,
+    fields: ["startDate", "endDate"],
+  },
+  {
+    id: "step 6",
     title: "Interests and Notes",
+    subtitle: "What you like to do and any special requests",
     stepValue: 80,
     fields: ["interests"],
   },
   {
-    id: "step 6",
+    id: "step 7",
     title: "Review and Submit",
+    subtitle: "Check your details and submit",
     stepValue: 100,
     fields: [],
   },
@@ -157,24 +172,6 @@ function Form() {
 
   const { countries, isLoading: isLoadingCountries } = useCountries();
 
-  // const {
-  //   mutate: createTrip,
-
-  //   isPending: isCreatingTrip,
-  //   error: createTripError,
-  // } = useMutation({
-  //   mutationKey: ["createTrip"],
-  //   mutationFn: (data: Inputs) => createTripInDB(data),
-
-  //   onSuccess: (responseData) => {
-  //     console.log("success createTrip ");
-  //     alert("Trip created successfully");
-  //   },
-  //   onError: (error) => {
-  //     console.log(error);
-  //   },
-  // });
-
   const {
     register,
     handleSubmit,
@@ -204,6 +201,8 @@ function Form() {
       endDate: new Date().toISOString(),
       weatherForecast: "",
       agreement: false,
+      flagUrl: "",
+      tripUrl: crypto.randomUUID().slice(0, 5),
     },
   });
 
@@ -212,27 +211,36 @@ function Form() {
     name: "requiredItems",
   });
 
-  const { generateResponse, isPending } = useTrip();
+  const { generateResponseAI, isPendingResponseAI } = useTrip();
   const { generateWeather, weatherData } = useWeather();
   const { setFormData } = useFormData();
+  const { generateImage } = useImage();
 
   const stepValue = steps[currentStep].stepValue;
 
   // workaround to get the right value from the autocomplete
-  const handleSelectionAutocomplete = (selectedKey: any, fieldName: any) => {
+  const handleSelectionAutocomplete = (
+    selectedKey: string,
+    fieldName: string,
+  ) => {
     const selectedCountry = countries.find(
       (country) => country.code === selectedKey,
     );
     if (selectedCountry) {
       setValue(fieldName, selectedCountry.value);
+      if (fieldName === "country") {
+        setValue("flagUrl", selectedCountry.flagUrl);
+      }
     }
   };
+
+  const handleFlagUrl = () => {};
 
   // if (isLoadingCountries) {
   //   return <div>Loading countries...</div>;
   // }
 
-  if (isPending) {
+  if (isPendingResponseAI) {
     return <div>Loading...</div>;
   }
 
@@ -246,7 +254,13 @@ function Form() {
     const output = await trigger(fields as FieldName[], {
       shouldFocus: true,
     });
+
     // if (!output) return;
+
+    if (currentStep === steps.length - 4) {
+      console.log("get image unsplash!!!!!!!!!!!");
+      generateImage(cityWatch);
+    }
 
     if (isWeatherSelected && currentStep === steps.length - 3) {
       generateWeather(cityWatch, countryWatch);
@@ -265,7 +279,11 @@ function Form() {
     }
   };
 
-  const processForm = (data: Inputs) => {
+  interface ProcessFormType {
+    (data: Inputs): void;
+  }
+
+  const processForm: ProcessFormType = (data: Inputs) => {
     const requiredItems = data.requiredItems?.map((item) => item.item) ?? [];
 
     const promptModel = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. The trip is scheduled from ${data.startDate} to ${data.endDate}. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${requiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the average weather for ${data.city}, ${data.country} during the trip, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each.`;
@@ -273,10 +291,10 @@ function Form() {
     const promptModelWeather = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${requiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the weather forecast that is in the end of the prompt, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each. Weather forecast for ${data.city}, ${data.country}: ${weatherData}.`;
     if (isWeatherSelected) {
       console.log("weather selected GERA WEATHER");
-      generateResponse(promptModelWeather);
+      generateResponseAI(promptModelWeather);
     } else {
       console.log("weather not selected");
-      generateResponse(promptModel);
+      generateResponseAI(promptModel);
     }
 
     const finalData = {
@@ -295,24 +313,33 @@ function Form() {
 
   return (
     <>
-      <section className="flex w-full max-w-xl flex-col gap-6">
-        <Progress color="default" aria-label="Loading..." value={stepValue} />
+      <section className=" max-w-full ">
+        <Progress
+          classNames={{
+            base: "w-full",
+            track: "drop-shadow-md border border-shark-200",
+            indicator: "bg-gradient-to-l from-violay-500 to-deeporange-400",
+            value: "text-shark-500/60",
+          }}
+          aria-label="Loading..."
+          value={stepValue}
+        />
       </section>
 
       <form
         onSubmit={handleSubmit(processForm)}
-        className="mt-6 max-w-3xl py-2"
+        className="bg-shark-100 relative h-full w-full overflow-auto p-6 md:p-8 lg:p-10"
       >
         {currentStep === 0 && (
           <>
-            <h2 className="font-bold text-primary">
+            <h2 className="text-shark-700 text-3xl font-extrabold md:text-5xl">
               {steps[currentStep].title}
             </h2>
-            <p className="mt-1 text-sm leading-6 text-default-400">
-              Provide your personal details
+            <p className="text-cabaret-800 s mt-2 font-bold leading-6 tracking-wide md:text-xl	">
+              {steps[currentStep].subtitle}
             </p>
 
-            <div className="md mt-10 flex flex-col gap-x-6 gap-y-8 md:flex-row ">
+            <div className="md:mt-18 mt-10 flex flex-col justify-between gap-x-6 gap-y-[5rem] md:flex-row ">
               <Controller
                 name="userName"
                 control={control}
@@ -323,9 +350,9 @@ function Form() {
                     id="userName"
                     type="text"
                     placeholder="What's your name?"
-                    className="max-w-md"
-                    isInvalid={!!errors.userName}
+                    className="max-w-lg"
                     errorMessage={errors.userName?.message}
+                    isInvalid={!!errors.userName}
                   />
                 )}
               />
@@ -340,8 +367,7 @@ function Form() {
                     id="age"
                     type="text"
                     placeholder="How old are you?"
-                    className="max-w-md"
-                    isInvalid={!!errors.age}
+                    className="max-w-lg"
                     errorMessage={errors.age?.message}
                   />
                 )}
@@ -357,11 +383,10 @@ function Form() {
                     defaultItems={countries}
                     label="Nationality"
                     placeholder="Select a country"
-                    className="max-w-md"
+                    className="max-w-lg"
                     onSelectionChange={(selectedKey) =>
                       handleSelectionAutocomplete(selectedKey, "nationality")
                     }
-                    isInvalid={!!errors.nationality}
                     errorMessage={errors.nationality?.message}
                   >
                     {(country) => (
@@ -378,32 +403,29 @@ function Form() {
 
         {currentStep === 1 && (
           <>
-            <h2 className="font-bold text-primary">
+            <h2 className="text-shark-700 text-3xl font-extrabold md:text-5xl">
               {steps[currentStep].title}
             </h2>
-            <p className="mt-1 text-sm leading-6 text-default-400">
-              Tell us where you want to go
+            <p className="text-yellorange-700 s mt-2 font-bold leading-6 tracking-wide md:text-xl	">
+              {steps[currentStep].subtitle}
             </p>
 
-            <div className="mt-10 grid grid-cols-1 justify-items-center gap-x-6 gap-y-8 ">
-              <div>
-                <Controller
-                  name="city"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      label="City"
-                      id="city"
-                      type="text"
-                      placeholder="What's your name?"
-                      className="max-w-md"
-                      isInvalid={!!errors.city}
-                      errorMessage={errors.city?.message}
-                    />
-                  )}
-                />
-              </div>
+            <div className="md:mt-18 mt-10 grid grid-cols-2 justify-between gap-x-6 gap-y-[5rem] ">
+              <Controller
+                name="city"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    label="City"
+                    id="city"
+                    type="text"
+                    placeholder="What's your name?"
+                    className="max-w-lg"
+                    errorMessage={errors.city?.message}
+                  />
+                )}
+              />
 
               <Controller
                 name="country"
@@ -412,14 +434,14 @@ function Form() {
                   <Autocomplete
                     {...field}
                     id="country"
+                    color="primary"
                     defaultItems={countries}
                     label="Country"
                     placeholder="Select a country"
-                    className="max-w-md"
+                    className="max-w-lg"
                     onSelectionChange={(selectedKey) =>
                       handleSelectionAutocomplete(selectedKey, "country")
                     }
-                    isInvalid={!!errors.country}
                     errorMessage={errors.country?.message}
                   >
                     {(country) => (
@@ -431,37 +453,39 @@ function Form() {
                 )}
               />
 
-              <Controller
-                name="type"
-                control={control}
-                render={({ field }) => (
-                  <RadioGroup
-                    {...field}
-                    id="type"
-                    label="How do you describe your trip?"
-                    orientation="horizontal"
-                    isInvalid={!!errors.type}
-                    errorMessage={errors.type?.message}
-                  >
-                    {sortedTypes.map((type) => (
-                      <Radio key={type.value} value={type.value}>
-                        {type.label}
-                      </Radio>
-                    ))}
-                  </RadioGroup>
-                )}
-              />
+              <div>
+                <Controller
+                  name="type"
+                  control={control}
+                  render={({ field }) => (
+                    <RadioGroup
+                      {...field}
+                      id="type"
+                      color="secondary"
+                      label="How do you describe your trip?"
+                      orientation="horizontal"
+                      errorMessage={errors.type?.message}
+                    >
+                      {sortedTypes.map((type) => (
+                        <Radio key={type.value} value={type.value}>
+                          {type.label}
+                        </Radio>
+                      ))}
+                    </RadioGroup>
+                  )}
+                />
+              </div>
             </div>
           </>
         )}
 
         {currentStep === 2 && (
           <>
-            <h2 className="font-bold text-primary">
+            <h2 className="text-shark-700 text-3xl font-extrabold lg:text-5xl ">
               {steps[currentStep].title}
             </h2>
-            <p className="mt-1 text-sm leading-6 text-default-400">
-              Tell us more about your trip
+            <p className="text-yellorange-700 mt-1 text-lg font-bold leading-6 tracking-wide">
+              {steps[currentStep].subtitle}
             </p>
 
             <div className="mt-10 grid grid-cols-1 justify-items-center gap-8 lg:grid-cols-2   ">
@@ -475,7 +499,6 @@ function Form() {
                     label="Luggage Size"
                     id="luggageSize"
                     placeholder="How big is your luggage"
-                    isInvalid={!!errors.luggageSize}
                     errorMessage={errors.luggageSize?.message}
                     className="max-w-xs"
                   >
@@ -497,7 +520,6 @@ function Form() {
                     id="luggageSize"
                     label="What's the size of your luggage?"
                     orientation="horizontal"
-                    isInvalid={!!errors.luggageSize}
                     errorMessage={errors.luggageSize?.message}
                   >
                     {luggageSizes.map((luggageSize) => (
@@ -519,7 +541,6 @@ function Form() {
                     label="Accommodation Type"
                     id="accomodation"
                     placeholder="Where are you staying?"
-                    isInvalid={!!errors.accommodation}
                     errorMessage={errors.accommodation?.message}
                     className="max-w-xs"
                   >
@@ -541,7 +562,6 @@ function Form() {
                     id="accommodation"
                     label="Where are you staying?"
                     orientation="horizontal"
-                    isInvalid={!!errors.accommodation}
                     errorMessage={errors.accommodation?.message}
                   >
                     {sortedAccommodations.map((accommodation) => (
@@ -565,7 +585,6 @@ function Form() {
                     id="budget"
                     label="Where are you staying?"
                     orientation="horizontal"
-                    isInvalid={!!errors.budget}
                     errorMessage={errors.budget?.message}
                   >
                     {budgets.map((budget) => (
@@ -577,12 +596,18 @@ function Form() {
                 )}
               />
             </div>
+          </>
+        )}
 
-            <h2 className="mb-2 mt-4 flex justify-center">Required Items</h2>
-            <p className=" mb-2 mt-1 flex justify-center text-sm leading-6 text-default-400">
-              Something you can't forget to take with you
+        {currentStep === 3 && (
+          <>
+            <h2 className="text-shark-700 text-3xl font-extrabold lg:text-5xl ">
+              {steps[currentStep].title}
+            </h2>
+            <p className="text-yellorange-700 mt-1 text-lg font-bold leading-6 tracking-wide">
+              {steps[currentStep].subtitle}
             </p>
-            <div className="grid grid-cols-1 gap-8 ">
+            <div className="grid max-h-fit grid-cols-1 gap-8 ">
               {fields.map((field, index) => (
                 <div className="flex" key={field.id}>
                   <Controller
@@ -610,13 +635,13 @@ function Form() {
           </>
         )}
 
-        {currentStep === 3 && (
+        {currentStep === 4 && (
           <>
-            <h2 className="font-bold text-primary">
+            <h2 className="text-shark-700 text-3xl font-extrabold lg:text-5xl ">
               {steps[currentStep].title}
             </h2>
-            <p className="mt-1 text-sm leading-6 text-default-400">
-              If you want to your answer based on weather forecast, select
+            <p className="text-yellorange-700 mt-1 text-lg font-bold leading-6 tracking-wide">
+              {steps[currentStep].subtitle}
             </p>
 
             <div className="md mt-10 flex flex-col gap-x-6 gap-y-8  ">
@@ -671,15 +696,14 @@ function Form() {
           </>
         )}
 
-        {currentStep === 4 && (
+        {currentStep === 5 && (
           <>
-            <h2 className="font-bold text-primary">
+            <h2 className="text-shark-700 text-3xl font-extrabold lg:text-5xl ">
               {steps[currentStep].title}
             </h2>
-            <p className="mt-1 text-sm leading-6 text-default-400">
-              Interests and personal notes
+            <p className="text-yellorange-700 mt-1 text-lg font-bold leading-6 tracking-wide">
+              {steps[currentStep].subtitle}
             </p>
-
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8  ">
               <Controller
                 name="interests"
@@ -691,13 +715,13 @@ function Form() {
                     className="gap-4"
                     label="Select up to 3 interest"
                     orientation="horizontal"
-                    isInvalid={!!errors.interests}
                     errorMessage={errors.interests?.message}
                   >
                     {sortedInterest.map((interest) => (
                       <CustomCheckbox
                         key={interest.value}
                         value={interest.value}
+                        color="secondary"
                         isDisabled={
                           field.value.length >= 3 &&
                           !field.value.includes(interest.value)
@@ -727,13 +751,13 @@ function Form() {
           </>
         )}
 
-        {currentStep === 5 && (
+        {currentStep === 6 && (
           <>
-            <h2 className="font-bold text-primary">
+            <h2 className="text-shark-700 text-3xl font-extrabold lg:text-5xl ">
               {steps[currentStep].title}
             </h2>
-            <p className="mt-1 text-sm leading-6 text-default-400">
-              Do you agree with the terms?
+            <p className="text-yellorange-700 mt-1 text-lg font-bold leading-6 tracking-wide">
+              {steps[currentStep].subtitle}
             </p>
 
             <Controller
@@ -743,7 +767,6 @@ function Form() {
                 <Checkbox
                   isSelected={field.value}
                   onValueChange={field.onChange}
-                  isInvalid={!!errors.agreement}
                 ></Checkbox>
               )}
             />
@@ -752,26 +775,36 @@ function Form() {
         <div className="mt-8 max-w-xl pt-5">
           <div className="flex justify-between">
             {currentStep === steps.length - 1 && (
-              <Link href="/trip">
-                <Button type="submit" size="lg" isDisabled={!isValid}>
-                  Submit
-                </Button>
-              </Link>
+              <Button type="submit" size="lg" isDisabled={!isValid}>
+                Submit
+              </Button>
             )}
           </div>
         </div>
-      </form>
-      {currentStep > 0 && (
-        <Button type="button" size="lg" onClick={prev}>
-          Previous
-        </Button>
-      )}
+        <div className="absolute bottom-[0%] left-1/2 -translate-y-[50%]">
+          <ButtonGroup>
+            <Button
+              type="button"
+              size="lg"
+              isDisabled={currentStep === steps.length - 7}
+              onClick={prev}
+              className="from-neptune-400 via-neptune-500 to-neptune-600 hover:bg-neptune-400 bg-gradient-to-r"
+            >
+              <FaAngleLeft />
+            </Button>
 
-      {currentStep < steps.length - 1 && (
-        <Button type="button" size="lg" onClick={next}>
-          Next
-        </Button>
-      )}
+            <Button
+              type="button"
+              size="lg"
+              onClick={next}
+              isDisabled={currentStep === steps.length - 1}
+              className="from-neptune-400 to-neptune-600 via-neptune-500 hover:bg-neptune-400 bg-gradient-to-l"
+            >
+              <FaAngleRight />
+            </Button>
+          </ButtonGroup>
+        </div>
+      </form>
     </>
   );
 }

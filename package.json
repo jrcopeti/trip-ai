@@ -11,6 +11,7 @@
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
     "@nextui-org/react": "^2.2.10",
+    "@plaiceholder/next": "^3.0.0",
     "@prisma/client": "^5.11.0",
     "@tanstack/react-query": "^5.28.9",
     "@tanstack/react-query-devtools": "^5.28.10",
@@ -19,11 +20,13 @@
     "framer-motion": "^11.0.23",
     "next": "14.1.4",
     "openai": "^4.31.0",
+    "plaiceholder": "^3.0.0",
     "react": "^18",
     "react-day-picker": "^8.10.0",
     "react-dom": "^18",
     "react-hook-form": "^7.51.2",
     "react-icons": "^5.0.1",
+    "sharp": "^0.32.6",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -31,6 +34,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
+    "daisyui": "^4.9.0",
     "eslint": "^8",
     "eslint-config-next": "14.1.4",
     "postcss": "^8",

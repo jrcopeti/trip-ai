@@ -1,12 +1,12 @@
 "use client";
 
-import { fetchResponse } from "@/api/openai";
+import { fetchResponse } from "@/api/openaiApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState, createContext } from "react";
 
 interface FormContextType {
-  formData: any
+  formData: any;
   setFormData: (data: any) => void;
 }
 

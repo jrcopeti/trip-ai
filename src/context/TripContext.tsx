@@ -1,41 +1,43 @@
 "use client";
 
-import { fetchResponse } from "@/api/openai";
+import { fetchResponseAI } from "@/api/openaiApi";
+import { useFormData } from "@/hooks/useFormData";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState, createContext } from "react";
 
 interface TripContextType {
   tripData: any;
-  generateResponse: (prompt: string) => void;
-  isPending: boolean;
-  error: any;
+  generateResponseAI: (prompt: string) => void;
+  isPendingResponseAI: boolean;
+  errorResponseAI: any;
 }
 
 const defaultContextValue: TripContextType = {
   tripData: null,
-  generateResponse: () => {},
-  isPending: false,
-  error: null,
+  generateResponseAI: () => {},
+  isPendingResponseAI: false,
+  errorResponseAI: null,
 };
 
 const TripContext = createContext<TripContextType>(defaultContextValue);
 
 function TripProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const {formData} = useFormData()
 
   const {
-    mutate: generateResponse,
+    mutate: generateResponseAI,
     data: tripData,
-    isPending,
-    error,
+    isPending: isPendingResponseAI,
+    error: errorResponseAI,
   } = useMutation({
     mutationKey: ["trip"],
-    mutationFn: (prompt: string) => fetchResponse(prompt),
+    mutationFn: (prompt: string) => fetchResponseAI(prompt),
 
     onSuccess: (responseData) => {
       console.log("success ");
-      router.push("/trip");
+      router.push(`/trip/${formData.tripUrl}`);
     },
     onError: (error) => {
       console.log(error);
@@ -44,7 +46,12 @@ function TripProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <TripContext.Provider
-      value={{ tripData, generateResponse, isPending, error }}
+      value={{
+        tripData,
+        generateResponseAI,
+        isPendingResponseAI,
+        errorResponseAI,
+      }}
     >
       {children}
     </TripContext.Provider>

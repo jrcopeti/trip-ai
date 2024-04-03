@@ -9,15 +9,15 @@ import { createContext } from "react";
 interface WeatherContextType {
   weatherData: any;
   generateWeather: (city: string, country: string) => void;
-  isPending: boolean;
-  error: any;
+  isPendingWeather: boolean;
+  errorWeather: any;
 }
 
 const defaultContextValue: WeatherContextType = {
   weatherData: null,
   generateWeather: () => {},
-  isPending: false,
-  error: null,
+  isPendingWeather: false,
+  errorWeather: null,
 };
 
 const WeatherContext = createContext<WeatherContextType>(defaultContextValue);
@@ -28,8 +28,8 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
   const {
     mutate: generateWeather,
     data: weatherData,
-    isPending,
-    error,
+    isPending: isPendingWeather,
+    error: errorWeather,
   } = useMutation({
     mutationKey: ["weather"],
     mutationFn: (city: string, country: string) => fetchWeather(city, country),
@@ -45,7 +45,7 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <WeatherContext.Provider
-      value={{ weatherData, generateWeather, isPending, error }}
+      value={{ weatherData, generateWeather, isPendingWeather, errorWeather }}
     >
       {children}
     </WeatherContext.Provider>

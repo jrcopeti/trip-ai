@@ -7,6 +7,7 @@ interface Country {
   value: string;
   label: string;
   code: string;
+  flagUrl: string;
 }
 
 export function useCountries() {
@@ -26,7 +27,8 @@ export function useCountries() {
             label:
               name.slice(0, COUNTRY_MAX_LENGTH) +
               (name.length > COUNTRY_MAX_LENGTH ? "..." : ""),
-              code: code,
+            code: code,
+            flagUrl: `https://flagcdn.com/${code}.svg`,
           }),
         );
         setCountries(countryOptions);

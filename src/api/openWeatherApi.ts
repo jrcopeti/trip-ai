@@ -6,7 +6,7 @@ interface GetWeatherParams {
   country: string;
 }
 
-export async function fetchWeather(city: string, country: string) {
+export const fetchWeather = async (city: string, country: string) => {
   const coordinatesUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city},${country}&limit=3&appid=${process.env.NEXT_PUBLIC_OPEN_WEATHER_KEY}`;
 
   let weather;
@@ -27,4 +27,4 @@ export async function fetchWeather(city: string, country: string) {
   } catch (err: unknown) {
     console.log("error", err);
   }
-}
+};

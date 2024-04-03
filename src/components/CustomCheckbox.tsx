@@ -13,14 +13,14 @@ interface CustomCheckboxProps {
 
 const checkbox = tv({
   slots: {
-    base: "border-default hover:bg-default-200",
+    base: "border-shark-300 hover:bg-shark-200",
     content: "text-default-500",
   },
   variants: {
     isSelected: {
       true: {
-        base: "border-primary bg-primary hover:bg-primary-500 hover:border-primary-500",
-        content: "text-primary-foreground pl-1",
+        base: "border-shark-200 font-semibold bg-neptune-600 hover:bg-shark-200 hover:border-shark-500",
+        content: "text-shark-200 pl-1 hover:text-shark-800" ,
       },
     },
     isFocusVisible: {
