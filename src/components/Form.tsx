@@ -317,9 +317,9 @@ function Form() {
         <Progress
           classNames={{
             base: "w-full",
-            track: "drop-shadow-md border border-default",
+            track: "drop-shadow-md border border-shark-200",
             indicator: "bg-gradient-to-l from-violay-500 to-deeporange-400",
-            value: "text-foreground/60",
+            value: "text-shark-500/60",
           }}
           aria-label="Loading..."
           value={stepValue}
@@ -328,20 +328,18 @@ function Form() {
 
       <form
         onSubmit={handleSubmit(processForm)}
-        className="bg-shark-100 h-full w-full overflow-auto p-6 md:p-8 lg:p-10"
+        className="bg-shark-100 relative h-full w-full overflow-auto p-6 md:p-8 lg:p-10"
       >
         {currentStep === 0 && (
           <>
-            <section className="flex flex-col items-start md:gap-1">
-              <h2 className="text-shark-700 text-3xl font-extrabold md:text-5xl   ">
-                {steps[currentStep].title}
-              </h2>
-              <p className="text-yellorange-700 s mt-1 font-bold leading-6 tracking-wide md:text-xl	">
-                {steps[currentStep].subtitle}
-              </p>
-            </section>
+            <h2 className="text-shark-700 text-3xl font-extrabold md:text-5xl">
+              {steps[currentStep].title}
+            </h2>
+            <p className="text-cabaret-800 s mt-2 font-bold leading-6 tracking-wide md:text-xl	">
+              {steps[currentStep].subtitle}
+            </p>
 
-            <div className="mt-10 flex flex-col gap-x-6 gap-y-8 md:flex-row ">
+            <div className="md:mt-18 mt-10 flex flex-col justify-between gap-x-6 gap-y-[5rem] md:flex-row ">
               <Controller
                 name="userName"
                 control={control}
@@ -352,8 +350,9 @@ function Form() {
                     id="userName"
                     type="text"
                     placeholder="What's your name?"
-                    className="max-w-md"
+                    className="max-w-lg"
                     errorMessage={errors.userName?.message}
+                    isInvalid={!!errors.userName}
                   />
                 )}
               />
@@ -368,7 +367,7 @@ function Form() {
                     id="age"
                     type="text"
                     placeholder="How old are you?"
-                    className="max-w-md"
+                    className="max-w-lg"
                     errorMessage={errors.age?.message}
                   />
                 )}
@@ -384,7 +383,7 @@ function Form() {
                     defaultItems={countries}
                     label="Nationality"
                     placeholder="Select a country"
-                    className="max-w-md"
+                    className="max-w-lg"
                     onSelectionChange={(selectedKey) =>
                       handleSelectionAutocomplete(selectedKey, "nationality")
                     }
@@ -404,31 +403,29 @@ function Form() {
 
         {currentStep === 1 && (
           <>
-            <h2 className="text-shark-700 text-3xl font-extrabold lg:text-5xl 	 ">
+            <h2 className="text-shark-700 text-3xl font-extrabold md:text-5xl">
               {steps[currentStep].title}
             </h2>
-            <p className="text-yellorange-700 mt-1 text-lg font-bold leading-6 tracking-wide">
+            <p className="text-yellorange-700 s mt-2 font-bold leading-6 tracking-wide md:text-xl	">
               {steps[currentStep].subtitle}
             </p>
 
-            <div className="mt-10 grid grid-cols-1 justify-items-center gap-x-6 gap-y-8 ">
-              <div>
-                <Controller
-                  name="city"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      label="City"
-                      id="city"
-                      type="text"
-                      placeholder="What's your name?"
-                      className="max-w-md"
-                      errorMessage={errors.city?.message}
-                    />
-                  )}
-                />
-              </div>
+            <div className="md:mt-18 mt-10 grid grid-cols-2 justify-between gap-x-6 gap-y-[5rem] ">
+              <Controller
+                name="city"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    label="City"
+                    id="city"
+                    type="text"
+                    placeholder="What's your name?"
+                    className="max-w-lg"
+                    errorMessage={errors.city?.message}
+                  />
+                )}
+              />
 
               <Controller
                 name="country"
@@ -437,10 +434,11 @@ function Form() {
                   <Autocomplete
                     {...field}
                     id="country"
+                    color="primary"
                     defaultItems={countries}
                     label="Country"
                     placeholder="Select a country"
-                    className="max-w-md"
+                    className="max-w-lg"
                     onSelectionChange={(selectedKey) =>
                       handleSelectionAutocomplete(selectedKey, "country")
                     }
@@ -455,26 +453,28 @@ function Form() {
                 )}
               />
 
-              <Controller
-                name="type"
-                control={control}
-                render={({ field }) => (
-                  <RadioGroup
-                    {...field}
-                    id="type"
-                    color="#c83a5e"
-                    label="How do you describe your trip?"
-                    orientation="horizontal"
-                    errorMessage={errors.type?.message}
-                  >
-                    {sortedTypes.map((type) => (
-                      <Radio key={type.value} value={type.value}>
-                        {type.label}
-                      </Radio>
-                    ))}
-                  </RadioGroup>
-                )}
-              />
+              <div>
+                <Controller
+                  name="type"
+                  control={control}
+                  render={({ field }) => (
+                    <RadioGroup
+                      {...field}
+                      id="type"
+                      color="secondary"
+                      label="How do you describe your trip?"
+                      orientation="horizontal"
+                      errorMessage={errors.type?.message}
+                    >
+                      {sortedTypes.map((type) => (
+                        <Radio key={type.value} value={type.value}>
+                          {type.label}
+                        </Radio>
+                      ))}
+                    </RadioGroup>
+                  )}
+                />
+              </div>
             </div>
           </>
         )}
@@ -721,6 +721,7 @@ function Form() {
                       <CustomCheckbox
                         key={interest.value}
                         value={interest.value}
+                        color="secondary"
                         isDisabled={
                           field.value.length >= 3 &&
                           !field.value.includes(interest.value)
@@ -774,26 +775,36 @@ function Form() {
         <div className="mt-8 max-w-xl pt-5">
           <div className="flex justify-between">
             {currentStep === steps.length - 1 && (
-              <Link href="/trip">
-                <Button type="submit" size="lg" isDisabled={!isValid}>
-                  Submit
-                </Button>
-              </Link>
+              <Button type="submit" size="lg" isDisabled={!isValid}>
+                Submit
+              </Button>
             )}
           </div>
         </div>
-      </form>
-      {currentStep > 0 && (
-        <Button type="button" size="lg" onClick={prev}>
-          Previous
-        </Button>
-      )}
+        <div className="absolute bottom-[0%] left-1/2 -translate-y-[50%]">
+          <ButtonGroup>
+            <Button
+              type="button"
+              size="lg"
+              isDisabled={currentStep === steps.length - 7}
+              onClick={prev}
+              className="from-neptune-400 via-neptune-500 to-neptune-600 hover:bg-neptune-400 bg-gradient-to-r"
+            >
+              <FaAngleLeft />
+            </Button>
 
-      {currentStep < steps.length - 1 && (
-        <Button type="button" size="lg" onClick={next}>
-          Next
-        </Button>
-      )}
+            <Button
+              type="button"
+              size="lg"
+              onClick={next}
+              isDisabled={currentStep === steps.length - 1}
+              className="from-neptune-400 to-neptune-600 via-neptune-500 hover:bg-neptune-400 bg-gradient-to-l"
+            >
+              <FaAngleRight />
+            </Button>
+          </ButtonGroup>
+        </div>
+      </form>
     </>
   );
 }

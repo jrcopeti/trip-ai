@@ -121,11 +121,36 @@ const config: Config = {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-          "geopattern": "url(/geopattern.png)",
+        geopattern: "url(/geopattern.png)",
       },
     },
   },
   darkMode: "class",
-  plugins: [nextui()],
+  plugins: [
+    nextui({
+      themes: {
+        light: {
+          // ...
+          colors: {
+            default: "#637b94",
+            primary: "#d74b76",
+            secondary: "#b37cb9",
+            success: "#4e888c",
+            warning: "#ff9520",
+            danger: "#c2150c"
+
+          },
+        },
+        dark: {
+          // ...
+          colors: {
+            primary: "#f93c16",
+          },
+        },
+        // ... custom themes
+      },
+    }),
+  ],
 };
+
 export default config;
