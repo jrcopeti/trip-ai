@@ -30,7 +30,7 @@ function Providers({ children }: ProvidersProps) {
         <ImageProvider>
           <WeatherProvider>
             <TripProvider>
-              <NextUIProvider>{children}</NextUIProvider>;
+              <NextUIProvider>{children}</NextUIProvider>
               <ReactQueryDevtools initialIsOpen={false} />
             </TripProvider>
           </WeatherProvider>
