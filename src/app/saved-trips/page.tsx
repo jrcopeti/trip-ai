@@ -11,7 +11,7 @@ function SavedTripsPage
 () {
   const queryClient = useQueryClient();
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <HydrationBoundary  state={dehydrate(queryClient)}>
       <SavedTripsComponent />
     </HydrationBoundary>
   );
