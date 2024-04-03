@@ -234,6 +234,8 @@ function Form() {
     }
   };
 
+  window.innerHeight
+
   const handleFlagUrl = () => {};
 
   // if (isLoadingCountries) {
