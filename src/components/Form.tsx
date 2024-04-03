@@ -234,7 +234,7 @@ function Form() {
     }
   };
 
-  window.innerHeight
+
 
   const handleFlagUrl = () => {};
 
