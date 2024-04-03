@@ -160,27 +160,26 @@ function SavedTripsPageComponent({
             className="absolute left-0 top-0 -z-10 h-full w-full bg-center bg-repeat brightness-75"
             style={{ backgroundImage: `url(${geopattern})` }}
           ></div>
-          <h1 className="font-gallery-100 text-3xl">1</h1>
+          <div className="absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12 ">
+            <div className="grid grid-cols-1 gap-4 rounded-xl p-2 lg:grid-cols-[auto,auto] lg:p-4 ">
+              <Image
+                src={trip?.image}
+                alt="city"
+                width={500}
+                height={500}
+                blurDataURL={trip?.placeholder}
+                placeholder="blur"
+                priority
+                className="rounded-xl shadow-lg   "
+              />
 
-          <div className="absolute h-[80%] w-[80%] p-12 ">
-            {/* <div className="absolute inset-0 top-[25%] left-[37%] -translate-x-1/2 -translate-y-1/4 ">
-                </div> */}
-            <div className="gap-x-15  grid grid-cols-1 lg:grid-cols-2 ">
-              <div>
-                <Image
-                  src={trip?.image}
-                  alt="city"
-                  width={500}
-                  height={500}
-                  blurDataURL={trip?.placeholder}
-                  placeholder="blur"
-                  priority
-                  className="rounded-xl"
-                />
-              </div>
-              <div className=" backdrop-blur-sm">
-                <h1>{trip?.title}</h1>
-                <p>{trip?.description}</p>
+              <div className=" grid grid-cols-1 gap-4 overflow-scroll p-4 lg:grid-cols-[1fr,auto] lg:gap-8">
+                <h1 className=" text-3xl font-extrabold text-shark-950 md:text-5xl">
+                  {trip?.title}
+                </h1>
+                <p className="  text-lg font-semibold text-shark-950 lg:text-2xl">
+                  {trip?.description}
+                </p>
               </div>
             </div>
           </div>
