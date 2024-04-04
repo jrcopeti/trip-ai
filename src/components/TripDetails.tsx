@@ -1,5 +1,5 @@
 "use client";
-import { createTripInDB } from "@/actions/actions";
+import { createTripInDB } from "@/db/actions";
 import { useImage } from "@/hooks/useImage";
 import { useFormData } from "@/hooks/useFormData";
 import { useTrip } from "@/hooks/useTrip";
@@ -50,12 +50,19 @@ function TripDetails() {
     notFound();
   }
 
+  console.log(imageData, "imageData");
+
   const handleYesAnswer = () => {
     const saved = true;
     const finalData = {
       ...tripData,
       ...formData,
-      imageUrl: imageData.tripImage,
+      image: imageData.tripImage,
+      image2: imageData.tripImage2,
+      image3: imageData.tripImage3,
+      placeholder: imageData.placeholder,
+      placeholder2: imageData.placeholder2,
+      placeholder3: imageData.placeholder3,
       saved,
     };
     console.log("finalDataYES", finalData);
@@ -67,7 +74,9 @@ function TripDetails() {
     console.log("formDataNO", formData);
     const finalData = {
       ...formData,
-      imageUrl: imageData.tripImage,
+      image: imageData.tripImage,
+      image2: imageData.tripImage2,
+      image3: imageData.tripImage3,
     };
     createTrip(finalData);
   };
@@ -90,7 +99,7 @@ function TripDetails() {
             priority
             className="mb-16 h-96 rounded-xl object-cover shadow-xl"
             placeholder="blur"
-            blurDataURL={imageData?.base64}
+            blurDataURL={imageData?.placeholder}
           />
         </div>
       )}

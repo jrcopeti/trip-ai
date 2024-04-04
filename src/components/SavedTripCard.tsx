@@ -1,8 +1,9 @@
 import Image from "next/image";
+import type { Trip } from "@prisma/client";
 
 import Link from "next/link";
 
-function SavedTripCard({ trip }) {
+function SavedTripCard({ trip }: { trip: Trip }) {
   const { id, city, country, flagUrl, userName } = trip;
   return (
     <Link

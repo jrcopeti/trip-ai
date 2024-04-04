@@ -16,25 +16,23 @@ import {
   RadioGroup,
   Radio,
 } from "@nextui-org/react";
-import CustomCheckbox from "./CustomCheckbox";
+import CustomCheckbox from "./ui/CustomCheckbox";
 import { z } from "zod";
 
 import React, { useState } from "react";
-import DatePicker from "./DatePicker";
+import DatePicker from "./ui/DatePicker";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { FormDataSchema } from "@/lib/schema";
 import { Controller, useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useTrip } from "@/hooks/useTrip";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-// import { getWeather } from "@/actions/getWeather";
+
 import { useWeather } from "@/hooks/useWeather";
 import { useFormData } from "@/hooks/useFormData";
-import { createTripInDB } from "@/actions/actions";
+import { createTripInDB } from "@/db/actions";
 import type { Trip } from "@prisma/client";
-import { useMutation } from "@tanstack/react-query";
+
 import { useImage } from "@/hooks/useImage";
 
 type Inputs = z.infer<typeof FormDataSchema>;
@@ -212,7 +210,7 @@ function Form() {
   });
 
   const { generateResponseAI, isPendingResponseAI } = useTrip();
-  const { generateWeather, weatherData } = useWeather();
+  const { generateForecast, forecastData } = useWeather();
   const { setFormData } = useFormData();
   const { generateImage } = useImage();
 
@@ -234,11 +232,9 @@ function Form() {
     }
   };
 
-  const handleFlagUrl = () => {};
-
-  // if (isLoadingCountries) {
-  //   return <div>Loading countries...</div>;
-  // }
+  if (isLoadingCountries) {
+    return <div>Loading countries...</div>;
+  }
 
   if (isPendingResponseAI) {
     return <div>Loading...</div>;
@@ -263,11 +259,11 @@ function Form() {
     }
 
     if (isWeatherSelected && currentStep === steps.length - 3) {
-      generateWeather(cityWatch, countryWatch);
+      generateForecast(cityWatch, countryWatch);
     }
 
     if (isWeatherSelected && currentStep === steps.length - 2) {
-      setValue("weatherForecast", weatherData);
+      setValue("weatherForecast", forecastData);
     }
 
     setCurrentStep((step) => step + 1);
@@ -288,28 +284,21 @@ function Form() {
 
     const promptModel = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. The trip is scheduled from ${data.startDate} to ${data.endDate}. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${requiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the average weather for ${data.city}, ${data.country} during the trip, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each.`;
 
-    const promptModelWeather = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${requiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the weather forecast that is in the end of the prompt, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each. Weather forecast for ${data.city}, ${data.country}: ${weatherData}.`;
+    const promptModelWeather = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${requiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the weather forecast that is in the end of the prompt, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each. Weather forecast for ${data.city}, ${data.country}: ${forecastData}.`;
     if (isWeatherSelected) {
-      console.log("weather selected GERA WEATHER");
       generateResponseAI(promptModelWeather);
     } else {
-      console.log("weather not selected");
       generateResponseAI(promptModel);
     }
 
     const finalData = {
       ...data,
       requiredItems,
-      weatherForecast: weatherData,
+      weatherForecast: forecastData,
     };
-    console.log("finalData", finalData);
-    setFormData(finalData);
-    // createTrip(finalData as any);
-  };
 
-  const submittedData = getValues();
-  console.log("submittedData", submittedData);
-  console.log("isValid", isValid);
+    setFormData(finalData);
+  };
 
   return (
     <>
@@ -328,14 +317,14 @@ function Form() {
 
       <form
         onSubmit={handleSubmit(processForm)}
-        className="bg-shark-100 relative h-full w-full overflow-auto p-6 md:p-8 lg:p-10"
+        className="relative h-full w-full overflow-auto bg-shark-100 p-6 md:p-8 lg:p-10"
       >
         {currentStep === 0 && (
           <>
-            <h2 className="text-shark-700 text-3xl font-extrabold md:text-5xl">
+            <h2 className="text-3xl font-extrabold text-shark-700 md:text-5xl">
               {steps[currentStep].title}
             </h2>
-            <p className="text-cabaret-800 s mt-2 font-bold leading-6 tracking-wide md:text-xl	">
+            <p className="s mt-2 font-bold leading-6 tracking-wide text-cabaret-800 md:text-xl	">
               {steps[currentStep].subtitle}
             </p>
 
@@ -403,10 +392,10 @@ function Form() {
 
         {currentStep === 1 && (
           <>
-            <h2 className="text-shark-700 text-3xl font-extrabold md:text-5xl">
+            <h2 className="text-3xl font-extrabold text-shark-700 md:text-5xl">
               {steps[currentStep].title}
             </h2>
-            <p className="text-yellorange-700 s mt-2 font-bold leading-6 tracking-wide md:text-xl	">
+            <p className="s mt-2 font-bold leading-6 tracking-wide text-yellorange-700 md:text-xl	">
               {steps[currentStep].subtitle}
             </p>
 
@@ -481,10 +470,10 @@ function Form() {
 
         {currentStep === 2 && (
           <>
-            <h2 className="text-shark-700 text-3xl font-extrabold lg:text-5xl ">
+            <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
               {steps[currentStep].title}
             </h2>
-            <p className="text-yellorange-700 mt-1 text-lg font-bold leading-6 tracking-wide">
+            <p className="mt-1 text-lg font-bold leading-6 tracking-wide text-yellorange-700">
               {steps[currentStep].subtitle}
             </p>
 
@@ -601,10 +590,10 @@ function Form() {
 
         {currentStep === 3 && (
           <>
-            <h2 className="text-shark-700 text-3xl font-extrabold lg:text-5xl ">
+            <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
               {steps[currentStep].title}
             </h2>
-            <p className="text-yellorange-700 mt-1 text-lg font-bold leading-6 tracking-wide">
+            <p className="mt-1 text-lg font-bold leading-6 tracking-wide text-yellorange-700">
               {steps[currentStep].subtitle}
             </p>
             <div className="grid max-h-fit grid-cols-1 gap-8 ">
@@ -637,10 +626,10 @@ function Form() {
 
         {currentStep === 4 && (
           <>
-            <h2 className="text-shark-700 text-3xl font-extrabold lg:text-5xl ">
+            <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
               {steps[currentStep].title}
             </h2>
-            <p className="text-yellorange-700 mt-1 text-lg font-bold leading-6 tracking-wide">
+            <p className="mt-1 text-lg font-bold leading-6 tracking-wide text-yellorange-700">
               {steps[currentStep].subtitle}
             </p>
 
@@ -698,10 +687,10 @@ function Form() {
 
         {currentStep === 5 && (
           <>
-            <h2 className="text-shark-700 text-3xl font-extrabold lg:text-5xl ">
+            <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
               {steps[currentStep].title}
             </h2>
-            <p className="text-yellorange-700 mt-1 text-lg font-bold leading-6 tracking-wide">
+            <p className="mt-1 text-lg font-bold leading-6 tracking-wide text-yellorange-700">
               {steps[currentStep].subtitle}
             </p>
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8  ">
@@ -753,10 +742,10 @@ function Form() {
 
         {currentStep === 6 && (
           <>
-            <h2 className="text-shark-700 text-3xl font-extrabold lg:text-5xl ">
+            <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
               {steps[currentStep].title}
             </h2>
-            <p className="text-yellorange-700 mt-1 text-lg font-bold leading-6 tracking-wide">
+            <p className="mt-1 text-lg font-bold leading-6 tracking-wide text-yellorange-700">
               {steps[currentStep].subtitle}
             </p>
 
@@ -788,7 +777,7 @@ function Form() {
               size="lg"
               isDisabled={currentStep === steps.length - 7}
               onClick={prev}
-              className="from-neptune-400 via-neptune-500 to-neptune-600 hover:bg-neptune-400 bg-gradient-to-r"
+              className="bg-gradient-to-r from-neptune-400 via-neptune-500 to-neptune-600 hover:bg-neptune-400"
             >
               <FaAngleLeft />
             </Button>
@@ -798,7 +787,7 @@ function Form() {
               size="lg"
               onClick={next}
               isDisabled={currentStep === steps.length - 1}
-              className="from-neptune-400 to-neptune-600 via-neptune-500 hover:bg-neptune-400 bg-gradient-to-l"
+              className="bg-gradient-to-l from-neptune-400 via-neptune-500 to-neptune-600 hover:bg-neptune-400"
             >
               <FaAngleRight />
             </Button>

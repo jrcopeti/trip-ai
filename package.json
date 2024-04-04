@@ -18,6 +18,7 @@
     "axios": "^1.6.8",
     "dayjs": "^1.11.10",
     "framer-motion": "^11.0.23",
+    "gsap": "^3.12.5",
     "next": "14.1.4",
     "openai": "^4.31.0",
     "plaiceholder": "^3.0.0",

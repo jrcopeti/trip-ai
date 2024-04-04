@@ -25,7 +25,7 @@ export const getAllTrips = async () => {
   return allTrips;
 };
 
-export const getSingleSavedTrip = async (id: number | string ) => {
+export const getSingleSavedTrip = async (id: number | undefined ) => {
   return prisma.trip.findUnique({
     where: {
       id,

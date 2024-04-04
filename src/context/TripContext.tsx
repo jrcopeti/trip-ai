@@ -37,7 +37,7 @@ function TripProvider({ children }: { children: React.ReactNode }) {
 
     onSuccess: (responseData) => {
       console.log("success ");
-      router.push(`/trip/${formData.tripUrl}`);
+      router.push(`/trips/${formData.tripUrl}`);
     },
     onError: (error) => {
       console.log(error);

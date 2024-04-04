@@ -36,8 +36,15 @@ model Trip {
   agreement Boolean
   weatherForecast String?
   flagUrl String
-  tripUrl String?
-  imageUrl String?
+  tripUrl String
+  image String?
+  placeholder String?
+  image2 String?
+  placeholder2 String?
+  image3 String?
+  placeholder3 String?
+  image4 String?
+  placeholder4 String?
   saved Boolean @default(false)
   title String?
   description String? @db.Text
