@@ -1,5 +1,5 @@
 "use client";
-import { createTripInDB } from "@/actions/actions";
+import { createTripInDB } from "@/db/actions";
 import { useImage } from "@/hooks/useImage";
 import { useFormData } from "@/hooks/useFormData";
 import { useTrip } from "@/hooks/useTrip";
@@ -19,8 +19,6 @@ function TripDetails() {
   const { imageData, isPendingImage } = useImage();
   console.log("Form Data in Trip", formData);
   console.log("trip Data in Trip", tripData);
-
-
 
   const {
     mutate: createTrip,

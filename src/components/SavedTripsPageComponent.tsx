@@ -1,25 +1,23 @@
 "use client";
 
-import { getSingleSavedTrip } from "@/actions/actions";
+import { getSingleSavedTrip } from "@/db/actions";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import Image from "next/image";
 import { useEffect, useLayoutEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/all";
-
-const image1 = "/1.jpg";
-const image2 = "/2.jpg";
-const image3 = "/3.jpg";
-const image4 = "/4.jpg";
-const image5 = "/5.jpg";
-// const image6 = "/6.jpg";
-// const image7 = "/7.jpg";
-// const image8 = "/8.jpg";
-// const image9 = "/9.jpg";
-const geopattern = "/geopattern.png";
-const geopattern2 = "/geopattern2.png";
-const geopattern3 = "/geopattern3.png";
+import image1 from "@/assets/1.jpg";
+import image2 from "@/assets/2.jpg";
+import image3 from "@/assets/3.jpg";
+import image4 from "@/assets/4.jpg";
+import image5 from "@/assets/5.jpg";
+import image6 from "@/assets/6.jpeg";
+import image7 from "@/assets/7.jpg";
+import geopattern from "@/assets/geopattern.png";
+import geopattern2 from "@/assets/geopattern2.png";
+import geopattern3 from "@/assets/geopattern3.png";
+import { useWeather } from "@/hooks/useWeather";
 
 function SavedTripsPageComponent({
   params,
@@ -35,6 +33,15 @@ function SavedTripsPageComponent({
     queryKey: ["trips", params.id],
     queryFn: () => getSingleSavedTrip(Number(params.id)),
   });
+
+  const { generateWeather, weatherData } = useWeather();
+
+  useEffect(() => {
+    if (!isPending) {
+      generateWeather(trip?.city, trip?.country);
+    }
+  }, [isPending, generateWeather, trip?.city, trip?.country]);
+  console.log("weatherData", weatherData);
 
   useLayoutEffect(() => {
     if (typeof window === "undefined") {
@@ -158,7 +165,7 @@ function SavedTripsPageComponent({
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-center bg-repeat brightness-75"
-            style={{ backgroundImage: `url(${geopattern})` }}
+            style={{ backgroundImage: `url(${geopattern.src})` }}
           ></div>
           <div className="absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12 ">
             <div className="grid grid-cols-1 gap-4 rounded-xl p-2 lg:grid-cols-[auto,auto] lg:p-4 ">
@@ -170,14 +177,14 @@ function SavedTripsPageComponent({
                 blurDataURL={trip?.placeholder}
                 placeholder="blur"
                 priority
-                className="rounded-xl shadow-lg   "
+                className="rounded-xl shadow-lg"
               />
 
-              <div className=" grid grid-cols-1 gap-4 overflow-scroll p-4 lg:grid-cols-[1fr,auto] lg:gap-8">
+              <div className=" grid grid-cols-1 gap-4 rounded-md p-4  shadow-sm lg:grid-cols-[1fr,auto] lg:gap-8">
                 <h1 className=" text-3xl font-extrabold text-shark-950 md:text-5xl">
                   {trip?.title}
                 </h1>
-                <p className="  text-lg font-semibold text-shark-950 lg:text-2xl">
+                <p className="  text-lg font-bold text-shark-950 lg:text-2xl">
                   {trip?.description}
                 </p>
               </div>
@@ -197,19 +204,23 @@ function SavedTripsPageComponent({
             style={{ backgroundImage: `url(${trip?.image2})` }}
           ></div>
 
-          <div className="absolute h-[80%] w-[80%] p-12 backdrop-blur-md">
-            {/* <div className="absolute inset-0 top-[25%] left-[37%] -translate-x-1/2 -translate-y-1/4 ">
-                </div> */}
-
-            <div className="gap-x-15 grid grid-cols-1 lg:grid-cols-2 ">
-              <div></div>
-              <div className=" h-full backdrop-blur-md">
-                <h1 className="font-gallery-100 text-3xl">2</h1>
-                <h1>{trip?.title}</h1>
-                <p>{trip?.description}</p>
+          <div className="absolute h-[90%] w-[90%] p-4 backdrop-blur-md lg:h-[80%] lg:w-[80%] lg:p-12">
+            <div className="grid grid-cols-1 items-center gap-4 rounded-xl  p-2 lg:p-4 xl:grid-cols-[1fr,auto]  ">
+              <h1 className=" rounded-xl  bg-shark-100/50 p-4 text-3xl font-extrabold capitalize text-shark-950 md:text-5xl">
+                Your suggested tours in {trip?.city}
+              </h1>
+              <div className=" grid grid-cols-1 gap-4 rounded-md p-4 lg:gap-8">
+                {(trip?.tours as string[])?.map((tour) => (
+                  <ul className="grid grid-cols-1" key={tour}>
+                    <li className=" text-lg  font-semibold text-shark-200 lg:text-2xl xl:text-3xl ">
+                      {tour}
+                    </li>
+                  </ul>
+                ))}
               </div>
             </div>
           </div>
+          <div className="grid grid-cols-1 justify-items-center gap-x-4 gap-y-8 rounded-xl p-2 lg:grid-cols-[auto,auto] lg:gap-x-10 lg:gap-y-12 lg:p-4 "></div>
         </section>
 
         {/* Section 3 */}
@@ -217,10 +228,12 @@ function SavedTripsPageComponent({
         <section className="relative flex h-screen items-center justify-center">
           <div
             data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center brightness-75"
-            style={{ backgroundImage: `url(${image5})` }}
+            className="absolute left-0 top-0 -z-10 h-full w-full brightness-75"
+            style={{ backgroundImage: `url(${image4.src})` }}
           ></div>
-          <h1 className="font-gallery-100 text-3xl">3</h1>
+          <h1 className=" text-4xl font-extrabold capitalize text-shark-200 md:text-6xl">
+            We have your pack ready
+          </h1>
         </section>
 
         {/* Section 4 */}
@@ -229,9 +242,22 @@ function SavedTripsPageComponent({
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
-            style={{ backgroundImage: `url(${image3})` }}
+            style={{ backgroundImage: `url(${image7.src})` }}
           ></div>
-          <h1 className="font-gallery-100 text-3xl">4</h1>
+          <div className="absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12 ">
+            <div className=" jus grid grid-cols-2 items-center justify-items-center rounded-md p-4 lg:gap-8">
+              {(trip?.objectsList as any)?.map((object: any) => (
+                <ul
+                  className="grid grid-cols-[1fr,1fr,2fr] items-baseline gap-y-8 font-semibold leading-loose lg:text-2xl "
+                  key={object.item}
+                >
+                  <li className="text-violay-200  ">{object.quantity}</li>
+                  <li className="text-shark-100">{object.item}</li>
+                  <li className="text-shark-100">{object.description}</li>
+                </ul>
+              ))}
+            </div>
+          </div>
         </section>
 
         {/* Section 5 */}
@@ -240,7 +266,7 @@ function SavedTripsPageComponent({
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full brightness-75"
-            style={{ backgroundImage: `url(${geopattern3})` }}
+            style={{ backgroundImage: `url(${geopattern3.src})` }}
           ></div>
           <h1 className="font-gallery-100 text-3xl">5</h1>
         </section>
@@ -261,7 +287,7 @@ function SavedTripsPageComponent({
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-repeat brightness-75"
-            style={{ backgroundImage: `url(${geopattern2})` }}
+            style={{ backgroundImage: `url(${geopattern2.src})` }}
           ></div>
           <h1 className="font-gallery-100 text-3xl">7</h1>
         </section>
@@ -272,7 +298,18 @@ function SavedTripsPageComponent({
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
-            style={{ backgroundImage: `url(${image3})` }}
+            style={{ backgroundImage: `url(${image6.src})` }}
+          ></div>
+          <h1 className="font-gallery-100 text-3xl">8</h1>
+        </section>
+
+        {/* Section 9 */}
+
+        <section className="relative flex h-screen items-center justify-center">
+          <div
+            data-bg="true"
+            className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
+            style={{ backgroundImage: `url(${image1.src})` }}
           ></div>
           <h1 className="font-gallery-100 text-3xl">8</h1>
         </section>

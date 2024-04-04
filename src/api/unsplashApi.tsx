@@ -33,6 +33,7 @@ export const fetchTripImage = async (city: string) => {
     const buffer = Buffer.from(response.data, "binary");
     const buffer2 = Buffer.from(response2.data, "binary");
     const buffer3 = Buffer.from(response3.data, "binary");
+    
     const plaiceholderRes = await getPlaiceholder(buffer);
     const plaiceholderRes2 = await getPlaiceholder(buffer2);
     const plaiceholderRes3 = await getPlaiceholder(buffer3);
