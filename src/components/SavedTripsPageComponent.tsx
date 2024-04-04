@@ -52,7 +52,8 @@ function SavedTripsPageComponent({
 
       const innerHeight = window.innerHeight;
 
-      const getRatio = (el) => innerHeight / (innerHeight + el.offsetHeight);
+      const getRatio = (el: HTMLElement) =>
+        innerHeight / (innerHeight + el.offsetHeight);
 
       gsap.utils.toArray("section").forEach((section, i) => {
         const bg = section.querySelector('[data-bg="true"]');
@@ -204,9 +205,9 @@ function SavedTripsPageComponent({
             style={{ backgroundImage: `url(${trip?.image2})` }}
           ></div>
 
-          <div className="absolute h-[90%] w-[90%] p-4 backdrop-blur-md lg:h-[80%] lg:w-[80%] lg:p-12">
+          <div className="absolute h-[90%] w-[90%] p-4 backdrop-blur-sm lg:h-[80%] lg:w-[80%] lg:p-12">
             <div className="grid grid-cols-1 items-center gap-4 rounded-xl  p-2 lg:p-4 xl:grid-cols-[1fr,auto]  ">
-              <h1 className=" rounded-xl  bg-shark-100/50 p-4 text-3xl font-extrabold capitalize text-shark-950 md:text-5xl">
+              <h1 className=" rounded-xl  bg-shark-100/50 p-4 text-3xl font-extrabold capitalize text-shark-800 md:text-5xl">
                 Your suggested tours in {trip?.city}
               </h1>
               <div className=" grid grid-cols-1 gap-4 rounded-md p-4 lg:gap-8">

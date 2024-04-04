@@ -150,8 +150,8 @@ function Form() {
 
   // workaround to get the right value from the autocomplete
   const handleSelectionAutocomplete = (
-    selectedKey: string,
-    fieldName: string,
+    selectedKey: string | number,
+    fieldName: any ,
   ) => {
     const selectedCountry = countries.find(
       (country) => country.code === selectedKey,
@@ -533,7 +533,7 @@ function Form() {
                 <div className="flex" key={field.id}>
                   <Controller
                     control={control}
-                    name={`requiredItems[${index}].item`}
+                    name={`requiredItems[${index}].item` }
                     render={({ field }) => (
                       <Input {...field} label={`Item ${index + 1}`} />
                     )}
