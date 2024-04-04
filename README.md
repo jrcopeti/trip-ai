@@ -2,4 +2,13 @@ Trip-Ai is a experimental project where you plan your next trip with the help of
 
 It still on development and the first version will be released soon 🚀
 
+## Stack
+- TypeScript
+- Next.js
+- TailwindCSS
+- Next ui
+- React Query
+- Axios
+- OpenAI API
+- GSAP Animation
 
