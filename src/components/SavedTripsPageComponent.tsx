@@ -4,7 +4,7 @@ import { getSingleSavedTrip } from "@/db/actions";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import Image from "next/image";
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/all";
 import image1 from "@/assets/1.jpg";
@@ -18,6 +18,25 @@ import geopattern from "@/assets/geopattern.png";
 import geopattern2 from "@/assets/geopattern2.png";
 import geopattern3 from "@/assets/geopattern3.png";
 import { useWeather } from "@/hooks/useWeather";
+import {
+  motion,
+  useScroll,
+  useSpring,
+  useTransform,
+  MotionValue,
+  useMotionValueEvent,
+} from "framer-motion";
+import {
+  Card,
+  CardBody,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+  getKeyValue,
+} from "@nextui-org/react";
 
 function SavedTripsPageComponent({
   params,
@@ -36,12 +55,12 @@ function SavedTripsPageComponent({
 
   const { generateWeather, weatherData } = useWeather();
 
-  useEffect(() => {
-    if (!isPending) {
-      generateWeather(trip?.city, trip?.country);
-    }
-  }, [isPending, generateWeather, trip?.city, trip?.country]);
-  console.log("weatherData", weatherData);
+  // useEffect(() => {
+  //   if (!isPending) {
+  //     generateWeather(trip?.city, trip?.country);
+  //   }
+  // }, [isPending, generateWeather, trip?.city, trip?.country]);
+  // console.log("weatherData", weatherData);
 
   useLayoutEffect(() => {
     if (typeof window === "undefined") {
@@ -57,7 +76,7 @@ function SavedTripsPageComponent({
 
       gsap.utils.toArray("section").forEach((section, i) => {
         const bg = section.querySelector('[data-bg="true"]');
-        console.log(bg, "bg", "i", i, section, "section");
+        const content = section.querySelectorAll('[data-content="true"'); // Assuming .content class for illustrative purposes
 
         gsap.fromTo(
           bg,
@@ -79,12 +98,38 @@ function SavedTripsPageComponent({
             },
           },
         );
-      });
 
+        content.forEach((el, i) => {
+          gsap.fromTo(
+            el,
+
+            {
+              opacity: 0,
+              y: -100,
+            },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 2,
+              ease: "none",
+              scrollTrigger: {
+                trigger: el,
+                start: "top bottom",
+                end: "bottom center",
+                scrub: true,
+                markers: true,
+                // onLeave: () =>
+                //   gsap.to(el, { opacity: 0, duration:2, ease: "back" }),
+                // onEnterBack: () =>
+                //   gsap.to(el, { opacity: 1, duration: 1, ease: "back" }),
+              },
+            },
+          );
+        });
+        console.log(content.offsetHeight);
+      });
       return () => {
-        // Cleanup: Kill GSAP animations and ScrollTriggers
         ScrollTrigger.getAll().forEach((st) => st.kill());
-        gsap.killTweensOf('[data-bg="true"]');
       };
     }
   }, [isPending]);
@@ -95,6 +140,18 @@ function SavedTripsPageComponent({
 
   const formattedStartDate = dayjs(trip?.startDate).format("DD MMM YYYY");
   const formattedEndDate = dayjs(trip?.endDate).format("DD MMM YYYY");
+
+  const columns = [
+    { key: "quantity", label: "Quantity" },
+    { key: "item", label: "Item" },
+    { key: "description", label: "Description" },
+  ];
+  const rows = trip?.objectsList?.map((object, index) => ({
+    key: object.id || index,
+    quantity: object.quantity,
+    item: object.item,
+    description: object.description,
+  }));
 
   return (
     <>
@@ -205,18 +262,21 @@ function SavedTripsPageComponent({
             style={{ backgroundImage: `url(${trip?.image2})` }}
           ></div>
 
-          <div className="absolute h-[90%] w-[90%] p-4 backdrop-blur-sm lg:h-[80%] lg:w-[80%] lg:p-12">
+          <div
+            data-content="true"
+            className=" absolute h-[90%] w-[90%] p-4 opacity-0 backdrop-blur-sm lg:h-[80%] lg:w-[80%] lg:p-12"
+          >
             <div className="grid grid-cols-1 items-center gap-4 rounded-xl  p-2 lg:p-4 xl:grid-cols-[1fr,auto]  ">
               <h1 className=" rounded-xl  bg-shark-100/50 p-4 text-3xl font-extrabold capitalize text-shark-800 md:text-5xl">
                 Your suggested tours in {trip?.city}
               </h1>
               <div className=" grid grid-cols-1 gap-4 rounded-md p-4 lg:gap-8">
                 {(trip?.tours as string[])?.map((tour) => (
-                  <ul className="grid grid-cols-1" key={tour}>
+                  <motion.ul className="grid grid-cols-1" key={tour}>
                     <li className=" text-lg  font-semibold text-shark-200 lg:text-2xl xl:text-3xl ">
                       {tour}
                     </li>
-                  </ul>
+                  </motion.ul>
                 ))}
               </div>
             </div>
@@ -232,7 +292,10 @@ function SavedTripsPageComponent({
             className="absolute left-0 top-0 -z-10 h-full w-full brightness-75"
             style={{ backgroundImage: `url(${image4.src})` }}
           ></div>
-          <h1 className=" text-4xl font-extrabold capitalize text-shark-200 md:text-6xl">
+          <h1
+            data-content="true"
+            className=" text-4xl font-extrabold capitalize text-shark-200 md:text-6xl"
+          >
             We have your pack ready
           </h1>
         </section>
@@ -246,18 +309,40 @@ function SavedTripsPageComponent({
             style={{ backgroundImage: `url(${image7.src})` }}
           ></div>
           <div className="absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12 ">
-            <div className=" jus grid grid-cols-2 items-center justify-items-center rounded-md p-4 lg:gap-8">
-              {(trip?.objectsList as any)?.map((object: any) => (
+            <div
+              // data-content="true"
+              className=" grid grid-cols-2 items-center justify-items-center rounded-md p-4 text-2xl lg:gap-8"
+            >
+              {/* {(trip?.objectsList as any)?.map((object: any) => (
                 <ul
-                  className="grid grid-cols-[1fr,1fr,2fr] items-baseline gap-y-8 font-semibold leading-loose lg:text-2xl "
+                  className="items-baseline gap-y-8 font-semibold leading-loose lg:text-2xl "
                   key={object.item}
                 >
-                  <li className="text-violay-200  ">{object.quantity}</li>
-                  <li className="text-shark-100">{object.item}</li>
-                  <li className="text-shark-100">{object.description}</li>
+                  <li className="text-violay-900  ">{object.quantity}</li>
+                  <li className="text-shark-900">{object.item}</li>
+                  <li className="text-shark-900">{object.description}</li>
                 </ul>
-              ))}
+              ))} */}
             </div>
+            <Table
+              color="primary"
+              aria-label="Example table with dynamic content"
+            >
+              <TableHeader columns={columns}>
+                {(column) => (
+                  <TableColumn key={column.key}>{column.label}</TableColumn>
+                )}
+              </TableHeader>
+              <TableBody items={rows}>
+                {(item) => (
+                  <TableRow key={item.key}>
+                    {(columnKey) => (
+                      <TableCell>{getKeyValue(item, columnKey)}</TableCell>
+                    )}
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
         </section>
 
