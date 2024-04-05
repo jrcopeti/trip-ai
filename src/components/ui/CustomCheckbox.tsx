@@ -9,6 +9,7 @@ interface CustomCheckboxProps {
   isSelected?: boolean;
   onChange?: () => void;
   isDisabled?: boolean;
+  color: "primary" | "secondary" | "success" | "warning" | "warning" | "default" | undefined;
 }
 
 const checkbox = tv({

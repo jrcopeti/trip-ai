@@ -28,7 +28,7 @@ export const fetchForecast = async (city: string, country: string) => {
 };
 
 export const fetchWeather = async (city: string, country: string) => {
-  const coordinatesUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city},${country}&limit=3&appid=${process.env.NEXT_PUBLIC_OPEN_WEATHER_KEY}`;
+  const coordinatesUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city},${country}&limit=3&appid=${process.env.OPEN_WEATHER_KEY}`;
 
   let weather;
   try {
@@ -36,14 +36,13 @@ export const fetchWeather = async (city: string, country: string) => {
 
     const { lat, lon } = getCoordinates.data[0];
 
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${process.env.NEXT_PUBLIC_OPEN_WEATHER_KEY}`;
+    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${process.env.OPEN_WEATHER_KEY}`;
 
     const getWeather = await axios.get(weatherUrl);
     console.log("getWeather", getWeather.data);
-    weather = getWeather.data
+    weather = getWeather.data;
 
     return weather;
-
   } catch (err: unknown) {
     console.log("error", err);
   }

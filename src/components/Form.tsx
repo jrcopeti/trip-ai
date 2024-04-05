@@ -41,6 +41,8 @@ import {
   sortedInterest,
 } from "@/data";
 
+import { motion } from "framer-motion";
+
 type Inputs = z.infer<typeof FormDataSchema>;
 
 const steps = [
@@ -98,6 +100,9 @@ const steps = [
 
 function Form() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [prevStep, setPrevStep] = useState(0);
+  const delta = currentStep - prevStep;
+
   const [isWeatherSelected, setIsWeatherSelected] = useState(false);
 
   const { countries, isLoading: isLoadingCountries } = useCountries();
@@ -150,8 +155,8 @@ function Form() {
 
   // workaround to get the right value from the autocomplete
   const handleSelectionAutocomplete = (
-    selectedKey: string,
-    fieldName: string,
+    selectedKey: string | number,
+    fieldName: any,
   ) => {
     const selectedCountry = countries.find(
       (country) => country.code === selectedKey,
@@ -185,24 +190,22 @@ function Form() {
 
     // if (!output) return;
 
-    if (currentStep === steps.length - 4) {
-      console.log("get image unsplash!!!!!!!!!!!");
-      generateImage(cityWatch);
-    }
+    // if (currentStep === steps.length - 2) {
+    //   console.log("get image unsplash!!!!!!!!!!!");
+    //   generateImage(cityWatch);
+    // }
 
-    if (isWeatherSelected && currentStep === steps.length - 3) {
-      generateForecast(cityWatch, countryWatch);
-    }
+    // if (isWeatherSelected && currentStep === steps.length - 2) {
+    //   generateForecast(cityWatch, countryWatch);
+    // }
 
-    if (isWeatherSelected && currentStep === steps.length - 2) {
-      setValue("weatherForecast", forecastData);
-    }
-
+    setPrevStep(currentStep);
     setCurrentStep((step) => step + 1);
   };
 
   const prev = () => {
     if (currentStep > 0) {
+      setPrevStep(currentStep);
       setCurrentStep((step) => step - 1);
     }
   };
@@ -218,6 +221,7 @@ function Form() {
 
     const promptModelWeather = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${requiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the weather forecast that is in the end of the prompt, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each. Weather forecast for ${data.city}, ${data.country}: ${forecastData}.`;
     if (isWeatherSelected) {
+      setValue("weatherForecast", forecastData);
       generateResponseAI(promptModelWeather);
     } else {
       generateResponseAI(promptModel);
@@ -251,8 +255,15 @@ function Form() {
         onSubmit={handleSubmit(processForm)}
         className="relative h-full w-full overflow-auto bg-shark-100 p-6 md:p-8 lg:p-10"
       >
+        {/* Step 1 */}
+
         {currentStep === 0 && (
-          <>
+          <motion.div
+            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+          
+          >
             <h2 className="text-3xl font-extrabold text-shark-700 md:text-5xl">
               {steps[currentStep].title}
             </h2>
@@ -319,11 +330,17 @@ function Form() {
                 )}
               />
             </div>
-          </>
+          </motion.div>
         )}
 
+        {/* Step 2 */}
+
         {currentStep === 1 && (
-          <>
+          <motion.div
+            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+          >
             <h2 className="text-3xl font-extrabold text-shark-700 md:text-5xl">
               {steps[currentStep].title}
             </h2>
@@ -397,11 +414,16 @@ function Form() {
                 />
               </div>
             </div>
-          </>
+          </motion.div>
         )}
 
+        {/* Step 3 */}
         {currentStep === 2 && (
-          <>
+          <motion.div
+            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+          >
             <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
               {steps[currentStep].title}
             </h2>
@@ -410,28 +432,6 @@ function Form() {
             </p>
 
             <div className="mt-10 grid grid-cols-1 justify-items-center gap-8 lg:grid-cols-2   ">
-              {/* <Controller
-                name="luggageSize"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    items={luggageSizes}
-                    label="Luggage Size"
-                    id="luggageSize"
-                    placeholder="How big is your luggage"
-                    errorMessage={errors.luggageSize?.message}
-                    className="max-w-xs"
-                  >
-                    {(luggageSize) => (
-                      <SelectItem key={luggageSize.value}>
-                        {luggageSize.label}
-                      </SelectItem>
-                    )}
-                  </Select>
-                )}
-              /> */}
-
               <Controller
                 name="luggageSize"
                 control={control}
@@ -451,28 +451,6 @@ function Form() {
                   </RadioGroup>
                 )}
               />
-
-              {/* <Controller
-                name="accommodation"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    items={sortedAccommodations}
-                    label="Accommodation Type"
-                    id="accomodation"
-                    placeholder="Where are you staying?"
-                    errorMessage={errors.accommodation?.message}
-                    className="max-w-xs"
-                  >
-                    {(accomodation) => (
-                      <SelectItem key={accomodation.value}>
-                        {accomodation.label}
-                      </SelectItem>
-                    )}
-                  </Select>
-                )}
-              /> */}
 
               <Controller
                 name="accommodation"
@@ -517,11 +495,17 @@ function Form() {
                 )}
               />
             </div>
-          </>
+          </motion.div>
         )}
 
+        {/* Step 4 */}
+
         {currentStep === 3 && (
-          <>
+          <motion.div
+            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+          >
             <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
               {steps[currentStep].title}
             </h2>
@@ -553,11 +537,17 @@ function Form() {
                 </Button>
               </div>
             </div>
-          </>
+          </motion.div>
         )}
 
+        {/* Step 5 */}
+
         {currentStep === 4 && (
-          <>
+          <motion.div
+            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+          >
             <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
               {steps[currentStep].title}
             </h2>
@@ -604,21 +594,27 @@ function Form() {
                       />
                     )}
                   />
+                  {errors.endDate?.message && (
+                    <p className="mt-2 text-sm text-red-500">
+                      {errors.endDate.message}
+                    </p>
+                  )}
                 </>
               ) : (
                 <div>Go to next step</div>
               )}
-              {errors.endDate?.message && (
-                <p className="mt-2 text-sm text-red-500">
-                  {errors.endDate.message}
-                </p>
-              )}
             </div>
-          </>
+          </motion.div>
         )}
 
+        {/* Step 6 */}
+
         {currentStep === 5 && (
-          <>
+          <motion.div
+            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+          >
             <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
               {steps[currentStep].title}
             </h2>
@@ -669,11 +665,18 @@ function Form() {
                 )}
               />
             </div>
-          </>
+          </motion.div>
         )}
 
+        {/* Step 7 */}
+
         {currentStep === 6 && (
-          <>
+          <motion.div
+            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1,  }}
+            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+
+          >
             <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
               {steps[currentStep].title}
             </h2>
@@ -691,17 +694,17 @@ function Form() {
                 ></Checkbox>
               )}
             />
-          </>
+            <div className="mt-8 max-w-xl pt-5">
+              {currentStep === steps.length - 1 && (
+                <Button type="submit" size="lg" isDisabled={!isValid}>
+                  Submit
+                </Button>
+              )}
+            </div>
+          </motion.div>
         )}
-        <div className="mt-8 max-w-xl pt-5">
-          <div className="flex justify-between">
-            {currentStep === steps.length - 1 && (
-              <Button type="submit" size="lg" isDisabled={!isValid}>
-                Submit
-              </Button>
-            )}
-          </div>
-        </div>
+
+        {/* Buttons */}
         <div className="absolute bottom-[0%] left-1/2 -translate-y-[50%]">
           <ButtonGroup>
             <Button
