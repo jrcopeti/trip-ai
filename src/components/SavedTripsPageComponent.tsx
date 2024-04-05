@@ -76,7 +76,8 @@ function SavedTripsPageComponent({
 
       gsap.utils.toArray("section").forEach((section, i) => {
         const bg = section.querySelector('[data-bg="true"]');
-        const content = section.querySelectorAll('[data-content="true"'); // Assuming .content class for illustrative purposes
+        const content = section.querySelectorAll('[data-content="true"');
+        const title = section.querySelectorAll('[data-title="true"]');
 
         gsap.fromTo(
           bg,
@@ -104,17 +105,17 @@ function SavedTripsPageComponent({
             el,
 
             {
-              opacity: 0,
-              y: -100,
+              y: -50,
+
             },
             {
-              opacity: 1,
+
               y: 0,
-              duration: 2,
+
               ease: "none",
               scrollTrigger: {
                 trigger: el,
-                start: "top bottom",
+                start: "top center",
                 end: "bottom center",
                 scrub: true,
                 markers: true,
@@ -126,6 +127,31 @@ function SavedTripsPageComponent({
             },
           );
         });
+
+        title.forEach((el, i) => {
+          gsap.fromTo(
+            el,
+            {
+              y: -100,
+              autoAlpha: 0,
+            },
+
+            {
+              autoAlpha: 1,
+              y: 0,
+
+              ease: "none",
+              scrollTrigger: {
+                trigger: el,
+                start: "top center",
+                end: "bottom center",
+                scrub: 1,
+                markers: true,
+              },
+            },
+          );
+        });
+
         console.log(content.offsetHeight);
       });
       return () => {
@@ -264,7 +290,7 @@ function SavedTripsPageComponent({
 
           <div
             data-content="true"
-            className=" absolute h-[90%] w-[90%] p-4 opacity-0 backdrop-blur-sm lg:h-[80%] lg:w-[80%] lg:p-12"
+            className=" absolute h-[90%] w-[90%] p-4  backdrop-blur-sm lg:h-[80%] lg:w-[80%] lg:p-12"
           >
             <div className="grid grid-cols-1 items-center gap-4 rounded-xl  p-2 lg:p-4 xl:grid-cols-[1fr,auto]  ">
               <h1 className=" rounded-xl  bg-shark-100/50 p-4 text-3xl font-extrabold capitalize text-shark-800 md:text-5xl">
@@ -293,7 +319,7 @@ function SavedTripsPageComponent({
             style={{ backgroundImage: `url(${image4.src})` }}
           ></div>
           <h1
-            data-content="true"
+            data-title="true"
             className=" text-4xl font-extrabold capitalize text-shark-200 md:text-6xl"
           >
             We have your pack ready
@@ -310,7 +336,7 @@ function SavedTripsPageComponent({
           ></div>
           <div className="absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12 ">
             <div
-              // data-content="true"
+              data-title="true"
               className=" grid grid-cols-2 items-center justify-items-center rounded-md p-4 text-2xl lg:gap-8"
             >
               {/* {(trip?.objectsList as any)?.map((object: any) => (
