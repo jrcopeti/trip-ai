@@ -15,6 +15,7 @@ import image4 from "@/assets/4.jpg";
 import image5 from "@/assets/5.jpg";
 import image6 from "@/assets/6.jpeg";
 import image7 from "@/assets/7.jpg";
+import image8 from "@/assets/8.jpg";
 import geopattern from "@/assets/geopattern.png";
 import geopattern2 from "@/assets/geopattern2.png";
 import geopattern3 from "@/assets/geopattern3.png";
@@ -107,64 +108,73 @@ function SavedTripsPageComponent({
 
   useIsomorphicLayoutEffect(() => {
     if (!isPending) {
-      const tripDescription = document.getElementById("description");
-      const titleTours = document.getElementById("title-tours");
-      const tours = document.getElementById("tours");
-
-      const packReady = document.getElementById("pack-ready");
-      const objectsList = document.getElementById("objects-list");
       const context = gsap.context(() => {
-        gsap.set(tripDescription, {
-          scale: 0,
-        });
-        gsap.set(titleTours, {
-          xPercent: -200,
-        });
-        gsap.set(tours, {
+        gsap.from(".trip-description", {
           autoAlpha: 0,
-        });
-        gsap.set(packReady, {
-          yPercent: -100,
-          autoAlpha: 0,
-        });
-        gsap.set(objectsList, {
-          autoAlpha: 0,
-          y: -50,
+          y: 100,
+          duration: 1,
+          scrollTrigger: {
+            trigger: ".trip-description",
+            start: "top bottom",
+            end: "center 300px",
+
+            toggleActions: "restart none none none",
+          },
         });
 
-        let timeline = gsap
-          .timeline({
-            scrollTrigger: {
-              trigger: tripDescription,
-              start: "top bottom",
-              end: "center center",
-              toggleActions: "play none none none",
-              markers: true,
-            },
-          })
-          
-          .to(
-            tripDescription,
+        gsap.from(".title-tours", {
+          autoAlpha: 0,
+          x: -200,
 
-            {
-              scale: 1,
-              duration: 1,
-            },
-          )
-          .to(titleTours, { xPercent: 0, duration: 0.5 })
-          .to(tours, { autoAlpha: 1, duration: 0.5 })
-          .to(packReady, {
-            yPercent: 0,
-            duration: 0.5,
-            autoAlpha: 1,
-            stagger: 0.5,
-          })
-          .to(objectsList, {
-            autoAlpha: 1,
-            duration: 2.5,
-            stagger: 0.5,
-            y: 0,
-          });
+          scrollTrigger: {
+            trigger: ".tours-section",
+            start: "top bottom",
+            end: "center 300px",
+
+            scrub: 1,
+          },
+        });
+
+        ScrollTrigger.batch(".tour-item", {
+          trigger: ".tours-section",
+          start: "top bottom",
+          end: "center center",
+
+          onEnter: (elements) => {
+            gsap.from(elements, {
+              autoAlpha: 0,
+              y: 100,
+              stagger: 0.5,
+            });
+          },
+        });
+
+        gsap.from(".pack-ready", {
+          autoAlpha: 0,
+          y: 100,
+          duration: 1,
+          scrollTrigger: {
+            trigger: ".pack-section",
+            start: "top center",
+            end: "center 300px",
+            toggleActions: "restart none none none",
+          },
+        });
+
+        ScrollTrigger.batch(".objects-list", {
+          trigger: ".objects-section",
+          start: "top bottom",
+          end: "center center",
+          duration: 2,
+
+          onEnter: (elements) => {
+            gsap.from(elements, {
+              autoAlpha: 0,
+              x: 100,
+              stagger: 0.8,
+            });
+          },
+        });
       });
       return () => context.revert();
     }
@@ -188,6 +198,7 @@ function SavedTripsPageComponent({
     item: object.item,
     description: object.description,
   }));
+  console.log(image8);
 
   return (
     <>
@@ -255,17 +266,14 @@ function SavedTripsPageComponent({
 
       <>
         {/* Section 1 */}
-        <section
-          data-bg="true"
-          className="relative flex h-screen items-center justify-center overflow-x-hidden"
-        >
+        <section className=" relative flex h-screen items-center justify-center overflow-x-hidden">
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-center bg-repeat brightness-75"
             style={{ backgroundImage: `url(${geopattern.src})` }}
           ></div>
           <div className="absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12 ">
-            <div className="  grid gap-4 rounded-xl p-2 md:grid-cols-2 lg:p-4 xl:grid-cols-[5fr,1fr,] ">
+            <div className="  grid gap-4 rounded-xl p-2 md:grid-cols-2 lg:p-4 xl:grid-cols-[1fr,1fr,] ">
               <Image
                 src={trip?.image}
                 alt="city"
@@ -288,53 +296,36 @@ function SavedTripsPageComponent({
 
         {/* Section 2 */}
 
-        <section
-          data-bg="true"
-          className="relative flex h-screen items-center justify-center"
-        >
+        <article className=" relative  flex h-screen items-center justify-center overflow-x-hidden">
           <div
-            data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
+            className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center  brightness-75"
             style={{ backgroundImage: `url(${trip?.image2})` }}
           ></div>
 
           <div className="p-12 backdrop-blur-sm">
-            <p
-              id="description"
-              className="  text-start text-2xl font-extrabold leading-[1.8] text-shark-100 md:text-center   lg:text-4xl"
-            >
+            <p className=" trip-description text-start text-2xl font-extrabold leading-[1.8] text-shark-100 md:text-center lg:text-4xl">
               {trip?.description}
             </p>
           </div>
-        </section>
+        </article>
 
         {/* Section 3 */}
 
-        <section
-          data-bg="true"
-          className="relative flex h-screen items-center justify-center"
-        >
+        <article className=" tours-section relative flex h-screen items-center justify-center overflow-x-hidden">
           <div
-            data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
-            style={{ backgroundImage: `url(${trip?.image2})` }}
+            style={{ backgroundImage: `url(${image8.src})` }}
           ></div>
 
-          <div className=" absolute h-[90%] w-[90%] p-4  backdrop-blur-sm lg:h-[80%] lg:w-[80%] lg:p-12">
+          <div className=" absolute h-[90%] w-[90%] p-4   lg:h-[80%] lg:w-[80%] lg:p-12">
             <div className="grid grid-cols-1 items-center gap-4 rounded-xl  p-2 lg:p-4 xl:grid-cols-[1fr,auto]  ">
-              <h1
-                id="title-tours"
-                className=" rounded-xl  bg-shark-100/50 p-4 text-3xl font-extrabold capitalize text-shark-800 md:text-5xl"
-              >
+              <h1 className=" title-tours rounded-xl  bg-shark-100/50 p-4 text-3xl font-extrabold capitalize text-shark-800 md:text-5xl">
                 Your suggested tours
               </h1>
-              <div
-                id="tours"
-                className=" grid grid-cols-1 gap-4 rounded-md p-4 lg:gap-6"
-              >
-                {(trip?.tours as string[])?.map((tour) => (
-                  <ul className="grid grid-cols-1" key={tour}>
-                    <li className=" text-md font-semibold text-shark-200 lg:text-xl xl:text-2xl ">
+              <div className=" grid grid-cols-1 gap-4 rounded-md p-4 backdrop-blur-sm lg:gap-6">
+                {(trip?.tours as string[])?.map((tour, i) => (
+                  <ul className="grid grid-cols-1" key={i}>
+                    <li className=" tour-item text-md font-semibold text-shark-200 lg:text-xl xl:text-2xl ">
                       {tour}
                     </li>
                   </ul>
@@ -342,44 +333,38 @@ function SavedTripsPageComponent({
               </div>
             </div>
           </div>
-        </section>
+        </article>
 
         {/* Section 4 */}
 
-        <section className="relative flex h-screen items-center justify-center">
+        <section className="pack-section relative flex h-screen items-center justify-center">
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full brightness-75"
             style={{ backgroundImage: `url(${image4.src})` }}
           ></div>
-          <h1
-            id="pack-ready"
-            className=" text-4xl font-extrabold capitalize text-shark-200 md:text-6xl"
-          >
+          <h1 className="pack-ready text-4xl font-extrabold capitalize text-shark-200 md:text-6xl">
             We have your pack ready
           </h1>
         </section>
 
         {/* Section 4 */}
 
-        <section className="relative flex h-screen items-center justify-center">
+        <section className="objects-section relative flex h-screen items-center justify-center">
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
             style={{ backgroundImage: `url(${image7.src})` }}
           ></div>
           <div className="absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12 ">
-            <div
-              id="objects-list"
-              className="grid grid-cols-1 items-center justify-items-center rounded-md p-4 text-2xl lg:grid-cols-3 lg:gap-4"
-            >
+            <div className="grid grid-cols-1 items-center justify-items-center rounded-md p-4 text-2xl lg:grid-cols-3 lg:gap-4">
               {(trip?.objectsList as any)?.map((object: any) => (
                 <div
-                  className="flex h-full w-full flex-col items-stretch justify-start gap-y-6 rounded-xl bg-tuna-200 p-4 font-semibold leading-loose lg:text-2xl"
+                  className="objects-list flex h-full w-full flex-col items-stretch justify-start gap-y-6 rounded-xl bg-tuna-200 p-4 font-semibold leading-loose lg:text-xl"
                   key={object.item}
                 >
-                  <div className="flex items-center justify-start space-x-2">
-                    <span className="text-violay-500">{object.quantity}</span>
+                  <div className=" flex items-center justify-start space-x-2">
+                    <span className=" text-violay-500">{object.quantity}</span>
                     <span className="whitespace-nowrap text-shark-800">
                       {object.item}
                     </span>
@@ -447,7 +432,7 @@ function SavedTripsPageComponent({
         <section className="relative flex h-screen items-center justify-center">
           <div
             data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center brightness-75"
+            className="absolute left-0 top-0 -z-10 h-full w-full  bg-cover bg-center brightness-75"
             style={{ backgroundImage: `url(${trip?.image3})` }}
           ></div>
           <h1 className="font-gallery-100 text-3xl">6</h1>
@@ -466,7 +451,7 @@ function SavedTripsPageComponent({
 
         {/* Section 8 */}
 
-        <section className="relative flex h-screen items-center justify-center">
+        <section data-bg="true" className="relative flex h-screen items-center justify-center">
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
@@ -477,7 +462,7 @@ function SavedTripsPageComponent({
 
         {/* Section 9 */}
 
-        <section className="relative flex h-screen items-center justify-center">
+        <section data-bg="true" className="relative flex h-screen items-center justify-center">
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
