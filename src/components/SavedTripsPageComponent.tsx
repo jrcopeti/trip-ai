@@ -17,16 +17,6 @@ import image8 from "@/assets/8.jpg";
 import geopattern from "@/assets/geopattern.png";
 import geopattern2 from "@/assets/geopattern2.png";
 import geopattern3 from "@/assets/geopattern3.png";
-import bolt from "@/assets/weather/bolt.png";
-import drizzle from "@/assets/weather/drizzle.png";
-import rain from "@/assets/weather/rain.png";
-import snow from "@/assets/weather/snow.png";
-import hail from "@/assets/weather/hail.png";
-import sun from "@/assets/weather/sun.png";
-import moon from "@/assets/weather/moon.png";
-import nightcloudy from "@/assets/weather/nightcloudy.png";
-import sunnycloudy from "@/assets/weather/sunnycloudy.png";
-import cloudy from "@/assets/weather/cloudy.png";
 
 import { Card, CardBody, CardHeader } from "@nextui-org/react";
 import gsap from "gsap";
@@ -52,36 +42,17 @@ function SavedTripsPageComponent({
   const { generateWeather, weatherData, isPendingWeather } = useWeather();
 
   useEffect(() => {
-    if (
-      !isPendingWeather &&
-      !isPending &&
-      !weatherData &&
-      trip?.city &&
-      trip?.country
-    ) {
+    if (!isPending && !weatherData && trip?.city && trip?.country) {
       generateWeather(trip?.city, trip?.country);
     }
-  }, [
-    isPendingWeather,
-    isPending,
-    generateWeather,
-    weatherData,
-    trip?.city,
-    trip?.country,
-  ]);
-  console.log("weatherData", weatherData);
+  }, [isPending, generateWeather, weatherData, trip?.city, trip?.country]);
 
-  if (isPendingWeather || !weatherData) {
-    <p>loading weather</p>;
-  }
-
-  // const { main, weather } = weatherData;
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
-  gsap.registerPlugin(ScrollTrigger);
+
   // RIGHT HERE
   useIsomorphicLayoutEffect(() => {
-    if (!isPending) {
+    if (!isPending && !isPendingWeather && weatherData) {
       const innerHeight = window.innerHeight;
 
       const getRatio = (el: HTMLElement) =>
@@ -116,10 +87,10 @@ function SavedTripsPageComponent({
     return () => {
       ScrollTrigger.getAll().forEach((st) => st.kill());
     };
-  }, [isPending]);
+  }, [isPending, isPendingWeather, weatherData]);
 
   useIsomorphicLayoutEffect(() => {
-    if (!isPending) {
+    if (!isPending && !isPendingWeather && weatherData) {
       const context = gsap.context(() => {
         gsap.from(".trip-description", {
           autoAlpha: 0,
@@ -190,11 +161,15 @@ function SavedTripsPageComponent({
       });
       return () => context.revert();
     }
-  }, [isPending]);
+  }, [isPending, isPendingWeather, weatherData]);
 
   if (isPending) {
     return <div>Loading single trip...</div>;
   }
+  if (isPendingWeather || !weatherData) {
+    return <p>loading weather</p>;
+  }
+  const { weatherIconSrc } = weatherData;
   const main = weatherData?.main;
   const temperature = Math.round(main?.temp - 273);
   const feelsLike = Math.round(main?.feels_like - 273);
@@ -203,67 +178,8 @@ function SavedTripsPageComponent({
 
   const weather = weatherData?.weather[0];
   const condition = weather?.main;
-  const weatherIcon = weather?.icon;
+  console.log(weatherData)
 
-  const placeWeatherIcons = (condition: string, icon = null) => {
-    console.log("condition", condition);
-    console.log("icon", icon);
-    const hour = new Date().getHours();
-    console.log("hour", hour);
-    if (!icon) {
-      if (condition === "Thunderstorm") {
-        return bolt.src;
-      }
-      if (condition === "Drizzle") {
-        return drizzle.src;
-      }
-      if (condition === "Rain") {
-        return rain.src;
-      }
-      if (condition === "Snow") {
-        return snow.src;
-      }
-      if (
-        condition === "Mist" ||
-        condition === "Smoke" ||
-        condition === "Haze" ||
-        condition === "Dust" ||
-        condition === "Fog" ||
-        condition === "Sand" ||
-        condition === "Ash" ||
-        condition === "Squall" ||
-        condition === "Tornado"
-      ) {
-        return hail.src;
-      }
-
-      if (condition === "Clear") {
-        if (hour > 5 || hour < 19) {
-          return sun.src;
-        }
-        if (hour >= 18 || hour <= 6) {
-          return moon.src;
-        }
-      }
-    }
-
-    if (condition === "Clouds") {
-      if ((icon === "02d" || icon === "03d") && (hour > 5 || hour < 19)) {
-        return sunnycloudy.src;
-      }
-
-      if ((icon === "02n" || icon === "03n") && (hour >= 19 || hour <= 5)) {
-        return nightcloudy.src;
-      }
-
-      if (icon === "04d" || icon === "04n") {
-        return cloudy.src;
-      }
-    }
-    console.log("No condition matched, returning default icon.");
-  };
-
-  const weatherIconSrc = placeWeatherIcons(condition, weatherIcon);
 
   const formattedStartDate = dayjs(trip?.startDate).format("DD MMM YYYY");
   const formattedEndDate = dayjs(trip?.endDate).format("DD MMM YYYY");

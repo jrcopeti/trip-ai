@@ -3,7 +3,8 @@
 import { fetchForecast, fetchWeather } from "@/api/openWeatherApi";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { createContext } from "react";
+import { createContext, useState } from "react";
+import { placeWeatherIcons } from "@/lib/utils";
 
 interface WeatherContextType {
   forecastData: any;
@@ -33,7 +34,7 @@ const defaultContextValue: WeatherContextType = {
 const WeatherContext = createContext<WeatherContextType>(defaultContextValue);
 
 function WeatherProvider({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
+  const [weatherData, setWeatherData] = useState<any>(null);
 
   const {
     mutate: generateForecast,
@@ -55,7 +56,7 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
 
   const {
     mutate: generateWeather,
-    data: weatherData,
+    data,
     isPending: isPendingWeather,
     error: errorWeather,
   } = useMutation({
@@ -63,15 +64,17 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
     mutationFn: (city: string | undefined, country: string | undefined) =>
       fetchWeather(city, country),
 
-    onSuccess: () => {
-      console.log("success weather ");
+    onSuccess: (data) => {
+      const condition = data?.weather[0]?.main;
+      const iconCode = data?.weather[0]?.icon;
+      const weatherIconSrc = placeWeatherIcons(condition, iconCode);
+      setWeatherData({ ...data, weatherIconSrc });
       // router.push("/trip");
     },
     onError: (error) => {
       console.log(error);
     },
   });
-
 
   return (
     <WeatherContext.Provider
