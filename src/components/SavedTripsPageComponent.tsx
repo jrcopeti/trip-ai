@@ -1,12 +1,11 @@
 "use client";
-
-import { getSingleSavedTrip } from "@/db/actions";
+import { useEffect, useLayoutEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { getSingleSavedTrip } from "@/db/actions";
+import { useWeather } from "@/hooks/useWeather";
+
 import dayjs from "dayjs";
 import Image from "next/image";
-import { useEffect, useLayoutEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/all";
 import image1 from "@/assets/1.jpg";
 import image2 from "@/assets/2.jpg";
 import image3 from "@/assets/3.jpg";
@@ -14,29 +13,26 @@ import image4 from "@/assets/4.jpg";
 import image5 from "@/assets/5.jpg";
 import image6 from "@/assets/6.jpeg";
 import image7 from "@/assets/7.jpg";
+import image8 from "@/assets/8.jpg";
 import geopattern from "@/assets/geopattern.png";
 import geopattern2 from "@/assets/geopattern2.png";
 import geopattern3 from "@/assets/geopattern3.png";
-import { useWeather } from "@/hooks/useWeather";
-import {
-  motion,
-  useScroll,
-  useSpring,
-  useTransform,
-  MotionValue,
-  useMotionValueEvent,
-} from "framer-motion";
-import {
-  Card,
-  CardBody,
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-  getKeyValue,
-} from "@nextui-org/react";
+import bolt from "@/assets/weather/bolt.png";
+import drizzle from "@/assets/weather/drizzle.png";
+import rain from "@/assets/weather/rain.png";
+import snow from "@/assets/weather/snow.png";
+import hail from "@/assets/weather/hail.png";
+import sun from "@/assets/weather/sun.png";
+import moon from "@/assets/weather/moon.png";
+import nightcloudy from "@/assets/weather/nightcloudy.png";
+import sunnycloudy from "@/assets/weather/sunnycloudy.png";
+import cloudy from "@/assets/weather/cloudy.png";
+
+import { Card, CardBody, CardHeader } from "@nextui-org/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 function SavedTripsPageComponent({
   params,
@@ -53,22 +49,39 @@ function SavedTripsPageComponent({
     queryFn: () => getSingleSavedTrip(Number(params.id)),
   });
 
-  const { generateWeather, weatherData } = useWeather();
+  const { generateWeather, weatherData, isPendingWeather } = useWeather();
 
-  // useEffect(() => {
-  //   if (!isPending) {
-  //     generateWeather(trip?.city, trip?.country);
-  //   }
-  // }, [isPending, generateWeather, trip?.city, trip?.country]);
-  // console.log("weatherData", weatherData);
-
-  useLayoutEffect(() => {
-    if (typeof window === "undefined") {
-      return;
+  useEffect(() => {
+    if (
+      !isPendingWeather &&
+      !isPending &&
+      !weatherData &&
+      trip?.city &&
+      trip?.country
+    ) {
+      generateWeather(trip?.city, trip?.country);
     }
-    if (!isPending) {
-      gsap.registerPlugin(ScrollTrigger);
+  }, [
+    isPendingWeather,
+    isPending,
+    generateWeather,
+    weatherData,
+    trip?.city,
+    trip?.country,
+  ]);
+  console.log("weatherData", weatherData);
 
+  if (isPendingWeather || !weatherData) {
+    <p>loading weather</p>;
+  }
+
+  // const { main, weather } = weatherData;
+  const useIsomorphicLayoutEffect =
+    typeof window !== "undefined" ? useLayoutEffect : useEffect;
+  gsap.registerPlugin(ScrollTrigger);
+  // RIGHT HERE
+  useIsomorphicLayoutEffect(() => {
+    if (!isPending) {
       const innerHeight = window.innerHeight;
 
       const getRatio = (el: HTMLElement) =>
@@ -76,8 +89,6 @@ function SavedTripsPageComponent({
 
       gsap.utils.toArray("section").forEach((section, i) => {
         const bg = section.querySelector('[data-bg="true"]');
-        const content = section.querySelectorAll('[data-content="true"');
-        const title = section.querySelectorAll('[data-title="true"]');
 
         gsap.fromTo(
           bg,
@@ -90,7 +101,7 @@ function SavedTripsPageComponent({
               `100% ${innerHeight * (1 - getRatio(section))}px`,
             ease: "none",
             scrollTrigger: {
-              trigger: section,
+              trigger: bg,
 
               start: () => (i ? "top bottom" : "top top"),
               end: "bottom top",
@@ -99,85 +110,163 @@ function SavedTripsPageComponent({
             },
           },
         );
-
-        content.forEach((el, i) => {
-          gsap.fromTo(
-            el,
-
-            {
-              y: -50,
-
-            },
-            {
-
-              y: 0,
-
-              ease: "none",
-              scrollTrigger: {
-                trigger: el,
-                start: "top center",
-                end: "bottom center",
-                scrub: true,
-                markers: true,
-                // onLeave: () =>
-                //   gsap.to(el, { opacity: 0, duration:2, ease: "back" }),
-                // onEnterBack: () =>
-                //   gsap.to(el, { opacity: 1, duration: 1, ease: "back" }),
-              },
-            },
-          );
-        });
-
-        title.forEach((el, i) => {
-          gsap.fromTo(
-            el,
-            {
-              y: -100,
-              autoAlpha: 0,
-            },
-
-            {
-              autoAlpha: 1,
-              y: 0,
-
-              ease: "none",
-              scrollTrigger: {
-                trigger: el,
-                start: "top center",
-                end: "bottom center",
-                scrub: 1,
-                markers: true,
-              },
-            },
-          );
-        });
-
-        console.log(content.offsetHeight);
       });
-      return () => {
-        ScrollTrigger.getAll().forEach((st) => st.kill());
-      };
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach((st) => st.kill());
+    };
+  }, [isPending]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (!isPending) {
+      const context = gsap.context(() => {
+        gsap.from(".trip-description", {
+          autoAlpha: 0,
+          y: 100,
+          duration: 1,
+          scrollTrigger: {
+            trigger: ".trip-description",
+            start: "top bottom",
+            end: "center 300px",
+
+            toggleActions: "restart none none none",
+          },
+        });
+
+        gsap.from(".title-tours", {
+          autoAlpha: 0,
+          x: -200,
+
+          scrollTrigger: {
+            trigger: ".tours-section",
+            start: "top bottom",
+            end: "center 300px",
+
+            scrub: 1,
+          },
+        });
+
+        ScrollTrigger.batch(".tour-item", {
+          trigger: ".tours-section",
+          start: "top bottom",
+          end: "center center",
+
+          onEnter: (elements) => {
+            gsap.from(elements, {
+              autoAlpha: 0,
+              y: 100,
+              stagger: 0.5,
+            });
+          },
+        });
+
+        gsap.from(".pack-ready", {
+          autoAlpha: 0,
+          y: 100,
+          duration: 1,
+          scrollTrigger: {
+            trigger: ".pack-section",
+            start: "top center",
+            end: "center 300px",
+            toggleActions: "restart none none none",
+          },
+        });
+
+        ScrollTrigger.batch(".objects-list", {
+          trigger: ".objects-section",
+          start: "top bottom",
+          end: "center center",
+          duration: 2,
+
+          onEnter: (elements) => {
+            gsap.from(elements, {
+              autoAlpha: 0,
+              x: 100,
+              stagger: 0.8,
+            });
+          },
+        });
+      });
+      return () => context.revert();
     }
   }, [isPending]);
 
   if (isPending) {
     return <div>Loading single trip...</div>;
   }
+  const main = weatherData?.main;
+  const temperature = Math.round(main?.temp - 273);
+  const feelsLike = Math.round(main?.feels_like - 273);
+  const tempMin = Math.round(main?.temp_min - 273);
+  const tempMax = Math.round(main?.temp_max - 273);
+
+  const weather = weatherData?.weather[0];
+  const condition = weather?.main;
+  const weatherIcon = weather?.icon;
+
+  const placeWeatherIcons = (condition: string, icon = null) => {
+    console.log("condition", condition);
+    console.log("icon", icon);
+    const hour = new Date().getHours();
+    console.log("hour", hour);
+    if (!icon) {
+      if (condition === "Thunderstorm") {
+        return bolt.src;
+      }
+      if (condition === "Drizzle") {
+        return drizzle.src;
+      }
+      if (condition === "Rain") {
+        return rain.src;
+      }
+      if (condition === "Snow") {
+        return snow.src;
+      }
+      if (
+        condition === "Mist" ||
+        condition === "Smoke" ||
+        condition === "Haze" ||
+        condition === "Dust" ||
+        condition === "Fog" ||
+        condition === "Sand" ||
+        condition === "Ash" ||
+        condition === "Squall" ||
+        condition === "Tornado"
+      ) {
+        return hail.src;
+      }
+
+      if (condition === "Clear") {
+        if (hour > 5 || hour < 19) {
+          return sun.src;
+        }
+        if (hour >= 18 || hour <= 6) {
+          return moon.src;
+        }
+      }
+    }
+
+    if (condition === "Clouds") {
+      if ((icon === "02d" || icon === "03d") && (hour > 5 || hour < 19)) {
+        return sunnycloudy.src;
+      }
+
+      if ((icon === "02n" || icon === "03n") && (hour >= 19 || hour <= 5)) {
+        return nightcloudy.src;
+      }
+
+      if (icon === "04d" || icon === "04n") {
+        return cloudy.src;
+      }
+    }
+    console.log("No condition matched, returning default icon.");
+  };
+
+  const weatherIconSrc = placeWeatherIcons(condition, weatherIcon);
 
   const formattedStartDate = dayjs(trip?.startDate).format("DD MMM YYYY");
   const formattedEndDate = dayjs(trip?.endDate).format("DD MMM YYYY");
-
-  const columns = [
-    { key: "quantity", label: "Quantity" },
-    { key: "item", label: "Item" },
-    { key: "description", label: "Description" },
-  ];
-  const rows = trip?.objectsList?.map((object, index) => ({
-    key: object.id || index,
-    quantity: object.quantity,
-    item: object.item,
-    description: object.description,
-  }));
 
   return (
     <>
@@ -245,32 +334,29 @@ function SavedTripsPageComponent({
 
       <>
         {/* Section 1 */}
-        <section className="relative flex h-screen items-center justify-center">
+        <section className=" relative flex h-screen items-center justify-center overflow-x-hidden">
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-center bg-repeat brightness-75"
             style={{ backgroundImage: `url(${geopattern.src})` }}
           ></div>
           <div className="absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12 ">
-            <div className="grid grid-cols-1 gap-4 rounded-xl p-2 lg:grid-cols-[auto,auto] lg:p-4 ">
+            <div className="  grid gap-4 rounded-xl p-2 md:grid-cols-2 lg:p-4 xl:grid-cols-[1fr,1fr,] ">
               <Image
                 src={trip?.image}
                 alt="city"
-                width={500}
+                width={600}
                 height={500}
                 blurDataURL={trip?.placeholder}
                 placeholder="blur"
                 priority
-                className="rounded-xl shadow-lg"
+                className="h-auto w-auto rounded-xl shadow-lg "
               />
 
-              <div className=" grid grid-cols-1 gap-4 rounded-md p-4  shadow-sm lg:grid-cols-[1fr,auto] lg:gap-8">
+              <div className=" grid grid-cols-1 gap-4 rounded-md p-4  shadow-sm lg:gap-8 xl:grid-cols-[1fr,1fr]">
                 <h1 className=" text-3xl font-extrabold text-shark-950 md:text-5xl">
                   {trip?.title}
                 </h1>
-                <p className="  text-lg font-bold text-shark-950 lg:text-2xl">
-                  {trip?.description}
-                </p>
               </div>
             </div>
           </div>
@@ -278,116 +364,127 @@ function SavedTripsPageComponent({
 
         {/* Section 2 */}
 
-        <section
-          data-bg="true"
-          className="relative flex h-screen items-center justify-center"
-        >
+        <article className=" relative  flex h-screen items-center justify-center overflow-x-hidden">
           <div
-            data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
+            className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center  brightness-75"
             style={{ backgroundImage: `url(${trip?.image2})` }}
           ></div>
 
+          <div className="p-12 backdrop-blur-sm">
+            <p className=" trip-description text-start text-2xl font-extrabold leading-[1.8] text-shark-100 md:text-center lg:text-4xl">
+              {trip?.description}
+            </p>
+          </div>
+        </article>
+
+        {/* Section 3 */}
+
+        <article className=" tours-section relative flex h-screen items-center justify-center overflow-x-hidden">
           <div
-            data-content="true"
-            className=" absolute h-[90%] w-[90%] p-4  backdrop-blur-sm lg:h-[80%] lg:w-[80%] lg:p-12"
-          >
+            className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
+            style={{ backgroundImage: `url(${image8.src})` }}
+          ></div>
+
+          <div className=" absolute h-[90%] w-[90%] p-4   lg:h-[80%] lg:w-[80%] lg:p-12">
             <div className="grid grid-cols-1 items-center gap-4 rounded-xl  p-2 lg:p-4 xl:grid-cols-[1fr,auto]  ">
-              <h1 className=" rounded-xl  bg-shark-100/50 p-4 text-3xl font-extrabold capitalize text-shark-800 md:text-5xl">
-                Your suggested tours in {trip?.city}
+              <h1 className=" title-tours rounded-xl  bg-shark-100/50 p-4 text-3xl font-extrabold capitalize text-shark-800 md:text-5xl">
+                Your suggested tours
               </h1>
-              <div className=" grid grid-cols-1 gap-4 rounded-md p-4 lg:gap-8">
-                {(trip?.tours as string[])?.map((tour) => (
-                  <motion.ul className="grid grid-cols-1" key={tour}>
-                    <li className=" text-lg  font-semibold text-shark-200 lg:text-2xl xl:text-3xl ">
+              <div className=" grid grid-cols-1 gap-4 rounded-md p-4 backdrop-blur-sm lg:gap-6">
+                {(trip?.tours as string[])?.map((tour, i) => (
+                  <ul className="grid grid-cols-1" key={i}>
+                    <li className=" tour-item text-md font-semibold text-shark-200 lg:text-xl xl:text-2xl ">
                       {tour}
                     </li>
-                  </motion.ul>
+                  </ul>
                 ))}
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-1 justify-items-center gap-x-4 gap-y-8 rounded-xl p-2 lg:grid-cols-[auto,auto] lg:gap-x-10 lg:gap-y-12 lg:p-4 "></div>
-        </section>
+        </article>
 
-        {/* Section 3 */}
+        {/* Section 4 */}
 
-        <section className="relative flex h-screen items-center justify-center">
+        <section className="pack-section relative flex h-screen items-center justify-center">
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full brightness-75"
             style={{ backgroundImage: `url(${image4.src})` }}
           ></div>
-          <h1
-            data-title="true"
-            className=" text-4xl font-extrabold capitalize text-shark-200 md:text-6xl"
-          >
+          <h1 className="pack-ready text-4xl font-extrabold capitalize text-shark-200 md:text-6xl">
             We have your pack ready
           </h1>
         </section>
 
         {/* Section 4 */}
 
-        <section className="relative flex h-screen items-center justify-center">
+        <section className="objects-section relative flex h-screen items-center justify-center">
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
             style={{ backgroundImage: `url(${image7.src})` }}
           ></div>
           <div className="absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12 ">
-            <div
-              data-title="true"
-              className=" grid grid-cols-2 items-center justify-items-center rounded-md p-4 text-2xl lg:gap-8"
-            >
-              {/* {(trip?.objectsList as any)?.map((object: any) => (
-                <ul
-                  className="items-baseline gap-y-8 font-semibold leading-loose lg:text-2xl "
+            <div className="grid grid-cols-2 items-center justify-items-center gap-2 rounded-md text-xs lg:grid-cols-3 lg:gap-4 lg:p-4 lg:text-2xl">
+              {(trip?.objectsList as any)?.map((object: any) => (
+                <div
+                  className="objects-list flex h-full w-full flex-col items-stretch justify-start  rounded-xl bg-tuna-200 p-4 font-semibold leading-loose lg:gap-y-6 lg:text-xl"
                   key={object.item}
                 >
-                  <li className="text-violay-900  ">{object.quantity}</li>
-                  <li className="text-shark-900">{object.item}</li>
-                  <li className="text-shark-900">{object.description}</li>
-                </ul>
-              ))} */}
+                  <div className=" flex items-center justify-start space-x-4">
+                    <span className=" text-violay-500">{object.quantity}</span>
+                    <span className="whitespace-nowrap text-shark-800">
+                      {object.item}
+                    </span>
+                  </div>
+                  <span className="whitespace-normal text-shark-800">
+                    {object.description}
+                  </span>
+                </div>
+              ))}
             </div>
-            <Table
-              color="primary"
-              aria-label="Example table with dynamic content"
-            >
-              <TableHeader columns={columns}>
-                {(column) => (
-                  <TableColumn key={column.key}>{column.label}</TableColumn>
-                )}
-              </TableHeader>
-              <TableBody items={rows}>
-                {(item) => (
-                  <TableRow key={item.key}>
-                    {(columnKey) => (
-                      <TableCell>{getKeyValue(item, columnKey)}</TableCell>
-                    )}
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
           </div>
         </section>
 
         {/* Section 5 */}
 
-        <section className="relative flex h-screen items-center justify-center">
+        <section
+          data-bg="true"
+          className="relative flex h-screen items-center justify-center"
+        >
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full brightness-75"
             style={{ backgroundImage: `url(${geopattern3.src})` }}
           ></div>
-          <h1 className="font-gallery-100 text-3xl">5</h1>
+          <Card className="py-4">
+            <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
+              <p className="text-tiny font-bold uppercase">{temperature}ºC</p>
+              <small className="text-default-500">
+                min {tempMin} max {tempMax}
+              </small>
+              <h4 className="text-large font-bold">{condition}</h4>
+            </CardHeader>
+            <CardBody className="overflow-visible py-2">
+              <Image
+                alt="Card background"
+                className="rounded-xl object-cover"
+                src={weatherIconSrc}
+                width={100}
+                height={100}
+              />
+            </CardBody>
+          </Card>
         </section>
 
         {/* Section 6 */}
-        <section className="relative flex h-screen items-center justify-center">
+        <section
+          data-bg="true"
+          className="relative flex h-screen items-center justify-center"
+        >
           <div
             data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center brightness-75"
+            className="absolute left-0 top-0 -z-10 h-full w-full  bg-cover bg-center brightness-75"
             style={{ backgroundImage: `url(${trip?.image3})` }}
           ></div>
           <h1 className="font-gallery-100 text-3xl">6</h1>
@@ -395,7 +492,10 @@ function SavedTripsPageComponent({
 
         {/* Section 7 */}
 
-        <section className="relative flex h-screen items-center justify-center">
+        <section
+          data-bg="true"
+          className=" relative flex h-screen items-center justify-center"
+        >
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-repeat brightness-75"
@@ -406,7 +506,10 @@ function SavedTripsPageComponent({
 
         {/* Section 8 */}
 
-        <section className="relative flex h-screen items-center justify-center">
+        <section
+          data-bg="true"
+          className="relative flex h-screen items-center justify-center"
+        >
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
@@ -417,7 +520,10 @@ function SavedTripsPageComponent({
 
         {/* Section 9 */}
 
-        <section className="relative flex h-screen items-center justify-center">
+        <section
+          data-bg="true"
+          className="relative flex h-screen items-center justify-center"
+        >
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
