@@ -1,5 +1,4 @@
-
- const types = [
+const types = [
   { value: "family", label: "Family" },
   { value: "adventure", label: "Adventure" },
   { value: "romantic", label: "Romantic" },
@@ -10,7 +9,7 @@
   { value: "gastronomy", label: "Gastronomy" },
   { value: "nature", label: "Nature" },
 ];
- const sortedTypes = [...types.sort((a, b) => a.label.localeCompare(b.label))];
+const sortedTypes = [...types.sort((a, b) => a.label.localeCompare(b.label))];
 
 const luggageSizes = [
   { value: "backpack", label: "Backpack" },
@@ -73,4 +72,10 @@ const sortedInterest = [
   ...interests.sort((a, b) => a.label.localeCompare(b.label)),
 ];
 
-export { sortedTypes, luggageSizes, sortedAccommodations, budgets, sortedInterest };
+export {
+  sortedTypes,
+  luggageSizes,
+  sortedAccommodations,
+  budgets,
+  sortedInterest,
+};

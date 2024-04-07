@@ -71,7 +71,7 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
       console.log(error);
     },
   });
-  console.log("weatherData", weatherData);
+
 
   return (
     <WeatherContext.Provider

@@ -1,13 +1,11 @@
 "use client";
-
-import { getSingleSavedTrip } from "@/db/actions";
+import { useEffect, useLayoutEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { getSingleSavedTrip } from "@/db/actions";
+import { useWeather } from "@/hooks/useWeather";
+
 import dayjs from "dayjs";
 import Image from "next/image";
-import { useEffect, useLayoutEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
 import image1 from "@/assets/1.jpg";
 import image2 from "@/assets/2.jpg";
 import image3 from "@/assets/3.jpg";
@@ -19,26 +17,21 @@ import image8 from "@/assets/8.jpg";
 import geopattern from "@/assets/geopattern.png";
 import geopattern2 from "@/assets/geopattern2.png";
 import geopattern3 from "@/assets/geopattern3.png";
-import { useWeather } from "@/hooks/useWeather";
-import {
-  motion,
-  useScroll,
-  useSpring,
-  useTransform,
-  MotionValue,
-  useMotionValueEvent,
-} from "framer-motion";
-import {
-  Card,
-  CardBody,
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-  getKeyValue,
-} from "@nextui-org/react";
+import bolt from "@/assets/weather/bolt.png";
+import drizzle from "@/assets/weather/drizzle.png";
+import rain from "@/assets/weather/rain.png";
+import snow from "@/assets/weather/snow.png";
+import hail from "@/assets/weather/hail.png";
+import sun from "@/assets/weather/sun.png";
+import moon from "@/assets/weather/moon.png";
+import nightcloudy from "@/assets/weather/nightcloudy.png";
+import sunnycloudy from "@/assets/weather/sunnycloudy.png";
+import cloudy from "@/assets/weather/cloudy.png";
+
+import { Card, CardBody, CardHeader } from "@nextui-org/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
 gsap.registerPlugin(ScrollTrigger);
 
 function SavedTripsPageComponent({
@@ -56,14 +49,33 @@ function SavedTripsPageComponent({
     queryFn: () => getSingleSavedTrip(Number(params.id)),
   });
 
-  const { generateWeather, weatherData } = useWeather();
+  const { generateWeather, weatherData, isPendingWeather } = useWeather();
 
-  // useEffect(() => {
-  //   if (!isPending) {
-  //     generateWeather(trip?.city, trip?.country);
-  //   }
-  // }, [isPending, generateWeather, trip?.city, trip?.country]);
-  // console.log("weatherData", weatherData);
+  useEffect(() => {
+    if (
+      !isPendingWeather &&
+      !isPending &&
+      !weatherData &&
+      trip?.city &&
+      trip?.country
+    ) {
+      generateWeather(trip?.city, trip?.country);
+    }
+  }, [
+    isPendingWeather,
+    isPending,
+    generateWeather,
+    weatherData,
+    trip?.city,
+    trip?.country,
+  ]);
+  console.log("weatherData", weatherData);
+
+  if (isPendingWeather || !weatherData) {
+    <p>loading weather</p>;
+  }
+
+  // const { main, weather } = weatherData;
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
   gsap.registerPlugin(ScrollTrigger);
@@ -183,22 +195,78 @@ function SavedTripsPageComponent({
   if (isPending) {
     return <div>Loading single trip...</div>;
   }
+  const main = weatherData?.main;
+  const temperature = Math.round(main?.temp - 273);
+  const feelsLike = Math.round(main?.feels_like - 273);
+  const tempMin = Math.round(main?.temp_min - 273);
+  const tempMax = Math.round(main?.temp_max - 273);
+
+  const weather = weatherData?.weather[0];
+  const condition = weather?.main;
+  const weatherIcon = weather?.icon;
+
+  const placeWeatherIcons = (condition: string, icon = null) => {
+    console.log("condition", condition);
+    console.log("icon", icon);
+    const hour = new Date().getHours();
+    console.log("hour", hour);
+    if (!icon) {
+      if (condition === "Thunderstorm") {
+        return bolt.src;
+      }
+      if (condition === "Drizzle") {
+        return drizzle.src;
+      }
+      if (condition === "Rain") {
+        return rain.src;
+      }
+      if (condition === "Snow") {
+        return snow.src;
+      }
+      if (
+        condition === "Mist" ||
+        condition === "Smoke" ||
+        condition === "Haze" ||
+        condition === "Dust" ||
+        condition === "Fog" ||
+        condition === "Sand" ||
+        condition === "Ash" ||
+        condition === "Squall" ||
+        condition === "Tornado"
+      ) {
+        return hail.src;
+      }
+
+      if (condition === "Clear") {
+        if (hour > 5 || hour < 19) {
+          return sun.src;
+        }
+        if (hour >= 18 || hour <= 6) {
+          return moon.src;
+        }
+      }
+    }
+
+    if (condition === "Clouds") {
+      if ((icon === "02d" || icon === "03d") && (hour > 5 || hour < 19)) {
+        return sunnycloudy.src;
+      }
+
+      if ((icon === "02n" || icon === "03n") && (hour >= 19 || hour <= 5)) {
+        return nightcloudy.src;
+      }
+
+      if (icon === "04d" || icon === "04n") {
+        return cloudy.src;
+      }
+    }
+    console.log("No condition matched, returning default icon.");
+  };
+
+  const weatherIconSrc = placeWeatherIcons(condition, weatherIcon);
 
   const formattedStartDate = dayjs(trip?.startDate).format("DD MMM YYYY");
   const formattedEndDate = dayjs(trip?.endDate).format("DD MMM YYYY");
-
-  const columns = [
-    { key: "quantity", label: "Quantity" },
-    { key: "item", label: "Item" },
-    { key: "description", label: "Description" },
-  ];
-  const rows = trip?.objectsList?.map((object, index) => ({
-    key: object.id || index,
-    quantity: object.quantity,
-    item: object.item,
-    description: object.description,
-  }));
-  console.log(image8);
 
   return (
     <>
@@ -357,13 +425,13 @@ function SavedTripsPageComponent({
             style={{ backgroundImage: `url(${image7.src})` }}
           ></div>
           <div className="absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12 ">
-            <div className="grid grid-cols-1 items-center justify-items-center rounded-md p-4 text-2xl lg:grid-cols-3 lg:gap-4">
+            <div className="grid grid-cols-2 items-center justify-items-center gap-2 rounded-md text-xs lg:grid-cols-3 lg:gap-4 lg:p-4 lg:text-2xl">
               {(trip?.objectsList as any)?.map((object: any) => (
                 <div
-                  className="objects-list flex h-full w-full flex-col items-stretch justify-start gap-y-6 rounded-xl bg-tuna-200 p-4 font-semibold leading-loose lg:text-xl"
+                  className="objects-list flex h-full w-full flex-col items-stretch justify-start  rounded-xl bg-tuna-200 p-4 font-semibold leading-loose lg:gap-y-6 lg:text-xl"
                   key={object.item}
                 >
-                  <div className=" flex items-center justify-start space-x-2">
+                  <div className=" flex items-center justify-start space-x-4">
                     <span className=" text-violay-500">{object.quantity}</span>
                     <span className="whitespace-nowrap text-shark-800">
                       {object.item}
@@ -376,60 +444,44 @@ function SavedTripsPageComponent({
               ))}
             </div>
           </div>
-
-          {/* <div
-              id="objects-list"
-              className=" grid grid-cols-2 items-center justify-items-center rounded-md p-4 text-2xl lg:grid-cols-3 lg:gap-8 lg:p-8"
-            >
-              {(trip?.objectsList as any)?.map((object: any) => (
-                <ul
-                  className=" grid grid-rows-2 items-start gap-y-10 rounded-xl bg-tuna-200 p-4 font-semibold leading-loose lg:text-2xl"
-                  key={object.item}
-                >
-                  <li className="text-violay-500 row-span-1  ">{object.quantity}</li>
-                  <li className="  whitespace-nowrap  text-shark-800">
-                    {object.item}
-                  </li>
-                  <li className=" whitespace-normal row-span-2 text-shark-800 ">
-                    {object.description}
-                  </li>
-                </ul>
-              ))}
-            </div> */}
-          {/* <Table
-              color="primary"
-              aria-label="Example table with dynamic content"
-            >
-              <TableHeader columns={columns}>
-                {(column) => (
-                  <TableColumn key={column.key}>{column.label}</TableColumn>
-                )}
-              </TableHeader>
-              <TableBody items={rows}>
-                {(item) => (
-                  <TableRow key={item.key}>
-                    {(columnKey) => (
-                      <TableCell>{getKeyValue(item, columnKey)}</TableCell>
-                    )}
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table> */}
         </section>
 
         {/* Section 5 */}
 
-        <section className="relative flex h-screen items-center justify-center">
+        <section
+          data-bg="true"
+          className="relative flex h-screen items-center justify-center"
+        >
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full brightness-75"
             style={{ backgroundImage: `url(${geopattern3.src})` }}
           ></div>
-          <h1 className="font-gallery-100 text-3xl">5</h1>
+          <Card className="py-4">
+            <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
+              <p className="text-tiny font-bold uppercase">{temperature}ºC</p>
+              <small className="text-default-500">
+                min {tempMin} max {tempMax}
+              </small>
+              <h4 className="text-large font-bold">{condition}</h4>
+            </CardHeader>
+            <CardBody className="overflow-visible py-2">
+              <Image
+                alt="Card background"
+                className="rounded-xl object-cover"
+                src={weatherIconSrc}
+                width={100}
+                height={100}
+              />
+            </CardBody>
+          </Card>
         </section>
 
         {/* Section 6 */}
-        <section className="relative flex h-screen items-center justify-center">
+        <section
+          data-bg="true"
+          className="relative flex h-screen items-center justify-center"
+        >
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full  bg-cover bg-center brightness-75"
@@ -440,7 +492,10 @@ function SavedTripsPageComponent({
 
         {/* Section 7 */}
 
-        <section className="relative flex h-screen items-center justify-center">
+        <section
+          data-bg="true"
+          className=" relative flex h-screen items-center justify-center"
+        >
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-repeat brightness-75"
@@ -451,7 +506,10 @@ function SavedTripsPageComponent({
 
         {/* Section 8 */}
 
-        <section data-bg="true" className="relative flex h-screen items-center justify-center">
+        <section
+          data-bg="true"
+          className="relative flex h-screen items-center justify-center"
+        >
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
@@ -462,7 +520,10 @@ function SavedTripsPageComponent({
 
         {/* Section 9 */}
 
-        <section data-bg="true" className="relative flex h-screen items-center justify-center">
+        <section
+          data-bg="true"
+          className="relative flex h-screen items-center justify-center"
+        >
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
