@@ -2,31 +2,44 @@
 
 import { fetchForecast, fetchWeather } from "@/api/openWeatherApi";
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { createContext, useState } from "react";
 import { placeWeatherIcons } from "@/lib/utils";
+import { FetchForecastParams } from "@/types";
+import { FetchWeatherParams } from "@/types";
+
+import { WeatherDataTypes } from "@/types";
 
 interface WeatherContextType {
-  forecastData: any;
-  generateForecast: (city: string, country: string) => void;
+  forecastData: WeatherDataTypes | undefined;
+  generateForecast: ({
+    city,
+    country,
+  }: {
+    city: string;
+    country: string;
+  }) => void;
   isPendingForecast: boolean;
-  errorForecast: any;
-  weatherData: any;
-  generateWeather: (
-    city: string | undefined,
-    country: string | undefined,
-  ) => void;
+  errorForecast: unknown;
+  weatherData: Partial<WeatherDataTypes> | undefined;
+  generateWeather: ({
+    city,
+    country,
+  }: {
+    city: string;
+    country: string;
+  }) => void;
+
   isPendingWeather: boolean;
-  errorWeather: any;
+  errorWeather: unknown;
 }
 
 const defaultContextValue: WeatherContextType = {
-  forecastData: null,
-  generateForecast: () => {},
+  forecastData: undefined,
+  generateForecast: async () => {}, // If these are async, mark them as such
   isPendingForecast: false,
   errorForecast: null,
-  weatherData: null,
-  generateWeather: () => {},
+  weatherData: undefined,
+  generateWeather: async () => {}, // If these are async, mark them as such
   isPendingWeather: false,
   errorWeather: null,
 };
@@ -34,7 +47,9 @@ const defaultContextValue: WeatherContextType = {
 const WeatherContext = createContext<WeatherContextType>(defaultContextValue);
 
 function WeatherProvider({ children }: { children: React.ReactNode }) {
-  const [weatherData, setWeatherData] = useState<any>(null);
+  const [weatherData, setWeatherData] = useState<
+    Partial<WeatherDataTypes> | undefined
+  >(undefined);
 
   const {
     mutate: generateForecast,
@@ -43,11 +58,11 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
     error: errorForecast,
   } = useMutation({
     mutationKey: ["weather"],
-    mutationFn: (city: string, country: string) => fetchForecast(city, country),
+    mutationFn: ({ city, country }: FetchForecastParams) =>
+      fetchForecast({ city, country }),
 
     onSuccess: () => {
       console.log("success forecast ");
-      // router.push("/trip");
     },
     onError: (error) => {
       console.log(error);
@@ -61,15 +76,14 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
     error: errorWeather,
   } = useMutation({
     mutationKey: ["weather"],
-    mutationFn: (city: string | undefined, country: string | undefined) =>
-      fetchWeather(city, country),
+    mutationFn: ({ city, country }: FetchWeatherParams) =>
+      fetchWeather({ city, country }),
 
-    onSuccess: (data) => {
+    onSuccess: (data: WeatherDataTypes) => {
       const condition = data?.weather[0]?.main;
       const iconCode = data?.weather[0]?.icon;
       const weatherIconSrc = placeWeatherIcons(condition, iconCode);
       setWeatherData({ ...data, weatherIconSrc });
-      // router.push("/trip");
     },
     onError: (error) => {
       console.log(error);

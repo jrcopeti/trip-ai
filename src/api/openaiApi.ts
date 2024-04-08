@@ -129,6 +129,3 @@ export const fetchResponseAI = async (prompt: string) => {
   }
 };
 
-export const testButton = async () => {
-  console.log("button clicked");
-};

@@ -31,8 +31,7 @@ import { useImage } from "@/hooks/useImage";
 
 import { useWeather } from "@/hooks/useWeather";
 import { useFormData } from "@/hooks/useFormData";
-import { createTripInDB } from "@/db/actions";
-import type { Trip } from "@prisma/client";
+
 import {
   sortedTypes,
   luggageSizes,
@@ -40,10 +39,11 @@ import {
   budgets,
   sortedInterest,
 } from "@/data";
-
 import { motion } from "framer-motion";
+import { FinalDataTypes } from "@/types";
 
 type Inputs = z.infer<typeof FormDataSchema>;
+type FieldName = keyof Inputs;
 
 const steps = [
   {
@@ -108,7 +108,6 @@ function Form() {
   const { countries, isLoading: isLoadingCountries } = useCountries();
 
   const {
-    register,
     handleSubmit,
     control,
     watch,
@@ -130,7 +129,7 @@ function Form() {
       accommodation: "",
       budget: "",
       requiredItems: [{ item: "" }],
-      interests: [],
+      interests: [""],
       note: "",
       startDate: new Date().toISOString(),
       endDate: new Date().toISOString(),
@@ -150,6 +149,8 @@ function Form() {
   const { generateForecast, forecastData } = useWeather();
   const { setFormData } = useFormData();
   const { generateImage } = useImage();
+
+  const forecastDataString = JSON.stringify(forecastData);
 
   const stepValue = steps[currentStep].stepValue;
 
@@ -177,8 +178,6 @@ function Form() {
     return <div>Loading...</div>;
   }
 
-  type FieldName = keyof Inputs;
-
   const cityWatch = watch("city");
   const countryWatch = watch("country");
 
@@ -196,7 +195,7 @@ function Form() {
     // }
 
     // if (isWeatherSelected && currentStep === steps.length - 2) {
-    //   generateForecast(cityWatch, countryWatch);
+    //   generateForecast({city:cityWatch, country: countryWatch);
     // }
 
     setPrevStep(currentStep);
@@ -215,22 +214,23 @@ function Form() {
   }
 
   const processForm: ProcessFormType = (data: Inputs) => {
-    const requiredItems = data.requiredItems?.map((item) => item.item) ?? [];
+    const transformedRequiredItems =
+      data.requiredItems?.map((item) => item.item) ?? [];
 
-    const promptModel = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. The trip is scheduled from ${data.startDate} to ${data.endDate}. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${requiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the average weather for ${data.city}, ${data.country} during the trip, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each.`;
+    const promptModel = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. The trip is scheduled from ${data.startDate} to ${data.endDate}. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the average weather for ${data.city}, ${data.country} during the trip, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each.`;
 
-    const promptModelWeather = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${requiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the weather forecast that is in the end of the prompt, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each. Weather forecast for ${data.city}, ${data.country}: ${forecastData}.`;
+    const promptModelWeather = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the weather forecast that is in the end of the prompt, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each. Weather forecast for ${data.city}, ${data.country}: ${forecastDataString}.`;
     if (isWeatherSelected) {
-      setValue("weatherForecast", forecastData);
+      setValue("weatherForecast", forecastDataString);
       generateResponseAI(promptModelWeather);
     } else {
       generateResponseAI(promptModel);
     }
 
-    const finalData = {
+    const finalData: FinalDataTypes = {
       ...data,
-      requiredItems,
-      weatherForecast: forecastData,
+      requiredItems: transformedRequiredItems,
+      weatherForecast: forecastDataString,
     };
 
     setFormData(finalData);
@@ -262,7 +262,6 @@ function Form() {
             initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-          
           >
             <h2 className="text-3xl font-extrabold text-shark-700 md:text-5xl">
               {steps[currentStep].title}
@@ -517,7 +516,7 @@ function Form() {
                 <div className="flex" key={field.id}>
                   <Controller
                     control={control}
-                    name={`requiredItems[${index}].item`}
+                    name={`requiredItems[${index}].item` as any}
                     render={({ field }) => (
                       <Input {...field} label={`Item ${index + 1}`} />
                     )}
@@ -673,9 +672,8 @@ function Form() {
         {currentStep === 6 && (
           <motion.div
             initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1,  }}
+            animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-
           >
             <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
               {steps[currentStep].title}

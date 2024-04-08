@@ -3,6 +3,7 @@ import { useCheckbox, Chip, ChipProps, VisuallyHidden, tv } from "@nextui-org/re
 
 import { BsCheck } from "react-icons/bs";
 
+
 interface CustomCheckboxProps {
   children?: ReactNode;
   value: string;
@@ -11,6 +12,8 @@ interface CustomCheckboxProps {
   isDisabled?: boolean;
   color: "primary" | "secondary" | "success" | "warning" | "warning" | "default" | undefined;
 }
+
+
 
 const checkbox = tv({
   slots: {
@@ -60,7 +63,7 @@ const CustomCheckbox: React.FC<CustomCheckboxProps> = (props) => {
         color="primary"
         startContent={isSelected ? <BsCheck className="ml-1" /> : null}
         variant="faded"
-        {...getLabelProps()}
+        {...getLabelProps() as any}
       >
         {children ? children : isSelected ? "Enabled" : "Disabled"}
       </Chip>

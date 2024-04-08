@@ -25,7 +25,7 @@ function formatDate(dateString?: string | Date, includeTime = true) {
   );
 }
 
-const placeWeatherIcons = (condition: string, icon = null) => {
+const placeWeatherIcons = (condition: string, icon: string) => {
   console.log("condition", condition);
   console.log("icon", icon);
   const hour = new Date().getHours();
