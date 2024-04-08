@@ -12,6 +12,9 @@ import {
 } from "@tanstack/react-query";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { Trip } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { FinalDataTypes } from "@/types";
 
 function TripDetails() {
   const { tripData, isPendingResponseAI, errorResponseAI } = useTrip();
@@ -27,7 +30,7 @@ function TripDetails() {
     error: createTripError,
   } = useMutation({
     mutationKey: ["trips"],
-    mutationFn: (data) => createTripInDB(data),
+    mutationFn: (data: Prisma.TripCreateInput) => createTripInDB(data),
 
     onSuccess: (responseData) => {
       console.log("success createTrip ");
@@ -54,31 +57,36 @@ function TripDetails() {
 
   const handleYesAnswer = () => {
     const saved = true;
-    const finalData = {
+    const finalData: Trip = {
       ...tripData,
       ...formData,
-      image: imageData.tripImage,
-      image2: imageData.tripImage2,
-      image3: imageData.tripImage3,
-      placeholder: imageData.placeholder,
-      placeholder2: imageData.placeholder2,
-      placeholder3: imageData.placeholder3,
+      startDate: new Date(formData.startDate),
+      endDate: new Date(formData.endDate),
+      image: imageData?.tripImage ?? null,
+      image2: imageData?.tripImage2 ?? null,
+      image3: imageData?.tripImage3 ?? null,
+      image4: imageData?.tripImage4 ?? null,
+      placeholder: imageData?.placeholder ?? null,
       saved,
     };
     console.log("finalDataYES", finalData);
 
-    createTrip(finalData);
+    createTrip(finalData as Prisma.TripCreateInput);
   };
 
   const handleNoAnswer = () => {
     console.log("formDataNO", formData);
     const finalData = {
       ...formData,
-      image: imageData.tripImage,
-      image2: imageData.tripImage2,
-      image3: imageData.tripImage3,
+      startDate: new Date(formData.startDate),
+      endDate: new Date(formData.endDate),
+      image: imageData?.tripImage ?? null,
+      image2: imageData?.tripImage2 ?? null,
+      image3: imageData?.tripImage3 ?? null,
+      image4: imageData?.tripImage4 ?? null,
+      saved: false,
     };
-    createTrip(finalData);
+    createTrip(finalData as Prisma.TripCreateInput);
   };
 
   return (
@@ -89,7 +97,7 @@ function TripDetails() {
       <p>{tripData?.country}</p>
       <Button onClick={handleYesAnswer}>Do you want to save your trip?</Button>
       <Button onClick={handleNoAnswer}>No</Button>
-      {imageData.tripImage && (
+      {imageData?.tripImage && (
         <div>
           <Image
             src={imageData?.tripImage}

@@ -8,7 +8,7 @@ const openai = new OpenAI({
 });
 
 const systemInstructions =
-  "You are a seasoned tour guide specializing in assisting travelers with packing for their trips, taking into account their preferences, the destination, the trip's duration, and the weather forecast. Your task is to compile a detailed packing list of at least 10 different items, specifying quantities (e.g., 3 T-shirts, 2 pairs of shoes). Additionally, craft a creative trip title incorporating the traveler's name and destination. Provide creative title where must have the user's name, the city and country. Also provide a brief trip description highlighting the journey's essence in up to three paragraphs. Finally, recommend  three specific activities to enjoy in the destination city, with 3 paragraphs each. The generic prompt is the following: '{{name}}, a {{age}}-year-old traveler from {{nationality}}, is planning a {{tripType}} trip to {{city}}, {{country}}. The trip is scheduled from {{startDate}} to {{endDate}}. {{name}} prefers to travel with a {{luggageSize}} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: {{requiredItems}}. If theres no required items, return an empty array. Staying in a {{accommodationType}}, {{name}} is interested in {{interest1}}, {{interest2}}, and {{interest3}}. Additionally, {{name}} has noted they would specifically like to have: {{note}}. If there is no note, ignore the note part. Based on {{name}}'s preferences and trip details, plus the average weather for {{city}}, {{country}} during the trip, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes {{name}}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each.'";
+  "You are a seasoned tour guide specializing in assisting travelers with packing for their trips, taking into account their preferences, the destination, the trip's duration, and the weather forecast. Your task is to compile a detailed packing list of 9 different items, specifying quantities (e.g., 3 T-shirts, 2 pairs of shoes). Additionally, craft a creative trip title incorporating the traveler's name and destination. Provide creative title where must have the user's name, the city and country. Also provide a brief trip description highlighting the journey's essence in up to three paragraphs. Finally, recommend three specific activities to enjoy in the destination city, with maximum 3 paragraphs each. If the city does not exist or it is not located in the country, or it's population is less than 1, return { trip: null }, with no additional characters.";
 
 const functionData = {
   name: "displayData",
@@ -52,12 +52,12 @@ const functionData = {
             description: {
               type: "string",
               description:
-                "A short description or reason why this item is recommended.",
+                "A short description or reason why this item is recommended with maximum 10 words.",
             },
           },
           required: ["quantity", "item", "description"],
         },
-        minItems: 10,
+        minItems: 9,
       },
       mustHave: {
         type: "array",
@@ -83,10 +83,11 @@ const functionData = {
       tours: {
         type: "array",
         description:
-          "Three suggested tours or activities in the city or location in 2 paragraphs each.",
+          "Three suggested tours or activities in the city or location in maximum of three paragraphs each.",
         items: {
           type: "string",
         },
+        required: ["tour1", "tour2", "tour3"],
       },
     },
     required: [
@@ -127,8 +128,4 @@ export const fetchResponseAI = async (prompt: string) => {
   } catch (error) {
     console.error("Error:", error);
   }
-};
-
-export const testButton = async () => {
-  console.log("button clicked");
 };

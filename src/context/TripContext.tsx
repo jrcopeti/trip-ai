@@ -2,19 +2,20 @@
 
 import { fetchResponseAI } from "@/api/openaiApi";
 import { useFormData } from "@/hooks/useFormData";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation} from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState, createContext } from "react";
+import { createContext } from "react";
+import { Trip } from "@prisma/client"
 
 interface TripContextType {
-  tripData: any;
+  tripData: Trip | undefined;
   generateResponseAI: (prompt: string) => void;
   isPendingResponseAI: boolean;
-  errorResponseAI: any;
+  errorResponseAI: unknown;
 }
 
 const defaultContextValue: TripContextType = {
-  tripData: null,
+  tripData: undefined,
   generateResponseAI: () => {},
   isPendingResponseAI: false,
   errorResponseAI: null,
@@ -35,8 +36,8 @@ function TripProvider({ children }: { children: React.ReactNode }) {
     mutationKey: ["trip"],
     mutationFn: (prompt: string) => fetchResponseAI(prompt),
 
-    onSuccess: (responseData) => {
-      console.log("success ");
+    onSuccess: () => {
+      console.log("success trip");
       router.push(`/trips/${formData.tripUrl}`);
     },
     onError: (error) => {

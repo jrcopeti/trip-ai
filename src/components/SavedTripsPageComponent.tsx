@@ -5,7 +5,6 @@ import { getSingleSavedTrip } from "@/db/actions";
 import { useWeather } from "@/hooks/useWeather";
 
 import dayjs from "dayjs";
-import Image from "next/image";
 import image1 from "@/assets/1.jpg";
 import image2 from "@/assets/2.jpg";
 import image3 from "@/assets/3.jpg";
@@ -17,20 +16,17 @@ import image8 from "@/assets/8.jpg";
 import geopattern from "@/assets/geopattern.png";
 import geopattern2 from "@/assets/geopattern2.png";
 import geopattern3 from "@/assets/geopattern3.png";
-import bolt from "@/assets/weather/bolt.png";
-import drizzle from "@/assets/weather/drizzle.png";
-import rain from "@/assets/weather/rain.png";
-import snow from "@/assets/weather/snow.png";
-import hail from "@/assets/weather/hail.png";
-import sun from "@/assets/weather/sun.png";
-import moon from "@/assets/weather/moon.png";
-import nightcloudy from "@/assets/weather/nightcloudy.png";
-import sunnycloudy from "@/assets/weather/sunnycloudy.png";
-import cloudy from "@/assets/weather/cloudy.png";
 
-import { Card, CardBody, CardHeader } from "@nextui-org/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+import WeatherSection from "./ui/trip/WeatherSection";
+import ObjectsSection from "./ui/trip/ObjectsSection";
+import ToursSection from "./ui/trip/ToursSection";
+import DescriptionSection from "./ui/trip/DescriptionSection";
+import TitleSection from "./ui/trip/TitleSection";
+import PackReadySection from "./ui/trip/PackReadySection";
+import { notFound } from "next/navigation";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -42,7 +38,6 @@ function SavedTripsPageComponent({
   const {
     data: trip,
     isPending,
-    isLoading,
     error,
   } = useQuery({
     queryKey: ["trips", params.id],
@@ -50,76 +45,65 @@ function SavedTripsPageComponent({
   });
 
   const { generateWeather, weatherData, isPendingWeather } = useWeather();
-
-  useEffect(() => {
-    if (
-      !isPendingWeather &&
-      !isPending &&
-      !weatherData &&
-      trip?.city &&
-      trip?.country
-    ) {
-      generateWeather(trip?.city, trip?.country);
-    }
-  }, [
-    isPendingWeather,
-    isPending,
-    generateWeather,
-    weatherData,
-    trip?.city,
-    trip?.country,
-  ]);
   console.log("weatherData", weatherData);
 
-  if (isPendingWeather || !weatherData) {
-    <p>loading weather</p>;
-  }
+  console.log("isPending:", isPending);
+  console.log("weatherData:", weatherData);
+  console.log("trip city:", trip?.city);
+  console.log("trip country:", trip?.country);
 
-  // const { main, weather } = weatherData;
+  useEffect(() => {
+    if (!isPending && !weatherData && trip?.city && trip?.country) {
+      generateWeather({ city: trip.city, country: trip.country });
+    }
+  }, [isPending, generateWeather, weatherData, trip?.city, trip?.country]);
+
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
-  gsap.registerPlugin(ScrollTrigger);
+
   // RIGHT HERE
   useIsomorphicLayoutEffect(() => {
-    if (!isPending) {
+    if (!isPending && !isPendingWeather && weatherData) {
       const innerHeight = window.innerHeight;
 
       const getRatio = (el: HTMLElement) =>
         innerHeight / (innerHeight + el.offsetHeight);
 
       gsap.utils.toArray("section").forEach((section, i) => {
-        const bg = section.querySelector('[data-bg="true"]');
+        if (section instanceof HTMLElement) {
+          const bg = section.querySelector('[data-bg="true"]');
 
-        gsap.fromTo(
-          bg,
-          {
-            backgroundPosition: () =>
-              i ? `50% ${-innerHeight * getRatio(section)}px` : "50% 0px",
-          },
-          {
-            backgroundPosition: () =>
-              `100% ${innerHeight * (1 - getRatio(section))}px`,
-            ease: "none",
-            scrollTrigger: {
-              trigger: bg,
-
-              start: () => (i ? "top bottom" : "top top"),
-              end: "bottom top",
-              scrub: true,
-              invalidateOnRefresh: true,
+          gsap.fromTo(
+            bg,
+            {
+              backgroundPosition: () =>
+                i ? `50% ${-innerHeight * getRatio(section)}px` : "50% 0px",
             },
-          },
-        );
+            {
+              backgroundPosition: () =>
+                `100% ${innerHeight * (1 - getRatio(section))}px`,
+              ease: "none",
+              scrollTrigger: {
+                trigger: bg,
+
+                start: () => (i ? "top bottom" : "top top"),
+                end: "bottom top",
+                scrub: true,
+                invalidateOnRefresh: true,
+              },
+            },
+          );
+        }
       });
     }
 
     return () => {
       ScrollTrigger.getAll().forEach((st) => st.kill());
     };
-  }, [isPending]);
+  }, [isPending, isPendingWeather, weatherData]);
 
   useIsomorphicLayoutEffect(() => {
-    if (!isPending) {
+    if (!isPending && !isPendingWeather && weatherData) {
       const context = gsap.context(() => {
         gsap.from(".trip-description", {
           autoAlpha: 0,
@@ -148,7 +132,6 @@ function SavedTripsPageComponent({
         });
 
         ScrollTrigger.batch(".tour-item", {
-          trigger: ".tours-section",
           start: "top bottom",
           end: "center center",
 
@@ -174,164 +157,48 @@ function SavedTripsPageComponent({
         });
 
         ScrollTrigger.batch(".objects-list", {
-          trigger: ".objects-section",
           start: "top bottom",
           end: "center center",
-          duration: 2,
 
           onEnter: (elements) => {
             gsap.from(elements, {
               autoAlpha: 0,
               x: 100,
               stagger: 0.8,
+              ease: "power2.out",
+              duration: 1.0,
             });
           },
         });
       });
       return () => context.revert();
     }
-  }, [isPending]);
+  }, [isPending, isPendingWeather, weatherData]);
 
   if (isPending) {
     return <div>Loading single trip...</div>;
   }
+
+
+  if (isPendingWeather || !weatherData) {
+    return <p>loading weather</p>;
+  }
+  const { weatherIconSrc } = weatherData;
   const main = weatherData?.main;
-  const temperature = Math.round(main?.temp - 273);
-  const feelsLike = Math.round(main?.feels_like - 273);
-  const tempMin = Math.round(main?.temp_min - 273);
-  const tempMax = Math.round(main?.temp_max - 273);
+  const temperature = Math.round((main?.temp ?? NaN) - 273.15);
+  const feelsLike = Math.round((main?.feels_like ?? NaN) - 273.15);
+  const tempMin = Math.round((main?.temp_min ?? NaN) - 273.15);
+  const tempMax = Math.round((main?.temp_max ?? NaN) - 273.15);
 
-  const weather = weatherData?.weather[0];
+  const weather = weatherData?.weather?.[0];
   const condition = weather?.main;
-  const weatherIcon = weather?.icon;
-
-  const placeWeatherIcons = (condition: string, icon = null) => {
-    console.log("condition", condition);
-    console.log("icon", icon);
-    const hour = new Date().getHours();
-    console.log("hour", hour);
-    if (!icon) {
-      if (condition === "Thunderstorm") {
-        return bolt.src;
-      }
-      if (condition === "Drizzle") {
-        return drizzle.src;
-      }
-      if (condition === "Rain") {
-        return rain.src;
-      }
-      if (condition === "Snow") {
-        return snow.src;
-      }
-      if (
-        condition === "Mist" ||
-        condition === "Smoke" ||
-        condition === "Haze" ||
-        condition === "Dust" ||
-        condition === "Fog" ||
-        condition === "Sand" ||
-        condition === "Ash" ||
-        condition === "Squall" ||
-        condition === "Tornado"
-      ) {
-        return hail.src;
-      }
-
-      if (condition === "Clear") {
-        if (hour > 5 || hour < 19) {
-          return sun.src;
-        }
-        if (hour >= 18 || hour <= 6) {
-          return moon.src;
-        }
-      }
-    }
-
-    if (condition === "Clouds") {
-      if ((icon === "02d" || icon === "03d") && (hour > 5 || hour < 19)) {
-        return sunnycloudy.src;
-      }
-
-      if ((icon === "02n" || icon === "03n") && (hour >= 19 || hour <= 5)) {
-        return nightcloudy.src;
-      }
-
-      if (icon === "04d" || icon === "04n") {
-        return cloudy.src;
-      }
-    }
-    console.log("No condition matched, returning default icon.");
-  };
-
-  const weatherIconSrc = placeWeatherIcons(condition, weatherIcon);
+  console.log(weatherData);
 
   const formattedStartDate = dayjs(trip?.startDate).format("DD MMM YYYY");
   const formattedEndDate = dayjs(trip?.endDate).format("DD MMM YYYY");
 
   return (
     <>
-      {/* <div>
-        Saved Trips Page {params.id}
-        <div>
-          {isPending && <div>Loading single trip...</div>}
-
-          <div className="grid grid-cols-3">
-            <div>{trip?.userName}</div>
-            <div>{trip?.city}</div>
-            <div>{trip?.country}</div>
-            <div>{formattedStartDate}</div>
-            <div>{formattedEndDate}</div>
-            <div>{trip?.luggageSize}</div>
-            <div>{trip?.accommodation}</div>
-            {(trip?.requiredItems as string[])?.map((item: string) => (
-              <ul className="text-violay-600" key={item}>
-                <li>{item}</li>
-              </ul>
-            ))}
-
-            {(trip?.interests as string[])?.map((interest: string) => (
-              <ul className="text-neptune-500" key={interest}>
-                <li>{interest}</li>
-              </ul>
-            ))}
-
-            <div> {trip?.note}</div>
-            <div>{trip?.budget}</div>
-            <div>
-              <Image src={trip?.flagUrl} alt="flag" width={50} height={50} />{" "}
-            </div>
-
-            <div>
-              <Image src={trip?.imageUrl} alt="flag" width={400} height={300} />{" "}
-            </div>
-
-            <div> title: {trip?.title}</div>
-            <div className="text-deeporange-500">
-              description: {trip?.description}
-            </div>
-          </div>
-
-          {(trip?.objectsList as any)?.map((object: any) => (
-            <ul key={object.item}>
-              <li>{object.quantity}</li>
-              <li>{object.item}</li>
-              <li>{object.description}</li>
-            </ul>
-          ))}
-
-          {(trip?.mustHave as string[])?.map((mustHave) => (
-            <ul key={mustHave}>
-              <li>{mustHave}</li>
-            </ul>
-          ))}
-          {(trip?.tours as string[])?.map((tour) => (
-            <ul key={tour}>
-              <li>{tour}</li>
-            </ul>
-          ))}
-        </div>
-      </div> */}
-
       <>
         {/* Section 1 */}
         <section className=" relative flex h-screen items-center justify-center overflow-x-hidden">
@@ -340,26 +207,7 @@ function SavedTripsPageComponent({
             className="absolute left-0 top-0 -z-10 h-full w-full bg-center bg-repeat brightness-75"
             style={{ backgroundImage: `url(${geopattern.src})` }}
           ></div>
-          <div className="absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12 ">
-            <div className="  grid gap-4 rounded-xl p-2 md:grid-cols-2 lg:p-4 xl:grid-cols-[1fr,1fr,] ">
-              <Image
-                src={trip?.image}
-                alt="city"
-                width={600}
-                height={500}
-                blurDataURL={trip?.placeholder}
-                placeholder="blur"
-                priority
-                className="h-auto w-auto rounded-xl shadow-lg "
-              />
-
-              <div className=" grid grid-cols-1 gap-4 rounded-md p-4  shadow-sm lg:gap-8 xl:grid-cols-[1fr,1fr]">
-                <h1 className=" text-3xl font-extrabold text-shark-950 md:text-5xl">
-                  {trip?.title}
-                </h1>
-              </div>
-            </div>
-          </div>
+          {trip && <TitleSection trip={trip} />}
         </section>
 
         {/* Section 2 */}
@@ -370,11 +218,7 @@ function SavedTripsPageComponent({
             style={{ backgroundImage: `url(${trip?.image2})` }}
           ></div>
 
-          <div className="p-12 backdrop-blur-sm">
-            <p className=" trip-description text-start text-2xl font-extrabold leading-[1.8] text-shark-100 md:text-center lg:text-4xl">
-              {trip?.description}
-            </p>
-          </div>
+          {trip && <DescriptionSection trip={trip} />}
         </article>
 
         {/* Section 3 */}
@@ -382,25 +226,10 @@ function SavedTripsPageComponent({
         <article className=" tours-section relative flex h-screen items-center justify-center overflow-x-hidden">
           <div
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
-            style={{ backgroundImage: `url(${image8.src})` }}
+            style={{ backgroundImage: `url(${trip?.image4})` }}
           ></div>
 
-          <div className=" absolute h-[90%] w-[90%] p-4   lg:h-[80%] lg:w-[80%] lg:p-12">
-            <div className="grid grid-cols-1 items-center gap-4 rounded-xl  p-2 lg:p-4 xl:grid-cols-[1fr,auto]  ">
-              <h1 className=" title-tours rounded-xl  bg-shark-100/50 p-4 text-3xl font-extrabold capitalize text-shark-800 md:text-5xl">
-                Your suggested tours
-              </h1>
-              <div className=" grid grid-cols-1 gap-4 rounded-md p-4 backdrop-blur-sm lg:gap-6">
-                {(trip?.tours as string[])?.map((tour, i) => (
-                  <ul className="grid grid-cols-1" key={i}>
-                    <li className=" tour-item text-md font-semibold text-shark-200 lg:text-xl xl:text-2xl ">
-                      {tour}
-                    </li>
-                  </ul>
-                ))}
-              </div>
-            </div>
-          </div>
+          {trip && <ToursSection trip={trip} />}
         </article>
 
         {/* Section 4 */}
@@ -411,9 +240,7 @@ function SavedTripsPageComponent({
             className="absolute left-0 top-0 -z-10 h-full w-full brightness-75"
             style={{ backgroundImage: `url(${image4.src})` }}
           ></div>
-          <h1 className="pack-ready text-4xl font-extrabold capitalize text-shark-200 md:text-6xl">
-            We have your pack ready
-          </h1>
+          {trip && <PackReadySection />}
         </section>
 
         {/* Section 4 */}
@@ -424,26 +251,7 @@ function SavedTripsPageComponent({
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
             style={{ backgroundImage: `url(${image7.src})` }}
           ></div>
-          <div className="absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12 ">
-            <div className="grid grid-cols-2 items-center justify-items-center gap-2 rounded-md text-xs lg:grid-cols-3 lg:gap-4 lg:p-4 lg:text-2xl">
-              {(trip?.objectsList as any)?.map((object: any) => (
-                <div
-                  className="objects-list flex h-full w-full flex-col items-stretch justify-start  rounded-xl bg-tuna-200 p-4 font-semibold leading-loose lg:gap-y-6 lg:text-xl"
-                  key={object.item}
-                >
-                  <div className=" flex items-center justify-start space-x-4">
-                    <span className=" text-violay-500">{object.quantity}</span>
-                    <span className="whitespace-nowrap text-shark-800">
-                      {object.item}
-                    </span>
-                  </div>
-                  <span className="whitespace-normal text-shark-800">
-                    {object.description}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          {trip && <ObjectsSection trip={trip} />}
         </section>
 
         {/* Section 5 */}
@@ -457,24 +265,14 @@ function SavedTripsPageComponent({
             className="absolute left-0 top-0 -z-10 h-full w-full brightness-75"
             style={{ backgroundImage: `url(${geopattern3.src})` }}
           ></div>
-          <Card className="py-4">
-            <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
-              <p className="text-tiny font-bold uppercase">{temperature}ºC</p>
-              <small className="text-default-500">
-                min {tempMin} max {tempMax}
-              </small>
-              <h4 className="text-large font-bold">{condition}</h4>
-            </CardHeader>
-            <CardBody className="overflow-visible py-2">
-              <Image
-                alt="Card background"
-                className="rounded-xl object-cover"
-                src={weatherIconSrc}
-                width={100}
-                height={100}
-              />
-            </CardBody>
-          </Card>
+
+          <WeatherSection
+            temperature={temperature}
+            tempMin={tempMin}
+            tempMax={tempMax}
+            condition={condition}
+            weatherIconSrc={weatherIconSrc}
+          />
         </section>
 
         {/* Section 6 */}
@@ -537,3 +335,67 @@ function SavedTripsPageComponent({
 }
 
 export default SavedTripsPageComponent;
+
+{
+  /* <div>
+        Saved Trips Page {params.id}
+        <div>
+          {isPending && <div>Loading single trip...</div>}
+
+          <div className="grid grid-cols-3">
+            <div>{trip?.userName}</div>
+            <div>{trip?.city}</div>
+            <div>{trip?.country}</div>
+            <div>{formattedStartDate}</div>
+            <div>{formattedEndDate}</div>
+            <div>{trip?.luggageSize}</div>
+            <div>{trip?.accommodation}</div>
+            {(trip?.requiredItems as string[])?.map((item: string) => (
+              <ul className="text-violay-600" key={item}>
+                <li>{item}</li>
+              </ul>
+            ))}
+
+            {(trip?.interests as string[])?.map((interest: string) => (
+              <ul className="text-neptune-500" key={interest}>
+                <li>{interest}</li>
+              </ul>
+            ))}
+
+            <div> {trip?.note}</div>
+            <div>{trip?.budget}</div>
+            <div>
+              <Image src={trip?.flagUrl} alt="flag" width={50} height={50} />{" "}
+            </div>
+
+            <div>
+              <Image src={trip?.imageUrl} alt="flag" width={400} height={300} />{" "}
+            </div>
+
+            <div> title: {trip?.title}</div>
+            <div className="text-deeporange-500">
+              description: {trip?.description}
+            </div>
+          </div>
+
+          {(trip?.objectsList as any)?.map((object: any) => (
+            <ul key={object.item}>
+              <li>{object.quantity}</li>
+              <li>{object.item}</li>
+              <li>{object.description}</li>
+            </ul>
+          ))}
+
+          {(trip?.mustHave as string[])?.map((mustHave) => (
+            <ul key={mustHave}>
+              <li>{mustHave}</li>
+            </ul>
+          ))}
+          {(trip?.tours as string[])?.map((tour) => (
+            <ul key={tour}>
+              <li>{tour}</li>
+            </ul>
+          ))}
+        </div>
+      </div> */
+}

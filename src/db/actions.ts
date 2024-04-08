@@ -1,12 +1,12 @@
 "use server";
-import type { Trip } from "@prisma/client";
+import {Prisma} from "@prisma/client"
 import { FormDataSchema } from "@/lib/schema";
 
 type FormDataSchema = typeof FormDataSchema;
 
 import prisma from "@/db";
 
-export const createTripInDB = async (trip: any) => {
+export const createTripInDB = async (trip: Prisma.TripCreateInput) => {
   console.log("trip is being created");
   return prisma.trip.create({
     data: trip,
