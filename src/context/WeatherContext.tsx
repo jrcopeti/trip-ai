@@ -6,7 +6,6 @@ import { createContext, useState } from "react";
 import { placeWeatherIcons } from "@/lib/utils";
 import { FetchForecastParams } from "@/types";
 import { FetchWeatherParams } from "@/types";
-
 import { WeatherDataTypes } from "@/types";
 
 interface WeatherContextType {

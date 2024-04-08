@@ -234,6 +234,7 @@ function Form() {
     };
 
     setFormData(finalData);
+    reset();
   };
 
   return (

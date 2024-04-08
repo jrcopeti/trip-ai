@@ -1,9 +1,7 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, createContext } from "react";
 import { z } from "zod";
-
 
 import { FormDataSchema } from "@/lib/schema";
 import { FinalDataTypes } from "@/types";
@@ -35,15 +33,27 @@ const defaultFormData: Inputs = {
   tripUrl: crypto.randomUUID().slice(0, 5),
 };
 
+function transformInputsToFinalData(inputs: Inputs): FinalDataTypes {
+  const transformedRequiredItems =
+    inputs.requiredItems?.map((i) => i.item) ?? [];
+
+  return {
+    ...inputs,
+    requiredItems: transformedRequiredItems,
+    weatherForecast: inputs.weatherForecast || "",
+  };
+}
+const initialFinalData = transformInputsToFinalData(defaultFormData);
+
 const defaultContextValue: FormContextType = {
-  formData: defaultFormData,
+  formData: initialFinalData,
   setFormData: () => {},
 };
 
 const FormContext = createContext<FormContextType>(defaultContextValue);
 
 function FormProvider({ children }: { children: React.ReactNode }) {
-  const [formData, setFormData] = useState<FinalDataTypes>(defaultFormData);
+  const [formData, setFormData] = useState<FinalDataTypes>(initialFinalData);
 
   return (
     <FormContext.Provider value={{ formData, setFormData }}>
