@@ -11,10 +11,10 @@ function ObjectsSection({ trip }: { trip: Trip }) {
             item: string;
             description: string;
           }[]
-        )?.map((object) => (
+        )?.map((object, i) => (
           <div
             className="objects-list flex h-full w-full flex-col items-stretch justify-start  rounded-xl bg-tuna-200 p-4 font-semibold leading-loose lg:gap-y-6 lg:text-xl"
-            key={object.item}
+            key={i}
           >
             <div className=" flex items-center justify-start space-x-4">
               <span className=" text-violay-500">{object.quantity}</span>

@@ -16,7 +16,9 @@ export const fetchForecast = async ({
   city,
   country,
 }: FetchForecastParams): Promise<WeatherDataTypes | undefined> => {
-  const coordinatesUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city},${country}&limit=3&appid=${process.env.NEXT_PUBLIC_OPEN_WEATHER_KEY}`;
+  console.log("City:", city, "Country:", country);
+  console.log(typeof city, typeof country);
+  const coordinatesUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city},${country}&limit=3&appid=${process.env.OPEN_WEATHER_KEY}`;
 
   let forecast;
 
@@ -25,7 +27,7 @@ export const fetchForecast = async ({
 
     const { lat, lon } = getCoordinates.data[0];
 
-    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${process.env.NEXT_PUBLIC_OPEN_WEATHER_KEY}`;
+    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${process.env.OPEN_WEATHER_KEY}`;
 
     const getForecast = await axios.get(forecastUrl);
     forecast = getForecast.data.list;
@@ -41,7 +43,7 @@ export const fetchWeather = async ({
   country,
 }: FetchWeatherParams): Promise<WeatherApiResponse> => {
   const coordinatesUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city},${country}&limit=3&appid=${process.env.OPEN_WEATHER_KEY}`;
-
+  console.log("weather key", process.env.OPEN_WEATHER_KEY);
   let weather;
   try {
     const getCoordinates = await axios.get(coordinatesUrl);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCountries } from "@/hooks/useCountries";
+import React, { useState } from "react";
 import {
   Progress,
   Select,
@@ -16,19 +16,21 @@ import {
   RadioGroup,
   Radio,
 } from "@nextui-org/react";
-import CustomCheckbox from "./ui/CustomCheckbox";
-import { z } from "zod";
+import { motion } from "framer-motion";
 
-import React, { useState } from "react";
+import CustomCheckbox from "./ui/CustomCheckbox";
 import DatePicker from "./ui/DatePicker";
+
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { FormDataSchema } from "@/lib/schema";
+
 import { Controller, useForm, useFieldArray } from "react-hook-form";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { useCountries } from "@/hooks/useCountries";
 import { useTrip } from "@/hooks/useTrip";
 import { useImage } from "@/hooks/useImage";
-
 import { useWeather } from "@/hooks/useWeather";
 import { useFormData } from "@/hooks/useFormData";
 
@@ -38,8 +40,9 @@ import {
   sortedAccommodations,
   budgets,
   sortedInterest,
+  sortedTransports,
 } from "@/data";
-import { motion } from "framer-motion";
+
 import { FinalDataTypes } from "@/types";
 
 type Inputs = z.infer<typeof FormDataSchema>;
@@ -128,8 +131,9 @@ function Form() {
       luggageSize: "",
       accommodation: "",
       budget: "",
+      transport: "",
       requiredItems: [{ item: "" }],
-      interests: [""],
+      interests: [],
       note: "",
       startDate: new Date().toISOString(),
       endDate: new Date().toISOString(),
@@ -189,14 +193,15 @@ function Form() {
 
     // if (!output) return;
 
-    // if (currentStep === steps.length - 2) {
-    //   console.log("get image unsplash!!!!!!!!!!!");
-    //   generateImage(cityWatch);
-    // }
+    if (currentStep === steps.length - 3) {
+      console.log("get image unsplash!!!!!!!!!!!");
+      generateImage(cityWatch);
+    }
 
-    // if (isWeatherSelected && currentStep === steps.length - 2) {
-    //   generateForecast({city:cityWatch, country: countryWatch);
-    // }
+    if (isWeatherSelected && currentStep === steps.length - 2) {
+      console.log("get weather NOWWWWWW");
+      generateForecast({ city: cityWatch, country: countryWatch });
+    }
 
     setPrevStep(currentStep);
     setCurrentStep((step) => step + 1);
@@ -217,9 +222,9 @@ function Form() {
     const transformedRequiredItems =
       data.requiredItems?.map((item) => item.item) ?? [];
 
-    const promptModel = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. The trip is scheduled from ${data.startDate} to ${data.endDate}. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the average weather for ${data.city}, ${data.country} during the trip, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each.`;
+    const promptModel = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. The trip is scheduled from ${data.startDate} to ${data.endDate}. ${data.userName} prefers to travel by ${data.transport}, with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. (If there is no required items, return an empty array). Staying in a ${data.accommodation}, he/she is interested in ${data.interests}. Additionally, he/she has noted he/she would specifically like to have: ${data.note}. (If there is no note, skip this part). Based on ${data.userName}'s preferences and trip details, plus the average weather for ${data.city}, ${data.country} during the trip, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with maximum three paragraphs each. If ${data.city} does not exist or it is not located in the ${data.country}, or it's population is less than 1, return { trip: null }, with no additional characters.`;
+    const promptModelWeather = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. ${data.userName} prefers to travel by ${data.transport}, with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, he/she is interested in ${data.interests}. Additionally, he/she has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the weather forecast that is in the end of the prompt, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with maximum three paragraphs each. Weather forecast for ${data.city}, ${data.country}: ${data.weatherForecast}. If ${data.city} does not exist or it is not located in the ${data.country}, or it's population is less than 1, return { trip: null }, with no additional characters.`;
 
-    const promptModelWeather = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. ${data.userName} prefers to travel with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, ${data.userName} is interested in ${data.interests}. Additionally, ${data.userName} has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the weather forecast that is in the end of the prompt, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with 2 paragraphs each. Weather forecast for ${data.city}, ${data.country}: ${forecastDataString}.`;
     if (isWeatherSelected) {
       setValue("weatherForecast", forecastDataString);
       generateResponseAI(promptModelWeather);
@@ -469,6 +474,26 @@ function Form() {
                         value={accommodation.value}
                       >
                         {accommodation.label}
+                      </Radio>
+                    ))}
+                  </RadioGroup>
+                )}
+              />
+
+              <Controller
+                name="transport"
+                control={control}
+                render={({ field }) => (
+                  <RadioGroup
+                    {...field}
+                    id="transport"
+                    label="How are you traveling?"
+                    orientation="horizontal"
+                    errorMessage={errors.transport?.message}
+                  >
+                    {sortedTransports.map((transport) => (
+                      <Radio key={transport.value} value={transport.value}>
+                        {transport.label}
                       </Radio>
                     ))}
                   </RadioGroup>

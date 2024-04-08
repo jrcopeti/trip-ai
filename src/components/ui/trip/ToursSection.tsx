@@ -1,6 +1,6 @@
 import type { Trip } from "@prisma/client";
 
-function ToursSection({ trip}: { trip: Trip }) {
+function ToursSection({ trip }: { trip: Trip }) {
   return (
     <>
       <div className=" absolute h-[90%] w-[90%] p-4   lg:h-[80%] lg:w-[80%] lg:p-12">
@@ -12,7 +12,7 @@ function ToursSection({ trip}: { trip: Trip }) {
             {(trip?.tours as string[])?.map((tour, i) => (
               <ul className="grid grid-cols-1" key={i}>
                 <li className=" tour-item text-md font-semibold text-shark-200 lg:text-xl xl:text-2xl ">
-                  {tour}
+                  {i + 1}. {tour}
                 </li>
               </ul>
             ))}

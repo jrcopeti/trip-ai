@@ -22,6 +22,7 @@ const defaultFormData: Inputs = {
   luggageSize: "",
   accommodation: "",
   budget: "",
+  transport: "",
   requiredItems: [{ item: "" }],
   interests: [""],
   note: "",

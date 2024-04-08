@@ -40,8 +40,9 @@ function ImageProvider({ children }: { children: React.ReactNode }) {
     mutationKey: ["image"],
     mutationFn: (city: string) => fetchTripImage(city),
 
-    onSuccess: () => {
-      console.log("success Image ");
+    onSuccess: (data) => {
+      console.log(data)
+      console.log("success Image Image Context ");
       // router.push("/trip");
     },
     onError: (error) => {

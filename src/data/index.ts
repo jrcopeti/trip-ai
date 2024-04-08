@@ -8,6 +8,7 @@ const types = [
   { value: "festival", label: "Festival" },
   { value: "gastronomy", label: "Gastronomy" },
   { value: "nature", label: "Nature" },
+  { value: "urban", label: "Urban" },
 ];
 const sortedTypes = [...types.sort((a, b) => a.label.localeCompare(b.label))];
 
@@ -35,7 +36,7 @@ const sortedAccommodations = [
 ];
 
 const budgets = [
-  { value: "low", label: "Low Budget" },
+  { value: "low-budget", label: "Low Budget" },
   { value: "comfort", label: "Comfort" },
   { value: "luxury", label: "Luxury" },
 ];
@@ -59,7 +60,7 @@ const interests = [
   { value: "dating", label: "Dating" },
   { value: "music", label: "Music" },
   { value: "hiking", label: "Hiking" },
-  { value: "surfing", label: "Susports" },
+  { value: "surfing", label: "Surfing" },
   { value: "sports", label: "Sports" },
   { value: "cinema", label: "Cinema" },
   { value: "dance", label: "Dance" },
@@ -72,10 +73,26 @@ const sortedInterest = [
   ...interests.sort((a, b) => a.label.localeCompare(b.label)),
 ];
 
+const transports = [
+  { value: "car", label: "Car" },
+  { value: "bus", label: "Bus" },
+  { value: "train", label: "Train" },
+  { value: "plane", label: "Plane" },
+  { value: "boat", label: "Boat" },
+  { value: "car-riding", label: "Car Riding" },
+  { value: "bicycle", label: "Bicycle" },
+  { value: "motorcycle", label: "Motorcycle" },
+];
+
+const sortedTransports = [
+  ...transports.sort((a, b) => a.label.localeCompare(b.label)),
+];
+
 export {
   sortedTypes,
   luggageSizes,
   sortedAccommodations,
   budgets,
   sortedInterest,
+  sortedTransports,
 };

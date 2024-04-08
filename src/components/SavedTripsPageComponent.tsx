@@ -26,6 +26,7 @@ import ToursSection from "./ui/trip/ToursSection";
 import DescriptionSection from "./ui/trip/DescriptionSection";
 import TitleSection from "./ui/trip/TitleSection";
 import PackReadySection from "./ui/trip/PackReadySection";
+import { notFound } from "next/navigation";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -177,6 +178,8 @@ function SavedTripsPageComponent({
   if (isPending) {
     return <div>Loading single trip...</div>;
   }
+
+
   if (isPendingWeather || !weatherData) {
     return <p>loading weather</p>;
   }
@@ -223,7 +226,7 @@ function SavedTripsPageComponent({
         <article className=" tours-section relative flex h-screen items-center justify-center overflow-x-hidden">
           <div
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
-            style={{ backgroundImage: `url(${image8.src})` }}
+            style={{ backgroundImage: `url(${trip?.image4})` }}
           ></div>
 
           {trip && <ToursSection trip={trip} />}

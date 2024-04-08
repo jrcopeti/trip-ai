@@ -34,11 +34,11 @@ interface WeatherContextType {
 
 const defaultContextValue: WeatherContextType = {
   forecastData: undefined,
-  generateForecast: async () => {}, // If these are async, mark them as such
+  generateForecast: async () => {},
   isPendingForecast: false,
   errorForecast: null,
   weatherData: undefined,
-  generateWeather: async () => {}, // If these are async, mark them as such
+  generateWeather: async () => {},
   isPendingWeather: false,
   errorWeather: null,
 };
@@ -60,7 +60,8 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
     mutationFn: ({ city, country }: FetchForecastParams) =>
       fetchForecast({ city, country }),
 
-    onSuccess: () => {
+    onSuccess: (forecastData) => {
+      console.log(forecastData)
       console.log("success forecast ");
     },
     onError: (error) => {
