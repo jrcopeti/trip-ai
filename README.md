@@ -4,6 +4,7 @@ It still on development and the first version will be released soon 🚀
 
 ## Stack
 - TypeScript
+- React
 - Next.js
 - TailwindCSS
 - Next ui
