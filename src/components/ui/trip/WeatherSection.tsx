@@ -10,13 +10,16 @@ import { Trip } from "@prisma/client";
 
 import dayjs from "dayjs";
 
-function WeatherSection({ trip }: { trip: Trip }) {
+function WeatherSection({
+  trip,
+  isPending,
+}: {
+  trip: Trip;
+  isPending: boolean;
+}) {
   const { generateWeather, isPendingWeather, weatherData } = useWeather();
   console.log(weatherData);
-
-  if (isPendingWeather) {
-    <p>Loading weather section...</p>;
-  }
+  console.log("isPending`Weayher", isPendingWeather);
 
   useEffect(() => {
     if (trip.city && trip.country) {
@@ -51,7 +54,7 @@ function WeatherSection({ trip }: { trip: Trip }) {
 
   return (
     <>
-      <div className=" weather-card relative mx-0 my-[40px] flex w-[80%] flex-col rounded-2xl bg-gallery-50/70 pb-[60px] pl-[50px] pr-[50px] text-center text-shark-900 sm:max-h-[400px] sm:w-[75vw] sm:max-w-[500px] sm:flex-row sm:items-center sm:pb-[50px] sm:pl-[20px] sm:pr-[100px] sm:pt-[60px] sm:text-start ">
+      <div className="weather-card relative mx-0 my-[40px] flex w-[80%] flex-col rounded-2xl bg-gallery-50/70 pb-[60px] pl-[50px] pr-[50px] text-center text-shark-900 sm:max-h-[400px] sm:w-[75vw] sm:max-w-[500px] sm:flex-row sm:items-center sm:pb-[50px] sm:pl-[20px] sm:pr-[100px] sm:pt-[60px] sm:text-start ">
         <Image
           height={400}
           width={400}
@@ -69,29 +72,29 @@ function WeatherSection({ trip }: { trip: Trip }) {
             </h2>
             <p className="mb-4 ml-1">Feels like {feelsLike}ºC</p>
 
-            <div className=" ml-[20px] flex justify-center gap-x-4  text-xs font-semibold sm:absolute  sm:right-[80px] sm:top-[230px] sm:z-10 sm:ml-0 sm:translate-x-[16px] sm:justify-start sm:text-sm  ">
-              <span className="">
-                <IoWaterOutline size={20} /> {humidity}%
-              </span>
-              <span>
-                <LuWind size={20} /> {speed.toFixed(0)} km/h
-              </span>
-            </div>
             <h3 className=" text-3xl font-semibold text-gallery-600  sm:text-4xl">
-              {condition === "Thunderstorm" ? "Rain" : condition}
+              {condition}
             </h3>
           </div>
-          <p className="mb-3 ml-1 text-xs">{weatherDescription}</p>
+          <p className="mb-3 ml-1 text-xs first-letter:uppercase">{weatherDescription}</p>
           <div className=" text-md mb-3 flex items-center justify-center gap-x-2 text-xl font-semibold text-gallery-400 sm:justify-start  ">
             <p>Min {tempMin}ºC</p>
             <p>Max {tempMax}ºC</p>
           </div>
-          <div className="flex justify-center gap-x-8 text-xs font-semibold sm:justify-start ">
-            <span>
-              <TbSunrise size={25} /> {formattedSunrise}
+          <div className="flex  justify-center gap-x-[30px] text-sm font-semibold sm:justify-start ">
+            <span className="">
+              <IoWaterOutline size={20} /> {humidity}%
             </span>
             <span>
-              <BsSunsetFill size={25} /> {formattedSunset}
+              <LuWind size={20} /> {speed.toFixed(0)}
+              <small>km/h</small>
+            </span>
+            <span className="">
+              <TbSunrise size={20} /> {formattedSunrise}
+            </span>
+
+            <span>
+              <BsSunsetFill size={20} /> {formattedSunset}
             </span>
           </div>
         </div>

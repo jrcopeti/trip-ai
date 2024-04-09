@@ -15,12 +15,12 @@ export const fetchTripImage = async (city: string) => {
 
   try {
     const { data } = await axios.get(`${url}${city}`);
-    
+
     console.log("ImageData", data);
-    tripImage = data?.results[0]?.urls.full;
-    tripImage2 = data?.results[1]?.urls?.full;
-    tripImage3 = data?.results[2]?.urls?.full;
-    tripImage4 = data?.results[3]?.urls?.full;
+    tripImage = data?.results[0]?.urls.regular;
+    tripImage2 = data?.results[1]?.urls?.regular;
+    tripImage3 = data?.results[2]?.urls?.regular;
+    tripImage4 = data?.results[3]?.urls?.regular;
 
     const response = await axios.get(tripImage, {
       responseType: "arraybuffer",

@@ -32,7 +32,7 @@ const functionData = {
       title: {
         type: "string",
         description:
-          "A creative title for the trip that includes the userName and the destination in the format: City, Country.",
+          "A creative title for the trip, with up to 15 words, that includes the userName and the destination in the format: City, Country.",
       },
       objectsList: {
         type: "array",
@@ -99,7 +99,7 @@ const functionData = {
       "mustHave",
       "description",
       "tour",
-      "countryCode",
+     
     ],
   },
 };
@@ -108,7 +108,7 @@ export const fetchResponseAI = async (prompt: string) => {
   console.log("Generating response");
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: systemInstructions },
         { role: "user", content: prompt },

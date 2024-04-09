@@ -44,16 +44,12 @@ function SavedTripsPageComponent({
     queryFn: () => getSingleSavedTrip(Number(params.id)),
   });
 
+  const { isPendingWeather, weatherData } = useWeather();
+
   console.log("isPending:", isPending);
 
   console.log("trip city:", trip?.city);
   console.log("trip country:", trip?.country);
-
-  // useEffect(() => {
-  //   if (!isPending && !weatherData && trip?.city && trip?.country) {
-  //     generateWeather({ city: trip.city, country: trip.country });
-  //   }
-  // }, [isPending, generateWeather, weatherData, trip?.city, trip?.country]);
 
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -102,18 +98,18 @@ function SavedTripsPageComponent({
   useIsomorphicLayoutEffect(() => {
     if (!isPending) {
       const context = gsap.context(() => {
-        gsap.from(".trip-description", {
-          autoAlpha: 0,
-          y: 100,
-          duration: 1,
-          scrollTrigger: {
-            trigger: ".trip-description",
-            start: "top bottom",
-            end: "center 300px",
+        // gsap.from(".trip-description", {
+        //   autoAlpha: 0,
+        //   y: 100,
+        //   duration: 1,
+        //   scrollTrigger: {
+        //     trigger: ".trip-description",
+        //     start: "top bottom",
+        //     end: "center 300px",
 
-            toggleActions: "restart none none none",
-          },
-        });
+        //     toggleActions: "restart none none none",
+        //   },
+        // });
 
         gsap.from(".title-tours", {
           autoAlpha: 0,
@@ -167,14 +163,21 @@ function SavedTripsPageComponent({
             });
           },
         });
+      });
+      return () => context.revert();
+    }
+  }, [isPending]);
 
+  useIsomorphicLayoutEffect(() => {
+    if (!isPending && !isPendingWeather && weatherData) {
+      const context = gsap.context(() => {
         gsap.from(".weather-card", {
           autoAlpha: 0,
           y: 200,
           duration: 1,
           scrollTrigger: {
             trigger: ".weather-section",
-            start: "top bottom",
+            start: "top center",
             end: "center center",
             toggleActions: "restart none none none",
             markers: true,
@@ -183,7 +186,7 @@ function SavedTripsPageComponent({
       });
       return () => context.revert();
     }
-  }, [isPending]);
+  }, [isPending, isPendingWeather, weatherData]);
 
   if (isPending) {
     return <div>Loading single trip...</div>;
@@ -196,7 +199,7 @@ function SavedTripsPageComponent({
     <>
       <>
         {/* Section 1 */}
-        <section className=" relative flex h-screen items-center justify-center overflow-x-hidden">
+        <section className="relative flex h-screen items-center justify-center overflow-x-hidden">
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-center bg-repeat brightness-75"
@@ -207,25 +210,33 @@ function SavedTripsPageComponent({
 
         {/* Section 2 */}
 
-        <article className=" relative  flex h-screen items-center justify-center overflow-x-hidden">
+        <section
+          data-bg="true"
+          className=" relative flex h-screen items-center justify-center overflow-x-hidden"
+        >
           <div
+            data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center  brightness-75"
             style={{ backgroundImage: `url(${trip?.image2})` }}
           ></div>
 
           {trip && <DescriptionSection trip={trip} />}
-        </article>
+        </section>
 
         {/* Section 3 */}
 
-        <article className=" tours-section relative flex h-screen items-center justify-center overflow-x-hidden">
+        <section
+          data-bg="true"
+          className=" tours-section relative flex h-screen items-center justify-center overflow-x-hidden"
+        >
           <div
+            data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
             style={{ backgroundImage: `url(${trip?.image4})` }}
           ></div>
 
           {trip && <ToursSection trip={trip} />}
-        </article>
+        </section>
 
         {/* Section 4 */}
 
@@ -235,7 +246,7 @@ function SavedTripsPageComponent({
             className="absolute left-0 top-0 -z-10 h-full w-full brightness-75"
             style={{ backgroundImage: `url(${image4.src})` }}
           ></div>
-          {trip && <PackReadySection />}
+          {trip && <PackReadySection trip={trip} />}
         </section>
 
         {/* Section 4 */}
@@ -264,7 +275,7 @@ function SavedTripsPageComponent({
             style={{ backgroundImage: `url(${geopattern3.src})` }}
           ></div>
 
-          {trip && <WeatherSection trip={trip} />}
+          {trip && <WeatherSection trip={trip} isPending={isPending} />}
         </section>
 
         {/* Section 6 */}

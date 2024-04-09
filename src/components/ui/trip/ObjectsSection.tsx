@@ -19,7 +19,7 @@ function ObjectsSection({ trip }: { trip: Trip }) {
               <span className="font-extrabold text-neptune-500">
                 {object.quantity}
               </span>
-              <span className="whitespace-nowrap font-bold">{object.item}</span>
+              <span className="whitespace-nowrap font-bold capitalize ">{object.item}</span>
             </div>
             <span className="whitespace-normal text-gallery-600">
               {object.description}
