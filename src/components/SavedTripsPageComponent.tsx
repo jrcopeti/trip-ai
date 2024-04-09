@@ -44,26 +44,26 @@ function SavedTripsPageComponent({
     queryFn: () => getSingleSavedTrip(Number(params.id)),
   });
 
-  const { generateWeather, weatherData, isPendingWeather } = useWeather();
-  console.log("weatherData", weatherData);
+
+
 
   console.log("isPending:", isPending);
-  console.log("weatherData:", weatherData);
+
   console.log("trip city:", trip?.city);
   console.log("trip country:", trip?.country);
 
-  useEffect(() => {
-    if (!isPending && !weatherData && trip?.city && trip?.country) {
-      generateWeather({ city: trip.city, country: trip.country });
-    }
-  }, [isPending, generateWeather, weatherData, trip?.city, trip?.country]);
+  // useEffect(() => {
+  //   if (!isPending && !weatherData && trip?.city && trip?.country) {
+  //     generateWeather({ city: trip.city, country: trip.country });
+  //   }
+  // }, [isPending, generateWeather, weatherData, trip?.city, trip?.country]);
 
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
   // RIGHT HERE
   useIsomorphicLayoutEffect(() => {
-    if (!isPending && !isPendingWeather && weatherData) {
+    if (!isPending) {
       const innerHeight = window.innerHeight;
 
       const getRatio = (el: HTMLElement) =>
@@ -100,10 +100,10 @@ function SavedTripsPageComponent({
     return () => {
       ScrollTrigger.getAll().forEach((st) => st.kill());
     };
-  }, [isPending, isPendingWeather, weatherData]);
+  }, [isPending]);
 
   useIsomorphicLayoutEffect(() => {
-    if (!isPending && !isPendingWeather && weatherData) {
+    if (!isPending) {
       const context = gsap.context(() => {
         gsap.from(".trip-description", {
           autoAlpha: 0,
@@ -173,26 +173,11 @@ function SavedTripsPageComponent({
       });
       return () => context.revert();
     }
-  }, [isPending, isPendingWeather, weatherData]);
+  }, [isPending]);
 
   if (isPending) {
     return <div>Loading single trip...</div>;
   }
-
-
-  if (isPendingWeather || !weatherData) {
-    return <p>loading weather</p>;
-  }
-  const { weatherIconSrc } = weatherData;
-  const main = weatherData?.main;
-  const temperature = Math.round((main?.temp ?? NaN) - 273.15);
-  const feelsLike = Math.round((main?.feels_like ?? NaN) - 273.15);
-  const tempMin = Math.round((main?.temp_min ?? NaN) - 273.15);
-  const tempMax = Math.round((main?.temp_max ?? NaN) - 273.15);
-
-  const weather = weatherData?.weather?.[0];
-  const condition = weather?.main;
-  console.log(weatherData);
 
   const formattedStartDate = dayjs(trip?.startDate).format("DD MMM YYYY");
   const formattedEndDate = dayjs(trip?.endDate).format("DD MMM YYYY");
@@ -266,13 +251,7 @@ function SavedTripsPageComponent({
             style={{ backgroundImage: `url(${geopattern3.src})` }}
           ></div>
 
-          <WeatherSection
-            temperature={temperature}
-            tempMin={tempMin}
-            tempMax={tempMax}
-            condition={condition}
-            weatherIconSrc={weatherIconSrc}
-          />
+        {trip &&  <WeatherSection trip={trip}  />}
         </section>
 
         {/* Section 6 */}
