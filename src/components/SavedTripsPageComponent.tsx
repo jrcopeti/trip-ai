@@ -44,9 +44,6 @@ function SavedTripsPageComponent({
     queryFn: () => getSingleSavedTrip(Number(params.id)),
   });
 
-
-
-
   console.log("isPending:", isPending);
 
   console.log("trip city:", trip?.city);
@@ -163,11 +160,24 @@ function SavedTripsPageComponent({
           onEnter: (elements) => {
             gsap.from(elements, {
               autoAlpha: 0,
-              x: 100,
-              stagger: 0.8,
-              ease: "power2.out",
+              y: 100,
+              stagger: 0.4,
+              ease: "power2.in",
               duration: 1.0,
             });
+          },
+        });
+
+        gsap.from(".weather-card", {
+          autoAlpha: 0,
+          y: 200,
+          duration: 1,
+          scrollTrigger: {
+            trigger: ".weather-section",
+            start: "top bottom",
+            end: "center center",
+            toggleActions: "restart none none none",
+            markers: true,
           },
         });
       });
@@ -230,7 +240,10 @@ function SavedTripsPageComponent({
 
         {/* Section 4 */}
 
-        <section className="objects-section relative flex h-screen items-center justify-center">
+        <section
+          data-bg="true"
+          className="objects-section relative flex h-screen items-center justify-center"
+        >
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
@@ -243,7 +256,7 @@ function SavedTripsPageComponent({
 
         <section
           data-bg="true"
-          className="relative flex h-screen items-center justify-center"
+          className="weather-section relative flex h-screen items-center justify-center"
         >
           <div
             data-bg="true"
@@ -251,7 +264,7 @@ function SavedTripsPageComponent({
             style={{ backgroundImage: `url(${geopattern3.src})` }}
           ></div>
 
-        {trip &&  <WeatherSection trip={trip}  />}
+          {trip && <WeatherSection trip={trip} />}
         </section>
 
         {/* Section 6 */}

@@ -1,24 +1,32 @@
-import z from 'zod';
-import { FormDataSchema } from '@/lib/schema';
+import z from "zod";
+import { FormDataSchema } from "@/lib/schema";
 
 type Inputs = z.infer<typeof FormDataSchema>;
 type FieldName = keyof Inputs;
 
 export interface WeatherApiResponse {
-  main:
-    {
-      temp: number;
-      feels_like: number;
-      temp_min: number;
-      temp_max: number;
-    },
+  main: {
+    temp: number;
+    feels_like: number;
+    temp_min: number;
+    temp_max: number;
+    humidity: number;
+  };
 
   weather: [
     {
       main: string;
       icon: string;
+      description: string;
     },
   ];
+  sys: {
+    sunrise: number;
+    sunset: number;
+  };
+  wind: {
+    speed: number;
+  };
 }
 
 export interface WeatherDataTypes extends WeatherApiResponse {
@@ -35,7 +43,7 @@ export interface FetchWeatherParams {
   country: string;
 }
 
-export interface FinalDataTypes extends Omit<Inputs, 'requiredItems'> {
+export interface FinalDataTypes extends Omit<Inputs, "requiredItems"> {
   requiredItems: string[];
   weatherForecast: string;
 }

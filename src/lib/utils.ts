@@ -3,15 +3,15 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 import bolt from "@/assets/weather/bolt.png";
-import drizzle from "@/assets/weather/drizzle.png";
-import rain from "@/assets/weather/rain.png";
-import snow from "@/assets/weather/snow.png";
-import hail from "@/assets/weather/hail.png";
-import sun from "@/assets/weather/sun.png";
-import moon from "@/assets/weather/moon.png";
-import nightcloudy from "@/assets/weather/nightcloudy.png";
-import sunnycloudy from "@/assets/weather/sunnycloudy.png";
 import cloudy from "@/assets/weather/cloudy.png";
+import drizzle from "@/assets/weather/drizzle.png";
+import hail from "@/assets/weather/hail.png";
+import rain from "@/assets/weather/rain.png";
+import moon from "@/assets/weather/moon.png";
+import mooncloudy from "@/assets/weather/mooncloudy.png";
+import snow from "@/assets/weather/snow.png";
+import sun from "@/assets/weather/sun.png";
+import suncloudy from "@/assets/weather/suncloudy.png";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -67,11 +67,11 @@ const placeWeatherIcons = (condition: string, icon: string) => {
 
   if (condition === "Clouds") {
     if ((icon === "02d" || icon === "03d") && (hour > 5 || hour < 19)) {
-      return sunnycloudy.src;
+      return suncloudy.src;
     }
 
     if ((icon === "02n" || icon === "03n") && (hour >= 19 || hour <= 5)) {
-      return nightcloudy.src;
+      return mooncloudy.src;
     }
 
     if (icon === "04d" || icon === "04n") {
