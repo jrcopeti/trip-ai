@@ -1,6 +1,6 @@
 import type { Config } from "tailwindcss";
 import { nextui } from "@nextui-org/react";
-
+const defaultTheme = require("tailwindcss/defaultTheme");
 
 const config: Config = {
   content: [
@@ -10,6 +10,10 @@ const config: Config = {
     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    screens: {
+      xs: "440px",
+      ...defaultTheme.screens,
+    },
     extend: {
       colors: {
         gallery: {
@@ -122,7 +126,6 @@ const config: Config = {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-
       },
     },
   },
@@ -138,8 +141,7 @@ const config: Config = {
             secondary: "#b37cb9",
             success: "#4e888c",
             warning: "#ff9520",
-            danger: "#c2150c"
-
+            danger: "#c2150c",
           },
         },
         dark: {

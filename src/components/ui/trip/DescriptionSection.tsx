@@ -2,8 +2,8 @@ import { Trip } from "@prisma/client";
 
 function DescriptionSection({ trip }: { trip: Trip }) {
   return (
-    <div className="p-12 backdrop-blur-sm">
-      <p className=" trip-description text-start text-2xl font-extrabold leading-[1.8] text-shark-100 md:text-center lg:text-4xl">
+    <div className=" trip-description p-4 bg-gallery-50/40 sm:bg-gallery-50/45 backdrop-blur-sm">
+      <p className=" sm:text-start text-2xl font-bold leading-[1.4] text-shark-950 text-center md:text-center lg:text-4xl">
         {trip?.description}
       </p>
     </div>

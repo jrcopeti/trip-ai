@@ -1,63 +1,104 @@
-import { Card, CardBody, CardHeader } from "@nextui-org/react";
 import Image from "next/image";
+import suncloudy from "@/assets/weather/suncloudy.png";
+import { useWeather } from "@/hooks/useWeather";
+import { useEffect } from "react";
+import { IoWaterOutline } from "react-icons/io5";
+import { LuWind } from "react-icons/lu";
+import { TbSunrise } from "react-icons/tb";
+import { BsSunsetFill } from "react-icons/bs";
+import { Trip } from "@prisma/client";
 
-interface WeatherSectionProps {
-  temperature: number;
-  tempMin: number;
-  tempMax: number;
-  condition: string | undefined;
-  weatherIconSrc: string | undefined;
-}
+import dayjs from "dayjs";
 
 function WeatherSection({
-  temperature,
-  tempMin,
-  tempMax,
-  condition,
-  weatherIconSrc,
-}: WeatherSectionProps) {
+  trip,
+  isPending,
+}: {
+  trip: Trip;
+  isPending: boolean;
+}) {
+  const { generateWeather, isPendingWeather, weatherData } = useWeather();
+  console.log(weatherData);
+  console.log("isPending`Weayher", isPendingWeather);
+
+  useEffect(() => {
+    if (trip.city && trip.country) {
+      generateWeather({ city: trip.city, country: trip.country });
+    }
+  }, [generateWeather, trip.city, trip.country]);
+
+  if (!weatherData) {
+    return <p>loading weather data</p>;
+  }
+
+  const { weatherIconSrc } = weatherData;
+  const main = weatherData?.main;
+  const temperature = Math.round((main?.temp ?? 0) - 273.15);
+  const feelsLike = Math.round((main?.feels_like ?? 0) - 273.15);
+  const tempMin = Math.round((main?.temp_min ?? 0) - 273.15);
+  const tempMax = Math.round((main?.temp_max ?? 0) - 273.15);
+  const humidity = main?.humidity ?? 0;
+
+  const sys = weatherData?.sys;
+  const sunrise = dayjs.unix(sys?.sunrise ?? 0);
+  const formattedSunrise = sunrise.format("HH:mm");
+  const sunset = dayjs.unix(sys?.sunset ?? 0);
+  const formattedSunset = sunset.format("HH:mm");
+
+  const weather = weatherData?.weather?.[0];
+  const condition = weather?.main;
+  const weatherDescription = weather?.description;
+
+  const wind = weatherData?.wind;
+  const speed = Math.round((wind?.speed ?? 0) * 3.6);
+
   return (
     <>
-      <Card className="py-4">
-        <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
-          <p className="text-tiny font-bold uppercase">{temperature}ºC</p>
-          <small className="text-default-500">
-            min {tempMin} max {tempMax}
-          </small>
-          <h4 className="text-large font-bold">{condition}</h4>
-        </CardHeader>
-        <CardBody className="overflow-visible py-2">
-          <Image
-            alt="Card background"
-            className="rounded-xl object-cover"
-            src={weatherIconSrc ?? ""}
-            width={100}
-            height={100}
-          />
-        </CardBody>
-      </Card>
-      <Card>
-        <CardBody className=" bg-gradient-to-r from-cabaret-100 via-cabaret-200 to-gallery-100">
-          <div className="grid grid-cols-6 items-center justify-center gap-6 md:grid-cols-12 md:gap-4">
-            <div className="relative col-span-2 bg-gallery-500 p-4 md:col-span-2">
-              <Image
-                alt="Album cover"
-                className="object-cover"
-                height={100}
-                src={weatherIconSrc ?? ""}
-                width={100}
-              />
-            </div>
-            <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
-              <p className="text-tiny font-bold uppercase">{temperature}ºC</p>
-              <small className="text-default-500">
-                min {tempMin} max {tempMax}
-              </small>
-              <h4 className="text-large font-bold">{condition}</h4>
-            </CardHeader>
+      <div className="weather-card relative mx-0 my-[40px] flex w-[80%] flex-col rounded-2xl bg-gallery-50/70 pb-[60px] pl-[50px] pr-[50px] text-center text-shark-900 sm:max-h-[400px] sm:w-[75vw] sm:max-w-[500px] sm:flex-row sm:items-center sm:pb-[50px] sm:pl-[20px] sm:pr-[100px] sm:pt-[60px] sm:text-start ">
+        <Image
+          height={400}
+          width={400}
+          alt="weather-icon"
+          src={weatherIconSrc ?? suncloudy}
+          className="md:rounded-inherit -mt-[86px] mb-[30px] ml-[10px] h-[45vw] w-[45vw] object-contain xs:ml-[22%] sm:-ml-[145px] sm:-mt-[0px] sm:mb-[30px] sm:h-[300px] sm:w-full md:-ml-[161px] md:-mt-[0] md:mr-[30px] md:h-[300px]  md:max-w-full "
+        />
+        <div className="">
+          <p className="mb-4 uppercase sm:mb-2">
+            {trip?.city}, {trip?.country}
+          </p>
+          <div className="">
+            <h2 className=" mt-0 text-7xl font-semibold sm:mr-0 sm:text-[6rem] ">
+              {temperature}ºC
+            </h2>
+            <p className="mb-4 ml-1">Feels like {feelsLike}ºC</p>
+
+            <h3 className=" text-3xl font-semibold text-gallery-600  sm:text-4xl">
+              {condition}
+            </h3>
           </div>
-        </CardBody>
-      </Card>
+          <p className="mb-3 ml-1 text-xs first-letter:uppercase">{weatherDescription}</p>
+          <div className=" text-md mb-3 flex items-center justify-center gap-x-2 text-xl font-semibold text-gallery-400 sm:justify-start  ">
+            <p>Min {tempMin}ºC</p>
+            <p>Max {tempMax}ºC</p>
+          </div>
+          <div className="flex  justify-center gap-x-[30px] text-sm font-semibold sm:justify-start ">
+            <span className="">
+              <IoWaterOutline size={20} /> {humidity}%
+            </span>
+            <span>
+              <LuWind size={20} /> {speed.toFixed(0)}
+              <small>km/h</small>
+            </span>
+            <span className="">
+              <TbSunrise size={20} /> {formattedSunrise}
+            </span>
+
+            <span>
+              <BsSunsetFill size={20} /> {formattedSunset}
+            </span>
+          </div>
+        </div>
+      </div>
     </>
   );
 }
