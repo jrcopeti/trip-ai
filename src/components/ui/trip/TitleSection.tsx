@@ -14,7 +14,7 @@ function TitleSection({ trip }: { trip: Trip }) {
             blurDataURL={trip?.placeholder ?? ""}
             placeholder="blur"
             priority
-            className="h-auto w-auto rounded-xl shadow-lg "
+            className="m-h-[300px] h-auto w-auto rounded-xl object-cover shadow-lg"
           />
 
           <div className=" grid grid-cols-1 gap-4 rounded-md p-4 shadow-sm lg:gap-8 xl:grid-cols-[1fr,1fr]">

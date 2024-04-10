@@ -55,61 +55,61 @@ function SavedTripsPageComponent({
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
   // RIGHT HERE
-  useIsomorphicLayoutEffect(() => {
-    if (!isPending) {
-      const innerHeight = window.innerHeight;
+  // useIsomorphicLayoutEffect(() => {
+  //   if (!isPending) {
+  //     const innerHeight = window.innerHeight;
 
-      const getRatio = (el: HTMLElement) =>
-        innerHeight / (innerHeight + el.offsetHeight);
+  //     const getRatio = (el: HTMLElement) =>
+  //       innerHeight / (innerHeight + el.offsetHeight);
 
-      gsap.utils.toArray("section").forEach((section, i) => {
-        if (section instanceof HTMLElement) {
-          const bg = section.querySelector('[data-bg="true"]');
+  //     gsap.utils.toArray("section").forEach((section, i) => {
+  //       if (section instanceof HTMLElement) {
+  //         const bg = section.querySelector('[data-bg="true"]');
 
-          gsap.fromTo(
-            bg,
-            {
-              backgroundPosition: () =>
-                i ? `50% ${-innerHeight * getRatio(section)}px` : "50% 0px",
-            },
-            {
-              backgroundPosition: () =>
-                `100% ${innerHeight * (1 - getRatio(section))}px`,
-              ease: "none",
-              scrollTrigger: {
-                trigger: bg,
+  //         gsap.fromTo(
+  //           bg,
+  //           {
+  //             backgroundPosition: () =>
+  //               i ? `50% ${-innerHeight * getRatio(section)}px` : "50% 0px",
+  //           },
+  //           {
+  //             backgroundPosition: () =>
+  //               `100% ${innerHeight * (1 - getRatio(section))}px`,
+  //             ease: "none",
+  //             scrollTrigger: {
+  //               trigger: bg,
 
-                start: () => (i ? "top bottom" : "top top"),
-                end: "bottom top",
-                scrub: true,
-                invalidateOnRefresh: true,
-              },
-            },
-          );
-        }
-      });
-    }
+  //               start: () => (i ? "top bottom" : "top top"),
+  //               end: "bottom top",
+  //               scrub: true,
+  //               invalidateOnRefresh: true,
+  //             },
+  //           },
+  //         );
+  //       }
+  //     });
+  //   }
 
-    return () => {
-      ScrollTrigger.getAll().forEach((st) => st.kill());
-    };
-  }, [isPending]);
+  //   return () => {
+  //     ScrollTrigger.getAll().forEach((st) => st.kill());
+  //   };
+  // }, [isPending]);
 
   useIsomorphicLayoutEffect(() => {
     if (!isPending) {
       const context = gsap.context(() => {
-        // gsap.from(".trip-description", {
-        //   autoAlpha: 0,
-        //   y: 100,
-        //   duration: 1,
-        //   scrollTrigger: {
-        //     trigger: ".trip-description",
-        //     start: "top bottom",
-        //     end: "center 300px",
+        gsap.from(".trip-description", {
+          autoAlpha: 0,
+          y: 100,
+          duration: 1,
+          scrollTrigger: {
+            trigger: ".trip-description",
+            start: "top bottom",
+            end: "center 300px",
 
-        //     toggleActions: "restart none none none",
-        //   },
-        // });
+            toggleActions: "restart none none none",
+          },
+        });
 
         gsap.from(".title-tours", {
           autoAlpha: 0,
