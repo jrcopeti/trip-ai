@@ -28,6 +28,7 @@ import DescriptionSection from "./ui/trip/DescriptionSection";
 import TitleSection from "./ui/trip/TitleSection";
 import PackReadySection from "./ui/trip/PackReadySection";
 import { notFound } from "next/navigation";
+import MustHaveSection from "./ui/trip/MustHaveSection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -275,8 +276,7 @@ function SavedTripsPageComponent({
             className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-cabaret-100 to-gallery-100  "
             // style={{ backgroundImage: `url(${geopattern3.src})` }}
           ></div>
-
-
+          {trip && <MustHaveSection trip={trip} />}
         </section>
 
         {/* Section 6 */}
@@ -289,7 +289,7 @@ function SavedTripsPageComponent({
             className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-yellorange-100 "
             // style={{ backgroundImage: `url(${trip?.image3})` }}
           ></div>
-           {trip && <WeatherSection trip={trip} isPending={isPending} />}
+          {trip && <WeatherSection trip={trip} isPending={isPending} />}
         </section>
 
         {/* Section 7 */}
