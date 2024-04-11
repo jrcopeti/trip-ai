@@ -13,6 +13,7 @@ import image5 from "@/assets/5.jpg";
 import image6 from "@/assets/6.jpeg";
 import image7 from "@/assets/7.jpg";
 import image8 from "@/assets/8.jpg";
+import plane from "@/assets/plane.png";
 import geopattern from "@/assets/geopattern.png";
 import geopattern2 from "@/assets/geopattern2.png";
 import geopattern3 from "@/assets/geopattern3.png";
@@ -27,6 +28,9 @@ import DescriptionSection from "./ui/trip/DescriptionSection";
 import TitleSection from "./ui/trip/TitleSection";
 import PackReadySection from "./ui/trip/PackReadySection";
 import { notFound } from "next/navigation";
+import MustHaveSection from "./ui/trip/MustHaveSection";
+import FormDetailsSection from "./ui/trip/FormDetailsSection";
+import FinalSection from "./ui/trip/FinalSection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -202,8 +206,8 @@ function SavedTripsPageComponent({
         <section className="relative flex h-screen items-center justify-center overflow-x-hidden">
           <div
             data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-center bg-repeat brightness-75"
-            style={{ backgroundImage: `url(${geopattern.src})` }}
+            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-violay-200  bg-cover bg-center   "
+            // style={{ backgroundImage: `url(${trip?.image})` }}
           ></div>
           {trip && <TitleSection trip={trip} />}
         </section>
@@ -212,12 +216,12 @@ function SavedTripsPageComponent({
 
         <section
           data-bg="true"
-          className=" relative flex h-screen items-center justify-center overflow-x-hidden"
+          className=" relative flex h-screen items-center justify-center "
         >
           <div
-            data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center  brightness-75"
-            style={{ backgroundImage: `url(${trip?.image2})` }}
+            // data-bg="true"
+            className="absolute  left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-violay-200 to-gallery-50 bg-cover bg-center  "
+            // style={{ backgroundImage: `url(${trip?.image2})` }}
           ></div>
 
           {trip && <DescriptionSection trip={trip} />}
@@ -231,8 +235,8 @@ function SavedTripsPageComponent({
         >
           <div
             data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
-            style={{ backgroundImage: `url(${trip?.image4})` }}
+            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b  from-gallery-50 to-neptune-200 bg-cover bg-center   "
+            // style={{ backgroundImage: `url(${plane.src})` }}
           ></div>
 
           {trip && <ToursSection trip={trip} />}
@@ -243,8 +247,8 @@ function SavedTripsPageComponent({
         <section className="pack-section relative flex h-screen items-center justify-center">
           <div
             data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full brightness-75"
-            style={{ backgroundImage: `url(${image4.src})` }}
+            className="absolute left-0 top-0 -z-10 h-full w-full  bg-gradient-to-b from-neptune-200  to-gallery-100 "
+            // style={{ backgroundImage: `url(${image4.src})` }}
           ></div>
           {trip && <PackReadySection trip={trip} />}
         </section>
@@ -257,8 +261,8 @@ function SavedTripsPageComponent({
         >
           <div
             data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
-            style={{ backgroundImage: `url(${image7.src})` }}
+            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-cabaret-100 "
+            // style={{ backgroundImage: `url(${image7.src})` }}
           ></div>
           {trip && <ObjectsSection trip={trip} />}
         </section>
@@ -271,11 +275,10 @@ function SavedTripsPageComponent({
         >
           <div
             data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full brightness-75"
-            style={{ backgroundImage: `url(${geopattern3.src})` }}
+            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-cabaret-100 to-gallery-100  "
+            // style={{ backgroundImage: `url(${geopattern3.src})` }}
           ></div>
-
-          {trip && <WeatherSection trip={trip} isPending={isPending} />}
+          {trip && <MustHaveSection trip={trip} />}
         </section>
 
         {/* Section 6 */}
@@ -285,10 +288,10 @@ function SavedTripsPageComponent({
         >
           <div
             data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full  bg-cover bg-center brightness-75"
-            style={{ backgroundImage: `url(${trip?.image3})` }}
+            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-yellorange-100 "
+            // style={{ backgroundImage: `url(${trip?.image3})` }}
           ></div>
-          <h1 className="font-gallery-100 text-3xl">6</h1>
+          {trip && <WeatherSection trip={trip} isPending={isPending} />}
         </section>
 
         {/* Section 7 */}
@@ -299,10 +302,10 @@ function SavedTripsPageComponent({
         >
           <div
             data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-repeat brightness-75"
-            style={{ backgroundImage: `url(${geopattern2.src})` }}
+            className="absolute left-0 top-0 -z-10 h-full w-full  bg-gradient-to-b from-yellorange-100 to-gallery-100  "
+            // style={{ backgroundImage: `url(${geopattern2.src})` }}
           ></div>
-          <h1 className="font-gallery-100 text-3xl">7</h1>
+          {trip && <FormDetailsSection trip={trip} />}
         </section>
 
         {/* Section 8 */}
@@ -313,24 +316,10 @@ function SavedTripsPageComponent({
         >
           <div
             data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
-            style={{ backgroundImage: `url(${image6.src})` }}
+            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-shark-200"
+            // style={{ backgroundImage: `url(${image6.src})` }}
           ></div>
-          <h1 className="font-gallery-100 text-3xl">8</h1>
-        </section>
-
-        {/* Section 9 */}
-
-        <section
-          data-bg="true"
-          className="relative flex h-screen items-center justify-center"
-        >
-          <div
-            data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center bg-no-repeat brightness-75"
-            style={{ backgroundImage: `url(${image1.src})` }}
-          ></div>
-          <h1 className="font-gallery-100 text-3xl">8</h1>
+          {trip && <FinalSection trip={trip} />}
         </section>
       </>
     </>

@@ -5,6 +5,7 @@ import axios from "axios";
 import { getPlaiceholder } from "plaiceholder";
 
 const url = `https://api.unsplash.com/search/photos?client_id=${process.env.UNSPLASH_API_KEY}&query=`;
+const orientation = "&orientation=landscape";
 
 export const fetchTripImage = async (city: string) => {
   let tripImage = "";
@@ -14,7 +15,7 @@ export const fetchTripImage = async (city: string) => {
   let placeholder = "";
 
   try {
-    const { data } = await axios.get(`${url}${city}`);
+    const { data } = await axios.get(`${url}${city}${orientation}`);
 
     console.log("ImageData", data);
     tripImage = data?.results[0]?.urls.regular;
