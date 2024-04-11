@@ -7,10 +7,9 @@ function DescriptionSection({ trip }: { trip: Trip }) {
       <div className=" grid h-[90%] w-[90%] grid-cols-none grid-rows-2 shadow-2xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none ">
 
 
-        <div className="  bg-gradient-to-tr from-gallery-50  to-gallery-50 p-8 sm:p-16 ">
+        <div className="bg-gradient-to-tr from-gallery-50  to-gallery-50 p-8 sm:p-16 ">
           <h1
-            className="ml-4 mt-8 lg:text-3xl font-extrabold text-tuna-900 text-lg md:
-       "
+            className="ml-4 mt-8 xl:text-3xl font-semibold text-tuna-900 text-lg md:text-2xl"
           >
             {trip?.description}
 

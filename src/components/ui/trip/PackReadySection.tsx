@@ -1,21 +1,27 @@
 import { Trip } from "@prisma/client";
 
 import dayjs from "dayjs";
+import Image from "next/image";
+import stamps from "@/assets/stamps.png";
 
 function PackReadySection({ trip }: { trip: Trip }) {
   const startDate = dayjs(trip?.startDate).format("DD.MM.YYYY");
   const endDate = dayjs(trip?.endDate).format("DD.MM.YYYY");
 
   return (
-    <div className='flex flex-col'>
-      <h1 className="pack-ready text-center text-4xl font-extrabold capitalize text-shark-100 md:text-6xl">
+    <div className='flex flex-col flex-start p-6 bg-gallery-50/40'>
+      <h1 className="pack-ready text-center text-4xl font-extrabold capitalize text-shark-900 md:text-6xl">
         We have your pack ready
       </h1>
-      <h2 className=' p-4 mt-1 text-3xl text-gallery-950 font-semibold'>
+      <h2 className=' p-4 mt-1 text-3xl text-gallery-600 font-semibold'>
         {trip.weatherForecast
           ? "Based on the weather"
           : `From ${startDate} to ${endDate}`}
       </h2>
+      <div className='absolute md:h-[400px] md:w-[500px] h-[300px] w-[300px] -z-10 -translate-y-[80px] translate-x-[170px] md:-translate-y-[110px] md:translate-x-[300px] '>
+
+      <Image src={stamps} alt="stamps" fill className=" object-contain opacity-60 " />
+      </div>
     </div>
   );
 }

@@ -13,6 +13,7 @@ import image5 from "@/assets/5.jpg";
 import image6 from "@/assets/6.jpeg";
 import image7 from "@/assets/7.jpg";
 import image8 from "@/assets/8.jpg";
+import plane from "@/assets/plane.png";
 import geopattern from "@/assets/geopattern.png";
 import geopattern2 from "@/assets/geopattern2.png";
 import geopattern3 from "@/assets/geopattern3.png";
@@ -212,11 +213,11 @@ function SavedTripsPageComponent({
 
         <section
           data-bg="true"
-          className=" relative flex h-screen items-center justify-center overflow-x-hidden"
+          className=" relative flex h-screen items-center justify-center "
         >
           <div
             // data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-violay-200 to-gallery-50 bg-cover bg-center  "
+            className="absolute  left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-violay-200 to-gallery-50 bg-cover bg-center  "
             // style={{ backgroundImage: `url(${trip?.image2})` }}
           ></div>
 
@@ -231,8 +232,8 @@ function SavedTripsPageComponent({
         >
           <div
             data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b   from-gallery-50 to-neptune-200 bg-cover bg-center   "
-            // style={{ backgroundImage: `url(${trip?.image4})` }}
+            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b  from-gallery-50 to-neptune-200 bg-cover bg-center   "
+            // style={{ backgroundImage: `url(${plane.src})` }}
           ></div>
 
           {trip && <ToursSection trip={trip} />}
@@ -275,7 +276,7 @@ function SavedTripsPageComponent({
             // style={{ backgroundImage: `url(${geopattern3.src})` }}
           ></div>
 
-          {trip && <WeatherSection trip={trip} isPending={isPending} />}
+
         </section>
 
         {/* Section 6 */}
@@ -288,7 +289,7 @@ function SavedTripsPageComponent({
             className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-yellorange-100 "
             // style={{ backgroundImage: `url(${trip?.image3})` }}
           ></div>
-          <h1 className="font-gallery-100 text-3xl">6</h1>
+           {trip && <WeatherSection trip={trip} isPending={isPending} />}
         </section>
 
         {/* Section 7 */}
