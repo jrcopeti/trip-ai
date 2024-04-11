@@ -21,11 +21,11 @@ function WeatherSection({
   console.log(weatherData);
   console.log("isPending`Weayher", isPendingWeather);
 
-  // useEffect(() => {
-  //   if (trip.city && trip.country) {
-  //     generateWeather({ city: trip.city, country: trip.country });
-  //   }
-  // }, [generateWeather, trip.city, trip.country]);
+  useEffect(() => {
+    if (trip.city && trip.country) {
+      generateWeather({ city: trip.city, country: trip.country });
+    }
+  }, [generateWeather, trip.city, trip.country]);
 
   if (!weatherData) {
     return <p>loading weather data</p>;

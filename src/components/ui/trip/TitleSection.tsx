@@ -21,7 +21,7 @@ function TitleSection({ trip }: { trip: Trip }) {
           <h1 className="2xl:text-7xl lg:text-6xl md:text-5xl sm:text-4xl text-4xl font-extrabold text-tuna-900 ml-4 mt-8 sm:ml-8 sm:mt-3
          ">
             {/* {trip?.title} */}
-            Maria's Trip in the exciting journey to the city of Washington, United States
+            Marias Trip in the exciting journey to the city of Washington, United States
           </h1>
           <p>
 
