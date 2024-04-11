@@ -29,6 +29,8 @@ import TitleSection from "./ui/trip/TitleSection";
 import PackReadySection from "./ui/trip/PackReadySection";
 import { notFound } from "next/navigation";
 import MustHaveSection from "./ui/trip/MustHaveSection";
+import FormDetailsSection from "./ui/trip/FormDetailsSection";
+import FinalSection from "./ui/trip/FinalSection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -303,7 +305,7 @@ function SavedTripsPageComponent({
             className="absolute left-0 top-0 -z-10 h-full w-full  bg-gradient-to-b from-yellorange-100 to-gallery-100  "
             // style={{ backgroundImage: `url(${geopattern2.src})` }}
           ></div>
-          <h1 className="font-gallery-100 text-3xl">7</h1>
+          {trip && <FormDetailsSection trip={trip} />}
         </section>
 
         {/* Section 8 */}
@@ -317,20 +319,7 @@ function SavedTripsPageComponent({
             className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-shark-200"
             // style={{ backgroundImage: `url(${image6.src})` }}
           ></div>
-          <h1 className="font-gallery-100 text-3xl">8</h1>
-        </section>
-
-        {/* Section 9 */}
-
-        <section
-          data-bg="true"
-          className="relative flex h-screen items-center justify-center"
-        >
-          <div
-            data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-shark-200 to-gallery-100"
-          ></div>
-          <h1 className="font-gallery-100 text-3xl">8</h1>
+          {trip && <FinalSection trip={trip} />}
         </section>
       </>
     </>
