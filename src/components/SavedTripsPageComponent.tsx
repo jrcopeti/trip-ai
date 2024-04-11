@@ -202,8 +202,8 @@ function SavedTripsPageComponent({
         <section className="relative flex h-screen items-center justify-center overflow-x-hidden">
           <div
             data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-center bg-repeat brightness-75"
-            style={{ backgroundImage: `url(${geopattern.src})` }}
+            className="absolute left-0 top-0 -z-10 h-full w-full bg-cover bg-center brightness-75  "
+            style={{ backgroundImage: `url(${trip?.image})` }}
           ></div>
           {trip && <TitleSection trip={trip} />}
         </section>
