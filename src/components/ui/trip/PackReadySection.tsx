@@ -10,7 +10,7 @@ function PackReadySection({ trip }: { trip: Trip }) {
 
   return (
     <div className='flex flex-col flex-start p-6 bg-gallery-50/40'>
-      <h1 className="pack-ready text-center text-4xl font-extrabold capitalize text-shark-900 md:text-6xl">
+      <h1 className=" text-center text-4xl font-extrabold capitalize text-shark-900 md:text-6xl">
         We have your pack ready
       </h1>
       <h2 className=' p-4 mt-1 text-3xl text-gallery-600 font-semibold'>
@@ -18,9 +18,9 @@ function PackReadySection({ trip }: { trip: Trip }) {
           ? "Based on the weather"
           : `From ${startDate} to ${endDate}`}
       </h2>
-      <div className='absolute md:h-[400px] md:w-[500px] h-[300px] w-[300px] -z-10 -translate-y-[80px] translate-x-[170px] md:-translate-y-[110px] md:translate-x-[300px] '>
+      <div className='stamps absolute md:h-[400px] md:w-[500px] h-[300px] w-[300px] -z-10 -translate-y-[80px] translate-x-[170px] md:-translate-y-[110px] md:translate-x-[300px] '>
 
-      <Image src={stamps} alt="stamps" fill className=" object-contain opacity-60 " />
+      <Image src={stamps} alt="stamps" fill className="object-contain  " />
       </div>
     </div>
   );

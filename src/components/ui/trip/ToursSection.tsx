@@ -23,7 +23,7 @@ function ToursSection({ trip }: { trip: Trip }) {
               </ul>
             ))}
           </div>
-          <div className="absolute -z-10 h-[100dvw] w-[100dvw] md:h-[600px] md:w-[600px]">
+          <div className="plane absolute -z-10 h-[100dvw] w-[100dvw] md:h-[600px] md:w-[600px]">
             <Image
               src={plane}
               alt="plane"

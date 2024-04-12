@@ -12,7 +12,7 @@ function FormDetailsSection({ trip }: { trip: Trip }) {
 
   return (
     <>
-      <div className=" grid h-[90%] w-[90%] grid-cols-none grid-rows-2 shadow-2xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none ">
+      <div className="form-details grid h-[90%] w-[90%] grid-cols-none grid-rows-2 shadow-2xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none ">
         <div className=" grid grid-cols-2  bg-gradient-to-tr from-gallery-50  to-gallery-50 p-6 lg:p-10 ">
 
           <div className=" h-[60px] w-[80px] lg:h-[80px] lg:w-[100px] -mb-10 ">

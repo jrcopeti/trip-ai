@@ -78,12 +78,12 @@ function WeatherSection({
           <p className="mb-3 ml-1 text-xs first-letter:uppercase">
             {weatherDescription}
           </p>
-          <div className=" text-md mb-3 flex items-center justify-center gap-x-2 text-xl font-semibold text-gallery-400 sm:justify-start  ">
+          <div className="text-md mb-3 flex items-center justify-center gap-x-2 text-xl font-semibold text-gallery-400 sm:justify-start  ">
             <p>
-              <small>High</small> {tempMin}ºC
+              <small>Low</small> {tempMin}ºC
             </p>
             <p>
-              <small>Low</small> {tempMax}ºC
+              <small>High</small> {tempMax}ºC
             </p>
           </div>
           <div className="flex  justify-center gap-x-[30px] text-sm font-semibold sm:justify-start ">

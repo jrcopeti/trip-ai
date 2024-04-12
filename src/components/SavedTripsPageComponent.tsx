@@ -58,73 +58,44 @@ function SavedTripsPageComponent({
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
-  // RIGHT HERE
-  // useIsomorphicLayoutEffect(() => {
-  //   if (!isPending) {
-  //     const innerHeight = window.innerHeight;
-
-  //     const getRatio = (el: HTMLElement) =>
-  //       innerHeight / (innerHeight + el.offsetHeight);
-
-  //     gsap.utils.toArray("section").forEach((section, i) => {
-  //       if (section instanceof HTMLElement) {
-  //         const bg = section.querySelector('[data-bg="true"]');
-
-  //         gsap.fromTo(
-  //           bg,
-  //           {
-  //             backgroundPosition: () =>
-  //               i ? `50% ${-innerHeight * getRatio(section)}px` : "50% 0px",
-  //           },
-  //           {
-  //             backgroundPosition: () =>
-  //               `100% ${innerHeight * (1 - getRatio(section))}px`,
-  //             ease: "none",
-  //             scrollTrigger: {
-  //               trigger: bg,
-
-  //               start: () => (i ? "top bottom" : "top top"),
-  //               end: "bottom top",
-  //               scrub: true,
-  //               invalidateOnRefresh: true,
-  //             },
-  //           },
-  //         );
-  //       }
-  //     });
-  //   }
-
-  //   return () => {
-  //     ScrollTrigger.getAll().forEach((st) => st.kill());
-  //   };
-  // }, [isPending]);
-
   useIsomorphicLayoutEffect(() => {
     if (!isPending) {
       const context = gsap.context(() => {
         gsap.from(".trip-description", {
           autoAlpha: 0,
-          y: 100,
+          y: 150,
           duration: 1,
+          ease: "power1.inOut",
           scrollTrigger: {
-            trigger: ".trip-description",
-            start: "top bottom",
+            trigger: ".description-section",
+            start: "100px bottom",
             end: "center 300px",
-
-            toggleActions: "restart none none none",
+            toggleActions: "restart none play none",
           },
         });
 
-        gsap.from(".title-tours", {
+        gsap.from(".plane", {
           autoAlpha: 0,
           x: -200,
 
           scrollTrigger: {
             trigger: ".tours-section",
-            start: "top bottom",
-            end: "center 300px",
+            start: "300px bottom",
+            end: "center -300px",
+            scrub: true,
+          },
+        });
 
-            scrub: 1,
+        gsap.from(".title-tours", {
+          autoAlpha: 0,
+          y: 150,
+          duration: 1,
+          ease: "power1.inOut",
+          scrollTrigger: {
+            trigger: ".tours-section",
+            start: "100px bottom",
+            end: "center 300px",
+            toggleActions: "restart none play none",
           },
         });
 
@@ -149,7 +120,21 @@ function SavedTripsPageComponent({
             trigger: ".pack-section",
             start: "top center",
             end: "center 300px",
-            toggleActions: "restart none none none",
+            toggleActions: "restart none play none",
+          },
+        });
+
+        gsap.from(".stamps", {
+          autoAlpha: 0,
+
+          duration: 1,
+          scrollTrigger: {
+            trigger: ".stamps",
+            // start: "0px 300px",
+            // end: "400px 400px",
+            start: "250px bottom",
+            end: "center -100px",
+            scrub: 1,
           },
         });
 
@@ -161,10 +146,51 @@ function SavedTripsPageComponent({
             gsap.from(elements, {
               autoAlpha: 0,
               y: 100,
-              stagger: 0.4,
-              ease: "power2.in",
-              duration: 1.0,
+              // stagger: 0.2,
+              ease: "power2.inOut",
+              duration: 1.2,
+              interval: 0.8,
+              batchMax: 3,
             });
+          },
+        });
+
+        gsap.from(".must-have", {
+          autoAlpha: 0,
+          y: 150,
+          duration: 1,
+          ease: "power1.inOut",
+          scrollTrigger: {
+            trigger: ".musthave-section",
+            start: "100px bottom",
+            end: "center 300px",
+            toggleActions: "restart none play none",
+          },
+        });
+
+        gsap.from(".form-details", {
+          autoAlpha: 0,
+          y: 150,
+          duration: 1,
+          ease: "power1.inOut",
+          scrollTrigger: {
+            trigger: ".formdetails-section",
+            start: "100px bottom",
+            end: "center 300px",
+            toggleActions: "restart none play none",
+          },
+        });
+
+        gsap.from(".final-card", {
+          autoAlpha: 0,
+          y: 150,
+          duration: 1,
+          ease: "power1.inOut",
+          scrollTrigger: {
+            trigger: ".final-section",
+            start: "100px bottom",
+            end: "center 300px",
+            toggleActions: "restart none play none",
           },
         });
       });
@@ -182,9 +208,8 @@ function SavedTripsPageComponent({
           scrollTrigger: {
             trigger: ".weather-section",
             start: "top center",
-            end: "center center",
-            toggleActions: "restart none none none",
-            markers: true,
+            end: "center 300px",
+            toggleActions: "restart none play none",
           },
         });
       });
@@ -196,48 +221,27 @@ function SavedTripsPageComponent({
     return <div>Loading single trip...</div>;
   }
 
-  const formattedStartDate = dayjs(trip?.startDate).format("DD MMM YYYY");
-  const formattedEndDate = dayjs(trip?.endDate).format("DD MMM YYYY");
-
   return (
     <>
       <>
         {/* Section 1 */}
         <section className="relative flex h-screen items-center justify-center overflow-x-hidden">
-          <div
-            data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-violay-200  bg-cover bg-center   "
-            // style={{ backgroundImage: `url(${trip?.image})` }}
-          ></div>
+          <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-violay-200  bg-cover bg-center   "></div>
           {trip && <TitleSection trip={trip} />}
         </section>
 
         {/* Section 2 */}
 
-        <section
-          data-bg="true"
-          className=" relative flex h-screen items-center justify-center overflow-x-hidden "
-        >
-          <div
-            // data-bg="true"
-            className="absolute  left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-violay-200 to-gallery-50 bg-cover bg-center  "
-            // style={{ backgroundImage: `url(${trip?.image2})` }}
-          ></div>
+        <section className="description-section relative flex h-screen items-center justify-center overflow-x-hidden ">
+          <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-violay-200 to-gallery-50 bg-cover bg-center  "></div>
 
           {trip && <DescriptionSection trip={trip} />}
         </section>
 
         {/* Section 3 */}
 
-        <section
-          data-bg="true"
-          className=" tours-section relative flex h-screen items-center justify-center overflow-x-hidden"
-        >
-          <div
-            data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-50 to-neptune-200 bg-cover bg-center   "
-            // style={{ backgroundImage: `url(${plane.src})` }}
-          ></div>
+        <section className=" tours-section relative flex h-screen items-center justify-center overflow-x-hidden">
+          <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-50 to-neptune-200 bg-cover bg-center   "></div>
 
           {trip && <ToursSection trip={trip} />}
         </section>
@@ -245,22 +249,14 @@ function SavedTripsPageComponent({
         {/* Section 4 */}
 
         <section className="pack-section relative flex h-screen items-center justify-center overflow-x-hidden">
-          <div
-            data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full  bg-gradient-to-b from-neptune-200  to-gallery-100 "
-            // style={{ backgroundImage: `url(${image4.src})` }}
-          ></div>
+          <div className="absolute left-0 top-0 -z-10 h-full w-full  bg-gradient-to-b from-neptune-200  to-gallery-100 "></div>
           {trip && <PackReadySection trip={trip} />}
         </section>
 
         {/* Section 4 */}
 
-        <section
-          data-bg="true"
-          className="objects-section relative flex h-screen items-center justify-center overflow-x-hidden"
-        >
+        <section className="objects-section relative flex h-screen items-center justify-center overflow-x-hidden">
           <div
-            data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-cabaret-100 "
             // style={{ backgroundImage: `url(${image7.src})` }}
           ></div>
@@ -269,56 +265,28 @@ function SavedTripsPageComponent({
 
         {/* Section 5 */}
 
-        <section
-          data-bg="true"
-          className="weather-section relative flex h-screen items-center justify-center overflow-x-hidden"
-        >
-          <div
-            data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-cabaret-100 to-gallery-100  "
-            // style={{ backgroundImage: `url(${geopattern3.src})` }}
-          ></div>
+        <section className=" musthave-section relative flex h-screen items-center justify-center overflow-x-hidden">
+          <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-cabaret-100 to-gallery-100  "></div>
           {trip && <MustHaveSection trip={trip} />}
         </section>
 
         {/* Section 6 */}
-        <section
-          data-bg="true"
-          className="relative flex h-screen items-center justify-center overflow-x-hidden"
-        >
-          <div
-            data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-yellorange-100 "
-            // style={{ backgroundImage: `url(${trip?.image3})` }}
-          ></div>
+        <section className=" weather-section relative flex h-screen items-center justify-center overflow-x-hidden">
+          <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-yellorange-100 "></div>
           {trip && <WeatherSection trip={trip} isPending={isPending} />}
         </section>
 
         {/* Section 7 */}
 
-        <section
-          data-bg="true"
-          className=" relative flex h-screen items-center justify-center overflow-x-hidden"
-        >
-          <div
-            data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full  bg-gradient-to-b from-yellorange-100 to-gallery-100  "
-            // style={{ backgroundImage: `url(${geopattern2.src})` }}
-          ></div>
+        <section className="formdetails-section relative flex h-screen items-center justify-center overflow-x-hidden">
+          <div className="absolute left-0 top-0 -z-10 h-full w-full  bg-gradient-to-b from-yellorange-100 to-gallery-100  "></div>
           {trip && <FormDetailsSection trip={trip} />}
         </section>
 
         {/* Section 8 */}
 
-        <section
-          data-bg="true"
-          className="relative flex h-screen items-center justify-center overflow-x-hidden"
-        >
-          <div
-            data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-shark-200"
-            // style={{ backgroundImage: `url(${image6.src})` }}
-          ></div>
+        <section className="final-section relative flex h-screen items-center justify-center overflow-x-hidden">
+          <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-shark-200"></div>
           {trip && <FinalSection trip={trip} />}
         </section>
       </>
@@ -327,67 +295,3 @@ function SavedTripsPageComponent({
 }
 
 export default SavedTripsPageComponent;
-
-{
-  /* <div>
-        Saved Trips Page {params.id}
-        <div>
-          {isPending && <div>Loading single trip...</div>}
-
-          <div className="grid grid-cols-3">
-            <div>{trip?.userName}</div>
-            <div>{trip?.city}</div>
-            <div>{trip?.country}</div>
-            <div>{formattedStartDate}</div>
-            <div>{formattedEndDate}</div>
-            <div>{trip?.luggageSize}</div>
-            <div>{trip?.accommodation}</div>
-            {(trip?.requiredItems as string[])?.map((item: string) => (
-              <ul className="text-violay-600" key={item}>
-                <li>{item}</li>
-              </ul>
-            ))}
-
-            {(trip?.interests as string[])?.map((interest: string) => (
-              <ul className="text-neptune-500" key={interest}>
-                <li>{interest}</li>
-              </ul>
-            ))}
-
-            <div> {trip?.note}</div>
-            <div>{trip?.budget}</div>
-            <div>
-              <Image src={trip?.flagUrl} alt="flag" width={50} height={50} />{" "}
-            </div>
-
-            <div>
-              <Image src={trip?.imageUrl} alt="flag" width={400} height={300} />{" "}
-            </div>
-
-            <div> title: {trip?.title}</div>
-            <div className="text-deeporange-500">
-              description: {trip?.description}
-            </div>
-          </div>
-
-          {(trip?.objectsList as any)?.map((object: any) => (
-            <ul key={object.item}>
-              <li>{object.quantity}</li>
-              <li>{object.item}</li>
-              <li>{object.description}</li>
-            </ul>
-          ))}
-
-          {(trip?.mustHave as string[])?.map((mustHave) => (
-            <ul key={mustHave}>
-              <li>{mustHave}</li>
-            </ul>
-          ))}
-          {(trip?.tours as string[])?.map((tour) => (
-            <ul key={tour}>
-              <li>{tour}</li>
-            </ul>
-          ))}
-        </div>
-      </div> */
-}

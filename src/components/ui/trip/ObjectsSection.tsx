@@ -5,7 +5,7 @@ import suitcase from "@/assets/suitcase.png";
 function ObjectsSection({ trip }: { trip: Trip }) {
   return (
     <div className="  absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12 ">
-      <div className="grid grid-cols-2 items-center justify-items-center gap-2 rounded-md text-xs lg:grid-cols-3 lg:gap-4 lg:p-4 lg:text-2xl">
+      <div className="grid grid-cols-2 items-center justify-items-center gap-2 rounded-md lg:grid-cols-3 lg:gap-4 lg:p-4 ">
         {(
           trip?.objectsList as {
             quantity: number;
@@ -14,16 +14,16 @@ function ObjectsSection({ trip }: { trip: Trip }) {
           }[]
         )?.map((object, i) => (
           <div
-            className="objects-list flex h-full w-full flex-col items-stretch justify-start bg-gallery-50/40 p-6 font-semibold leading-loose text-shark-900 lg:gap-y-6 lg:text-2xl "
+            className=" objects-list flex h-full w-full flex-col items-stretch justify-start bg-gallery-50/40 p-3 font-semibold leading-loose text-shark-900 lg:p-6 gap-y-1 "
             key={i}
           >
-            <div className=" flex items-center justify-start space-x-4 text-cabaret-800">
+            <div className=" flex items-center justify-start space-x-4 text-sm text-cabaret-800  lg:text-lg">
               <span className="font-extrabold ">{object.quantity}</span>
-              <span className="whitespace-nowrap uppercase text-shark-900 text- ">
+              <span className="whitespace-nowrap text-sm uppercase text-shark-900 lg:text-lg ">
                 {object.item}
               </span>
             </div>
-            <span className="whitespace-normal text-gallery-700">
+            <span className="whitespace-normal text-xs text-gallery-700 md:text-base ">
               {object.description}
             </span>
           </div>
