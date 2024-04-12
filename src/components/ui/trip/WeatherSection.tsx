@@ -7,7 +7,6 @@ import { LuWind } from "react-icons/lu";
 import { TbSunrise } from "react-icons/tb";
 import { BsSunsetFill } from "react-icons/bs";
 import { Trip } from "@prisma/client";
-
 import dayjs from "dayjs";
 
 function WeatherSection({
@@ -54,13 +53,13 @@ function WeatherSection({
 
   return (
     <>
-      <div className="weather-card relative mx-0 my-[40px] flex w-[80%] flex-col rounded-2xl bg-gallery-50/70 pb-[60px] pl-[50px] pr-[50px] text-center text-shark-900 sm:max-h-[400px] sm:w-[75vw] sm:max-w-[500px] sm:flex-row sm:items-center sm:pb-[50px] sm:pl-[20px] sm:pr-[100px] sm:pt-[60px] sm:text-start ">
+      <div className="weather-card shadow-xl relative mx-0 my-[40px] flex w-[80%] flex-col  bg-gallery-50/70 pb-[60px] pl-[50px] pr-[50px] text-center text-shark-900 sm:max-h-[400px] sm:w-[75vw] sm:max-w-[500px] sm:flex-row sm:items-center sm:pb-[50px] sm:pl-[20px] sm:pr-[100px] sm:pt-[60px] sm:text-start ">
         <Image
           height={400}
           width={400}
           alt="weather-icon"
           src={weatherIconSrc ?? suncloudy}
-          className="md:rounded-inherit -mt-[86px] mb-[30px] ml-[10px] h-[45vw] w-[45vw] object-contain xs:ml-[22%] sm:-ml-[145px] sm:-mt-[0px] sm:mb-[30px] sm:h-[300px] sm:w-full md:-ml-[161px] md:-mt-[0] md:mr-[30px] md:h-[300px]  md:max-w-full "
+          className=" -mt-[86px] mb-[30px] ml-[10px] h-[45vw] w-[45vw]  object-contain saturate-150 filter xs:ml-[22%] sm:-ml-[145px] sm:-mt-[0px] sm:mb-[30px] sm:h-[300px] sm:w-full md:-ml-[161px] md:-mt-[0] md:mr-[30px] md:h-[300px] md:max-w-full "
         />
         <div className="">
           <p className="mb-4 uppercase sm:mb-2">
@@ -76,10 +75,16 @@ function WeatherSection({
               {condition}
             </h3>
           </div>
-          <p className="mb-3 ml-1 text-xs first-letter:uppercase">{weatherDescription}</p>
+          <p className="mb-3 ml-1 text-xs first-letter:uppercase">
+            {weatherDescription}
+          </p>
           <div className=" text-md mb-3 flex items-center justify-center gap-x-2 text-xl font-semibold text-gallery-400 sm:justify-start  ">
-            <p>Min {tempMin}ºC</p>
-            <p>Max {tempMax}ºC</p>
+            <p>
+              <small>High</small> {tempMin}ºC
+            </p>
+            <p>
+              <small>Low</small> {tempMax}ºC
+            </p>
           </div>
           <div className="flex  justify-center gap-x-[30px] text-sm font-semibold sm:justify-start ">
             <span className="">
@@ -89,7 +94,7 @@ function WeatherSection({
               <LuWind size={20} /> {speed.toFixed(0)}
               <small>km/h</small>
             </span>
-            <span className="">
+            <span>
               <TbSunrise size={20} /> {formattedSunrise}
             </span>
 

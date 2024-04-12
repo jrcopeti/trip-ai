@@ -216,7 +216,7 @@ function SavedTripsPageComponent({
 
         <section
           data-bg="true"
-          className=" relative flex h-screen items-center justify-center "
+          className=" relative flex h-screen items-center justify-center overflow-x-hidden "
         >
           <div
             // data-bg="true"
@@ -235,7 +235,7 @@ function SavedTripsPageComponent({
         >
           <div
             data-bg="true"
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b  from-gallery-50 to-neptune-200 bg-cover bg-center   "
+            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-50 to-neptune-200 bg-cover bg-center   "
             // style={{ backgroundImage: `url(${plane.src})` }}
           ></div>
 
@@ -244,7 +244,7 @@ function SavedTripsPageComponent({
 
         {/* Section 4 */}
 
-        <section className="pack-section relative flex h-screen items-center justify-center">
+        <section className="pack-section relative flex h-screen items-center justify-center overflow-x-hidden">
           <div
             data-bg="true"
             className="absolute left-0 top-0 -z-10 h-full w-full  bg-gradient-to-b from-neptune-200  to-gallery-100 "
@@ -257,7 +257,7 @@ function SavedTripsPageComponent({
 
         <section
           data-bg="true"
-          className="objects-section relative flex h-screen items-center justify-center"
+          className="objects-section relative flex h-screen items-center justify-center overflow-x-hidden"
         >
           <div
             data-bg="true"
@@ -271,7 +271,7 @@ function SavedTripsPageComponent({
 
         <section
           data-bg="true"
-          className="weather-section relative flex h-screen items-center justify-center"
+          className="weather-section relative flex h-screen items-center justify-center overflow-x-hidden"
         >
           <div
             data-bg="true"
@@ -284,7 +284,7 @@ function SavedTripsPageComponent({
         {/* Section 6 */}
         <section
           data-bg="true"
-          className="relative flex h-screen items-center justify-center"
+          className="relative flex h-screen items-center justify-center overflow-x-hidden"
         >
           <div
             data-bg="true"
@@ -298,7 +298,7 @@ function SavedTripsPageComponent({
 
         <section
           data-bg="true"
-          className=" relative flex h-screen items-center justify-center"
+          className=" relative flex h-screen items-center justify-center overflow-x-hidden"
         >
           <div
             data-bg="true"
@@ -312,7 +312,7 @@ function SavedTripsPageComponent({
 
         <section
           data-bg="true"
-          className="relative flex h-screen items-center justify-center"
+          className="relative flex h-screen items-center justify-center overflow-x-hidden"
         >
           <div
             data-bg="true"
