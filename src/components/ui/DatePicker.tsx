@@ -35,14 +35,19 @@ const DatePicker = forwardRef(
     }, [value]);
 
     return (
-      <Popover isOpen={open} onOpenChange={actions.setVisible}>
+      <Popover
+        isOpen={open}
+        onOpenChange={actions.setVisible}
+        placement="bottom"
+      >
         <PopoverTrigger className="text-left">
           <Input
             {...rest}
+            className="max-w-[400px]"
             startContent={
               <div
                 onClick={rest?.onClick}
-                className="absolute z-10 flex flex-shrink-0 items-center gap-2"
+                className="absolute z-10 flex flex-shrink-0 items-center gap-2 "
               >
                 <div>
                   <MdOutlineCalendarToday size="16px" />
