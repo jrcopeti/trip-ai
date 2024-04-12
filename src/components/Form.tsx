@@ -510,9 +510,9 @@ function Form() {
           >
             <FormTitle steps={steps} currentStep={currentStep} />
 
-            <div className="grid max-h-fit grid-cols-1 gap-8 ">
+            <div className="flex flex-col max-h-fit gap-8 max-w-[600px]  ">
               {fields.map((field, index) => (
-                <div className="flex" key={field.id}>
+                <div className="flex items-center gap-4  " key={field.id}>
                   <Controller
                     control={control}
                     name={`requiredItems[${index}].item` as any}
@@ -520,21 +520,21 @@ function Form() {
                       <Input {...field} label={`Item ${index + 1}`} />
                     )}
                   />
-                  <Button type="button" onClick={() => remove(index)}>
+                  <Button className=' text-gallery-50 bg-yellorange-700' type="button" size="sm" onClick={() => remove(index)}>
                     X
                   </Button>
                 </div>
               ))}
-              <div>
+            </div>
+              <div className='mt-4'>
                 <Button
-                  className="place-items-center"
+                  className="place-items-center text-gallery-50 bg-neptune-400"
                   type="button"
                   onClick={() => append({ item: "" })}
                 >
                   Add Item
                 </Button>
               </div>
-            </div>
           </motion.div>
         )}
 
