@@ -225,7 +225,7 @@ function SavedTripsPageComponent({
     <>
       <>
         {/* Section 1 */}
-        <section className="relative flex h-screen overflow-x-hidden">
+        <section className="relative flex h-screen items-center justify-center overflow-x-hidden">
           <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-violay-200  bg-cover bg-center   "></div>
           {trip && <TitleSection trip={trip} />}
         </section>
@@ -286,7 +286,7 @@ function SavedTripsPageComponent({
         {/* Section 8 */}
 
         <section className="final-section relative flex h-screen items-center justify-center overflow-x-hidden">
-          <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-shark-200"></div>
+          <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-deeporange-100"></div>
           {trip && <FinalSection trip={trip} />}
         </section>
       </>
