@@ -33,7 +33,7 @@ import { useTrip } from "@/hooks/useTrip";
 import { useImage } from "@/hooks/useImage";
 import { useWeather } from "@/hooks/useWeather";
 import { useFormData } from "@/hooks/useFormData";
-
+import FormTitle from "./ui/form/FormTitle";
 import {
   sortedTypes,
   luggageSizes,
@@ -43,7 +43,8 @@ import {
   sortedTransports,
 } from "@/data";
 
-import { FinalDataTypes } from "@/types";
+import { FinalDataTypes, ProcessFormType } from "@/types";
+import ProgressBar from "./ui/form/Progress";
 
 type Inputs = z.infer<typeof FormDataSchema>;
 type FieldName = keyof Inputs;
@@ -214,10 +215,6 @@ function Form() {
     }
   };
 
-  interface ProcessFormType {
-    (data: Inputs): void;
-  }
-
   const processForm: ProcessFormType = (data: Inputs) => {
     const transformedRequiredItems =
       data.requiredItems?.map((item) => item.item) ?? [];
@@ -243,517 +240,480 @@ function Form() {
   };
 
   return (
-    <>
-      <section className=" max-w-full ">
-        <Progress
-          classNames={{
-            base: "w-full",
-            track: "drop-shadow-md border border-shark-200",
-            indicator: "bg-gradient-to-l from-violay-500 to-deeporange-400",
-            value: "text-shark-500/60",
-          }}
-          aria-label="Loading..."
-          value={stepValue}
-        />
-      </section>
+    <div className='absolute h-[90%] w-[90%] lg:h-[80%] lg:w-[80%] shadow-xl lg:p-12 p-8 '>
+        <ProgressBar stepValue={stepValue} />
 
-      <form
-        onSubmit={handleSubmit(processForm)}
-        className="relative h-full w-full overflow-auto bg-shark-100 p-6 md:p-8 lg:p-10"
-      >
-        {/* Step 1 */}
+        <form
+          onSubmit={handleSubmit(processForm)}
+          className=" overflow-auto lg:p-8 py-4 px-2    "
+        >
+          {/* Step 1 */}
 
-        {currentStep === 0 && (
-          <motion.div
-            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-          >
-            <h2 className="text-3xl font-extrabold text-shark-700 md:text-5xl">
-              {steps[currentStep].title}
-            </h2>
-            <p className="s mt-2 font-bold leading-6 tracking-wide text-cabaret-800 md:text-xl	">
-              {steps[currentStep].subtitle}
-            </p>
+          {currentStep === 0 && (
+            <motion.div
+              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+            >
+              <FormTitle steps={steps} currentStep={currentStep} />
 
-            <div className="md:mt-18 mt-10 flex flex-col justify-between gap-x-6 gap-y-[5rem] md:flex-row ">
-              <Controller
-                name="userName"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    label="Name"
-                    id="userName"
-                    type="text"
-                    placeholder="What's your name?"
-                    className="max-w-lg"
-                    errorMessage={errors.userName?.message}
-                    isInvalid={!!errors.userName}
-                  />
-                )}
-              />
-
-              <Controller
-                name="age"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    label="Age"
-                    id="age"
-                    type="text"
-                    placeholder="How old are you?"
-                    className="max-w-lg"
-                    errorMessage={errors.age?.message}
-                  />
-                )}
-              />
-
-              <Controller
-                name="nationality"
-                control={control}
-                render={({ field }) => (
-                  <Autocomplete
-                    {...field}
-                    id="nationality"
-                    defaultItems={countries}
-                    label="Nationality"
-                    placeholder="Select a country"
-                    className="max-w-lg"
-                    onSelectionChange={(selectedKey) =>
-                      handleSelectionAutocomplete(selectedKey, "nationality")
-                    }
-                    errorMessage={errors.nationality?.message}
-                  >
-                    {(country) => (
-                      <AutocompleteItem key={country.code}>
-                        {country.label}
-                      </AutocompleteItem>
-                    )}
-                  </Autocomplete>
-                )}
-              />
-            </div>
-          </motion.div>
-        )}
-
-        {/* Step 2 */}
-
-        {currentStep === 1 && (
-          <motion.div
-            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-          >
-            <h2 className="text-3xl font-extrabold text-shark-700 md:text-5xl">
-              {steps[currentStep].title}
-            </h2>
-            <p className="s mt-2 font-bold leading-6 tracking-wide text-yellorange-700 md:text-xl	">
-              {steps[currentStep].subtitle}
-            </p>
-
-            <div className="md:mt-18 mt-10 grid grid-cols-2 justify-between gap-x-6 gap-y-[5rem] ">
-              <Controller
-                name="city"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    label="City"
-                    id="city"
-                    type="text"
-                    placeholder="What's your name?"
-                    className="max-w-lg"
-                    errorMessage={errors.city?.message}
-                  />
-                )}
-              />
-
-              <Controller
-                name="country"
-                control={control}
-                render={({ field }) => (
-                  <Autocomplete
-                    {...field}
-                    id="country"
-                    color="primary"
-                    defaultItems={countries}
-                    label="Country"
-                    placeholder="Select a country"
-                    className="max-w-lg"
-                    onSelectionChange={(selectedKey) =>
-                      handleSelectionAutocomplete(selectedKey, "country")
-                    }
-                    errorMessage={errors.country?.message}
-                  >
-                    {(country) => (
-                      <AutocompleteItem key={country.code}>
-                        {country.label}
-                      </AutocompleteItem>
-                    )}
-                  </Autocomplete>
-                )}
-              />
-
-              <div>
+              <div className="md:mt-[100px] mt-10 flex flex-col justify-between gap-x-6 gap-y-[5rem] md:flex-row ">
                 <Controller
-                  name="type"
+                  name="userName"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="Name"
+                      id="userName"
+                      type="text"
+                      placeholder="What's your name?"
+                      className="max-w-lg"
+                      errorMessage={errors.userName?.message}
+                      isInvalid={!!errors.userName}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="age"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="Age"
+                      id="age"
+                      type="text"
+                      placeholder="How old are you?"
+                      className="max-w-lg"
+                      errorMessage={errors.age?.message}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="nationality"
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      {...field}
+                      id="nationality"
+                      defaultItems={countries}
+                      label="Nationality"
+                      placeholder="Select a country"
+                      className="max-w-lg"
+                      onSelectionChange={(selectedKey) =>
+                        handleSelectionAutocomplete(selectedKey, "nationality")
+                      }
+                      errorMessage={errors.nationality?.message}
+                    >
+                      {(country) => (
+                        <AutocompleteItem key={country.code}>
+                          {country.label}
+                        </AutocompleteItem>
+                      )}
+                    </Autocomplete>
+                  )}
+                />
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 2 */}
+
+          {currentStep === 1 && (
+            <motion.div
+              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+            >
+              <FormTitle steps={steps} currentStep={currentStep} />
+
+              <div className="md:mt-[75px] mt-10 grid grid-cols-2 justify-between gap-x-6 gap-y-[5rem] ">
+                <Controller
+                  name="city"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="City"
+                      id="city"
+                      type="text"
+                      placeholder="What's your name?"
+                      className="max-w-lg"
+                      errorMessage={errors.city?.message}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="country"
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      {...field}
+                      id="country"
+                      color="primary"
+                      defaultItems={countries}
+                      label="Country"
+                      placeholder="Select a country"
+                      className="max-w-lg"
+                      onSelectionChange={(selectedKey) =>
+                        handleSelectionAutocomplete(selectedKey, "country")
+                      }
+                      errorMessage={errors.country?.message}
+                    >
+                      {(country) => (
+                        <AutocompleteItem key={country.code}>
+                          {country.label}
+                        </AutocompleteItem>
+                      )}
+                    </Autocomplete>
+                  )}
+                />
+
+                <div className='col-span-2'>
+                  <Controller
+                    name="type"
+                    control={control}
+                    render={({ field }) => (
+                      <RadioGroup
+                        {...field}
+                        id="type"
+                        color="secondary"
+                        label="How do you describe your trip?"
+                        orientation="horizontal"
+                        errorMessage={errors.type?.message}
+                      >
+                        {sortedTypes.map((type) => (
+                          <Radio key={type.value} value={type.value}>
+                            {type.label}
+                          </Radio>
+                        ))}
+                      </RadioGroup>
+                    )}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 3 */}
+          {currentStep === 2 && (
+            <motion.div
+              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+            >
+              <FormTitle steps={steps} currentStep={currentStep} />
+
+              <div className="md:mt-[75px] mt-6 grid grid-cols-1 gap-x-4 gap-y-8 lg:grid-cols-2 max-w-[80%] text-xs">
+                <Controller
+                  name="luggageSize"
                   control={control}
                   render={({ field }) => (
                     <RadioGroup
                       {...field}
-                      id="type"
-                      color="secondary"
-                      label="How do you describe your trip?"
+                      id="luggageSize"
+                      label="What's the size of your luggage?"
                       orientation="horizontal"
-                      errorMessage={errors.type?.message}
+                      errorMessage={errors.luggageSize?.message}
+                      size="sm"
+
                     >
-                      {sortedTypes.map((type) => (
-                        <Radio key={type.value} value={type.value}>
-                          {type.label}
+                      {luggageSizes.map((luggageSize) => (
+                        <Radio
+
+                          key={luggageSize.value}
+                          value={luggageSize.value}
+                        >
+                          {luggageSize.label}
+                        </Radio>
+                      ))}
+                    </RadioGroup>
+                  )}
+                />
+
+                <Controller
+                  name="accommodation"
+                  control={control}
+                  render={({ field }) => (
+                    <RadioGroup
+                      {...field}
+                      id="accommodation"
+                      label="Where are you staying?"
+                      orientation="horizontal"
+                      errorMessage={errors.accommodation?.message}
+                    >
+                      {sortedAccommodations.map((accommodation) => (
+                        <Radio
+                          key={accommodation.value}
+                          value={accommodation.value}
+                        >
+                          {accommodation.label}
+                        </Radio>
+                      ))}
+                    </RadioGroup>
+                  )}
+                />
+
+                <Controller
+                  name="transport"
+                  control={control}
+                  render={({ field }) => (
+                    <RadioGroup
+                      {...field}
+                      id="transport"
+                      label="How are you traveling?"
+                      orientation="horizontal"
+                      errorMessage={errors.transport?.message}
+                    >
+                      {sortedTransports.map((transport) => (
+                        <Radio key={transport.value} value={transport.value}>
+                          {transport.label}
+                        </Radio>
+                      ))}
+                    </RadioGroup>
+                  )}
+                />
+
+                <Controller
+                  name="budget"
+                  control={control}
+                  render={({ field }) => (
+                    <RadioGroup
+                      {...field}
+                      id="budget"
+                      label="Where are you staying?"
+                      orientation="horizontal"
+                      errorMessage={errors.budget?.message}
+                    >
+                      {budgets.map((budget) => (
+                        <Radio key={budget.value} value={budget.value}>
+                          {budget.label}
                         </Radio>
                       ))}
                     </RadioGroup>
                   )}
                 />
               </div>
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )}
 
-        {/* Step 3 */}
-        {currentStep === 2 && (
-          <motion.div
-            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-          >
-            <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
-              {steps[currentStep].title}
-            </h2>
-            <p className="mt-1 text-lg font-bold leading-6 tracking-wide text-yellorange-700">
-              {steps[currentStep].subtitle}
-            </p>
+          {/* Step 4 */}
 
-            <div className="mt-10 grid grid-cols-1 justify-items-center gap-8 lg:grid-cols-2   ">
-              <Controller
-                name="luggageSize"
-                control={control}
-                render={({ field }) => (
-                  <RadioGroup
-                    {...field}
-                    id="luggageSize"
-                    label="What's the size of your luggage?"
-                    orientation="horizontal"
-                    errorMessage={errors.luggageSize?.message}
+          {currentStep === 3 && (
+            <motion.div
+              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+            >
+              <FormTitle steps={steps} currentStep={currentStep} />
+
+              <div className="grid max-h-fit grid-cols-1 gap-8 ">
+                {fields.map((field, index) => (
+                  <div className="flex" key={field.id}>
+                    <Controller
+                      control={control}
+                      name={`requiredItems[${index}].item` as any}
+                      render={({ field }) => (
+                        <Input {...field} label={`Item ${index + 1}`} />
+                      )}
+                    />
+                    <Button type="button" onClick={() => remove(index)}>
+                      X
+                    </Button>
+                  </div>
+                ))}
+                <div>
+                  <Button
+                    className="place-items-center"
+                    type="button"
+                    onClick={() => append({ item: "" })}
                   >
-                    {luggageSizes.map((luggageSize) => (
-                      <Radio key={luggageSize.value} value={luggageSize.value}>
-                        {luggageSize.label}
-                      </Radio>
-                    ))}
-                  </RadioGroup>
-                )}
-              />
-
-              <Controller
-                name="accommodation"
-                control={control}
-                render={({ field }) => (
-                  <RadioGroup
-                    {...field}
-                    id="accommodation"
-                    label="Where are you staying?"
-                    orientation="horizontal"
-                    errorMessage={errors.accommodation?.message}
-                  >
-                    {sortedAccommodations.map((accommodation) => (
-                      <Radio
-                        key={accommodation.value}
-                        value={accommodation.value}
-                      >
-                        {accommodation.label}
-                      </Radio>
-                    ))}
-                  </RadioGroup>
-                )}
-              />
-
-              <Controller
-                name="transport"
-                control={control}
-                render={({ field }) => (
-                  <RadioGroup
-                    {...field}
-                    id="transport"
-                    label="How are you traveling?"
-                    orientation="horizontal"
-                    errorMessage={errors.transport?.message}
-                  >
-                    {sortedTransports.map((transport) => (
-                      <Radio key={transport.value} value={transport.value}>
-                        {transport.label}
-                      </Radio>
-                    ))}
-                  </RadioGroup>
-                )}
-              />
-
-              <Controller
-                name="budget"
-                control={control}
-                render={({ field }) => (
-                  <RadioGroup
-                    {...field}
-                    id="budget"
-                    label="Where are you staying?"
-                    orientation="horizontal"
-                    errorMessage={errors.budget?.message}
-                  >
-                    {budgets.map((budget) => (
-                      <Radio key={budget.value} value={budget.value}>
-                        {budget.label}
-                      </Radio>
-                    ))}
-                  </RadioGroup>
-                )}
-              />
-            </div>
-          </motion.div>
-        )}
-
-        {/* Step 4 */}
-
-        {currentStep === 3 && (
-          <motion.div
-            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-          >
-            <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
-              {steps[currentStep].title}
-            </h2>
-            <p className="mt-1 text-lg font-bold leading-6 tracking-wide text-yellorange-700">
-              {steps[currentStep].subtitle}
-            </p>
-            <div className="grid max-h-fit grid-cols-1 gap-8 ">
-              {fields.map((field, index) => (
-                <div className="flex" key={field.id}>
-                  <Controller
-                    control={control}
-                    name={`requiredItems[${index}].item` as any}
-                    render={({ field }) => (
-                      <Input {...field} label={`Item ${index + 1}`} />
-                    )}
-                  />
-                  <Button type="button" onClick={() => remove(index)}>
-                    X
+                    Add Item
                   </Button>
                 </div>
-              ))}
-              <div>
-                <Button
-                  className="place-items-center"
-                  type="button"
-                  onClick={() => append({ item: "" })}
-                >
-                  Add Item
-                </Button>
               </div>
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )}
 
-        {/* Step 5 */}
+          {/* Step 5 */}
 
-        {currentStep === 4 && (
-          <motion.div
-            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-          >
-            <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
-              {steps[currentStep].title}
-            </h2>
-            <p className="mt-1 text-lg font-bold leading-6 tracking-wide text-yellorange-700">
-              {steps[currentStep].subtitle}
-            </p>
+          {currentStep === 4 && (
+            <motion.div
+              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+            >
+              <FormTitle steps={steps} currentStep={currentStep} />
 
-            <div className="md mt-10 flex flex-col gap-x-6 gap-y-8  ">
-              <Checkbox
-                isSelected={isWeatherSelected}
-                onValueChange={setIsWeatherSelected}
-              >
-                Weather forecast
-              </Checkbox>
-              {!isWeatherSelected ? (
-                <>
-                  <Controller
-                    name="startDate"
-                    control={control}
-                    render={({ field }) => (
-                      <DatePicker
-                        {...field}
-                        label="Start Date"
-                        id="startDate"
-                        placeholder="When do your trip start?"
-                      />
-                    )}
-                  />
-                  {errors.startDate?.message && (
-                    <p className="mt-2 text-sm text-red-500">
-                      {errors.startDate.message}
-                    </p>
-                  )}
-
-                  <Controller
-                    name="endDate"
-                    control={control}
-                    render={({ field }) => (
-                      <DatePicker
-                        {...field}
-                        label="End Date"
-                        id="endDate"
-                        placeholder="When does it end?"
-                      />
-                    )}
-                  />
-                  {errors.endDate?.message && (
-                    <p className="mt-2 text-sm text-red-500">
-                      {errors.endDate.message}
-                    </p>
-                  )}
-                </>
-              ) : (
-                <div>Go to next step</div>
-              )}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Step 6 */}
-
-        {currentStep === 5 && (
-          <motion.div
-            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-          >
-            <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
-              {steps[currentStep].title}
-            </h2>
-            <p className="mt-1 text-lg font-bold leading-6 tracking-wide text-yellorange-700">
-              {steps[currentStep].subtitle}
-            </p>
-            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8  ">
-              <Controller
-                name="interests"
-                control={control}
-                render={({ field }) => (
-                  <CheckboxGroup
-                    {...field}
-                    name="interests"
-                    className="gap-4"
-                    label="Select up to 3 interest"
-                    orientation="horizontal"
-                    errorMessage={errors.interests?.message}
-                  >
-                    {sortedInterest.map((interest) => (
-                      <CustomCheckbox
-                        key={interest.value}
-                        value={interest.value}
-                        color="secondary"
-                        isDisabled={
-                          field.value.length >= 3 &&
-                          !field.value.includes(interest.value)
-                        }
-                      >
-                        {interest.label}
-                      </CustomCheckbox>
-                    ))}
-                  </CheckboxGroup>
-                )}
-              />
-
-              <Controller
-                name="note"
-                control={control}
-                render={({ field }) => (
-                  <Textarea
-                    {...field}
-                    label="Notes"
-                    id="notes"
-                    placeholder="Anything you want to add?"
-                    className="max-w-md"
-                  />
-                )}
-              />
-            </div>
-          </motion.div>
-        )}
-
-        {/* Step 7 */}
-
-        {currentStep === 6 && (
-          <motion.div
-            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-          >
-            <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
-              {steps[currentStep].title}
-            </h2>
-            <p className="mt-1 text-lg font-bold leading-6 tracking-wide text-yellorange-700">
-              {steps[currentStep].subtitle}
-            </p>
-
-            <Controller
-              name="agreement"
-              control={control}
-              render={({ field }) => (
+              <div className="md mt-10 flex flex-col gap-x-6 gap-y-8  ">
                 <Checkbox
-                  isSelected={field.value}
-                  onValueChange={field.onChange}
-                ></Checkbox>
-              )}
-            />
-            <div className="mt-8 max-w-xl pt-5">
-              {currentStep === steps.length - 1 && (
-                <Button type="submit" size="lg" isDisabled={!isValid}>
-                  Submit
-                </Button>
-              )}
-            </div>
-          </motion.div>
-        )}
+                  isSelected={isWeatherSelected}
+                  onValueChange={setIsWeatherSelected}
+                >
+                  Weather forecast
+                </Checkbox>
+                {!isWeatherSelected ? (
+                  <>
+                    <Controller
+                      name="startDate"
+                      control={control}
+                      render={({ field }) => (
+                        <DatePicker
+                          {...field}
+                          label="Start Date"
+                          id="startDate"
+                          placeholder="When do your trip start?"
+                        />
+                      )}
+                    />
+                    {errors.startDate?.message && (
+                      <p className="mt-2 text-sm text-red-500">
+                        {errors.startDate.message}
+                      </p>
+                    )}
 
-        {/* Buttons */}
-        <div className="absolute bottom-[0%] left-1/2 -translate-y-[50%]">
-          <ButtonGroup>
-            <Button
-              type="button"
-              size="lg"
-              isDisabled={currentStep === steps.length - 7}
-              onClick={prev}
-              className="bg-gradient-to-r from-neptune-400 via-neptune-500 to-neptune-600 hover:bg-neptune-400"
-            >
-              <FaAngleLeft />
-            </Button>
+                    <Controller
+                      name="endDate"
+                      control={control}
+                      render={({ field }) => (
+                        <DatePicker
+                          {...field}
+                          label="End Date"
+                          id="endDate"
+                          placeholder="When does it end?"
+                        />
+                      )}
+                    />
+                    {errors.endDate?.message && (
+                      <p className="mt-2 text-sm text-red-500">
+                        {errors.endDate.message}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <div>Go to next step</div>
+                )}
+              </div>
+            </motion.div>
+          )}
 
-            <Button
-              type="button"
-              size="lg"
-              onClick={next}
-              isDisabled={currentStep === steps.length - 1}
-              className="bg-gradient-to-l from-neptune-400 via-neptune-500 to-neptune-600 hover:bg-neptune-400"
+          {/* Step 6 */}
+
+          {currentStep === 5 && (
+            <motion.div
+              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
             >
-              <FaAngleRight />
-            </Button>
-          </ButtonGroup>
-        </div>
-      </form>
-    </>
+              <FormTitle steps={steps} currentStep={currentStep} />
+
+              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8  ">
+                <Controller
+                  name="interests"
+                  control={control}
+                  render={({ field }) => (
+                    <CheckboxGroup
+                      {...field}
+                      name="interests"
+                      className="gap-4"
+                      label="Select up to 3 interest"
+                      orientation="horizontal"
+                      errorMessage={errors.interests?.message}
+                    >
+                      {sortedInterest.map((interest) => (
+                        <CustomCheckbox
+                          key={interest.value}
+                          value={interest.value}
+                          color="secondary"
+                          isDisabled={
+                            field.value.length >= 3 &&
+                            !field.value.includes(interest.value)
+                          }
+                        >
+                          {interest.label}
+                        </CustomCheckbox>
+                      ))}
+                    </CheckboxGroup>
+                  )}
+                />
+
+                <Controller
+                  name="note"
+                  control={control}
+                  render={({ field }) => (
+                    <Textarea
+                      {...field}
+                      label="Notes"
+                      id="notes"
+                      placeholder="Anything you want to add?"
+                      className="max-w-md"
+                    />
+                  )}
+                />
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 7 */}
+
+          {currentStep === 6 && (
+            <motion.div
+              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+            >
+              <FormTitle steps={steps} currentStep={currentStep} />
+
+              <Controller
+                name="agreement"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox
+                    isSelected={field.value}
+                    onValueChange={field.onChange}
+                  ></Checkbox>
+                )}
+              />
+              <div className="mt-8 max-w-xl pt-5">
+                {currentStep === steps.length - 1 && (
+                  <Button type="submit" size="lg" isDisabled={!isValid}>
+                    Submit
+                  </Button>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Buttons */}
+          <div className="absolute bottom-[0%] left-1/2 -translate-y-[50%]">
+            <ButtonGroup>
+              <Button
+                type="button"
+                size="lg"
+                isDisabled={currentStep === steps.length - 7}
+                onClick={prev}
+                className="bg-gradient-to-r from-neptune-400 via-neptune-500 to-neptune-600 hover:bg-neptune-400"
+              >
+                <FaAngleLeft />
+              </Button>
+
+              <Button
+                type="button"
+                size="lg"
+                onClick={next}
+                isDisabled={currentStep === steps.length - 1}
+                className="bg-gradient-to-l from-neptune-400 via-neptune-500 to-neptune-600 hover:bg-neptune-400"
+              >
+                <FaAngleRight />
+              </Button>
+            </ButtonGroup>
+          </div>
+        </form>
+
+    </div>
   );
 }
 

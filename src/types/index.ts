@@ -47,3 +47,7 @@ export interface FinalDataTypes extends Omit<Inputs, "requiredItems"> {
   requiredItems: string[];
   weatherForecast: string;
 }
+
+export interface ProcessFormType {
+  (data: Inputs): void;
+}
