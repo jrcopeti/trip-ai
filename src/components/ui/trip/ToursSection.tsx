@@ -12,7 +12,10 @@ function ToursSection({ trip }: { trip: Trip }) {
           </h1>
           <div className="grid max-w-full grid-cols-1 gap-4 rounded-md  lg:gap-3 xl:gap-10 ">
             {(trip?.tours as string[])?.map((tour, i) => (
-              <ul className="tour-item grid grid-cols-1 bg-gallery-50/40  p-5" key={i}>
+              <ul
+                className="tour-item grid grid-cols-1 bg-gallery-50/40  p-5"
+                key={i}
+              >
                 <li className="text-md max-h-fit font-semibold text-shark-950 md:text-lg  lg:text-xl 2xl:text-2xl ">
                   <span className="font-bold text-neptune-600">{i + 1}.</span>
                   &nbsp;{tour}
@@ -20,8 +23,13 @@ function ToursSection({ trip }: { trip: Trip }) {
               </ul>
             ))}
           </div>
-          <div className=" title-tours absolute -z-10 md:h-[600px] md:w-[600px] h-[100dvw] w-[100dvw]   ">
-            <Image src={plane} alt="plane" fill className=" object-cover min-h-full min-w-full opacity-50 " />
+          <div className="plane absolute -z-10 h-[100dvw] w-[100dvw] md:h-[600px] md:w-[600px]">
+            <Image
+              src={plane}
+              alt="plane"
+              fill
+              className=" min-h-full min-w-full object-cover opacity-50 "
+            />
           </div>
         </div>
       </div>

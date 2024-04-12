@@ -33,7 +33,7 @@ import { useTrip } from "@/hooks/useTrip";
 import { useImage } from "@/hooks/useImage";
 import { useWeather } from "@/hooks/useWeather";
 import { useFormData } from "@/hooks/useFormData";
-
+import FormTitle from "./ui/form/FormTitle";
 import {
   sortedTypes,
   luggageSizes,
@@ -43,7 +43,9 @@ import {
   sortedTransports,
 } from "@/data";
 
-import { FinalDataTypes } from "@/types";
+import { FinalDataTypes, ProcessFormType } from "@/types";
+import ProgressBar from "./ui/form/Progress";
+import { useWindowSize } from "@/hooks/useWindow";
 
 type Inputs = z.infer<typeof FormDataSchema>;
 type FieldName = keyof Inputs;
@@ -68,14 +70,14 @@ const steps = [
     title: "Travel Details",
     subtitle: "How do you like to travel?",
     stepValue: 32,
-    fields: ["luggageSize", "accommodation"],
+    fields: ["luggageSize", "accommodation", "budget", "transport"],
   },
   {
     id: "step 4",
     title: "Required Items",
     subtitle: "What you can't forget to pack!",
     stepValue: 48,
-    fields: ["luggageSize", "accommodation"],
+    fields: [],
   },
   {
     id: "step 5",
@@ -154,6 +156,7 @@ function Form() {
   const { setFormData } = useFormData();
   const { generateImage } = useImage();
 
+
   const forecastDataString = JSON.stringify(forecastData);
 
   const stepValue = steps[currentStep].stepValue;
@@ -214,10 +217,6 @@ function Form() {
     }
   };
 
-  interface ProcessFormType {
-    (data: Inputs): void;
-  }
-
   const processForm: ProcessFormType = (data: Inputs) => {
     const transformedRequiredItems =
       data.requiredItems?.map((item) => item.item) ?? [];
@@ -243,23 +242,12 @@ function Form() {
   };
 
   return (
-    <>
-      <section className=" max-w-full ">
-        <Progress
-          classNames={{
-            base: "w-full",
-            track: "drop-shadow-md border border-shark-200",
-            indicator: "bg-gradient-to-l from-violay-500 to-deeporange-400",
-            value: "text-shark-500/60",
-          }}
-          aria-label="Loading..."
-          value={stepValue}
-        />
-      </section>
+    <div className="absolute h-[90%] w-[90%] p-8 shadow-xl lg:h-[80%] lg:w-[80%] lg:p-12 overflow-auto overflow-x-hidden ">
+      <ProgressBar stepValue={stepValue} />
 
       <form
         onSubmit={handleSubmit(processForm)}
-        className="relative h-full w-full overflow-auto bg-shark-100 p-6 md:p-8 lg:p-10"
+        className=" overflow-auto px-2 py-4 lg:p-8    "
       >
         {/* Step 1 */}
 
@@ -269,14 +257,9 @@ function Form() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
           >
-            <h2 className="text-3xl font-extrabold text-shark-700 md:text-5xl">
-              {steps[currentStep].title}
-            </h2>
-            <p className="s mt-2 font-bold leading-6 tracking-wide text-cabaret-800 md:text-xl	">
-              {steps[currentStep].subtitle}
-            </p>
+            <FormTitle steps={steps} currentStep={currentStep} />
 
-            <div className="md:mt-18 mt-10 flex flex-col justify-between gap-x-6 gap-y-[5rem] md:flex-row ">
+            <div className="mt-10 flex flex-col justify-between gap-x-6 gap-y-[5rem] md:mt-[100px] md:flex-row ">
               <Controller
                 name="userName"
                 control={control}
@@ -346,14 +329,9 @@ function Form() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
           >
-            <h2 className="text-3xl font-extrabold text-shark-700 md:text-5xl">
-              {steps[currentStep].title}
-            </h2>
-            <p className="s mt-2 font-bold leading-6 tracking-wide text-yellorange-700 md:text-xl	">
-              {steps[currentStep].subtitle}
-            </p>
+            <FormTitle steps={steps} currentStep={currentStep} />
 
-            <div className="md:mt-18 mt-10 grid grid-cols-2 justify-between gap-x-6 gap-y-[5rem] ">
+            <div className="mt-10 grid grid-cols-2 justify-between gap-x-6 gap-y-[5rem] md:mt-[75px] ">
               <Controller
                 name="city"
                 control={control}
@@ -396,7 +374,7 @@ function Form() {
                 )}
               />
 
-              <div>
+              <div className="col-span-2  md:max-w-[500px]">
                 <Controller
                   name="type"
                   control={control}
@@ -429,14 +407,9 @@ function Form() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
           >
-            <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
-              {steps[currentStep].title}
-            </h2>
-            <p className="mt-1 text-lg font-bold leading-6 tracking-wide text-yellorange-700">
-              {steps[currentStep].subtitle}
-            </p>
+            <FormTitle steps={steps} currentStep={currentStep} />
 
-            <div className="mt-10 grid grid-cols-1 justify-items-center gap-8 lg:grid-cols-2   ">
+            <div className="mt-6 grid max-w-[80%] grid-cols-1 gap-x-4 gap-y-8  text-sm md:mt-[75px] lg:grid-cols-2">
               <Controller
                 name="luggageSize"
                 control={control}
@@ -447,6 +420,7 @@ function Form() {
                     label="What's the size of your luggage?"
                     orientation="horizontal"
                     errorMessage={errors.luggageSize?.message}
+                    size="sm"
                   >
                     {luggageSizes.map((luggageSize) => (
                       <Radio key={luggageSize.value} value={luggageSize.value}>
@@ -466,6 +440,7 @@ function Form() {
                     id="accommodation"
                     label="Where are you staying?"
                     orientation="horizontal"
+                    size="sm"
                     errorMessage={errors.accommodation?.message}
                   >
                     {sortedAccommodations.map((accommodation) => (
@@ -489,6 +464,7 @@ function Form() {
                     id="transport"
                     label="How are you traveling?"
                     orientation="horizontal"
+                    size="sm"
                     errorMessage={errors.transport?.message}
                   >
                     {sortedTransports.map((transport) => (
@@ -509,6 +485,7 @@ function Form() {
                     id="budget"
                     label="Where are you staying?"
                     orientation="horizontal"
+                    size="sm"
                     errorMessage={errors.budget?.message}
                   >
                     {budgets.map((budget) => (
@@ -531,12 +508,8 @@ function Form() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
           >
-            <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
-              {steps[currentStep].title}
-            </h2>
-            <p className="mt-1 text-lg font-bold leading-6 tracking-wide text-yellorange-700">
-              {steps[currentStep].subtitle}
-            </p>
+            <FormTitle steps={steps} currentStep={currentStep} />
+
             <div className="grid max-h-fit grid-cols-1 gap-8 ">
               {fields.map((field, index) => (
                 <div className="flex" key={field.id}>
@@ -573,12 +546,7 @@ function Form() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
           >
-            <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
-              {steps[currentStep].title}
-            </h2>
-            <p className="mt-1 text-lg font-bold leading-6 tracking-wide text-yellorange-700">
-              {steps[currentStep].subtitle}
-            </p>
+            <FormTitle steps={steps} currentStep={currentStep} />
 
             <div className="md mt-10 flex flex-col gap-x-6 gap-y-8  ">
               <Checkbox
@@ -640,12 +608,8 @@ function Form() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
           >
-            <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
-              {steps[currentStep].title}
-            </h2>
-            <p className="mt-1 text-lg font-bold leading-6 tracking-wide text-yellorange-700">
-              {steps[currentStep].subtitle}
-            </p>
+            <FormTitle steps={steps} currentStep={currentStep} />
+
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8  ">
               <Controller
                 name="interests"
@@ -701,12 +665,7 @@ function Form() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
           >
-            <h2 className="text-3xl font-extrabold text-shark-700 lg:text-5xl ">
-              {steps[currentStep].title}
-            </h2>
-            <p className="mt-1 text-lg font-bold leading-6 tracking-wide text-yellorange-700">
-              {steps[currentStep].subtitle}
-            </p>
+            <FormTitle steps={steps} currentStep={currentStep} />
 
             <Controller
               name="agreement"
@@ -753,7 +712,7 @@ function Form() {
           </ButtonGroup>
         </div>
       </form>
-    </>
+    </div>
   );
 }
 
