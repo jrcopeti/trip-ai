@@ -21,16 +21,16 @@ import geopattern3 from "@/assets/geopattern3.png";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import WeatherSection from "./ui/trip/WeatherSection";
-import ObjectsSection from "./ui/trip/ObjectsSection";
-import ToursSection from "./ui/trip/ToursSection";
-import DescriptionSection from "./ui/trip/DescriptionSection";
-import TitleSection from "./ui/trip/TitleSection";
-import PackReadySection from "./ui/trip/PackReadySection";
+import WeatherSection from "./ui/WeatherSection";
+import ObjectsSection from "./ui/ObjectsSection";
+import ToursSection from "./ui/ToursSection";
+import DescriptionSection from "./ui/DescriptionSection";
+import TitleSection from "./ui/TitleSection";
+import PackReadySection from "./ui/PackReadySection";
 import { notFound } from "next/navigation";
-import MustHaveSection from "./ui/trip/MustHaveSection";
-import FormDetailsSection from "./ui/trip/FormDetailsSection";
-import FinalSection from "./ui/trip/FinalSection";
+import MustHaveSection from "./ui/MustHaveSection";
+import FormDetailsSection from "./ui/FormDetailsSection";
+import FinalSection from "./ui/FinalSection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -141,6 +141,8 @@ function SavedTripsPageComponent({
         ScrollTrigger.batch(".objects-list", {
           start: "top bottom",
           end: "center center",
+          interval: 0.8,
+          batchMax: 3,
 
           onEnter: (elements) => {
             gsap.from(elements, {
@@ -149,8 +151,6 @@ function SavedTripsPageComponent({
               // stagger: 0.2,
               ease: "power2.inOut",
               duration: 1.2,
-              interval: 0.8,
-              batchMax: 3,
             });
           },
         });
@@ -223,73 +223,73 @@ function SavedTripsPageComponent({
 
   return (
     <>
-      <>
-        {/* Section 1 */}
-        <section className="relative flex h-screen items-center justify-center overflow-x-hidden">
-          <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-violay-200  bg-cover bg-center   "></div>
-          {trip && <TitleSection trip={trip} />}
-        </section>
+      {/* Section 1 */}
+      <section className="relative flex h-screen items-center justify-center overflow-x-hidden">
+        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-violay-200  bg-cover bg-center   "></div>
+        {trip && <TitleSection trip={trip} imageData={null} />}
+      </section>
 
-        {/* Section 2 */}
+      {/* Section 2 */}
 
-        <section className="description-section relative flex h-screen items-center justify-center overflow-x-hidden ">
-          <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-violay-200 to-gallery-50 bg-cover bg-center  "></div>
+      <section className="description-section relative flex h-screen items-center justify-center overflow-x-hidden ">
+        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-violay-200 to-gallery-50 bg-cover bg-center  "></div>
 
-          {trip && <DescriptionSection trip={trip} />}
-        </section>
+        {trip && <DescriptionSection trip={trip} imageData={null} />}
+      </section>
 
-        {/* Section 3 */}
+      {/* Section 3 */}
 
-        <section className=" tours-section relative flex h-screen items-center justify-center overflow-x-hidden">
-          <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-50 to-neptune-200 bg-cover bg-center   "></div>
+      <section className=" tours-section relative flex h-screen items-center justify-center overflow-x-hidden">
+        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-50 to-neptune-200 bg-cover bg-center   "></div>
 
-          {trip && <ToursSection trip={trip} />}
-        </section>
+        {trip && <ToursSection trip={trip} />}
+      </section>
 
-        {/* Section 4 */}
+      {/* Section 4 */}
 
-        <section className="pack-section relative flex h-screen items-center justify-center overflow-x-hidden">
-          <div className="absolute left-0 top-0 -z-10 h-full w-full  bg-gradient-to-b from-neptune-200  to-gallery-100 "></div>
-          {trip && <PackReadySection trip={trip} />}
-        </section>
+      <section className="pack-section relative flex h-screen items-center justify-center overflow-x-hidden">
+        <div className="absolute left-0 top-0 -z-10 h-full w-full  bg-gradient-to-b from-neptune-200  to-gallery-100 "></div>
+        {trip && <PackReadySection trip={trip} />}
+      </section>
 
-        {/* Section 4 */}
+      {/* Section 4 */}
 
-        <section className="objects-section relative flex h-screen items-center justify-center overflow-x-hidden">
-          <div
-            className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-cabaret-100 "
-            // style={{ backgroundImage: `url(${image7.src})` }}
-          ></div>
-          {trip && <ObjectsSection trip={trip} />}
-        </section>
+      <section className="objects-section relative flex h-screen items-center justify-center overflow-x-hidden">
+        <div
+          className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-cabaret-100 "
+          // style={{ backgroundImage: `url(${image7.src})` }}
+        ></div>
+        {trip && <ObjectsSection trip={trip} />}
+      </section>
 
-        {/* Section 5 */}
+      {/* Section 5 */}
 
-        <section className=" musthave-section relative flex h-screen items-center justify-center overflow-x-hidden">
-          <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-cabaret-100 to-gallery-100  "></div>
-          {trip && <MustHaveSection trip={trip} />}
-        </section>
+      <section className=" musthave-section relative flex h-screen items-center justify-center overflow-x-hidden">
+        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-cabaret-100 to-gallery-100  "></div>
+        {trip && <MustHaveSection trip={trip} imageData={null} />}
+      </section>
 
-        {/* Section 6 */}
-        <section className=" weather-section relative flex h-screen items-center justify-center overflow-x-hidden">
-          <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-yellorange-100 "></div>
-          {trip && <WeatherSection trip={trip} isPending={isPending} />}
-        </section>
+      {/* Section 6 */}
+      <section className=" weather-section relative flex h-screen items-center justify-center overflow-x-hidden">
+        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-yellorange-100 "></div>
+        {trip && <WeatherSection trip={trip} isPending={isPending} />}
+      </section>
 
-        {/* Section 7 */}
+      {/* Section 7 */}
 
-        <section className="formdetails-section relative flex h-screen items-center justify-center overflow-x-hidden">
-          <div className="absolute left-0 top-0 -z-10 h-full w-full  bg-gradient-to-b from-yellorange-100 to-gallery-100  "></div>
-          {trip && <FormDetailsSection trip={trip} />}
-        </section>
+      <section className="formdetails-section relative flex h-screen items-center justify-center overflow-x-hidden">
+        <div className="absolute left-0 top-0 -z-10 h-full w-full  bg-gradient-to-b from-yellorange-100 to-gallery-100  "></div>
+        {trip && (
+          <FormDetailsSection trip={trip} imageData={null} formData={null} />
+        )}
+      </section>
 
-        {/* Section 8 */}
+      {/* Section 8 */}
 
-        <section className="final-section relative flex h-screen items-center justify-center overflow-x-hidden">
-          <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-deeporange-100"></div>
-          {trip && <FinalSection trip={trip} />}
-        </section>
-      </>
+      <section className="final-section relative flex h-screen items-center justify-center overflow-x-hidden">
+        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-deeporange-100"></div>
+        {trip && <FinalSection trip={trip} />}
+      </section>
     </>
   );
 }

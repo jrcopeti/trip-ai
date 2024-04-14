@@ -43,11 +43,14 @@ const DatePicker = forwardRef(
         <PopoverTrigger className="text-left">
           <Input
             {...rest}
-            className="max-w-[400px]"
+            className="max-w-lg"
+            radius="none"
+            variant="faded"
+            color="primary"
             startContent={
               <div
                 onClick={rest?.onClick}
-                className="absolute z-10 flex flex-shrink-0 items-center gap-2 "
+                className="absolute z-10 flex flex-shrink-0 items-center gap-2 pb-[2px] "
               >
                 <div>
                   <MdOutlineCalendarToday size="16px" />
@@ -78,13 +81,21 @@ const DatePicker = forwardRef(
             placeholder={placeholder}
             value={formatDate(date, false)}
             classNames={{
-              input: cn("text-left ps-[30px!important] pt-5 z-20 h-full"),
+              input: cn("text-left ps-[30px!important] pt-4 z-20 h-full"),
               innerWrapper: "flex",
             }}
           />
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0">
           <DayPicker
+            classNames={{
+              caption: "text-shark-800",
+              head: "text-shark-800",
+              day: "w-10 h-8 rounded-full cursor-pointer hover:bg-yellow-300",
+            }}
+            modifiersStyles={{
+              selected: { backgroundColor: "#447176", color: "#f8f8f8" },
+            }}
             mode="single"
             selected={dayjs(date).toDate()}
             onSelect={(_val) => {

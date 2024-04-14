@@ -1,4 +1,5 @@
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
+import duration from "dayjs/plugin/duration";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -66,11 +67,11 @@ const placeWeatherIcons = (condition: string, icon: string) => {
   }
 
   if (condition === "Clouds") {
-    if ((icon === "02d" || icon === "03d") && (hour > 5 || hour < 19)) {
+    if (icon === "02d" || icon === "03d") {
       return suncloudy.src;
     }
 
-    if ((icon === "02n" || icon === "03n") && (hour >= 19 || hour <= 5)) {
+    if (icon === "02n" || icon === "03n") {
       return mooncloudy.src;
     }
 
@@ -80,6 +81,24 @@ const placeWeatherIcons = (condition: string, icon: string) => {
   }
 
   console.log("No condition matched, returning default icon.");
+  return suncloudy.src;
 };
 
-export { cn, formatDate, placeWeatherIcons };
+const durationInDays = (startDate: Dayjs | string, endDate: Dayjs | string) => {
+  dayjs.extend(duration);
+  const start = dayjs(startDate);
+  const end = dayjs(endDate);
+  const differenceInDays = end.diff(start);
+  return dayjs.duration(differenceInDays).asDays();
+};
+
+const defaultPlaceholder =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVR4nGNIL6799/f/jWfflazcGYwtrP+/ffj6yVMta2cGBn5JS3d/U48gBg5RAI1ZEFzy8ZYjAAAAAElFTkSuQmCC";
+
+export {
+  cn,
+  formatDate,
+  placeWeatherIcons,
+  durationInDays,
+  defaultPlaceholder,
+};

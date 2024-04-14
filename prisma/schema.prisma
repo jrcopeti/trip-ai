@@ -43,6 +43,7 @@ model Trip {
   image2 String?
   image3 String?
   image4 String?
+  image5 String?
   saved Boolean @default(false)
   title String?
   description String? @db.Text

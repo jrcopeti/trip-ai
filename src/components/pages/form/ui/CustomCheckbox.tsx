@@ -1,8 +1,13 @@
 import React, { useState, ReactNode } from "react";
-import { useCheckbox, Chip, ChipProps, VisuallyHidden, tv } from "@nextui-org/react";
+import {
+  useCheckbox,
+  Chip,
+  ChipProps,
+  VisuallyHidden,
+  tv,
+} from "@nextui-org/react";
 
 import { BsCheck } from "react-icons/bs";
-
 
 interface CustomCheckboxProps {
   children?: ReactNode;
@@ -10,21 +15,26 @@ interface CustomCheckboxProps {
   isSelected?: boolean;
   onChange?: () => void;
   isDisabled?: boolean;
-  color: "primary" | "secondary" | "success" | "warning" | "warning" | "default" | undefined;
+  color:
+    | "primary"
+    | "secondary"
+    | "success"
+    | "warning"
+    | "warning"
+    | "default"
+    | undefined;
 }
-
-
 
 const checkbox = tv({
   slots: {
-    base: "border-shark-300 hover:bg-shark-200",
-    content: "text-default-500",
+    base: "border-shark-800 hover:bg-neptune-300 ",
+    content: "text-shark-800 font-semibold duration-300 ease-in-out",
   },
   variants: {
     isSelected: {
       true: {
-        base: "border-shark-200 font-semibold bg-neptune-600 hover:bg-shark-200 hover:border-shark-500",
-        content: "text-shark-200 pl-1 hover:text-shark-800" ,
+        base: "border-shark-800 font-semibold bg-neptune-600 hover:bg-neptune-500 hover:border-shark-500 ",
+        content: "text-gallery-50 pl-1 duration-300 ease-in-out",
       },
     },
     isFocusVisible: {
@@ -55,15 +65,16 @@ const CustomCheckbox: React.FC<CustomCheckboxProps> = (props) => {
         <input {...getInputProps()} />
       </VisuallyHidden>
       <Chip
-
         classNames={{
           base: styles.base(),
           content: styles.content(),
         }}
         color="primary"
-        startContent={isSelected ? <BsCheck className="ml-1" /> : null}
+        startContent={
+          isSelected ? <BsCheck className="ml-1 text-gallery-50" /> : null
+        }
         variant="faded"
-        {...getLabelProps() as any}
+        {...(getLabelProps() as any)}
       >
         {children ? children : isSelected ? "Enabled" : "Disabled"}
       </Chip>

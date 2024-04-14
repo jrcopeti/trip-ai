@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 
 const DynamicSavedTripsPageComponent = dynamic(
-  () => import("@/components/SavedTripsPageComponent"),
+  () => import("@/components/pages/saved-trips/SavedTripsPageComponent"),
   {
     ssr: false,
   },
@@ -21,7 +21,7 @@ function SavedTripsPageId({ params }: { params: { id: number | string } }) {
 
   return (
     // <HydrationBoundary state={dehydrate(queryClient)}>
-      <DynamicSavedTripsPageComponent params={params} />
+    <DynamicSavedTripsPageComponent params={params} />
     // </HydrationBoundary>
   );
 }
