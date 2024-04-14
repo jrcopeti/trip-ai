@@ -1,15 +1,27 @@
+import { ImageDataTypes } from "@/types";
 import type { Trip } from "@prisma/client";
 import Image from "next/image";
+import image3 from "@/assets/3.jpg";
+import { defaultPlaceholder } from "@/lib/utils";
 
-function MustHaveSection({ trip }: { trip: Trip }) {
+function MustHaveSection({
+  trip,
+  imageData,
+}: {
+  trip: Trip;
+  imageData?: ImageDataTypes | null;
+}) {
   return (
     <>
       <div className="must-have grid h-[90%] w-[90%] grid-cols-none grid-rows-2 shadow-2xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none ">
         <div className="relative h-full w-full ">
           <Image
-            src={trip?.image3 ?? ""}
+            src={(trip?.image3 || imageData?.tripImage3) ?? image3}
             alt="city"
-            blurDataURL={trip?.placeholder ?? ""}
+            blurDataURL={
+              (trip?.placeholder || imageData?.placeholder) ??
+              defaultPlaceholder
+            }
             placeholder="blur"
             priority
             fill

@@ -31,6 +31,7 @@ export const fetchForecast = async ({
 
     const getForecast = await axios.get(forecastUrl);
     forecast = getForecast.data.list;
+    console.log("forecast", forecast);
 
     return forecast;
   } catch (err: unknown) {

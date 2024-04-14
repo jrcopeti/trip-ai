@@ -1,6 +1,4 @@
 "use server";
-
-import { redirect } from "next/navigation";
 import OpenAI from "openai";
 
 const openai = new OpenAI({
@@ -32,7 +30,7 @@ const functionData = {
       title: {
         type: "string",
         description:
-          "A creative title for the trip, with up to 15 words, that includes the userName and the destination in the format: City, Country.",
+          "A creative title for the trip with 12 words, that includes the userName, city and country.",
       },
       objectsList: {
         type: "array",
@@ -99,7 +97,6 @@ const functionData = {
       "mustHave",
       "description",
       "tour",
-     
     ],
   },
 };

@@ -12,16 +12,18 @@ export const fetchTripImage = async (city: string) => {
   let tripImage2 = "";
   let tripImage3 = "";
   let tripImage4 = "";
+  let tripImage5 = "";
   let placeholder = "";
 
   try {
-    const { data } = await axios.get(`${url}${city}${orientation}`);
+    const { data } = await axios.get(`${url}${city}`);
 
     console.log("ImageData", data);
     tripImage = data?.results[0]?.urls.regular;
     tripImage2 = data?.results[1]?.urls?.regular;
     tripImage3 = data?.results[2]?.urls?.regular;
     tripImage4 = data?.results[3]?.urls?.regular;
+    tripImage5 = data?.results[4]?.urls?.regular;
 
     const response = await axios.get(tripImage, {
       responseType: "arraybuffer",
@@ -38,12 +40,14 @@ export const fetchTripImage = async (city: string) => {
     console.log("tripImage2", tripImage2);
     console.log("tripImage3", tripImage3);
     console.log("tripImage4", tripImage4);
+    console.log("tripImage5", tripImage5);
 
     return {
       tripImage,
       tripImage2,
       tripImage3,
       tripImage4,
+      tripImage5,
       placeholder,
     };
   } catch (error) {

@@ -51,3 +51,12 @@ export interface FinalDataTypes extends Omit<Inputs, "requiredItems"> {
 export interface ProcessFormType {
   (data: Inputs): void;
 }
+
+export interface ImageDataTypes {
+  tripImage: string | null;
+  tripImage2: string | null;
+  tripImage3: string | null;
+  tripImage4: string | null;
+  tripImage5: string | null;
+  placeholder: string | null;
+}

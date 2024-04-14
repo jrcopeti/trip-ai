@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import SavedTripCard from "./SavedTripCard";
 
-function SavedTripsComponent() {
+function SavedTripsDisplay() {
   const {
     data: savedTrips,
     isPending: isPendingSavedTrips,
@@ -29,4 +29,4 @@ function SavedTripsComponent() {
   );
 }
 
-export default SavedTripsComponent;
+export default SavedTripsDisplay;

@@ -7,11 +7,12 @@ import { useRouter } from "next/navigation";
 import { createContext } from "react";
 
 interface ImageData {
-  tripImage: string;
-  tripImage2: string;
-  tripImage3: string;
-  tripImage4: string;
-  placeholder: string;
+  tripImage: string | null;
+  tripImage2: string | null;
+  tripImage3: string | null;
+  tripImage4: string | null;
+  tripImage5: string | null;
+  placeholder: string | null;
 }
 
 interface ImageContextType {
@@ -41,9 +42,8 @@ function ImageProvider({ children }: { children: React.ReactNode }) {
     mutationFn: (city: string) => fetchTripImage(city),
 
     onSuccess: (data) => {
-      console.log(data)
+      console.log(data);
       console.log("success Image Image Context ");
-      // router.push("/trip");
     },
     onError: (error) => {
       console.log(error);

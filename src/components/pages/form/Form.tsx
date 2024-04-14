@@ -33,7 +33,7 @@ import { useTrip } from "@/hooks/useTrip";
 import { useImage } from "@/hooks/useImage";
 import { useWeather } from "@/hooks/useWeather";
 import { useFormData } from "@/hooks/useFormData";
-import FormTitle from "./ui/form/FormTitle";
+import FormTitle from "./ui/FormTitle";
 import {
   sortedTypes,
   luggageSizes,
@@ -44,9 +44,9 @@ import {
 } from "@/data";
 
 import { FinalDataTypes, ProcessFormType } from "@/types";
-import ProgressBar from "./ui/form/Progress";
+import ProgressBar from "./ui/Progress";
 import { useWindowSize } from "@/hooks/useWindow";
-import Review from "./ui/form/Review";
+import Review from "./ui/Review";
 
 type Inputs = z.infer<typeof FormDataSchema>;
 type FieldName = keyof Inputs;
