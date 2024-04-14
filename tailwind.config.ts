@@ -137,7 +137,7 @@ const config: Config = {
           // ...
           colors: {
             default: "#447176",
-            primary: "#d74b76",
+            primary: "#4e888c",
             secondary: "#b37cb9",
             success: "#447176",
             warning: "#ff9520",
@@ -150,7 +150,6 @@ const config: Config = {
             primary: "#323c48",
           },
         },
-
       },
     }),
   ],

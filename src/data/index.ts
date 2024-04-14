@@ -14,7 +14,7 @@ const sortedTypes = [...types.sort((a, b) => a.label.localeCompare(b.label))];
 
 const luggageSizes = [
   { value: "backpack", label: "Backpack" },
-  { value: "carry-on", label: "carry-on" },
+  { value: "carry-on", label: "Carry-on" },
   { value: "medium", label: "Medium" },
   { value: "large", label: "Large" },
   { value: "extra-large", label: "Extra Large" },
@@ -54,7 +54,7 @@ const interests = [
   { value: "nightlife", label: "Beach" },
   { value: "photography", label: "Photography" },
   { value: "museums", label: "Museums" },
-  { value: "wine", label: "wine" },
+  { value: "wine", label: "Wine" },
   { value: "coffee", label: "Coffee" },
   { value: "wellness", label: "Wellness" },
   { value: "dating", label: "Dating" },

@@ -1,4 +1,5 @@
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
+import duration from "dayjs/plugin/duration";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -82,4 +83,12 @@ const placeWeatherIcons = (condition: string, icon: string) => {
   console.log("No condition matched, returning default icon.");
 };
 
-export { cn, formatDate, placeWeatherIcons };
+const durationInDays = (startDate: Dayjs | string, endDate: Dayjs | string) => {
+  dayjs.extend(duration);
+  const start = dayjs(startDate);
+  const end = dayjs(endDate);
+  const differenceInDays = end.diff(start);
+  return dayjs.duration(differenceInDays).asDays();
+};
+
+export { cn, formatDate, placeWeatherIcons, durationInDays };

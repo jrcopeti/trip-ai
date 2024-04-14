@@ -3,3 +3,17 @@
 @tailwind utilities;
 
 
+
+.rdp {
+  --rdp-cell-size: 4rem; /* Size of the day cells. */
+  --rdp-caption-font-size: 2rem; /* Font size for the caption labels. */
+  --rdp-accent-color: red; /* Accent color for the background of selected days. */
+  --rdp-background-color: red; /* Background color for the hovered/focused elements. */
+
+  --rdp-outline: 2px solid yellow; /* Outline border for focused elements */
+  --rdp-outline-selected: 3px solid yellow; /* Outline border for focused _and_ selected elements */
+  --rdp-selected-color: #f9fafb; /* Color of selected day text */
+
+  /* margin: 1em; */
+ margin: 2rem -0.3rem;
+}

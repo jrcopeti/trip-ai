@@ -46,6 +46,7 @@ import {
 import { FinalDataTypes, ProcessFormType } from "@/types";
 import ProgressBar from "./ui/form/Progress";
 import { useWindowSize } from "@/hooks/useWindow";
+import Review from "./ui/form/Review";
 
 type Inputs = z.infer<typeof FormDataSchema>;
 type FieldName = keyof Inputs;
@@ -61,7 +62,7 @@ const steps = [
   {
     id: "step 2",
     title: "Destination",
-    subtitle: "What's your next trip ?",
+    subtitle: "What's your next trip?",
     stepValue: 16,
     fields: ["city", "country", "type"],
   },
@@ -75,7 +76,7 @@ const steps = [
   {
     id: "step 4",
     title: "Required Items",
-    subtitle: "What you can't forget to pack!",
+    subtitle: "Items you can't forget!",
     stepValue: 48,
     fields: [],
   },
@@ -83,7 +84,7 @@ const steps = [
     id: "step 5",
     title: "Dates and Weather",
     subtitle:
-      "Choose between trip plans based on weather forecast or actual dates",
+      "Choose between travel plans based on the weather forecast or on actual dates",
     stepValue: 64,
     fields: ["startDate", "endDate"],
   },
@@ -97,7 +98,7 @@ const steps = [
   {
     id: "step 7",
     title: "Review and Submit",
-    subtitle: "Check your details and submit",
+    subtitle: "Check your details and get your trip plan!",
     stepValue: 100,
     fields: [],
   },
@@ -187,6 +188,9 @@ function Form() {
   const cityWatch = watch("city");
   const countryWatch = watch("country");
 
+  const reviewData = getValues();
+  console.log("reviewData", reviewData);
+
   const next = async () => {
     const fields = steps[currentStep].fields;
     const output = await trigger(fields as FieldName[], {
@@ -196,12 +200,12 @@ function Form() {
     // if (!output) return;
 
     if (currentStep === steps.length - 3) {
-      console.log("get image unsplash!!!!!!!!!!!");
+      console.log("get image unsplash");
       generateImage(cityWatch);
     }
 
     if (isWeatherSelected && currentStep === steps.length - 2) {
-      console.log("get weather NOWWWWWW");
+      console.log("get weather in the form");
       generateForecast({ city: cityWatch, country: countryWatch });
     }
 
@@ -242,504 +246,564 @@ function Form() {
 
   return (
     <>
-    <div className=" relative h-[80%] w-[80%] overflow-auto overflow-x-hidden p-4 shadow-xl lg:p-8 bg-gradient-to-b from-gallery-50 to-shark-200 ">
-      <ProgressBar stepValue={stepValue} />
+      <div className=" relative h-[80%] w-[80%] overflow-auto overflow-x-hidden bg-gradient-to-b from-gallery-50 to-shark-200 p-4 shadow-xl lg:p-8 ">
+        <ProgressBar stepValue={stepValue} />
 
-      <form
-        onSubmit={handleSubmit(processForm)}
-        className=" overflow-auto px-4 py-4 lg:p-8 z-20    "
-      >
-        {/* Step 1 */}
+        <form
+          onSubmit={handleSubmit(processForm)}
+          className=" z-20 overflow-auto px-4 py-4 lg:p-8    "
+        >
+          {/* Step 1 */}
 
-        {currentStep === 0 && (
-          <motion.div
-            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-          >
-            <FormTitle steps={steps} currentStep={currentStep} />
+          {currentStep === 0 && (
+            <motion.div
+              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+            >
+              <FormTitle steps={steps} currentStep={currentStep} />
 
-            <div className="mt-10 flex flex-col justify-between gap-x-6 gap-y-[5rem] md:mt-[100px] md:flex-row ">
-              <Controller
-                name="userName"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    label="Name"
-                    id="userName"
-                    type="text"
-                    placeholder="What's your name?"
-                    className="max-w-lg text-shark-700  "
-                    radius="none"
-                    variant="faded"
-                    color="default"
-                    errorMessage={errors.userName?.message}
-                    isInvalid={!!errors.userName}
-                    isRequired
-                  />
-                )}
-              />
-
-              <Controller
-                name="age"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    label="Age"
-                    id="age"
-                    type="text"
-                    placeholder="How old are you?"
-                    className="max-w-lg text-shark-700  "
-                    radius="none"
-                    variant="faded"
-                    color="default"
-                    errorMessage={errors.age?.message}
-                  />
-                )}
-              />
-
-              <Controller
-                name="nationality"
-                control={control}
-                render={({ field }) => (
-                  <Autocomplete
-                    {...field}
-                    id="nationality"
-                    defaultItems={countries}
-                    label="Nationality"
-                    placeholder="Select a country"
-                    className="max-w-lg text-shark-700  "
-                    radius="none"
-                    variant="faded"
-                    color="default"
-                    onSelectionChange={(selectedKey) =>
-                      handleSelectionAutocomplete(selectedKey, "nationality")
-                    }
-                    errorMessage={errors.nationality?.message}
-                  >
-                    {(country) => (
-                      <AutocompleteItem key={country.code}>
-                        {country.label}
-                      </AutocompleteItem>
-                    )}
-                  </Autocomplete>
-                )}
-              />
-            </div>
-          </motion.div>
-        )}
-
-        {/* Step 2 */}
-
-        {currentStep === 1 && (
-          <motion.div
-            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-          >
-            <FormTitle steps={steps} currentStep={currentStep} />
-
-            <div className="mt-10 grid grid-cols-2 justify-between gap-x-6 gap-y-[5rem] md:mt-[75px] ">
-              <Controller
-                name="city"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    label="City"
-                    id="city"
-                    type="text"
-                    placeholder="What's your name?"
-                    className="max-w-lg"
-                    radius="none"
-                    variant="faded"
-                    color="default"
-                    errorMessage={errors.city?.message}
-                  />
-                )}
-              />
-
-              <Controller
-                name="country"
-                control={control}
-                render={({ field }) => (
-                  <Autocomplete
-                    {...field}
-                    id="country"
-                    defaultItems={countries}
-                    label="Country"
-                    placeholder="Select a country"
-                    className="max-w-lg"
-                    radius="none"
-                    variant="faded"
-                    color="default"
-
-                    onSelectionChange={(selectedKey) =>
-                      handleSelectionAutocomplete(selectedKey, "country")
-                    }
-                    errorMessage={errors.country?.message}
-                  >
-                    {(country) => (
-                      <AutocompleteItem key={country.code}>
-                        {country.label}
-                      </AutocompleteItem>
-                    )}
-                  </Autocomplete>
-                )}
-              />
-
-              <div className="col-span-2  md:max-w-[500px]">
+              <div className="mt-10 flex flex-col justify-between gap-x-6 gap-y-[5rem] md:mt-[100px] md:flex-row ">
                 <Controller
-                  name="type"
+                  name="userName"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="Name"
+                      id="userName"
+                      type="text"
+                      placeholder="What's your name?"
+                      className="max-w-lg text-shark-700 "
+                      radius="none"
+                      variant="faded"
+                      color="primary"
+                      errorMessage={errors.userName?.message}
+                      isInvalid={!!errors.userName}
+                      isRequired
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="age"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="Age"
+                      id="age"
+                      type="text"
+                      placeholder="How old are you?"
+                      className="max-w-lg text-shark-700  "
+                      radius="none"
+                      variant="faded"
+                      color="primary"
+                      isInvalid={!!errors.age}
+                      errorMessage={errors.age?.message}
+                      isRequired
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="nationality"
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      {...field}
+                      id="nationality"
+                      defaultItems={countries}
+                      label="Nationality"
+                      placeholder="Select a country"
+                      className="max-w-lg text-shark-700  "
+                      radius="none"
+                      variant="faded"
+                      color="primary"
+                      onSelectionChange={(selectedKey) =>
+                        handleSelectionAutocomplete(selectedKey, "nationality")
+                      }
+                      isInvalid={!!errors.nationality}
+                      isRequired
+                      errorMessage={errors.nationality?.message}
+                    >
+                      {(country) => (
+                        <AutocompleteItem key={country.code}>
+                          {country.label}
+                        </AutocompleteItem>
+                      )}
+                    </Autocomplete>
+                  )}
+                />
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 2 */}
+
+          {currentStep === 1 && (
+            <motion.div
+              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+            >
+              <FormTitle steps={steps} currentStep={currentStep} />
+
+              <div className="mt-10 grid grid-cols-2 justify-between gap-x-6 gap-y-[5rem] md:mt-[75px] ">
+                <Controller
+                  name="city"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="City"
+                      id="city"
+                      type="text"
+                      placeholder="What's your name?"
+                      className="max-w-lg"
+                      radius="none"
+                      variant="faded"
+                      color="primary"
+                      errorMessage={errors.city?.message}
+                      isInvalid={!!errors.city}
+                      isRequired
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="country"
+                  control={control}
+                  render={({ field }) => (
+                    <Autocomplete
+                      {...field}
+                      id="country"
+                      defaultItems={countries}
+                      label="Country"
+                      placeholder="Select a country"
+                      className="max-w-lg"
+                      radius="none"
+                      variant="faded"
+                      color="primary"
+                      onSelectionChange={(selectedKey) =>
+                        handleSelectionAutocomplete(selectedKey, "country")
+                      }
+                      errorMessage={errors.country?.message}
+                      isInvalid={!!errors.country}
+                      isRequired
+                    >
+                      {(country) => (
+                        <AutocompleteItem key={country.code}>
+                          {country.label}
+                        </AutocompleteItem>
+                      )}
+                    </Autocomplete>
+                  )}
+                />
+
+                <div className="col-span-2  md:max-w-[500px]">
+                  <Controller
+                    name="type"
+                    control={control}
+                    render={({ field }) => (
+                      <RadioGroup
+                        {...field}
+                        id="type"
+                        label="How do you describe your trip?"
+                        orientation="horizontal"
+                        color="success"
+                        errorMessage={errors.type?.message}
+                        isInvalid={!!errors.type}
+                        isRequired
+                      >
+                        {sortedTypes.map((type) => (
+                          <Radio
+                            key={type.value}
+                            value={type.value}
+                            className="font-semibold"
+                          >
+                            {type.label}
+                          </Radio>
+                        ))}
+                      </RadioGroup>
+                    )}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 3 */}
+          {currentStep === 2 && (
+            <motion.div
+              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+            >
+              <FormTitle steps={steps} currentStep={currentStep} />
+
+              <div className="mt-6 grid max-w-[80%] grid-cols-1 gap-x-4 gap-y-8  text-sm md:mt-[75px] lg:grid-cols-2">
+                <Controller
+                  name="luggageSize"
                   control={control}
                   render={({ field }) => (
                     <RadioGroup
                       {...field}
-                      id="type"
-                      label="How do you describe your trip?"
+                      id="luggageSize"
+                      label="What's the size of your luggage?"
                       orientation="horizontal"
                       color="success"
-                      errorMessage={errors.type?.message}
-
+                      className="max-w-[300px]"
+                      errorMessage={errors.luggageSize?.message}
+                      isInvalid={!!errors.luggageSize}
+                      isRequired
                     >
-                      {sortedTypes.map((type) => (
-                        <Radio key={type.value} value={type.value}>
-                          {type.label}
+                      {luggageSizes.map((luggageSize) => (
+                        <Radio
+                          key={luggageSize.value}
+                          value={luggageSize.value}
+                          className="font-semibold"
+                        >
+                          {luggageSize.label}
+                        </Radio>
+                      ))}
+                    </RadioGroup>
+                  )}
+                />
+
+                <Controller
+                  name="accommodation"
+                  control={control}
+                  render={({ field }) => (
+                    <RadioGroup
+                      {...field}
+                      id="accommodation"
+                      label="Where are you staying?"
+                      orientation="horizontal"
+                      color="success"
+                      className="max-w-[300px]"
+                      errorMessage={errors.accommodation?.message}
+                      isInvalid={!!errors.accommodation}
+                      isRequired
+                    >
+                      {sortedAccommodations.map((accommodation) => (
+                        <Radio
+                          key={accommodation.value}
+                          value={accommodation.value}
+                          className="font-semibold"
+                        >
+                          {accommodation.label}
+                        </Radio>
+                      ))}
+                    </RadioGroup>
+                  )}
+                />
+
+                <Controller
+                  name="transport"
+                  control={control}
+                  render={({ field }) => (
+                    <RadioGroup
+                      {...field}
+                      id="transport"
+                      label="How are you traveling?"
+                      orientation="horizontal"
+                      color="success"
+                      className="max-w-[300px]"
+                      errorMessage={errors.transport?.message}
+                      isInvalid={!!errors.transport}
+                      isRequired
+                    >
+                      {sortedTransports.map((transport) => (
+                        <Radio
+                          key={transport.value}
+                          value={transport.value}
+                          className="font-semibold"
+                        >
+                          {transport.label}
+                        </Radio>
+                      ))}
+                    </RadioGroup>
+                  )}
+                />
+
+                <Controller
+                  name="budget"
+                  control={control}
+                  render={({ field }) => (
+                    <RadioGroup
+                      {...field}
+                      id="budget"
+                      label="What's your budget?"
+                      orientation="horizontal"
+                      color="success"
+                      className="max-w-[300px]"
+                      errorMessage={errors.budget?.message}
+                      isInvalid={!!errors.budget}
+                      isRequired
+                    >
+                      {budgets.map((budget) => (
+                        <Radio
+                          key={budget.value}
+                          value={budget.value}
+                          className="font-semibold"
+                        >
+                          {budget.label}
                         </Radio>
                       ))}
                     </RadioGroup>
                   )}
                 />
               </div>
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )}
 
-        {/* Step 3 */}
-        {currentStep === 2 && (
-          <motion.div
-            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-          >
-            <FormTitle steps={steps} currentStep={currentStep} />
+          {/* Step 4 */}
 
-            <div className="mt-6 grid max-w-[80%] grid-cols-1 gap-x-4 gap-y-8  text-sm md:mt-[75px] lg:grid-cols-2">
-              <Controller
-                name="luggageSize"
-                control={control}
-                render={({ field }) => (
-                  <RadioGroup
-                    {...field}
-                    id="luggageSize"
-                    label="What's the size of your luggage?"
-                    orientation="horizontal"
-                    errorMessage={errors.luggageSize?.message}
+          {currentStep === 3 && (
+            <motion.div
+              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+            >
+              <FormTitle steps={steps} currentStep={currentStep} />
 
-                    color="success"
-                  >
-                    {luggageSizes.map((luggageSize) => (
-                      <Radio key={luggageSize.value} value={luggageSize.value}>
-                        {luggageSize.label}
-                      </Radio>
-                    ))}
-                  </RadioGroup>
-                )}
-              />
-
-              <Controller
-                name="accommodation"
-                control={control}
-                render={({ field }) => (
-                  <RadioGroup
-                    {...field}
-                    id="accommodation"
-                    label="Where are you staying?"
-                    orientation="horizontal"
-
-                    color="success"
-                    errorMessage={errors.accommodation?.message}
-                  >
-                    {sortedAccommodations.map((accommodation) => (
-                      <Radio
-                        key={accommodation.value}
-                        value={accommodation.value}
-                      >
-                        {accommodation.label}
-                      </Radio>
-                    ))}
-                  </RadioGroup>
-                )}
-              />
-
-              <Controller
-                name="transport"
-                control={control}
-                render={({ field }) => (
-                  <RadioGroup
-                    {...field}
-                    id="transport"
-                    label="How are you traveling?"
-                    orientation="horizontal"
-
-                    color="success"
-                    errorMessage={errors.transport?.message}
-                  >
-                    {sortedTransports.map((transport) => (
-                      <Radio key={transport.value} value={transport.value}>
-                        {transport.label}
-                      </Radio>
-                    ))}
-                  </RadioGroup>
-                )}
-              />
-
-              <Controller
-                name="budget"
-                control={control}
-                render={({ field }) => (
-                  <RadioGroup
-                    {...field}
-                    id="budget"
-                    label="Where are you staying?"
-                    orientation="horizontal"
-
-                    color="success"
-                    errorMessage={errors.budget?.message}
-                  >
-                    {budgets.map((budget) => (
-                      <Radio key={budget.value} value={budget.value}>
-                        {budget.label}
-                      </Radio>
-                    ))}
-                  </RadioGroup>
-                )}
-              />
-            </div>
-          </motion.div>
-        )}
-
-        {/* Step 4 */}
-
-        {currentStep === 3 && (
-          <motion.div
-            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-          >
-            <FormTitle steps={steps} currentStep={currentStep} />
-
-            <div className="flex max-h-fit max-w-[600px] flex-col gap-8  ">
-              {fields.map((field, index) => (
-                <div className="flex items-center gap-4  " key={field.id}>
-                  <Controller
-                    control={control}
-                    name={`requiredItems[${index}].item` as any}
-                    render={({ field }) => (
-                      <Input {...field} label={`Item ${index + 1}`} />
-                    )}
-                  />
-                  <Button
-                    className=" bg-yellorange-700 text-gallery-50"
-                    type="button"
-                    size="sm"
-                    onClick={() => remove(index)}
-                  >
-                    X
-                  </Button>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4">
-              <Button
-                className="place-items-center bg-neptune-600 text-gallery-50"
-                type="button"
-                onClick={() => append({ item: "" })}
-              >
-                Add Item
-              </Button>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Step 5 */}
-
-        {currentStep === 4 && (
-          <motion.div
-            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-          >
-            <FormTitle steps={steps} currentStep={currentStep} />
-
-            <div className="md mt-10 flex flex-col gap-x-6 gap-y-8  ">
-              <Checkbox
-                isSelected={isWeatherSelected}
-                onValueChange={setIsWeatherSelected}
-              >
-                Weather forecast
-              </Checkbox>
-              {!isWeatherSelected ? (
-                <>
-                  <Controller
-                    name="startDate"
-                    control={control}
-                    render={({ field }) => (
-                      <DatePicker
-                        {...field}
-                        label="Start Date"
-                        id="startDate"
-                        placeholder="When do your trip start?"
-                      />
-                    )}
-                  />
-                  {errors.startDate?.message && (
-                    <p className="mt-2 text-sm text-red-500">
-                      {errors.startDate.message}
-                    </p>
-                  )}
-
-                  <Controller
-                    name="endDate"
-                    control={control}
-                    render={({ field }) => (
-                      <DatePicker
-                        {...field}
-                        label="End Date"
-                        id="endDate"
-                        placeholder="When does it end?"
-                      />
-                    )}
-                  />
-                  {errors.endDate?.message && (
-                    <p className="mt-2 text-sm text-red-500">
-                      {errors.endDate.message}
-                    </p>
-                  )}
-                </>
-              ) : (
-                <div>Go to next step</div>
-              )}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Step 6 */}
-
-        {currentStep === 5 && (
-          <motion.div
-            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-          >
-            <FormTitle steps={steps} currentStep={currentStep} />
-
-            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8  ">
-              <Controller
-                name="interests"
-                control={control}
-                render={({ field }) => (
-                  <CheckboxGroup
-                    {...field}
-                    name="interests"
-                    className="gap-4"
-                    label="Select up to 3 interest"
-                    orientation="horizontal"
-                    errorMessage={errors.interests?.message}
-                  >
-                    {sortedInterest.map((interest) => (
-                      <CustomCheckbox
-                        key={interest.value}
-                        value={interest.value}
-                        color="secondary"
-                        isDisabled={
-                          field.value.length >= 3 &&
-                          !field.value.includes(interest.value)
-                        }
-                      >
-                        {interest.label}
-                      </CustomCheckbox>
-                    ))}
-                  </CheckboxGroup>
-                )}
-              />
-
-              <Controller
-                name="note"
-                control={control}
-                render={({ field }) => (
-                  <Textarea
-                    {...field}
-                    label="Notes"
-                    id="notes"
-                    placeholder="Anything you want to add?"
-                    className="max-w-md"
-                  />
-                )}
-              />
-            </div>
-          </motion.div>
-        )}
-
-        {/* Step 7 */}
-
-        {currentStep === 6 && (
-          <motion.div
-            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-          >
-            <FormTitle steps={steps} currentStep={currentStep} />
-
-            <Controller
-              name="agreement"
-              control={control}
-              render={({ field }) => (
-                <Checkbox
-                  isSelected={field.value}
-                  onValueChange={field.onChange}
-                ></Checkbox>
-              )}
-            />
-            <div className="mt-8 max-w-xl pt-5">
-              {currentStep === steps.length - 1 && (
-                <Button type="submit" size="lg" isDisabled={!isValid}>
-                  Submit
+              <div className="mt-10 flex max-h-fit max-w-[600px] flex-col gap-8 lg:mt-[100px]  ">
+                {fields.map((field, index) => (
+                  <div className="flex items-center gap-2" key={field.id}>
+                    <Controller
+                      control={control}
+                      name={`requiredItems[${index}].item` as any}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label={`Item ${index + 1}`}
+                          className="max-w-lg text-shark-700 "
+                          radius="none"
+                          variant="faded"
+                          color="primary"
+                        />
+                      )}
+                    />
+                    <Button
+                      className=" bg-yellorange-700 text-gallery-50"
+                      type="button"
+                      size="sm"
+                      onClick={() => remove(index)}
+                    >
+                      X
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4">
+                <Button
+                  className="place-items-center bg-neptune-600 text-gallery-50"
+                  type="button"
+                  onClick={() => append({ item: "" })}
+                >
+                  Add Item
                 </Button>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </form>
-      {/* Buttons */}
-    </div>
-      <div className="absolute top-[95%] lg:top-1/2 left-16  transform -translate-y-1/2 z-50 ">
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 5 */}
+
+          {currentStep === 4 && (
+            <motion.div
+              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+            >
+              <FormTitle steps={steps} currentStep={currentStep} />
+
+              <div className="mt-10 flex flex-col gap-x-6 gap-y-8 ">
+                <Checkbox
+                  isSelected={isWeatherSelected}
+                  onValueChange={setIsWeatherSelected}
+                  color="default"
+                  className="font-semibold"
+                >
+                  Weather Forecast
+                </Checkbox>
+                {!isWeatherSelected ? (
+                  <>
+                    <h3 className="text-shark-800">Or</h3>
+                    <Controller
+                      name="startDate"
+                      control={control}
+                      render={({ field }) => (
+                        <DatePicker
+                          {...field}
+                          label="Start Date"
+                          id="startDate"
+                          placeholder="When do your trip start?"
+                        />
+                      )}
+                    />
+                    {errors.startDate?.message && (
+                      <p className="text-xs text-red-500">
+                        {errors.startDate.message}
+                      </p>
+                    )}
+
+                    <Controller
+                      name="endDate"
+                      control={control}
+                      render={({ field }) => (
+                        <DatePicker
+                          {...field}
+                          label="End Date"
+                          id="endDate"
+                          placeholder="When does it end?"
+                        />
+                      )}
+                    />
+                    {errors.endDate?.message && (
+                      <p className="text-xs text-red-500">
+                        {errors.endDate.message}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-inherit">
+                    Your trip plans is based on the weather forecast for the
+                    next 7 days.
+                  </p>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 6 */}
+
+          {currentStep === 5 && (
+            <motion.div
+              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+            >
+              <FormTitle steps={steps} currentStep={currentStep} />
+
+              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8  ">
+                <Controller
+                  name="interests"
+                  control={control}
+                  render={({ field }) => (
+                    <CheckboxGroup
+                      {...field}
+                      name="interests"
+                      className="max-w-2xl gap-4"
+                      label="Select up to 3 interest"
+                      orientation="horizontal"
+                      errorMessage={errors.interests?.message}
+                    >
+                      {sortedInterest.map((interest) => (
+                        <CustomCheckbox
+                          color="primary"
+                          key={interest.value}
+                          value={interest.value}
+                          isDisabled={
+                            field.value.length >= 3 &&
+                            !field.value.includes(interest.value)
+                          }
+                        >
+                          {interest.label}
+                        </CustomCheckbox>
+                      ))}
+                    </CheckboxGroup>
+                  )}
+                />
+
+                <Controller
+                  name="note"
+                  control={control}
+                  render={({ field }) => (
+                    <Textarea
+                      {...field}
+                      label="Notes"
+                      id="notes"
+                      placeholder="Anything you want to add?"
+                      className="max-w-lg"
+                      radius="none"
+                      variant="faded"
+                      color="primary"
+                    />
+                  )}
+                />
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 7 */}
+
+          {currentStep === 6 && (
+            <motion.div
+              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
+            >
+              <FormTitle steps={steps} currentStep={currentStep} />
+              <Review weather={isWeatherSelected} data={reviewData} />
+              <div className="mt-4 flex max-w-md flex-col gap-4">
+                <Controller
+                  name="agreement"
+                  control={control}
+                  render={({ field }) => (
+                    <Checkbox
+                      isSelected={field.value}
+                      onValueChange={field.onChange}
+                      className="font-semibold"
+                    >
+                      <small>
+                        By agreeing, you consent to share your information with
+                        OpenAI. Please note, this application is designed only
+                        for entertainment purposes{" "}
+                      </small>
+                    </Checkbox>
+                  )}
+                />
+                {currentStep === steps.length - 1 && (
+                  <Button
+                    type="submit"
+                    size="lg"
+                    isDisabled={!isValid}
+                    className="text-gallery-50"
+                  >
+                    Submit
+                  </Button>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </form>
+
+        {/* Buttons */}
+      </div>
+      <div className="absolute left-16 top-[95%] z-50  -translate-y-1/2 transform lg:top-1/2 ">
         <Button
           type="button"
           size="sm"
           isDisabled={currentStep === 0}
           onClick={prev}
-          className="bg-transparent text-3xl md:text-4xl text-neptune-600"
+          className="bg-transparent text-3xl text-neptune-600 md:text-4xl"
         >
-
           <FaAngleLeft />
         </Button>
       </div>
-      <div className='absolute top-[95%] lg:top-1/2 right-16 transform -translate-y-1/2 z-50'>
+      <div className="absolute right-16 top-[95%] z-50 -translate-y-1/2 transform lg:top-1/2">
         <Button
           type="button"
           size="sm"
           onClick={next}
           isDisabled={currentStep === steps.length - 1}
-          className="bg-transparent text-3xl md:text-4xl text-neptune-600"
+          className="bg-transparent text-3xl text-neptune-600 md:text-4xl"
         >
           <FaAngleRight />
         </Button>
       </div>
-
-      </>
+    </>
   );
 }
 
