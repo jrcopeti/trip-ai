@@ -136,10 +136,10 @@ const config: Config = {
         light: {
           // ...
           colors: {
-            default: "#637b94",
+            default: "#447176",
             primary: "#d74b76",
             secondary: "#b37cb9",
-            success: "#4e888c",
+            success: "#447176",
             warning: "#ff9520",
             danger: "#c2150c",
           },
@@ -147,10 +147,10 @@ const config: Config = {
         dark: {
           // ...
           colors: {
-            primary: "#f93c16",
+            primary: "#323c48",
           },
         },
-        // ... custom themes
+
       },
     }),
   ],

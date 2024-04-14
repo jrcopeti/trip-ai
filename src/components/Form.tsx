@@ -156,7 +156,6 @@ function Form() {
   const { setFormData } = useFormData();
   const { generateImage } = useImage();
 
-
   const forecastDataString = JSON.stringify(forecastData);
 
   const stepValue = steps[currentStep].stepValue;
@@ -242,12 +241,13 @@ function Form() {
   };
 
   return (
-    <div className="absolute h-[90%] w-[90%] p-8 shadow-xl lg:h-[80%] lg:w-[80%] lg:p-12 overflow-auto overflow-x-hidden ">
+    <>
+    <div className=" relative h-[80%] w-[80%] overflow-auto overflow-x-hidden p-4 shadow-xl lg:p-8 bg-gradient-to-b from-gallery-50 to-shark-200 ">
       <ProgressBar stepValue={stepValue} />
 
       <form
         onSubmit={handleSubmit(processForm)}
-        className=" overflow-auto px-2 py-4 lg:p-8    "
+        className=" overflow-auto px-4 py-4 lg:p-8 z-20    "
       >
         {/* Step 1 */}
 
@@ -270,9 +270,13 @@ function Form() {
                     id="userName"
                     type="text"
                     placeholder="What's your name?"
-                    className="max-w-lg"
+                    className="max-w-lg text-shark-700  "
+                    radius="none"
+                    variant="faded"
+                    color="default"
                     errorMessage={errors.userName?.message}
                     isInvalid={!!errors.userName}
+                    isRequired
                   />
                 )}
               />
@@ -287,7 +291,10 @@ function Form() {
                     id="age"
                     type="text"
                     placeholder="How old are you?"
-                    className="max-w-lg"
+                    className="max-w-lg text-shark-700  "
+                    radius="none"
+                    variant="faded"
+                    color="default"
                     errorMessage={errors.age?.message}
                   />
                 )}
@@ -303,7 +310,10 @@ function Form() {
                     defaultItems={countries}
                     label="Nationality"
                     placeholder="Select a country"
-                    className="max-w-lg"
+                    className="max-w-lg text-shark-700  "
+                    radius="none"
+                    variant="faded"
+                    color="default"
                     onSelectionChange={(selectedKey) =>
                       handleSelectionAutocomplete(selectedKey, "nationality")
                     }
@@ -343,6 +353,9 @@ function Form() {
                     type="text"
                     placeholder="What's your name?"
                     className="max-w-lg"
+                    radius="none"
+                    variant="faded"
+                    color="default"
                     errorMessage={errors.city?.message}
                   />
                 )}
@@ -355,11 +368,14 @@ function Form() {
                   <Autocomplete
                     {...field}
                     id="country"
-                    color="primary"
                     defaultItems={countries}
                     label="Country"
                     placeholder="Select a country"
                     className="max-w-lg"
+                    radius="none"
+                    variant="faded"
+                    color="default"
+
                     onSelectionChange={(selectedKey) =>
                       handleSelectionAutocomplete(selectedKey, "country")
                     }
@@ -382,10 +398,11 @@ function Form() {
                     <RadioGroup
                       {...field}
                       id="type"
-                      color="secondary"
                       label="How do you describe your trip?"
                       orientation="horizontal"
+                      color="success"
                       errorMessage={errors.type?.message}
+
                     >
                       {sortedTypes.map((type) => (
                         <Radio key={type.value} value={type.value}>
@@ -420,7 +437,8 @@ function Form() {
                     label="What's the size of your luggage?"
                     orientation="horizontal"
                     errorMessage={errors.luggageSize?.message}
-                    size="sm"
+
+                    color="success"
                   >
                     {luggageSizes.map((luggageSize) => (
                       <Radio key={luggageSize.value} value={luggageSize.value}>
@@ -440,7 +458,8 @@ function Form() {
                     id="accommodation"
                     label="Where are you staying?"
                     orientation="horizontal"
-                    size="sm"
+
+                    color="success"
                     errorMessage={errors.accommodation?.message}
                   >
                     {sortedAccommodations.map((accommodation) => (
@@ -464,7 +483,8 @@ function Form() {
                     id="transport"
                     label="How are you traveling?"
                     orientation="horizontal"
-                    size="sm"
+
+                    color="success"
                     errorMessage={errors.transport?.message}
                   >
                     {sortedTransports.map((transport) => (
@@ -485,7 +505,8 @@ function Form() {
                     id="budget"
                     label="Where are you staying?"
                     orientation="horizontal"
-                    size="sm"
+
+                    color="success"
                     errorMessage={errors.budget?.message}
                   >
                     {budgets.map((budget) => (
@@ -510,7 +531,7 @@ function Form() {
           >
             <FormTitle steps={steps} currentStep={currentStep} />
 
-            <div className="flex flex-col max-h-fit gap-8 max-w-[600px]  ">
+            <div className="flex max-h-fit max-w-[600px] flex-col gap-8  ">
               {fields.map((field, index) => (
                 <div className="flex items-center gap-4  " key={field.id}>
                   <Controller
@@ -520,21 +541,26 @@ function Form() {
                       <Input {...field} label={`Item ${index + 1}`} />
                     )}
                   />
-                  <Button className=' text-gallery-50 bg-yellorange-700' type="button" size="sm" onClick={() => remove(index)}>
+                  <Button
+                    className=" bg-yellorange-700 text-gallery-50"
+                    type="button"
+                    size="sm"
+                    onClick={() => remove(index)}
+                  >
                     X
                   </Button>
                 </div>
               ))}
             </div>
-              <div className='mt-4'>
-                <Button
-                  className="place-items-center text-gallery-50 bg-neptune-400"
-                  type="button"
-                  onClick={() => append({ item: "" })}
-                >
-                  Add Item
-                </Button>
-              </div>
+            <div className="mt-4">
+              <Button
+                className="place-items-center bg-neptune-600 text-gallery-50"
+                type="button"
+                onClick={() => append({ item: "" })}
+              >
+                Add Item
+              </Button>
+            </div>
           </motion.div>
         )}
 
@@ -686,33 +712,34 @@ function Form() {
             </div>
           </motion.div>
         )}
-
-        {/* Buttons */}
-        <div className="absolute bottom-[0%] left-1/2 -translate-y-[50%]">
-          <ButtonGroup>
-            <Button
-              type="button"
-              size="lg"
-              isDisabled={currentStep === steps.length - 7}
-              onClick={prev}
-              className="bg-gradient-to-r from-neptune-400 via-neptune-500 to-neptune-600 hover:bg-neptune-400"
-            >
-              <FaAngleLeft />
-            </Button>
-
-            <Button
-              type="button"
-              size="lg"
-              onClick={next}
-              isDisabled={currentStep === steps.length - 1}
-              className="bg-gradient-to-l from-neptune-400 via-neptune-500 to-neptune-600 hover:bg-neptune-400"
-            >
-              <FaAngleRight />
-            </Button>
-          </ButtonGroup>
-        </div>
       </form>
+      {/* Buttons */}
     </div>
+      <div className="absolute top-[95%] lg:top-1/2 left-16  transform -translate-y-1/2 z-50 ">
+        <Button
+          type="button"
+          size="sm"
+          isDisabled={currentStep === 0}
+          onClick={prev}
+          className="bg-transparent text-3xl md:text-4xl text-neptune-600"
+        >
+
+          <FaAngleLeft />
+        </Button>
+      </div>
+      <div className='absolute top-[95%] lg:top-1/2 right-16 transform -translate-y-1/2 z-50'>
+        <Button
+          type="button"
+          size="sm"
+          onClick={next}
+          isDisabled={currentStep === steps.length - 1}
+          className="bg-transparent text-3xl md:text-4xl text-neptune-600"
+        >
+          <FaAngleRight />
+        </Button>
+      </div>
+
+      </>
   );
 }
 
