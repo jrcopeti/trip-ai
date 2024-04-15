@@ -40,7 +40,7 @@ import {
   sortedInterest,
   sortedTransports,
 } from "@/data";
-import { FinalDataTypes, ProcessFormType } from "@/types";
+import type { FinalDataTypes, ProcessFormType } from "@/types";
 
 type Inputs = z.infer<typeof FormDataSchema>;
 type FieldName = keyof Inputs;
@@ -214,7 +214,7 @@ function Form() {
 
   const processForm: ProcessFormType = (data: Inputs) => {
     const transformedRequiredItems =
-      data.requiredItems?.map((item) => item.item) ?? [];
+      data.requiredItems?.map((requiredItem) => requiredItem.item) ?? [];
 
     const promptModel = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. The trip is scheduled from ${data.startDate} to ${data.endDate}. ${data.userName} prefers to travel by ${data.transport}, with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. (If there is no required items, return an empty array). Staying in a ${data.accommodation}, he/she is interested in ${data.interests}. Additionally, he/she has noted he/she would specifically like to have: ${data.note}. (If there is no note, skip this part). Based on ${data.userName}'s preferences and trip details, plus the average weather for ${data.city}, ${data.country} during the trip, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with maximum three paragraphs each. If ${data.city} does not exist or it is not located in the ${data.country}, or it's population is less than 1, return { trip: null }, with no additional characters.`;
     const promptModelWeather = `${data.userName}, a ${data.age}-year-old traveler from ${data.nationality}, is planning a ${data.type} trip to ${data.city}, ${data.country} with a ${data.budget} budget. ${data.userName} prefers to travel by ${data.transport}, with a ${data.luggageSize} size suitcase and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. If there is no required items, return an empty array. Staying in a ${data.accommodation}, he/she is interested in ${data.interests}. Additionally, he/she has noted he/she would specifically like to have: ${data.note}. If there is no note, skip the note part. Based on ${data.userName}'s preferences and trip details, plus the weather forecast that is in the end of the prompt, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${data.userName}, the city, and the country, a brief description highlighting the essence of their journey, and three must-do activities with maximum three paragraphs each. Weather forecast for ${data.city}, ${data.country}: ${data.weatherForecast}. If ${data.city} does not exist or it is not located in the ${data.country}, or it's population is less than 1, return { trip: null }, with no additional characters.`;

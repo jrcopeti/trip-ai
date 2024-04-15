@@ -1,11 +1,11 @@
 "use client";
 
+import { createContext } from "react";
 import { fetchResponseAI } from "@/api/openaiApi";
 import { useFormData } from "@/hooks/useFormData";
 import { useMutation} from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { createContext } from "react";
-import { Trip } from "@prisma/client"
+import type { Trip } from "@prisma/client"
 
 interface TripContextType {
   tripData: Trip | undefined;

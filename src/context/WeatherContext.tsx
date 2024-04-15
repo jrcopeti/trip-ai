@@ -1,38 +1,17 @@
 "use client";
 
-import { fetchForecast, fetchWeather } from "@/api/openWeatherApi";
-import { useMutation } from "@tanstack/react-query";
 import { createContext, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { fetchForecast, fetchWeather } from "@/api/openWeatherApi";
 import { placeWeatherIcons } from "@/lib/utils";
-import { FetchForecastParams } from "@/types";
-import { FetchWeatherParams } from "@/types";
-import { WeatherDataTypes } from "@/types";
+import type {
+  FetchForecastParams,
+  FetchWeatherParams,
+  WeatherDataTypes,
+  WeatherContextType,
+} from "@/types";
 
-interface WeatherContextType {
-  forecastData: WeatherDataTypes | undefined;
-  generateForecast: ({
-    city,
-    country,
-  }: {
-    city: string;
-    country: string;
-  }) => void;
-  isPendingForecast: boolean;
-  errorForecast: unknown;
-  weatherData: Partial<WeatherDataTypes> | undefined;
-  generateWeather: ({
-    city,
-    country,
-  }: {
-    city: string;
-    country: string;
-  }) => void;
-
-  isPendingWeather: boolean;
-  errorWeather: unknown;
-}
-
-const defaultContextValue: WeatherContextType = {
+export const defaultContextValue: WeatherContextType = {
   forecastData: undefined,
   generateForecast: async () => {},
   isPendingForecast: false,

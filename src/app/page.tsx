@@ -1,5 +1,5 @@
 "use client";
-import Parallax from "@/components/ui/Parallax";
+import Parallax from "@/components/ui/Homepage";
 
 function Homepage() {
   return <Parallax />;
