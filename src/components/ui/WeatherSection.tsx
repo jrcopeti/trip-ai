@@ -18,7 +18,7 @@ function WeatherSection({
 }) {
   const { generateWeather, isPendingWeather, weatherData } = useWeather();
   console.log(weatherData);
-  console.log("isPending`Weayher", isPendingWeather);
+  console.log("isPending`Weather", isPendingWeather);
 
   useEffect(() => {
     if (trip.city && trip.country) {
@@ -58,7 +58,7 @@ function WeatherSection({
           height={400}
           width={400}
           alt="weather-icon"
-          src={weatherIconSrc ?? suncloudy}
+          src={weatherIconSrc ?? suncloudy }
           className=" -mt-[86px] mb-[30px] ml-[10px] h-[45vw] w-[45vw]  object-contain saturate-150 filter xs:ml-[22%] sm:-ml-[145px] sm:-mt-[0px] sm:mb-[30px] sm:h-[300px] sm:w-full md:-ml-[161px] md:-mt-[0] md:mr-[30px] md:h-[300px] md:max-w-full "
         />
         <div className="">

@@ -1,5 +1,5 @@
 "use client";
-import SavedTripsDisplay from "@/components/pages/saved-trips/SavedTripsDisplay";
+import SavedTripsDisplay from "@/components/SavedTripsDisplay";
 import {
   HydrationBoundary,
   dehydrate,

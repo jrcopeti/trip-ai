@@ -1,13 +1,9 @@
 "use client";
 import dynamic from "next/dynamic";
 
-const DynamicTripDetails = dynamic(
-  () => import("@/components/pages/trips/TripDetails"),
-  {
-    ssr: false,
-  },
-);
-
+const DynamicTripDetails = dynamic(() => import("@/components/TripDetails"), {
+  ssr: false,
+});
 
 function TripPage() {
   return (

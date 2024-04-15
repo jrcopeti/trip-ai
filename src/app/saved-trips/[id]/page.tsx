@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 
 const DynamicSavedTripsPageComponent = dynamic(
-  () => import("@/components/pages/saved-trips/SavedTripsPageComponent"),
+  () => import("@/components/SavedTripsPageComponent"),
   {
     ssr: false,
   },
