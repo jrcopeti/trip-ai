@@ -17,7 +17,7 @@ import MustHaveSection from "./ui/MustHaveSection";
 import FormDetailsSection from "./ui/FormDetailsSection";
 import FinalSection from "./ui/FinalSection";
 
-gsap.registerPlugin(ScrollTrigger);
+
 
 function SavedTripsPageComponent({
   params,
@@ -40,11 +40,24 @@ function SavedTripsPageComponent({
   console.log("trip city:", trip?.city);
   console.log("trip country:", trip?.country);
 
+  useEffect(() => {
+    (async () => {
+      const LocomotiveScroll = (await import("locomotive-scroll" as any))
+        .default;
+      const locomotiveScroll = new LocomotiveScroll({
+        lenisOptions: {
+          lerp: 0.15,
+        },
+      });
+    })();
+  }, []);
+
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
   useIsomorphicLayoutEffect(() => {
     if (!isPending) {
+      gsap.registerPlugin(ScrollTrigger);
       const context = gsap.context(() => {
         gsap.from(".trip-description", {
           autoAlpha: 0,
@@ -185,6 +198,7 @@ function SavedTripsPageComponent({
 
   useIsomorphicLayoutEffect(() => {
     if (!isPending && !isPendingWeather && weatherData) {
+      gsap.registerPlugin(ScrollTrigger);
       const context = gsap.context(() => {
         gsap.from(".weather-card", {
           autoAlpha: 0,
@@ -210,21 +224,21 @@ function SavedTripsPageComponent({
     <>
       {/* Section 1 */}
       <section className="relative flex h-screen items-center justify-center overflow-x-hidden">
-        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-violay-200  bg-cover bg-center   "></div>
+        <div   className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-violay-200  bg-cover bg-center"></div>
         {trip && <TitleSection trip={trip} />}
       </section>
 
       {/* Section 2 */}
 
-      <section className="description-section relative flex h-screen items-center justify-center overflow-x-hidden ">
-        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-violay-200 to-gallery-50 bg-cover bg-center  "></div>
+      <section  className="description-section relative flex h-screen items-center justify-center overflow-x-hidden ">
+        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-violay-200 to-gallery-50 bg-cover bg-center"></div>
         {trip && <DescriptionSection trip={trip} />}
       </section>
 
       {/* Section 3 */}
 
       <section className=" tours-section relative flex h-screen items-center justify-center overflow-x-hidden">
-        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-50 to-neptune-200 bg-cover bg-center   "></div>
+        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-50 to-neptune-200 bg-cover bg-center"></div>
         {trip && <ToursSection trip={trip} />}
       </section>
 
