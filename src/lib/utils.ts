@@ -92,6 +92,21 @@ const durationInDays = (startDate: Dayjs | string, endDate: Dayjs | string) => {
   return dayjs.duration(differenceInDays).asDays();
 };
 
+
+
+const displayDuration = (durationDays:number) => {
+  if (durationDays === 0) {
+    return "Day Trip";
+  }
+  if (durationDays > 1) {
+    return `${durationDays} days`;
+  } else {
+    return `${durationDays} day`;
+  }
+};
+
+
+
 const defaultPlaceholder =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVR4nGNIL6799/f/jWfflazcGYwtrP+/ffj6yVMta2cGBn5JS3d/U48gBg5RAI1ZEFzy8ZYjAAAAAElFTkSuQmCC";
 
@@ -100,5 +115,7 @@ export {
   formatDate,
   placeWeatherIcons,
   durationInDays,
+  displayDuration,
+
   defaultPlaceholder,
 };

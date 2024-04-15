@@ -1,8 +1,12 @@
 import { Trip } from "@prisma/client";
+import dayjs from "dayjs";
 
 import Image from "next/image";
-import { durationInDays } from "@/lib/utils";
-import dayjs from "dayjs";
+import {
+  defaultPlaceholder,
+  displayDuration,
+  durationInDays,
+} from "@/lib/utils";
 import { FinalDataTypes, ImageDataTypes } from "@/types";
 import image4 from "@/assets/4.jpg";
 
@@ -15,18 +19,20 @@ function FormDetailsSection({
   imageData?: ImageDataTypes;
   formData?: FinalDataTypes;
 }) {
-  const startDate = dayjs(trip?.startDate);
-  const endDate = dayjs(trip?.endDate);
-  const displayDuration = durationInDays(startDate, endDate);
+  const startDate = dayjs(trip?.startDate || formData?.startDate);
+  const endDate = dayjs(trip?.endDate || formData?.endDate);
+
+  const durationDays = durationInDays(startDate, endDate);
+  const duration = displayDuration(durationDays);
 
   return (
     <>
-      <div className="form-details grid h-[90%] w-[90%] grid-cols-none grid-rows-2 shadow-2xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none ">
+      <div className="form-details grid h-[90%] w-[90%] grid-cols-none grid-rows-2 shadow-2xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none">
         <div className=" grid grid-cols-2  bg-gradient-to-tr from-gallery-50  to-gallery-50 p-6 lg:p-10 ">
           <div className=" -mb-10 h-[60px] w-[80px] lg:h-[80px] lg:w-[100px] ">
             <Image
               src={(trip?.flagUrl || formData?.flagUrl) ?? ""}
-              alt="city"
+              alt="country flag"
               height={200}
               width={200}
               className="mt-1 object-cover"
@@ -36,7 +42,7 @@ function FormDetailsSection({
           <div>
             <small>Name</small>
             <p className="sm:text-md text-xs uppercase lg:text-lg">
-              {trip?.userName}
+              {trip?.userName || formData?.userName}
             </p>
           </div>
 
@@ -92,9 +98,9 @@ function FormDetailsSection({
           <div>
             <small>Duration</small>
             <p className="sm:text-md text-xs uppercase lg:text-lg">
-              {trip.weatherForecast || formData?.weatherForecast
+              {trip?.weatherForecast || formData?.weatherForecast
                 ? `7 days based on weather forecast`
-                : `${displayDuration} days`}
+                : duration}
             </p>
           </div>
 
@@ -129,7 +135,10 @@ function FormDetailsSection({
           <Image
             src={(trip?.image4 || imageData?.tripImage4) ?? image4}
             alt="city"
-            blurDataURL={(trip?.placeholder || imageData?.placeholder) ?? ""}
+            blurDataURL={
+              (trip?.placeholder || imageData?.placeholder) ??
+              defaultPlaceholder
+            }
             placeholder="blur"
             priority
             fill
