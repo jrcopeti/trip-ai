@@ -17,8 +17,6 @@ import MustHaveSection from "./ui/MustHaveSection";
 import FormDetailsSection from "./ui/FormDetailsSection";
 import FinalSection from "./ui/FinalSection";
 
-
-
 function SavedTripsPageComponent({
   params,
 }: {
@@ -34,11 +32,6 @@ function SavedTripsPageComponent({
   });
 
   const { isPendingWeather, weatherData } = useWeather();
-
-  console.log("isPending:", isPending);
-
-  console.log("trip city:", trip?.city);
-  console.log("trip country:", trip?.country);
 
   useEffect(() => {
     (async () => {
@@ -224,13 +217,13 @@ function SavedTripsPageComponent({
     <>
       {/* Section 1 */}
       <section className="relative flex h-screen items-center justify-center overflow-x-hidden">
-        <div   className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-violay-200  bg-cover bg-center"></div>
+        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-violay-200  bg-cover bg-center"></div>
         {trip && <TitleSection trip={trip} />}
       </section>
 
       {/* Section 2 */}
 
-      <section  className="description-section relative flex h-screen items-center justify-center overflow-x-hidden ">
+      <section className="description-section relative flex h-screen items-center justify-center overflow-x-hidden ">
         <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-violay-200 to-gallery-50 bg-cover bg-center"></div>
         {trip && <DescriptionSection trip={trip} />}
       </section>

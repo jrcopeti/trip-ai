@@ -1,10 +1,16 @@
 import { FormDataSchema } from "@/lib/schema";
-import { durationInDays } from "@/lib/utils";
+import { durationInDays, displayDuration } from "@/lib/utils";
 import z from "zod";
 
 type Inputs = z.infer<typeof FormDataSchema>;
 
-function ReviewForm({ reviewFormData, weather }: { reviewFormData: Inputs; weather: boolean }) {
+function ReviewForm({
+  reviewFormData,
+  weather,
+}: {
+  reviewFormData: Inputs;
+  weather: boolean;
+}) {
   const {
     userName,
     city,
@@ -22,7 +28,9 @@ function ReviewForm({ reviewFormData, weather }: { reviewFormData: Inputs; weath
     endDate,
   } = reviewFormData;
 
-  const displayDuration = durationInDays(startDate, endDate);
+  const durationDays = durationInDays(startDate, endDate);
+  const duration = displayDuration(durationDays);
+
 
   return (
     <>
@@ -83,11 +91,7 @@ function ReviewForm({ reviewFormData, weather }: { reviewFormData: Inputs; weath
         <div>
           <small>Duration</small>
           <p className="sm:text-md text-xs uppercase lg:text-lg">
-            {weather
-              ? `7 days based on weather forecast`
-              : displayDuration > 1
-                ? `${displayDuration} days `
-                : `${displayDuration} day`}
+            {weather ? `7 days based on weather forecast` : duration}
           </p>
         </div>
 
