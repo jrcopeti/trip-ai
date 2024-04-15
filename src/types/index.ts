@@ -43,6 +43,8 @@ export interface FetchWeatherParams {
   country: string;
 }
 
+
+
 export interface FinalDataTypes extends Omit<Inputs, "requiredItems"> {
   requiredItems: string[];
   weatherForecast: string;

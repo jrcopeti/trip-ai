@@ -1,14 +1,14 @@
 "use client";
 import dynamic from "next/dynamic";
 
-const DynamicTripDetails = dynamic(() => import("@/components/TripDetails"), {
+const DynamicTripResponse = dynamic(() => import("@/components/TripResponse"), {
   ssr: false,
 });
 
 function TripPage() {
   return (
     <div>
-      <DynamicTripDetails />
+      <DynamicTripResponse />
     </div>
   );
 }

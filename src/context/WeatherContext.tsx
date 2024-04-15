@@ -56,12 +56,11 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
     isPending: isPendingForecast,
     error: errorForecast,
   } = useMutation({
-    mutationKey: ["weather"],
     mutationFn: ({ city, country }: FetchForecastParams) =>
       fetchForecast({ city, country }),
 
     onSuccess: (forecastData) => {
-      console.log(forecastData)
+      console.log(forecastData);
       console.log("success forecast ");
     },
     onError: (error) => {
@@ -75,7 +74,6 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
     isPending: isPendingWeather,
     error: errorWeather,
   } = useMutation({
-    mutationKey: ["weather"],
     mutationFn: ({ city, country }: FetchWeatherParams) =>
       fetchWeather({ city, country }),
 

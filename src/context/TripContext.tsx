@@ -33,7 +33,6 @@ function TripProvider({ children }: { children: React.ReactNode }) {
     isPending: isPendingResponseAI,
     error: errorResponseAI,
   } = useMutation({
-    mutationKey: ["trip"],
     mutationFn: (prompt: string) => fetchResponseAI(prompt),
 
     onSuccess: () => {

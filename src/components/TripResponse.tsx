@@ -1,13 +1,18 @@
 "use client";
+import { useEffect, useLayoutEffect } from "react";
 import { createTripInDB } from "@/db/actions";
+
 import { useImage } from "@/hooks/useImage";
 import { useFormData } from "@/hooks/useFormData";
 import { useTrip } from "@/hooks/useTrip";
-import { useMutation } from "@tanstack/react-query";
-import { notFound } from "next/navigation";
-import { Prisma } from "@prisma/client";
 import { useWeather } from "@/hooks/useWeather";
-import { useEffect, useLayoutEffect } from "react";
+
+import { useMutation } from "@tanstack/react-query";
+import { Prisma } from "@prisma/client";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { notFound } from "next/navigation";
+
 import FormDetailsSection from "./ui/FormDetailsSection";
 import TitleSection from "./ui/TitleSection";
 import DescriptionSection from "./ui/DescriptionSection";
@@ -17,13 +22,10 @@ import ObjectsSection from "./ui/ObjectsSection";
 import MustHaveSection from "./ui/MustHaveSection";
 import WeatherSection from "./ui/WeatherSection";
 import SaveSection from "./ui/SaveSection";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
 
 gsap.registerPlugin(ScrollTrigger);
 
-function TripDetails() {
+function TripResponse() {
   const {
     mutate: createTrip,
     isPending: isCreatingTrip,
@@ -341,4 +343,4 @@ function TripDetails() {
   );
 }
 
-export default TripDetails;
+export default TripResponse;

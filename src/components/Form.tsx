@@ -1,14 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
+import { useCountries } from "@/hooks/useCountries";
+import { useTrip } from "@/hooks/useTrip";
+import { useImage } from "@/hooks/useImage";
+import { useWeather } from "@/hooks/useWeather";
+import { useFormData } from "@/hooks/useFormData";
+
 import {
-  Progress,
-  Select,
   Input,
-  SelectItem,
   Button,
   Checkbox,
-  ButtonGroup,
   CheckboxGroup,
   Textarea,
   Autocomplete,
@@ -17,23 +19,19 @@ import {
   Radio,
 } from "@nextui-org/react";
 import { motion } from "framer-motion";
-
-import CustomCheckbox from "./ui/CustomCheckbox";
-import DatePicker from "./ui/DatePicker";
-
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
-import { FormDataSchema } from "@/lib/schema";
 
+import { FormDataSchema } from "@/lib/schema";
 import { Controller, useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { useCountries } from "@/hooks/useCountries";
-import { useTrip } from "@/hooks/useTrip";
-import { useImage } from "@/hooks/useImage";
-import { useWeather } from "@/hooks/useWeather";
-import { useFormData } from "@/hooks/useFormData";
+import CustomCheckbox from "./ui/CustomCheckbox";
+import DatePicker from "./ui/DatePicker";
 import FormTitle from "./ui/FormTitle";
+import ProgressBar from "./ui/Progress";
+import ReviewForm from "./ui/ReviewForm";
+
 import {
   sortedTypes,
   luggageSizes,
@@ -42,11 +40,7 @@ import {
   sortedInterest,
   sortedTransports,
 } from "@/data";
-
 import { FinalDataTypes, ProcessFormType } from "@/types";
-import ProgressBar from "./ui/Progress";
-import { useWindowSize } from "@/hooks/useWindow";
-import Review from "./ui/Review";
 
 type Inputs = z.infer<typeof FormDataSchema>;
 type FieldName = keyof Inputs;
@@ -111,8 +105,6 @@ function Form() {
 
   const [isWeatherSelected, setIsWeatherSelected] = useState(false);
 
-  const { countries, isLoading: isLoadingCountries } = useCountries();
-
   const {
     handleSubmit,
     control,
@@ -151,7 +143,7 @@ function Form() {
     control,
     name: "requiredItems",
   });
-
+  const { countries, isLoading: isLoadingCountries } = useCountries();
   const { generateResponseAI, isPendingResponseAI } = useTrip();
   const { generateForecast, forecastData } = useWeather();
   const { setFormData } = useFormData();
@@ -188,8 +180,8 @@ function Form() {
   const cityWatch = watch("city");
   const countryWatch = watch("country");
 
-  const reviewData = getValues();
-  console.log("reviewData", reviewData);
+  const reviewFormData = getValues();
+  console.log("reviewFormData", reviewFormData);
 
   const next = async () => {
     const fields = steps[currentStep].fields;
@@ -745,7 +737,10 @@ function Form() {
               transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
             >
               <FormTitle steps={steps} currentStep={currentStep} />
-              <Review weather={isWeatherSelected} data={reviewData} />
+              <ReviewForm
+                weather={isWeatherSelected}
+                reviewFormData={reviewFormData}
+              />
               <div className="mt-4 flex max-w-md flex-col gap-4">
                 <Controller
                   name="agreement"

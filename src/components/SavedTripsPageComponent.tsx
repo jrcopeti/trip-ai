@@ -4,20 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { getSingleSavedTrip } from "@/db/actions";
 import { useWeather } from "@/hooks/useWeather";
 
-import dayjs from "dayjs";
-import image1 from "@/assets/1.jpg";
-import image2 from "@/assets/2.jpg";
-import image3 from "@/assets/3.jpg";
-import image4 from "@/assets/4.jpg";
-import image5 from "@/assets/5.jpg";
-import image6 from "@/assets/6.jpeg";
-import image7 from "@/assets/7.jpg";
-import image8 from "@/assets/8.jpg";
-import plane from "@/assets/plane.png";
-import geopattern from "@/assets/geopattern.png";
-import geopattern2 from "@/assets/geopattern2.png";
-import geopattern3 from "@/assets/geopattern3.png";
-
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -27,7 +13,6 @@ import ToursSection from "./ui/ToursSection";
 import DescriptionSection from "./ui/DescriptionSection";
 import TitleSection from "./ui/TitleSection";
 import PackReadySection from "./ui/PackReadySection";
-import { notFound } from "next/navigation";
 import MustHaveSection from "./ui/MustHaveSection";
 import FormDetailsSection from "./ui/FormDetailsSection";
 import FinalSection from "./ui/FinalSection";
@@ -209,7 +194,7 @@ function SavedTripsPageComponent({
             trigger: ".weather-section",
             start: "top center",
             end: "center 300px",
-            toggleActions: "restart none play none",
+            toggleActions: "restart none restart none",
           },
         });
       });

@@ -1,9 +1,5 @@
 "use server";
-import {Prisma} from "@prisma/client"
-import { FormDataSchema } from "@/lib/schema";
-
-type FormDataSchema = typeof FormDataSchema;
-
+import { Prisma } from "@prisma/client";
 import prisma from "@/db";
 
 export const createTripInDB = async (trip: Prisma.TripCreateInput) => {
@@ -25,7 +21,7 @@ export const getAllTrips = async () => {
   return allTrips;
 };
 
-export const getSingleSavedTrip = async (id: number | undefined ) => {
+export const getSingleSavedTrip = async (id: number | undefined) => {
   return prisma.trip.findUnique({
     where: {
       id,
