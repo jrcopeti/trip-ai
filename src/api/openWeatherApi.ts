@@ -1,6 +1,6 @@
 "use server";
 import axios from "axios";
-import {
+import type {
   WeatherDataTypes,
   WeatherApiResponse,
   FetchForecastParams,

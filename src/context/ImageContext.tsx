@@ -5,22 +5,7 @@ import { fetchTripImage } from "@/api/unsplashApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { createContext } from "react";
-
-interface ImageData {
-  tripImage: string | null;
-  tripImage2: string | null;
-  tripImage3: string | null;
-  tripImage4: string | null;
-  tripImage5: string | null;
-  placeholder: string | null;
-}
-
-interface ImageContextType {
-  imageData: ImageData | undefined;
-  generateImage: (city: string) => void;
-  isPendingImage: boolean;
-  errorImage: unknown;
-}
+import type { ImageContextType } from "@/types";
 
 const defaultContextValue: ImageContextType = {
   imageData: undefined,
@@ -42,7 +27,7 @@ function ImageProvider({ children }: { children: React.ReactNode }) {
 
     onSuccess: (data) => {
       console.log(data);
-      console.log("success Image Image Context ");
+      console.log("success Image Context ");
     },
     onError: (error) => {
       console.log(error);
