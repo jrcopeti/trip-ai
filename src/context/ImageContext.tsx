@@ -38,7 +38,6 @@ function ImageProvider({ children }: { children: React.ReactNode }) {
     isPending: isPendingImage,
     error: errorImage,
   } = useMutation({
-    mutationKey: ["image"],
     mutationFn: (city: string) => fetchTripImage(city),
 
     onSuccess: (data) => {

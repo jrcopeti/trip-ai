@@ -1,16 +1,11 @@
 "use server";
 import axios from "axios";
-import { WeatherDataTypes, WeatherApiResponse } from "@/types";
-
-export interface FetchForecastParams {
-  city: string;
-  country: string;
-}
-
-export interface FetchWeatherParams {
-  city: string;
-  country: string;
-}
+import {
+  WeatherDataTypes,
+  WeatherApiResponse,
+  FetchForecastParams,
+  FetchWeatherParams,
+} from "@/types";
 
 export const fetchForecast = async ({
   city,

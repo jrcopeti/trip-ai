@@ -124,5 +124,7 @@ export const fetchResponseAI = async (prompt: string) => {
     return parsedData;
   } catch (error) {
     console.error("Error:", error);
+    throw new Error("Failed to fetch response from OpenAI API");
+    
   }
 };

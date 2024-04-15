@@ -4,24 +4,29 @@ import z from "zod";
 
 type Inputs = z.infer<typeof FormDataSchema>;
 
-function Review({ data, weather }: {data: Inputs, weather:boolean}) {
-  const userName = data.userName;
-  const city = data.city;
-  const country = data.country;
-  const nationality = data.nationality;
-  const type = data.type;
-  const age = data.age;
-  const budget = data.budget;
-  const luggageSize = data.luggageSize;
-  const transport = data.transport;
-  const accommodation = data.accommodation;
-  const interests = data.interests;
-  const note = data.note;
-  const displayDuration = durationInDays(data.startDate, data.endDate);
+function ReviewForm({ reviewFormData, weather }: { reviewFormData: Inputs; weather: boolean }) {
+  const {
+    userName,
+    city,
+    country,
+    nationality,
+    type,
+    age,
+    budget,
+    luggageSize,
+    transport,
+    accommodation,
+    interests,
+    note,
+    startDate,
+    endDate,
+  } = reviewFormData;
+
+  const displayDuration = durationInDays(startDate, endDate);
 
   return (
     <>
-      <div className="grid grid-cols-2 lg:mt-10 mt-4 gap-y-1">
+      <div className="mt-4 grid grid-cols-2 gap-y-1 lg:mt-10">
         <div>
           <small>Name</small>
           <p className="sm:text-md text-xs uppercase lg:text-lg">{userName}</p>
@@ -78,7 +83,11 @@ function Review({ data, weather }: {data: Inputs, weather:boolean}) {
         <div>
           <small>Duration</small>
           <p className="sm:text-md text-xs uppercase lg:text-lg">
-            {weather ? `7 days based on weather forecast` : displayDuration > 1 ? `${displayDuration} days ` : `${displayDuration} day`}
+            {weather
+              ? `7 days based on weather forecast`
+              : displayDuration > 1
+                ? `${displayDuration} days `
+                : `${displayDuration} day`}
           </p>
         </div>
 
@@ -100,10 +109,9 @@ function Review({ data, weather }: {data: Inputs, weather:boolean}) {
             {note ? note : "--"}
           </p>
         </div>
-        
       </div>
     </>
   );
 }
 
-export default Review;
+export default ReviewForm;
