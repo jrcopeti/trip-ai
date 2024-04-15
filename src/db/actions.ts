@@ -29,6 +29,7 @@ export const getSingleSavedTrip = async (id: number | undefined ) => {
   return prisma.trip.findUnique({
     where: {
       id,
+      saved: true,
     },
   });
 };

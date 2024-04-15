@@ -1,101 +1,65 @@
 "use client";
-import { createTripInDB } from "@/db/actions";
-import { useImage } from "@/hooks/useImage";
-import { useFormData } from "@/hooks/useFormData";
-import { useTrip } from "@/hooks/useTrip";
-import { useMutation } from "@tanstack/react-query";
-import { notFound } from "next/navigation";
-import { Trip } from "@prisma/client";
-import { Prisma } from "@prisma/client";
+import { useEffect, useLayoutEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getSingleSavedTrip } from "@/db/actions";
 import { useWeather } from "@/hooks/useWeather";
-import { useCallback, useEffect, useLayoutEffect } from "react";
-import FormDetailsSection from "../saved-trips/ui/FormDetailsSection";
-import TitleSection from "../saved-trips/ui/TitleSection";
-import DescriptionSection from "../saved-trips/ui/DescriptionSection";
-import ToursSection from "../saved-trips/ui/ToursSection";
-import PackReadySection from "../saved-trips/ui/PackReadySection";
-import ObjectsSection from "../saved-trips/ui/ObjectsSection";
-import MustHaveSection from "../saved-trips/ui/MustHaveSection";
-import WeatherSection from "../saved-trips/ui/WeatherSection";
-import SaveSection from "./ui/SaveSection";
+
+import dayjs from "dayjs";
+import image1 from "@/assets/1.jpg";
+import image2 from "@/assets/2.jpg";
+import image3 from "@/assets/3.jpg";
+import image4 from "@/assets/4.jpg";
+import image5 from "@/assets/5.jpg";
+import image6 from "@/assets/6.jpeg";
+import image7 from "@/assets/7.jpg";
+import image8 from "@/assets/8.jpg";
+import plane from "@/assets/plane.png";
+import geopattern from "@/assets/geopattern.png";
+import geopattern2 from "@/assets/geopattern2.png";
+import geopattern3 from "@/assets/geopattern3.png";
+
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Image from "next/image";
-import image5 from "@/assets/5.jpg";
-import { Button } from "@nextui-org/react";
+
+import WeatherSection from "./ui/WeatherSection";
+import ObjectsSection from "./ui/ObjectsSection";
+import ToursSection from "./ui/ToursSection";
+import DescriptionSection from "./ui/DescriptionSection";
+import TitleSection from "./ui/TitleSection";
+import PackReadySection from "./ui/PackReadySection";
+import { notFound } from "next/navigation";
+import MustHaveSection from "./ui/MustHaveSection";
+import FormDetailsSection from "./ui/FormDetailsSection";
+import FinalSection from "./ui/FinalSection";
 
 gsap.registerPlugin(ScrollTrigger);
 
-function TripDetails() {
+function SavedTripsPageComponent({
+  params,
+}: {
+  params: { id: number | string };
+}) {
   const {
-    mutate: createTrip,
-    isPending: isCreatingTrip,
-    error: createTripError,
-  } = useMutation({
-    mutationKey: ["trips"],
-    mutationFn: (data: Prisma.TripCreateInput) => createTripInDB(data),
-
-    onSuccess: () => {
-      console.log("success createTrip ");
-      alert("Trip created successfully");
-    },
-    onError: (error) => {
-      console.log(error);
-    },
+    data: trip,
+    isPending,
+    error,
+  } = useQuery({
+    queryKey: ["trips", params.id],
+    queryFn: () => getSingleSavedTrip(Number(params.id)),
   });
 
-  const { tripData: trip, isPendingResponseAI, errorResponseAI } = useTrip();
-  const { formData } = useFormData();
   const { isPendingWeather, weatherData } = useWeather();
-  const { imageData, isPendingImage } = useImage();
-  console.log("Form Data in Trip", formData);
-  console.log("trip Data in Trip", trip);
 
-  const handleYesAnswer = () => {
-    console.log("formDataYEScalled");
-    const saved = true;
-    const finalData = {
-      ...trip,
-      ...formData,
-      startDate: new Date(formData.startDate),
-      endDate: new Date(formData.endDate),
-      image: imageData?.tripImage ?? null,
-      image2: imageData?.tripImage2 ?? null,
-      image3: imageData?.tripImage3 ?? null,
-      image4: imageData?.tripImage4 ?? null,
-      image5: imageData?.tripImage5 ?? null,
-      placeholder: imageData?.placeholder ?? null,
-      saved,
-    };
-    console.log("finalDataYES", finalData);
+  console.log("isPending:", isPending);
 
-    createTrip(finalData as Prisma.TripCreateInput);
-  };
-
-  const handleNoAnswer = () => {
-    console.log("formDataNOcalled");
-    const finalData = {
-      ...trip,
-      ...formData,
-      startDate: new Date(formData.startDate),
-      endDate: new Date(formData.endDate),
-      image: imageData?.tripImage ?? null,
-      image2: imageData?.tripImage2 ?? null,
-      image3: imageData?.tripImage3 ?? null,
-      image4: imageData?.tripImage4 ?? null,
-      image5: imageData?.tripImage5 ?? null,
-      saved: false,
-    };
-
-    createTrip(finalData as Prisma.TripCreateInput);
-  };
+  console.log("trip city:", trip?.city);
+  console.log("trip country:", trip?.country);
 
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
   useIsomorphicLayoutEffect(() => {
-    if (!isPendingResponseAI) {
-      gsap.registerPlugin(ScrollTrigger);
+    if (!isPending) {
       const context = gsap.context(() => {
         gsap.from(".trip-description", {
           autoAlpha: 0,
@@ -232,10 +196,10 @@ function TripDetails() {
       });
       return () => context.revert();
     }
-  }, [isPendingResponseAI]);
+  }, [isPending]);
 
   useIsomorphicLayoutEffect(() => {
-    if (!isPendingResponseAI && !isPendingWeather && weatherData) {
+    if (!isPending && !isPendingWeather && weatherData) {
       const context = gsap.context(() => {
         gsap.from(".weather-card", {
           autoAlpha: 0,
@@ -251,14 +215,10 @@ function TripDetails() {
       });
       return () => context.revert();
     }
-  }, [isPendingResponseAI, isPendingWeather, weatherData]);
+  }, [isPending, isPendingWeather, weatherData]);
 
-  if (isPendingImage) {
-    return <div>Loading image...</div>;
-  }
-
-  if (!trip) {
-    notFound();
+  if (isPending) {
+    return <div>Loading single trip...</div>;
   }
 
   return (
@@ -266,26 +226,20 @@ function TripDetails() {
       {/* Section 1 */}
       <section className="relative flex h-screen items-center justify-center overflow-x-hidden">
         <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-violay-200  bg-cover bg-center   "></div>
-        {trip && imageData && (
-          <TitleSection trip={trip} imageData={imageData} />
-        )}
+        {trip && <TitleSection trip={trip} />}
       </section>
 
       {/* Section 2 */}
 
       <section className="description-section relative flex h-screen items-center justify-center overflow-x-hidden ">
         <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-violay-200 to-gallery-50 bg-cover bg-center  "></div>
-
-        {trip && imageData && (
-          <DescriptionSection trip={trip} imageData={imageData} />
-        )}
+        {trip && <DescriptionSection trip={trip} />}
       </section>
 
       {/* Section 3 */}
 
       <section className=" tours-section relative flex h-screen items-center justify-center overflow-x-hidden">
         <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-50 to-neptune-200 bg-cover bg-center   "></div>
-
         {trip && <ToursSection trip={trip} />}
       </section>
 
@@ -307,42 +261,30 @@ function TripDetails() {
 
       <section className=" musthave-section relative flex h-screen items-center justify-center overflow-x-hidden">
         <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-cabaret-100 to-gallery-100  "></div>
-        {trip && imageData && (
-          <MustHaveSection trip={trip} imageData={imageData} />
-        )}
+        {trip && <MustHaveSection trip={trip} />}
       </section>
 
       {/* Section 6 */}
       <section className=" weather-section relative flex h-screen items-center justify-center overflow-x-hidden">
         <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-yellorange-100 "></div>
-        {trip && <WeatherSection trip={trip} isPending={isPendingResponseAI} />}
+        {trip && <WeatherSection trip={trip} isPending={isPending} />}
       </section>
 
       {/* Section 7 */}
 
       <section className="formdetails-section relative flex h-screen items-center justify-center overflow-x-hidden">
         <div className="absolute left-0 top-0 -z-10 h-full w-full  bg-gradient-to-b from-yellorange-100 to-gallery-100  "></div>
-        {trip && imageData && formData && (
-          <FormDetailsSection
-            trip={trip}
-            imageData={imageData}
-            formData={formData}
-          />
-        )}
+        {trip && <FormDetailsSection trip={trip} />}
       </section>
 
       {/* Section 8 */}
 
       <section className="final-section relative flex h-screen items-center justify-center overflow-x-hidden">
         <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-deeporange-100"></div>
-        <SaveSection
-          handleYesAnswer={handleYesAnswer}
-          handleNoAnswer={handleNoAnswer}
-          imageData={imageData}
-        />
+        {trip && <FinalSection trip={trip} />}
       </section>
     </>
   );
 }
 
-export default TripDetails;
+export default SavedTripsPageComponent;

@@ -9,7 +9,7 @@ function DescriptionSection({
   imageData,
 }: {
   trip: Trip;
-  imageData?: ImageDataTypes | null;
+  imageData?: ImageDataTypes;
 }) {
   return (
     <>

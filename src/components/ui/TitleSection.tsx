@@ -10,7 +10,7 @@ function TitleSection({
   imageData,
 }: {
   trip: Trip;
-  imageData?: ImageDataTypes | null;
+  imageData?: ImageDataTypes;
 }) {
   return (
     <>

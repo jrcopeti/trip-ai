@@ -1,4 +1,4 @@
-import Form from "@/components/pages/form/Form";
+import Form from "@/components/Form";
 
 function FormPage() {
   return (

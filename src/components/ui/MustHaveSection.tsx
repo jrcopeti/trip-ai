@@ -9,7 +9,7 @@ function MustHaveSection({
   imageData,
 }: {
   trip: Trip;
-  imageData?: ImageDataTypes | null;
+  imageData?: ImageDataTypes;
 }) {
   return (
     <>

@@ -12,8 +12,8 @@ function FormDetailsSection({
   formData,
 }: {
   trip: Trip;
-  imageData?: ImageDataTypes | null;
-  formData?: FinalDataTypes | null
+  imageData?: ImageDataTypes;
+  formData?: FinalDataTypes;
 }) {
   const startDate = dayjs(trip?.startDate);
   const endDate = dayjs(trip?.endDate);
@@ -43,7 +43,8 @@ function FormDetailsSection({
           <div>
             <small>Destination</small>
             <p className="sm:text-md text-xs uppercase lg:text-lg">
-              {trip?.city || formData?.city}, {trip?.country || formData?.country}
+              {trip?.city || formData?.city},{" "}
+              {trip?.country || formData?.country}
             </p>
           </div>
 
