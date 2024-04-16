@@ -258,12 +258,12 @@ function Form() {
 
   return (
     <>
-      <div className=" relative h-[80%] w-[80%] overflow-auto overflow-x-hidden bg-gradient-to-b from-gallery-50 to-shark-200 p-4 shadow-xl lg:p-8 ">
+      <div className=" relative h-[80%] w-[80%] overflow-auto overflow-x-hidden bg-gallery-50/40 shadow-sm  p-4 z-20  lg:p-8 ">
         <ProgressBar stepValue={stepValue} />
 
         <form
           onSubmit={handleSubmit(processForm)}
-          className=" z-20 overflow-auto px-4 py-4 lg:p-8    "
+          className="z-30 overflow-auto px-4 py-4  lg:p-8"
         >
           {/* Step 1 */}
 
@@ -287,7 +287,7 @@ function Form() {
                       type="text"
                       placeholder="What's your name?"
                       className="max-w-lg text-shark-700 "
-                      radius="none"
+                      radius="sm"
                       variant="faded"
                       color="primary"
                       errorMessage={errors.userName?.message}
@@ -308,7 +308,7 @@ function Form() {
                       type="text"
                       placeholder="How old are you?"
                       className="max-w-lg text-shark-700  "
-                      radius="none"
+                      radius="sm"
                       variant="faded"
                       color="primary"
                       isInvalid={!!errors.age}
@@ -329,7 +329,7 @@ function Form() {
                       label="Nationality"
                       placeholder="Select a country"
                       className="max-w-lg text-shark-700  "
-                      radius="none"
+                      radius="sm"
                       variant="faded"
                       color="primary"
                       onSelectionChange={(selectedKey) =>

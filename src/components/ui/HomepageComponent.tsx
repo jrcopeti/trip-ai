@@ -8,7 +8,7 @@ import image3 from "@/assets/3.jpg";
 import image4 from "@/assets/4.jpg";
 import Image from "next/image";
 
-function Homepage() {
+function HomepageComponent() {
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
@@ -23,21 +23,20 @@ function Homepage() {
   return (
     <>
       <section className="relative flex h-screen items-center justify-center">
-        <Image src={image3.src} alt="image1" fill className="object-cover" />
-        <h1 className="text-gallery-100">homepage</h1>
-      </section>
-
-      <section className="relative flex h-screen items-center justify-center">
-        <Image src={image4.src} alt="image1" fill className="object-cover" />
-        <h1 className="text-gallery-100">homepage</h1>
-      </section>
-
-      <section className="relative flex h-screen items-center justify-center">
-        <Image src={image2.src} alt="image1" fill className="object-cover" />
-        <h1 className="text-gallery-100">homepage</h1>
+        <div className="grid h-full w-full grid-cols-none grid-rows-2 bg-slate-400 lg:grid-cols-2 lg:grid-rows-none ">
+          <div className="relative h-full w-full bg-slate-600">title</div>
+          <div className="relative h-full w-full bg-red-100">
+            <Image
+              src={image3.src}
+              alt="image1"
+              fill
+              className="object-cover"
+            />
+          </div>
+        </div>
       </section>
     </>
   );
 }
 
-export default Homepage;
+export default HomepageComponent;

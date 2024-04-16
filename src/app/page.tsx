@@ -1,8 +1,8 @@
 "use client";
-import Parallax from "@/components/ui/Homepage";
+import HomepageComponent from "@/components/ui/HomepageComponent";
 
 function Homepage() {
-  return <Parallax />;
+  return <HomepageComponent />;
 }
 
 export default Homepage;
