@@ -1,6 +1,6 @@
 import { ImageDataTypes } from "@/types";
 import Image from "next/image";
-import image5 from "@/assets/5.jpg";
+import image5 from "@/assets/homepage/5.jpg";
 import { Button } from "@nextui-org/react";
 
 interface SaveSectionProps {
@@ -16,7 +16,7 @@ function SaveSection({
 }: SaveSectionProps) {
   return (
     <>
-      <div className="final-card grid h-[90%] w-[90%] grid-cols-none grid-rows-2 shadow-2xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none ">
+      <div className="final-card grid h-[90%] w-[90%] grid-cols-none grid-rows-2 shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none ">
         <div className="relative h-full w-full ">
           <Image
             src={imageData?.tripImage5 ?? image5}
