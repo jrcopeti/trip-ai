@@ -31,72 +31,71 @@ function ReviewForm({
   const durationDays = durationInDays(startDate, endDate);
   const duration = displayDuration(durationDays);
 
-
   return (
     <>
       <div className="mt-4 grid grid-cols-2 gap-y-1 lg:mt-10">
         <div>
-          <small>Name</small>
+          <small className="text-tuna-600">Name</small>
           <p className="sm:text-md text-xs uppercase lg:text-lg">{userName}</p>
         </div>
 
         <div>
-          <small>Age</small>
+          <small className="text-tuna-600">Age</small>
           <p className="sm:text-md text-xs uppercase lg:text-lg">{age}</p>
         </div>
 
         <div>
-          <small>Nationality</small>
+          <small className="text-tuna-600">Nationality</small>
           <p className="sm:text-md text-xs uppercase lg:text-lg">
             {nationality}
           </p>
         </div>
 
         <div>
-          <small>Destination</small>
+          <small className="text-tuna-600">Destination</small>
           <p className="sm:text-md text-xs uppercase lg:text-lg">
             {city}, {country}
           </p>
         </div>
 
         <div>
-          <small>Trip Type</small>
+          <small className="text-tuna-600">Trip Type</small>
           <p className="sm:text-md text-xs uppercase lg:text-lg">{type}</p>
         </div>
 
         <div>
-          <small>Luggage Size</small>
+          <small className="text-tuna-600">Luggage Size</small>
           <p className="sm:text-md text-xs uppercase lg:text-lg">
             {luggageSize}
           </p>
         </div>
 
         <div>
-          <small>Budget</small>
+          <small className="text-tuna-600">Budget</small>
           <p className="sm:text-md text-xs uppercase lg:text-lg">{budget}</p>
         </div>
 
         <div>
-          <small>Transport</small>
+          <small className="text-tuna-600">Transport</small>
           <p className="sm:text-md text-xs uppercase lg:text-lg">{transport}</p>
         </div>
 
         <div>
-          <small>Accommodation</small>
+          <small className="text-tuna-600">Accommodation</small>
           <p className="sm:text-md text-xs uppercase lg:text-lg">
             {accommodation}
           </p>
         </div>
 
         <div>
-          <small>Duration</small>
+          <small className="text-tuna-600">Duration</small>
           <p className="sm:text-md text-xs uppercase lg:text-lg">
             {weather ? `7 days based on weather forecast` : duration}
           </p>
         </div>
 
-        <div className=" ">
-          <small>Interests</small>
+        <div>
+          <small className="text-tuna-600">Interests</small>
           {interests.map((interest: string) => (
             <p
               className=" sm:text-md text-xs uppercase lg:text-lg"
@@ -107,7 +106,7 @@ function ReviewForm({
           ))}
         </div>
 
-        <div className="">
+        <div className="text-tuna-600">
           <small>Notes</small>
           <p className="sm:text-md text-xs uppercase lg:text-lg">
             {note ? note : "--"}

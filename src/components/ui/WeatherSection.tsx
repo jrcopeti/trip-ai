@@ -53,32 +53,32 @@ function WeatherSection({
 
   return (
     <>
-      <div className="weather-card shadow-xl relative mx-0 my-[40px] flex w-[80%] flex-col  bg-gallery-50/40 pb-[60px] pl-[50px] pr-[50px] text-center text-shark-900 sm:max-h-[400px] sm:w-[75vw] sm:max-w-[500px] sm:flex-row sm:items-center sm:pb-[50px] sm:pl-[20px] sm:pr-[100px] sm:pt-[60px] sm:text-start ">
+      <div className="weather-card relative mx-0 my-[40px] flex w-[80%] flex-col bg-gallery-50/40 pb-[60px] pl-[50px] pr-[50px] text-center text-tuna-900 shadow-xl sm:max-h-[400px] sm:w-[75vw] sm:max-w-[500px] sm:flex-row sm:items-center sm:pb-[50px] sm:pl-[20px] sm:pr-[100px] sm:pt-[60px] sm:text-start ">
         <Image
           height={400}
           width={400}
           alt="weather-icon"
-          src={weatherIconSrc ?? suncloudy }
+          src={weatherIconSrc ?? suncloudy}
           className=" -mt-[86px] mb-[30px] ml-[10px] h-[45vw] w-[45vw] object-contain saturate-150 filter xs:ml-[22%] sm:-ml-[145px] sm:-mt-[0px] sm:mb-[30px] sm:h-[300px] sm:w-full md:-ml-[161px] md:-mt-[0] md:mr-[30px] md:h-[300px] md:max-w-full "
         />
-        <div className="">
+        <div className="text-tuna-900">
           <p className="mb-4 uppercase sm:mb-2">
             {trip?.city}, {trip?.country}
           </p>
           <div className="">
-            <h2 className=" mt-0 text-7xl font-semibold sm:mr-0 sm:text-[6rem] ">
+            <h2 className=" mt-0 text-7xl font-semibold sm:mr-0 sm:text-[6rem]">
               {temperature}ºC
             </h2>
             <p className="mb-4 ml-1">Feels like {feelsLike}ºC</p>
 
-            <h3 className=" text-3xl font-semibold text-gallery-600  sm:text-4xl">
+            <h3 className=" text-3xl font-semibold text-tuna-600  sm:text-4xl">
               {condition}
             </h3>
           </div>
           <p className="mb-3 ml-1 text-xs first-letter:uppercase">
             {weatherDescription}
           </p>
-          <div className="text-md mb-3 flex items-center justify-center gap-x-2 text-xl font-semibold text-gallery-400 sm:justify-start  ">
+          <div className="text-md mb-3 flex items-center justify-center gap-x-2 text-xl font-semibold text-tuna-400 sm:justify-start  ">
             <p>
               <small>Low</small> {tempMin}ºC
             </p>

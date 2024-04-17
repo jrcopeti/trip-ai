@@ -1,7 +1,13 @@
-import image1 from "@/assets/1.jpg";
-import image2 from "@/assets/2.jpg";
-import image3 from "@/assets/3.jpg";
-import image4 from "@/assets/4.jpg";
+import image1 from "@/assets/homepage/1.jpg";
+import image2 from "@/assets/homepage/2.jpg";
+import image3 from "@/assets/homepage/3.jpg";
+import image4 from "@/assets/homepage/4.jpg";
+import image5 from "@/assets/homepage/5.jpg";
+import image6 from "@/assets/homepage/6.jpeg";
+import image7 from "@/assets/homepage/7.jpg";
+import image8 from "@/assets/homepage/8.jpg";
+import image9 from "@/assets/homepage/9.jpg";
+import image10 from "@/assets/homepage/10.jpg";
 
 const types = [
   { value: "family", label: "Family" },
@@ -94,13 +100,37 @@ const sortedTransports = [
 ];
 
 const homepageImages = [
-  { src: image1, alt: "first" },
-  { src: image2, alt: "second" },
-  { src: image3, alt: "third" },
-  { src: image4, alt: "fourth" },
+  { src: image1, alt: "first", city: "Berlin", title: "discover the unseen" },
+  {
+    src: image2,
+    alt: "second",
+    city: "Paris",
+    title: "go beyond the horizon",
+  },
+  { src: image3, alt: "third", city: "London", title: "explore the world" },
+  {
+    src: image4,
+    alt: "fourth",
+    city: "New York",
+    title: "embrace the adventure",
+  },
+  { src: image5, alt: "fifth", city: "Tokyo", title: "experience the culture" },
+  { src: image6, alt: "sixth", city: "Rome", title: "taste new flavors" },
+  { src: image7, alt: "seventh", city: "Barcelona", title: "seek other paths" },
+  { src: image8, alt: "eighth", city: "Istanbul", title: "find your own way" },
+  {
+    src: image9,
+    alt: "ninth",
+    city: "Rio de Janeiro",
+    title: "discover the unknown",
+  },
+  {
+    src: image10,
+    alt: "tenth",
+    city: "Sydney",
+    title: "create your own story",
+  },
 ];
-
-
 
 export {
   sortedTypes,
@@ -109,5 +139,5 @@ export {
   budgets,
   sortedInterest,
   sortedTransports,
-  homepageImages
+  homepageImages,
 };

@@ -11,6 +11,7 @@
   "dependencies": {
     "@gsap/react": "^2.1.0",
     "@hookform/resolvers": "^3.3.4",
+    "@nextui-org/navbar": "^2.0.29",
     "@nextui-org/react": "^2.2.10",
     "@plaiceholder/next": "^3.0.0",
     "@prisma/client": "^5.11.0",

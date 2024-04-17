@@ -44,7 +44,7 @@ const DatePicker = forwardRef(
           <Input
             {...rest}
             className="max-w-lg"
-            radius="none"
+            radius="sm"
             variant="faded"
             color="primary"
             startContent={

@@ -142,6 +142,7 @@ const config: Config = {
             success: "#447176",
             warning: "#ff9520",
             danger: "#c2150c",
+            foreground: "#3c4350",
           },
         },
         dark: {
