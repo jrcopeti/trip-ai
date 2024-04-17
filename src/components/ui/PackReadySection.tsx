@@ -2,7 +2,7 @@ import { Trip } from "@prisma/client";
 
 import dayjs from "dayjs";
 import Image from "next/image";
-import stamps from "@/assets/stamps.png";
+import stamps from "@/assets/travel/stamps.png";
 
 function PackReadySection({ trip }: { trip: Trip }) {
   const startDate = dayjs(trip?.startDate).format("DD.MM.YYYY");

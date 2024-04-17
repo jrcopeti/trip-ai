@@ -258,7 +258,7 @@ function Form() {
 
   return (
     <>
-      <div className=" relative h-[80%] w-[80%] overflow-auto overflow-x-hidden bg-gallery-50/40 shadow-sm  p-4 z-20  lg:p-8 ">
+      <div className="relative z-20 h-[80%] w-[80%] overflow-auto overflow-x-hidden bg-gallery-100 p-4 shadow-sm lg:p-8 ">
         <ProgressBar stepValue={stepValue} />
 
         <form

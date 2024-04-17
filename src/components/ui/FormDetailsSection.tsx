@@ -8,7 +8,7 @@ import {
   durationInDays,
 } from "@/lib/utils";
 import { FinalDataTypes, ImageDataTypes } from "@/types";
-import image4 from "@/assets/4.jpg";
+import image4 from "@/assets/homepage/4.jpg";
 
 function FormDetailsSection({
   trip,

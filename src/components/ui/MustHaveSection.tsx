@@ -1,7 +1,7 @@
 import { ImageDataTypes } from "@/types";
 import type { Trip } from "@prisma/client";
 import Image from "next/image";
-import image3 from "@/assets/3.jpg";
+import image3 from "@/assets/homepage/3.jpg";
 import { defaultPlaceholder } from "@/lib/utils";
 
 function MustHaveSection({

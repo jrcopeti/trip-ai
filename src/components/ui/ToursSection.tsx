@@ -1,6 +1,6 @@
 import type { Trip } from "@prisma/client";
 import Image from "next/image";
-import plane from "@/assets/plane.png";
+import plane from "@/assets/travel/plane.png";
 
 function ToursSection({ trip }: { trip: Trip }) {
   return (

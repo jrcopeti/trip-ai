@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Trip } from "@prisma/client";
 import { Button } from "@nextui-org/react";
-import image9 from "@/assets/9.jpg";
+import image9 from "@/assets/homepage/9.jpg";
 import { defaultPlaceholder } from "@/lib/utils";
 
 function FinalSection({ trip }: { trip: Trip }) {

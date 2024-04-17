@@ -1,6 +1,6 @@
 import { Trip } from "@prisma/client";
 import Image from "next/image";
-import image1 from "@/assets/1.jpg";
+import image1 from "@/assets/homepage/1.jpg";
 import { ImageDataTypes } from "@/types";
 import { image } from "@nextui-org/react";
 import { defaultPlaceholder } from "@/lib/utils";
