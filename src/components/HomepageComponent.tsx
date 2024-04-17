@@ -14,7 +14,6 @@ function HomepageComponent() {
           top="-30%"
           from="from-neptune-500"
           to="to-yellorange-300"
-          blur={120}
         />
 
         <GradientConic
@@ -22,7 +21,6 @@ function HomepageComponent() {
           top="-30%"
           from="from-violay-500"
           to="to-deeporange-500"
-          blur={120}
         />
 
         <GradientConic
@@ -30,7 +28,6 @@ function HomepageComponent() {
           top="70%"
           from="from-neptune-500"
           to="to-yellorange-300"
-          blur={120}
         />
 
         <GradientConic
@@ -38,10 +35,9 @@ function HomepageComponent() {
           top="70%"
           from="from-violay-500"
           to="to-deeporange-500"
-          blur={120}
         />
 
-        <div className="z-30 grid h-[90%] w-[90%] grid-cols-1 grid-rows-2 gap-6 bg-gallery-100/50 lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none shadow-xl">
+        <div className="z-30 grid h-[90%] w-[90%] grid-cols-1 grid-rows-2 gap-6 bg-gallery-100/50 shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none">
           <SwiperWithThumbs />
           <HomepageTitle />
         </div>

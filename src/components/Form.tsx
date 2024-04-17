@@ -263,7 +263,7 @@ function Form() {
 
         <form
           onSubmit={handleSubmit(processForm)}
-          className="z-30 overflow-auto px-4 py-4  lg:p-8"
+          className="z-30 overflow-auto px-4 py-4 lg:p-8"
         >
           {/* Step 1 */}
 
@@ -286,7 +286,7 @@ function Form() {
                       id="userName"
                       type="text"
                       placeholder="What's your name?"
-                      className="max-w-lg text-shark-700 "
+                      className="max-w-lg text-tuna-700 "
                       radius="sm"
                       variant="faded"
                       color="primary"
@@ -307,7 +307,7 @@ function Form() {
                       id="age"
                       type="text"
                       placeholder="How old are you?"
-                      className="max-w-lg text-shark-700  "
+                      className="max-w-lg text-tuna-700  "
                       radius="sm"
                       variant="faded"
                       color="primary"
@@ -328,7 +328,7 @@ function Form() {
                       defaultItems={countries}
                       label="Nationality"
                       placeholder="Select a country"
-                      className="max-w-lg text-shark-700  "
+                      className="max-w-lg text-tuna-700  "
                       radius="sm"
                       variant="faded"
                       color="primary"
@@ -373,7 +373,7 @@ function Form() {
                       type="text"
                       placeholder="What's your name?"
                       className="max-w-lg"
-                      radius="none"
+                      radius="sm"
                       variant="faded"
                       color="primary"
                       errorMessage={errors.city?.message}
@@ -394,7 +394,7 @@ function Form() {
                       label="Country"
                       placeholder="Select a country"
                       className="max-w-lg"
-                      radius="none"
+                      radius="sm"
                       variant="faded"
                       color="primary"
                       onSelectionChange={(selectedKey) =>
@@ -590,8 +590,8 @@ function Form() {
                         <Input
                           {...field}
                           label={`Item ${index + 1}`}
-                          className="max-w-lg text-shark-700 "
-                          radius="none"
+                          className="max-w-lg text-tuna-700 "
+                          radius="sm"
                           variant="faded"
                           color="primary"
                         />
@@ -641,7 +641,7 @@ function Form() {
                 </Checkbox>
                 {!isWeatherSelected ? (
                   <>
-                    <h3 className="text-shark-800">Or</h3>
+                    <h3 className="text-tuna-800">Or</h3>
                     <Controller
                       name="startDate"
                       control={control}

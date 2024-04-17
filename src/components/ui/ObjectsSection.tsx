@@ -14,16 +14,16 @@ function ObjectsSection({ trip }: { trip: Trip }) {
           }[]
         )?.map((object, i) => (
           <div
-            className=" objects-list flex h-full w-full flex-col items-stretch justify-start bg-gallery-50/40 p-3 font-semibold leading-loose text-shark-900 lg:p-6 gap-y-1 "
+            className=" objects-list flex h-full w-full flex-col items-stretch justify-start bg-gallery-50/40 p-3 font-semibold leading-loose text-tuna-900 lg:p-6 gap-y-1 shadow-md"
             key={i}
           >
             <div className=" flex items-center justify-start space-x-4 text-sm text-cabaret-800  lg:text-lg">
               <span className="font-extrabold ">{object.quantity}</span>
-              <span className="whitespace-nowrap text-sm uppercase text-shark-900 lg:text-lg ">
+              <span className="whitespace-nowrap text-sm uppercase text-tuna-900 lg:text-lg ">
                 {object.item}
               </span>
             </div>
-            <span className="whitespace-normal text-xs text-gallery-700 md:text-base ">
+            <span className="whitespace-normal text-xs text-tuna-600 md:text-base ">
               {object.description}
             </span>
           </div>

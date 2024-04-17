@@ -11,7 +11,6 @@ function FormPage() {
           top="-30%"
           from="from-neptune-500"
           to="to-yellorange-300"
-          blur={120}
         />
 
         <GradientConic
@@ -19,7 +18,6 @@ function FormPage() {
           top="-30%"
           from="from-violay-500"
           to="to-deeporange-500"
-          blur={120}
         />
 
         <GradientConic
@@ -27,7 +25,6 @@ function FormPage() {
           top="70%"
           from="from-neptune-500"
           to="to-yellorange-300"
-          blur={120}
         />
 
         <GradientConic
@@ -35,7 +32,6 @@ function FormPage() {
           top="70%"
           from="from-violay-500"
           to="to-deeporange-500"
-          blur={120}
         />
 
         <Form />
