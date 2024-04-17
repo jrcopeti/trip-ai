@@ -1,3 +1,8 @@
+import image1 from "@/assets/1.jpg";
+import image2 from "@/assets/2.jpg";
+import image3 from "@/assets/3.jpg";
+import image4 from "@/assets/4.jpg";
+
 const types = [
   { value: "family", label: "Family" },
   { value: "adventure", label: "Adventure" },
@@ -88,6 +93,15 @@ const sortedTransports = [
   ...transports.sort((a, b) => a.label.localeCompare(b.label)),
 ];
 
+const homepageImages = [
+  { src: image1, alt: "first" },
+  { src: image2, alt: "second" },
+  { src: image3, alt: "third" },
+  { src: image4, alt: "fourth" },
+];
+
+
+
 export {
   sortedTypes,
   luggageSizes,
@@ -95,4 +109,5 @@ export {
   budgets,
   sortedInterest,
   sortedTransports,
+  homepageImages
 };
