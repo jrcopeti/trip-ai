@@ -9,12 +9,12 @@ import "swiper/css/free-mode";
 import "swiper/css/thumbs";
 import Image from "next/image";
 import { useState } from "react";
-import { SwiperOptions } from "swiper/types";
+import SwiperCore from "swiper";
 
 function SwiperWithThumbs() {
-  const [thumbsSwiper, setThumbsSwiper] = useState(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  console.log("activeIndex", activeIndex)
+  const [thumbsSwiper, setThumbsSwiper] = useState<SwiperCore | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number>(0);
+  console.log("activeIndex", activeIndex);
   return (
     <>
       <section className="min-h-full">
@@ -57,9 +57,7 @@ function SwiperWithThumbs() {
             <SwiperSlide key={index}>
               <button
                 className={`flex h-full w-full items-center justify-center ${
-                  activeIndex === index
-                    ? "brightness-100"
-                    : "brightness-50"
+                  activeIndex === index ? "brightness-100" : "brightness-50"
                 }`}
               >
                 <Image
