@@ -5,6 +5,7 @@ import image1 from "@/assets/1.jpg";
 import { Button } from "@nextui-org/react";
 import Link from "next/link";
 import Slider from "./Slider";
+import SwiperWithThumbs from "./SwiperWithThumbs";
 
 function HomepageComponent2() {
   return (
@@ -12,7 +13,8 @@ function HomepageComponent2() {
       <section className="relative flex h-screen items-center justify-center overflow-hidden">
         <div className="absolute left-0 top-0 -z-30 h-full w-full bg-gradient-to-b from-gallery-50 to-gallery-100"></div>
         <div className=" grid h-[90%] w-[90%] grid-cols-none grid-rows-2 lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none ">
-          <Slider />
+          {/* <Slider /> */}
+          <SwiperWithThumbs />
 
           <div className="z-50 bg-gallery-50/40 p-8 shadow-sm sm:p-16">
             <Link href={"/form"}>
