@@ -170,10 +170,6 @@ function Form() {
     }
   };
 
-  if (isLoadingCountries) {
-    return <div>Loading countries...</div>;
-  }
-
   if (isPendingResponseAI) {
     return <div>Loading...</div>;
   }
@@ -255,6 +251,9 @@ function Form() {
     setFormData(finalData);
     reset();
   };
+  if (isLoadingCountries) {
+    return <div>Loading countries...</div>;
+  }
 
   return (
     <>
