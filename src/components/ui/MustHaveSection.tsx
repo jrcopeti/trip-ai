@@ -29,25 +29,35 @@ function MustHaveSection({
           />
         </div>
 
-        <div className=" bg-gallery-50 p-8 sm:p-16">
-          <h2 className="text-4xl font-bold text-tuna-900 sm:mt-3 sm:text-4xl md:text-5xl">
-            Your Must Have items
-          </h2>
-          <div className="mt-4 grid max-w-[30rem] grid-cols-2 rounded-md lg:mt-8 lg:gap-y-4 ">
-            {(trip?.mustHave as string[])?.map((item, i) => (
-              <ul className=" bg-gallery-50/40 p-2" key={i}>
-                <li className="max-h-fit text-lg font-semibold text-tuna-900 first-letter:uppercase lg:text-2xl 2xl:text-3xl">
-                  {item}
-                </li>
-              </ul>
-            ))}
-            {(trip?.requiredItems as string[])?.map((item, i) => (
-              <ul className=" bg-gallery-50/40   p-2" key={i}>
-                <li className="max-h-fit text-lg font-semibold text-cabaret-800 first-letter:uppercase lg:text-2xl 2xl:text-3xl  ">
-                  {item}
-                </li>
-              </ul>
-            ))}
+        <div className=" bg-gallery-50 p-4 sm:p-8">
+          <div className="ml-4">
+            <h2 className="text-4xl font-bold text-tuna-900 sm:mt-3 sm:text-4xl md:text-5xl">
+              Your Must Have items
+            </h2>
+            <div className="mt-2 grid max-w-[30rem] grid-cols-2 rounded-md lg:mt-4 lg:gap-y-4 ">
+              {(trip?.mustHave as string[])?.map((item, i) => (
+                <ul className=" bg-gallery-50/40 p-2" key={i}>
+                  <li className="max-h-fit text-lg font-semibold text-tuna-900 first-letter:uppercase lg:text-2xl 2xl:text-3xl">
+                    {item}
+                  </li>
+                </ul>
+              ))}
+            </div>
+          </div>
+
+          <div className="ml-4 mt-2 lg:mt-8">
+            <h2 className="text-xl font-bold text-tuna-900 sm:mt-3 sm:text-3xl md:text-3xl">
+              And your Required items
+            </h2>
+            <div className="mt-2 grid max-w-[30rem] grid-cols-2 rounded-md lg:mt-4 lg:gap-y-4 ">
+              {(trip?.requiredItems as string[])?.map((item, i) => (
+                <ul className="bg-gallery-50/40 p-2" key={i}>
+                  <li className="max-h-fit text-lg font-semibold text-cabaret-800 first-letter:uppercase lg:text-2xl 2xl:text-3xl">
+                    {item}
+                  </li>
+                </ul>
+              ))}
+            </div>
           </div>
         </div>
       </div>

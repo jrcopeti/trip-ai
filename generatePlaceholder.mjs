@@ -17,7 +17,7 @@ const homepageImages = [
 ];
 
 async function generatePlaceholders() {
-  const imagesPath = path.join(process.cwd(), "src", "assets", "homepage"); // Adjust the path as necessary
+  const imagesPath = path.join(process.cwd(), "src", "assets", "homepage");
   const results = [];
 
   for (const image of homepageImages) {

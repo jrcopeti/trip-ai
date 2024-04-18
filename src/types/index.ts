@@ -1,8 +1,9 @@
 import z from "zod";
 import { FormDataSchema } from "@/lib/schema";
+import { Control, FieldErrors } from "react-hook-form";
 
-type Inputs = z.infer<typeof FormDataSchema>;
-type FieldName = keyof Inputs;
+export type Inputs = z.infer<typeof FormDataSchema>;
+export type FieldName = keyof Inputs;
 
 export interface WeatherApiResponse {
   main: {
@@ -100,4 +101,57 @@ export interface ImageContextType {
   generateImage: (city: string) => void;
   isPendingImage: boolean;
   errorImage: unknown;
+}
+
+export interface Step {
+  id: string;
+  title: string;
+  subtitle: string;
+  stepValue: number;
+  fields: string[];
+}
+
+export interface Country {
+  value: string;
+  label: string;
+  code: string;
+  flagUrl: string;
+}
+
+export interface FormStepProps {
+  currentStep: number;
+  steps: Step[];
+  control: Control<Inputs>;
+  errors: FieldErrors<Inputs>;
+  handleSelectionAutocomplete: (
+    selectedKey: string | number,
+    fieldName: FieldName,
+  ) => void;
+  delta: number;
+}
+
+export interface FormStep3Props
+  extends Omit<FormStepProps, "handleSelectionAutocomplete"> {}
+
+export interface FormStep4Props extends FormStep3Props {
+  append: (data: { item: string }) => void;
+  remove: (index: number) => void;
+  fields: { id: string }[];
+}
+export interface FormStep5Props extends FormStep3Props {
+  isWeatherSelected: boolean;
+  setIsWeatherSelected: (value: boolean) => void;
+}
+
+export interface FormStep7Props extends Omit<FormStep3Props, "errors"> {
+  isWeatherSelected: boolean;
+  isValid: boolean;
+  reviewFormData: Inputs;
+}
+
+export interface FormButtonsProps {
+  currentStep: number;
+  steps: Step[];
+  next: () => void;
+  prev: () => void;
 }

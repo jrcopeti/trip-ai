@@ -182,6 +182,59 @@ const homepageImages = [
   },
 ];
 
+const steps = [
+  {
+    id: "step 1",
+    title: "Personal Information",
+    subtitle: "Let's get to know you better!",
+    stepValue: 0,
+    fields: ["userName", "age", "nationality"],
+  },
+  {
+    id: "step 2",
+    title: "Destination",
+    subtitle: "What's your next trip?",
+    stepValue: 16,
+    fields: ["city", "country", "type"],
+  },
+  {
+    id: "step 3",
+    title: "Travel Details",
+    subtitle: "How do you like to travel?",
+    stepValue: 32,
+    fields: ["luggageSize", "accommodation", "budget", "transport"],
+  },
+  {
+    id: "step 4",
+    title: "Required Items",
+    subtitle: "Items you can't forget!",
+    stepValue: 48,
+    fields: [],
+  },
+  {
+    id: "step 5",
+    title: "Dates and Weather",
+    subtitle:
+      "Choose between travel plans based on the weather forecast or on actual dates",
+    stepValue: 64,
+    fields: ["startDate", "endDate"],
+  },
+  {
+    id: "step 6",
+    title: "Interests and Notes",
+    subtitle: "What you like to do and any special requests",
+    stepValue: 80,
+    fields: ["interests"],
+  },
+  {
+    id: "step 7",
+    title: "Review and Submit",
+    subtitle: "Check your details and get your trip plan!",
+    stepValue: 100,
+    fields: [],
+  },
+];
+
 export {
   sortedTypes,
   luggageSizes,
@@ -190,4 +243,5 @@ export {
   sortedInterest,
   sortedTransports,
   homepageImages,
+  steps,
 };

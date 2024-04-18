@@ -1,10 +1,4 @@
-interface Step {
-  id: string;
-  title: string;
-  subtitle: string;
-  stepValue: number;
-  fields: string[];
-}
+import type { Step } from "@/types";
 
 function FormTitle({
   steps,

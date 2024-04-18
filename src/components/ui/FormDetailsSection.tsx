@@ -45,7 +45,7 @@ function FormDetailsSection({
             </p>
           </div>
 
-          <div className='mt-3'>
+          <div className="mt-3">
             <small className="text-tuna-600">Destination</small>
             <p className="sm:text-md text-xs uppercase lg:text-lg">
               {trip?.city || formData?.city},{" "}
@@ -143,7 +143,6 @@ function FormDetailsSection({
             fill
             className="object-cover "
           />
-          π
         </div>
       </div>
     </>

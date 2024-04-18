@@ -2,7 +2,6 @@ import dayjs, { Dayjs } from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-
 import bolt from "@/assets/weather/bolt.png";
 import cloudy from "@/assets/weather/cloudy.png";
 import drizzle from "@/assets/weather/drizzle.png";
@@ -27,10 +26,7 @@ function formatDate(dateString?: string | Date, includeTime = true) {
 }
 
 const placeWeatherIcons = (condition: string, icon: string) => {
-  console.log("condition", condition);
-  console.log("icon", icon);
   const hour = new Date().getHours();
-  console.log("hour", hour);
 
   if (condition === "Clear") {
     if (hour >= 5 && hour <= 19) {
@@ -92,9 +88,7 @@ const durationInDays = (startDate: Dayjs | string, endDate: Dayjs | string) => {
   return dayjs.duration(differenceInDays).asDays();
 };
 
-
-
-const displayDuration = (durationDays:number) => {
+const displayDuration = (durationDays: number) => {
   if (durationDays === 0) {
     return "Day Trip";
   }
@@ -105,8 +99,6 @@ const displayDuration = (durationDays:number) => {
   }
 };
 
-
-
 const defaultPlaceholder =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVR4nGNIL6799/f/jWfflazcGYwtrP+/ffj6yVMta2cGBn5JS3d/U48gBg5RAI1ZEFzy8ZYjAAAAAElFTkSuQmCC";
 
@@ -116,6 +108,5 @@ export {
   placeWeatherIcons,
   durationInDays,
   displayDuration,
-
   defaultPlaceholder,
 };
