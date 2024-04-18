@@ -1,110 +1,35 @@
 "use client";
 
-import React, { useState } from "react";
-import { Prisma } from "@prisma/client";
+import { useState } from "react";
 import { useCountries } from "@/hooks/useCountries";
 import { useTrip } from "@/hooks/useTrip";
 import { useImage } from "@/hooks/useImage";
 import { useWeather } from "@/hooks/useWeather";
 import { useFormData } from "@/hooks/useFormData";
 
-import {
-  Input,
-  Button,
-  Checkbox,
-  CheckboxGroup,
-  Textarea,
-  Autocomplete,
-  AutocompleteItem,
-  RadioGroup,
-  Radio,
-} from "@nextui-org/react";
-import { motion } from "framer-motion";
-import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
-
 import { FormDataSchema } from "@/lib/schema";
-import { Controller, useForm, useFieldArray } from "react-hook-form";
-import { z } from "zod";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import CustomCheckbox from "./ui/CustomCheckbox";
-import DatePicker from "./ui/DatePicker";
-import FormTitle from "./ui/FormTitle";
 import ProgressBar from "./ui/Progress";
-import ReviewForm from "./ui/ReviewForm";
-
-import {
-  sortedTypes,
-  luggageSizes,
-  sortedAccommodations,
-  budgets,
-  sortedInterest,
-  sortedTransports,
-} from "@/data";
+import FormStep1 from "./ui/FormStep1";
+import FormStep2 from "./ui/FormStep2";
+import FormStep3 from "./ui/FormStep3";
+import FormStep4 from "./ui/FormStep4";
+import FormStep5 from "./ui/FormStep5";
+import FormStep6 from "./ui/FormStep6";
+import FormStep7 from "./ui/FormStep7";
+import FormButtons from "./ui/FormButtons";
+import { steps } from "@/data";
 import type { FinalDataTypes, ProcessFormType } from "@/types";
-
-type Inputs = z.infer<typeof FormDataSchema>;
-type FieldName = keyof Inputs;
-
-const steps = [
-  {
-    id: "step 1",
-    title: "Personal Information",
-    subtitle: "Let's get to know you better!",
-    stepValue: 0,
-    fields: ["userName", "age", "nationality"],
-  },
-  {
-    id: "step 2",
-    title: "Destination",
-    subtitle: "What's your next trip?",
-    stepValue: 16,
-    fields: ["city", "country", "type"],
-  },
-  {
-    id: "step 3",
-    title: "Travel Details",
-    subtitle: "How do you like to travel?",
-    stepValue: 32,
-    fields: ["luggageSize", "accommodation", "budget", "transport"],
-  },
-  {
-    id: "step 4",
-    title: "Required Items",
-    subtitle: "Items you can't forget!",
-    stepValue: 48,
-    fields: [],
-  },
-  {
-    id: "step 5",
-    title: "Dates and Weather",
-    subtitle:
-      "Choose between travel plans based on the weather forecast or on actual dates",
-    stepValue: 64,
-    fields: ["startDate", "endDate"],
-  },
-  {
-    id: "step 6",
-    title: "Interests and Notes",
-    subtitle: "What you like to do and any special requests",
-    stepValue: 80,
-    fields: ["interests"],
-  },
-  {
-    id: "step 7",
-    title: "Review and Submit",
-    subtitle: "Check your details and get your trip plan!",
-    stepValue: 100,
-    fields: [],
-  },
-];
+import type { Inputs, FieldName } from "@/types";
 
 function Form() {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [prevStep, setPrevStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [prevStep, setPrevStep] = useState<number>(0);
   const delta = currentStep - prevStep;
 
-  const [isWeatherSelected, setIsWeatherSelected] = useState(false);
+  const [isWeatherSelected, setIsWeatherSelected] = useState<boolean>(false);
 
   const {
     handleSubmit,
@@ -251,9 +176,6 @@ function Form() {
     setFormData(finalData);
     reset();
   };
-  if (isLoadingCountries) {
-    return <div>Loading countries...</div>;
-  }
 
   return (
     <>
@@ -264,559 +186,79 @@ function Form() {
           onSubmit={handleSubmit(processForm)}
           className="z-30 overflow-auto px-4 py-4 lg:p-8"
         >
-          {/* Step 1 */}
+          <FormStep1
+            currentStep={currentStep}
+            delta={delta}
+            steps={steps}
+            control={control}
+            errors={errors}
+            handleSelectionAutocomplete={handleSelectionAutocomplete}
+          />
 
-          {currentStep === 0 && (
-            <motion.div
-              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-            >
-              <FormTitle steps={steps} currentStep={currentStep} />
+          <FormStep2
+            currentStep={currentStep}
+            delta={delta}
+            steps={steps}
+            control={control}
+            errors={errors}
+            handleSelectionAutocomplete={handleSelectionAutocomplete}
+          />
 
-              <div className="mt-10 flex flex-col justify-between gap-x-6 gap-y-[5rem] md:mt-[100px] md:flex-row ">
-                <Controller
-                  name="userName"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      label="Name"
-                      id="userName"
-                      type="text"
-                      placeholder="What's your name?"
-                      className="max-w-lg text-tuna-700 "
-                      radius="sm"
-                      variant="faded"
-                      color="primary"
-                      errorMessage={errors.userName?.message}
-                      isInvalid={!!errors.userName}
-                      isRequired
-                    />
-                  )}
-                />
+          <FormStep3
+            currentStep={currentStep}
+            delta={delta}
+            steps={steps}
+            control={control}
+            errors={errors}
+          />
 
-                <Controller
-                  name="age"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      label="Age"
-                      id="age"
-                      type="text"
-                      placeholder="How old are you?"
-                      className="max-w-lg text-tuna-700  "
-                      radius="sm"
-                      variant="faded"
-                      color="primary"
-                      isInvalid={!!errors.age}
-                      errorMessage={errors.age?.message}
-                      isRequired
-                    />
-                  )}
-                />
+          <FormStep4
+            currentStep={currentStep}
+            delta={delta}
+            steps={steps}
+            control={control}
+            errors={errors}
+            fields={fields}
+            append={append}
+            remove={remove}
+          />
 
-                <Controller
-                  name="nationality"
-                  control={control}
-                  render={({ field }) => (
-                    <Autocomplete
-                      {...field}
-                      id="nationality"
-                      defaultItems={countries}
-                      label="Nationality"
-                      placeholder="Select a country"
-                      className="max-w-lg text-tuna-700  "
-                      radius="sm"
-                      variant="faded"
-                      color="primary"
-                      onSelectionChange={(selectedKey) =>
-                        handleSelectionAutocomplete(selectedKey, "nationality")
-                      }
-                      isInvalid={!!errors.nationality}
-                      isRequired
-                      errorMessage={errors.nationality?.message}
-                    >
-                      {(country) => (
-                        <AutocompleteItem key={country.code}>
-                          {country.label}
-                        </AutocompleteItem>
-                      )}
-                    </Autocomplete>
-                  )}
-                />
-              </div>
-            </motion.div>
-          )}
+          <FormStep5
+            currentStep={currentStep}
+            delta={delta}
+            steps={steps}
+            control={control}
+            errors={errors}
+            isWeatherSelected={isWeatherSelected}
+            setIsWeatherSelected={setIsWeatherSelected}
+          />
 
-          {/* Step 2 */}
+          <FormStep6
+            currentStep={currentStep}
+            steps={steps}
+            control={control}
+            errors={errors}
+            delta={delta}
+          />
 
-          {currentStep === 1 && (
-            <motion.div
-              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-            >
-              <FormTitle steps={steps} currentStep={currentStep} />
-
-              <div className="mt-10 grid grid-cols-2 justify-between gap-x-6 gap-y-[5rem] md:mt-[75px] ">
-                <Controller
-                  name="city"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      label="City"
-                      id="city"
-                      type="text"
-                      placeholder="What's your name?"
-                      className="max-w-lg"
-                      radius="sm"
-                      variant="faded"
-                      color="primary"
-                      errorMessage={errors.city?.message}
-                      isInvalid={!!errors.city}
-                      isRequired
-                    />
-                  )}
-                />
-
-                <Controller
-                  name="country"
-                  control={control}
-                  render={({ field }) => (
-                    <Autocomplete
-                      {...field}
-                      id="country"
-                      defaultItems={countries}
-                      label="Country"
-                      placeholder="Select a country"
-                      className="max-w-lg"
-                      radius="sm"
-                      variant="faded"
-                      color="primary"
-                      onSelectionChange={(selectedKey) =>
-                        handleSelectionAutocomplete(selectedKey, "country")
-                      }
-                      errorMessage={errors.country?.message}
-                      isInvalid={!!errors.country}
-                      isRequired
-                    >
-                      {(country) => (
-                        <AutocompleteItem key={country.code}>
-                          {country.label}
-                        </AutocompleteItem>
-                      )}
-                    </Autocomplete>
-                  )}
-                />
-
-                <div className="col-span-2  md:max-w-[500px]">
-                  <Controller
-                    name="type"
-                    control={control}
-                    render={({ field }) => (
-                      <RadioGroup
-                        {...field}
-                        id="type"
-                        label="How do you describe your trip?"
-                        orientation="horizontal"
-                        color="success"
-                        errorMessage={errors.type?.message}
-                        isInvalid={!!errors.type}
-                        isRequired
-                      >
-                        {sortedTypes.map((type) => (
-                          <Radio
-                            key={type.value}
-                            value={type.value}
-                            className="font-semibold"
-                          >
-                            {type.label}
-                          </Radio>
-                        ))}
-                      </RadioGroup>
-                    )}
-                  />
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Step 3 */}
-          {currentStep === 2 && (
-            <motion.div
-              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-            >
-              <FormTitle steps={steps} currentStep={currentStep} />
-
-              <div className="mt-6 grid max-w-[80%] grid-cols-1 gap-x-4 gap-y-8  text-sm md:mt-[75px] lg:grid-cols-2">
-                <Controller
-                  name="luggageSize"
-                  control={control}
-                  render={({ field }) => (
-                    <RadioGroup
-                      {...field}
-                      id="luggageSize"
-                      label="What's the size of your luggage?"
-                      orientation="horizontal"
-                      color="success"
-                      className="max-w-[300px]"
-                      errorMessage={errors.luggageSize?.message}
-                      isInvalid={!!errors.luggageSize}
-                      isRequired
-                    >
-                      {luggageSizes.map((luggageSize) => (
-                        <Radio
-                          key={luggageSize.value}
-                          value={luggageSize.value}
-                          className="font-semibold"
-                        >
-                          {luggageSize.label}
-                        </Radio>
-                      ))}
-                    </RadioGroup>
-                  )}
-                />
-
-                <Controller
-                  name="accommodation"
-                  control={control}
-                  render={({ field }) => (
-                    <RadioGroup
-                      {...field}
-                      id="accommodation"
-                      label="Where are you staying?"
-                      orientation="horizontal"
-                      color="success"
-                      className="max-w-[300px]"
-                      errorMessage={errors.accommodation?.message}
-                      isInvalid={!!errors.accommodation}
-                      isRequired
-                    >
-                      {sortedAccommodations.map((accommodation) => (
-                        <Radio
-                          key={accommodation.value}
-                          value={accommodation.value}
-                          className="font-semibold"
-                        >
-                          {accommodation.label}
-                        </Radio>
-                      ))}
-                    </RadioGroup>
-                  )}
-                />
-
-                <Controller
-                  name="transport"
-                  control={control}
-                  render={({ field }) => (
-                    <RadioGroup
-                      {...field}
-                      id="transport"
-                      label="How are you traveling?"
-                      orientation="horizontal"
-                      color="success"
-                      className="max-w-[300px]"
-                      errorMessage={errors.transport?.message}
-                      isInvalid={!!errors.transport}
-                      isRequired
-                    >
-                      {sortedTransports.map((transport) => (
-                        <Radio
-                          key={transport.value}
-                          value={transport.value}
-                          className="font-semibold"
-                        >
-                          {transport.label}
-                        </Radio>
-                      ))}
-                    </RadioGroup>
-                  )}
-                />
-
-                <Controller
-                  name="budget"
-                  control={control}
-                  render={({ field }) => (
-                    <RadioGroup
-                      {...field}
-                      id="budget"
-                      label="What's your budget?"
-                      orientation="horizontal"
-                      color="success"
-                      className="max-w-[300px]"
-                      errorMessage={errors.budget?.message}
-                      isInvalid={!!errors.budget}
-                      isRequired
-                    >
-                      {budgets.map((budget) => (
-                        <Radio
-                          key={budget.value}
-                          value={budget.value}
-                          className="font-semibold"
-                        >
-                          {budget.label}
-                        </Radio>
-                      ))}
-                    </RadioGroup>
-                  )}
-                />
-              </div>
-            </motion.div>
-          )}
-
-          {/* Step 4 */}
-
-          {currentStep === 3 && (
-            <motion.div
-              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-            >
-              <FormTitle steps={steps} currentStep={currentStep} />
-
-              <div className="mt-10 flex max-h-fit max-w-[600px] flex-col gap-8 lg:mt-[100px]  ">
-                {fields.map((field, index) => (
-                  <div className="flex items-center gap-2" key={field.id}>
-                    <Controller
-                      control={control}
-                      name={`requiredItems[${index}].item` as any}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          label={`Item ${index + 1}`}
-                          className="max-w-lg text-tuna-700 "
-                          radius="sm"
-                          variant="faded"
-                          color="primary"
-                        />
-                      )}
-                    />
-                    <Button
-                      className=" bg-yellorange-700 text-gallery-50"
-                      type="button"
-                      size="sm"
-                      onClick={() => remove(index)}
-                    >
-                      X
-                    </Button>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4">
-                <Button
-                  className="place-items-center bg-neptune-600 text-gallery-50"
-                  type="button"
-                  onClick={() => append({ item: "" })}
-                >
-                  Add Item
-                </Button>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Step 5 */}
-
-          {currentStep === 4 && (
-            <motion.div
-              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-            >
-              <FormTitle steps={steps} currentStep={currentStep} />
-
-              <div className="mt-10 flex flex-col gap-x-6 gap-y-8 ">
-                <Checkbox
-                  isSelected={isWeatherSelected}
-                  onValueChange={setIsWeatherSelected}
-                  color="default"
-                  className="font-semibold"
-                >
-                  Weather Forecast
-                </Checkbox>
-                {!isWeatherSelected ? (
-                  <>
-                    <h3 className="text-tuna-800">Or</h3>
-                    <Controller
-                      name="startDate"
-                      control={control}
-                      render={({ field }) => (
-                        <DatePicker
-                          {...field}
-                          label="Start Date"
-                          id="startDate"
-                          placeholder="When do your trip start?"
-                        />
-                      )}
-                    />
-                    {errors.startDate?.message && (
-                      <p className="text-xs text-red-500">
-                        {errors.startDate.message}
-                      </p>
-                    )}
-
-                    <Controller
-                      name="endDate"
-                      control={control}
-                      render={({ field }) => (
-                        <DatePicker
-                          {...field}
-                          label="End Date"
-                          id="endDate"
-                          placeholder="When does it end?"
-                        />
-                      )}
-                    />
-                    {errors.endDate?.message && (
-                      <p className="text-xs text-red-500">
-                        {errors.endDate.message}
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <p className="text-inherit">
-                    Your trip plans is based on the weather forecast for the
-                    next 7 days.
-                  </p>
-                )}
-              </div>
-            </motion.div>
-          )}
-
-          {/* Step 6 */}
-
-          {currentStep === 5 && (
-            <motion.div
-              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-            >
-              <FormTitle steps={steps} currentStep={currentStep} />
-
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8  ">
-                <Controller
-                  name="interests"
-                  control={control}
-                  render={({ field }) => (
-                    <CheckboxGroup
-                      {...field}
-                      name="interests"
-                      className="max-w-2xl gap-4"
-                      label="Select up to 3 interest"
-                      orientation="horizontal"
-                      errorMessage={errors.interests?.message}
-                    >
-                      {sortedInterest.map((interest) => (
-                        <CustomCheckbox
-                          color="primary"
-                          key={interest.value}
-                          value={interest.value}
-                          isDisabled={
-                            field.value.length >= 3 &&
-                            !field.value.includes(interest.value)
-                          }
-                        >
-                          {interest.label}
-                        </CustomCheckbox>
-                      ))}
-                    </CheckboxGroup>
-                  )}
-                />
-
-                <Controller
-                  name="note"
-                  control={control}
-                  render={({ field }) => (
-                    <Textarea
-                      {...field}
-                      label="Notes"
-                      id="notes"
-                      placeholder="Anything you want to add?"
-                      className="max-w-lg"
-                      radius="none"
-                      variant="faded"
-                      color="primary"
-                    />
-                  )}
-                />
-              </div>
-            </motion.div>
-          )}
-
-          {/* Step 7 */}
-
-          {currentStep === 6 && (
-            <motion.div
-              initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-            >
-              <FormTitle steps={steps} currentStep={currentStep} />
-              <ReviewForm
-                weather={isWeatherSelected}
-                reviewFormData={reviewFormData}
-              />
-              <div className="mt-4 flex max-w-md flex-col gap-4">
-                <Controller
-                  name="agreement"
-                  control={control}
-                  render={({ field }) => (
-                    <Checkbox
-                      isSelected={field.value}
-                      onValueChange={field.onChange}
-                      className="font-semibold"
-                    >
-                      <small>
-                        By agreeing, you consent to share your information with
-                        OpenAI. Please note, this application is designed only
-                        for entertainment purposes{" "}
-                      </small>
-                    </Checkbox>
-                  )}
-                />
-                {currentStep === steps.length - 1 && (
-                  <Button
-                    type="submit"
-                    size="lg"
-                    isDisabled={!isValid}
-                    className="text-gallery-50"
-                  >
-                    Submit
-                  </Button>
-                )}
-              </div>
-            </motion.div>
-          )}
+          <FormStep7
+            currentStep={currentStep}
+            steps={steps}
+            control={control}
+            delta={delta}
+            isWeatherSelected={isWeatherSelected}
+            isValid={isValid}
+            reviewFormData={reviewFormData}
+          />
         </form>
+      </div>
 
-        {/* Buttons */}
-      </div>
-      <div className="absolute left-16 top-[95%] z-50  -translate-y-1/2 transform lg:top-1/2 ">
-        <Button
-          type="button"
-          size="sm"
-          isDisabled={currentStep === 0}
-          onClick={prev}
-          className="bg-transparent text-3xl text-neptune-600 md:text-4xl"
-        >
-          <FaAngleLeft />
-        </Button>
-      </div>
-      <div className="absolute right-16 top-[95%] z-50 -translate-y-1/2 transform lg:top-1/2">
-        <Button
-          type="button"
-          size="sm"
-          onClick={next}
-          isDisabled={currentStep === steps.length - 1}
-          className="bg-transparent text-3xl text-neptune-600 md:text-4xl"
-        >
-          <FaAngleRight />
-        </Button>
-      </div>
+      <FormButtons
+        currentStep={currentStep}
+        steps={steps}
+        next={next}
+        prev={prev}
+      />
     </>
   );
 }

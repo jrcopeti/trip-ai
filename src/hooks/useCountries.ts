@@ -1,14 +1,8 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import type { Country } from "@/types";
 
 const COUNTRY_MAX_LENGTH = 25;
-
-interface Country {
-  value: string;
-  label: string;
-  code: string;
-  flagUrl: string;
-}
 
 export function useCountries() {
   const [countries, setCountries] = useState<Country[]>([]);

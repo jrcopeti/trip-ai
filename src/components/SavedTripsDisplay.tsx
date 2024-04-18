@@ -2,7 +2,7 @@
 import { getAllTrips } from "@/db/actions";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import SavedTripCard from "./SavedTripCard";
+import SavedTripCard from "./ui/SavedTripCard";
 
 function SavedTripsDisplay() {
   const {

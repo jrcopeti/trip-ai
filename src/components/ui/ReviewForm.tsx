@@ -1,8 +1,5 @@
-import { FormDataSchema } from "@/lib/schema";
 import { durationInDays, displayDuration } from "@/lib/utils";
-import z from "zod";
-
-type Inputs = z.infer<typeof FormDataSchema>;
+import { Inputs } from "@/types";
 
 function ReviewForm({
   reviewFormData,
@@ -21,6 +18,7 @@ function ReviewForm({
     budget,
     luggageSize,
     transport,
+    requiredItems,
     accommodation,
     interests,
     note,
@@ -30,6 +28,8 @@ function ReviewForm({
 
   const durationDays = durationInDays(startDate, endDate);
   const duration = displayDuration(durationDays);
+  const transformedRequiredItems =
+    requiredItems?.map((requiredItem) => requiredItem.item) ?? [];
 
   return (
     <>
@@ -105,6 +105,20 @@ function ReviewForm({
             </p>
           ))}
         </div>
+
+        {transformedRequiredItems.length > 0 && (
+          <div>
+            <small className="text-tuna-600">Required Items</small>
+            {transformedRequiredItems.map((item, index) => (
+              <p
+                className="sm:text-md text-xs uppercase lg:text-lg"
+                key={index}
+              >
+                {item}
+              </p>
+            ))}
+          </div>
+        )}
 
         <div className="text-tuna-600">
           <small>Notes</small>
