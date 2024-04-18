@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import Image from "next/image";
 import suncloudy from "@/assets/weather/suncloudy.png";
 import { useWeather } from "@/hooks/useWeather";
@@ -10,10 +10,8 @@ import { BsSunsetFill } from "react-icons/bs";
 import { Trip } from "@prisma/client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 
 dayjs.extend(utc);
-dayjs.extend(timezone);
 
 function WeatherSection({
   trip,
@@ -80,7 +78,7 @@ function WeatherSection({
           <p className="mb-4 uppercase sm:mb-2">
             {trip?.city}, {trip?.country}
           </p>
-          <div className="">
+          <section>
             <h2 className=" mt-0 text-7xl font-semibold sm:mr-0 sm:text-[6rem]">
               {temperature}ºC
             </h2>
@@ -89,34 +87,39 @@ function WeatherSection({
             <h3 className=" text-3xl font-semibold text-tuna-600  sm:text-4xl">
               {condition}
             </h3>
-          </div>
+          </section>
           <p className="mb-3 ml-1 text-xs first-letter:uppercase">
             {weatherDescription}
           </p>
-          <div className="text-md mb-3 flex items-center justify-center gap-x-2 text-xl font-semibold text-tuna-400 sm:justify-start  ">
+          <section className="text-md mb-3 flex items-center justify-center gap-x-2 text-xl font-semibold text-tuna-400 sm:justify-start  ">
             <p>
               <small>Low</small> {tempMin}ºC
             </p>
             <p>
               <small>High</small> {tempMax}ºC
             </p>
-          </div>
-          <div className="flex  justify-center gap-x-[30px] text-sm font-semibold sm:justify-start ">
-            <span className="">
-              <IoWaterOutline size={20} /> {humidity}%
-            </span>
-            <span>
-              <LuWind size={20} /> {speed.toFixed(0)}
-              <small>km/h</small>
-            </span>
-            <span>
-              <TbSunrise size={20} /> {formattedSunrise}
-            </span>
-
-            <span>
-              <BsSunsetFill size={20} /> {formattedSunset}
-            </span>
-          </div>
+          </section>
+          <section className="flex items-center justify-center gap-x-[30px] text-sm font-semibold sm:justify-start ">
+            <div className="flex flex-col items-center">
+              <IoWaterOutline size={20} />
+              <span>{humidity}%</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <LuWind size={20} />
+              <span>
+                {speed.toFixed(0)}
+                <small>km/h</small>
+              </span>
+            </div>
+            <div className="flex flex-col items-center">
+              <TbSunrise size={20} />
+              <span>{formattedSunrise}</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <BsSunsetFill size={20} />
+              <span>{formattedSunset}</span>
+            </div>
+          </section>
         </div>
       </div>
     </>
