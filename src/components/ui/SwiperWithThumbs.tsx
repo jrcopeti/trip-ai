@@ -54,6 +54,9 @@ function SwiperWithThumbs() {
               <Image
                 src={image.src}
                 alt={image.alt}
+                placeholder="blur"
+                blurDataURL={image.placeholder}
+                priority
                 className="block h-full w-full object-cover"
               />
             </SwiperSlide>
@@ -80,6 +83,8 @@ function SwiperWithThumbs() {
                 <Image
                   src={image.src}
                   alt={image.alt}
+                  placeholder="blur"
+                  blurDataURL={image.placeholder}
                   className="block h-full w-full rounded-md object-cover"
                 />
 

@@ -27,6 +27,7 @@ export interface WeatherApiResponse {
   wind: {
     speed: number;
   };
+  timezone: number;
 }
 
 export interface WeatherDataTypes extends WeatherApiResponse {

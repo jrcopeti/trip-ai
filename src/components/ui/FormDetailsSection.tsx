@@ -27,14 +27,14 @@ function FormDetailsSection({
   return (
     <>
       <div className="form-details grid h-[90%] w-[90%] grid-cols-none grid-rows-2 shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none">
-        <div className=" grid grid-cols-2  bg-gallery-50/50 p-6 lg:p-10 ">
-          <div className=" -mb-10 h-[60px] w-[80px] text-tuna-900 lg:h-[80px] lg:w-[100px] ">
+        <div className="grid grid-cols-2  bg-gallery-50/50 p-6 lg:p-10">
+          <div className="-mb-10 h-[60px] w-[80px] text-tuna-900 lg:h-[80px] lg:w-[100px]">
             <Image
               src={(trip?.flagUrl || formData?.flagUrl) ?? ""}
               alt="country flag"
               height={200}
               width={200}
-              className="mt-1 object-cover"
+              className="object-cover"
             />
           </div>
 
@@ -45,7 +45,7 @@ function FormDetailsSection({
             </p>
           </div>
 
-          <div>
+          <div className='mt-3'>
             <small className="text-tuna-600">Destination</small>
             <p className="sm:text-md text-xs uppercase lg:text-lg">
               {trip?.city || formData?.city},{" "}
