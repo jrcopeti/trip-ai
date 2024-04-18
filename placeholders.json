@@ -1,0 +1,72 @@
+[
+  {
+    "src": "1.jpg",
+    "alt": "first",
+    "city": "Berlin",
+    "title": "discover the unseen",
+    "placeholder": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AOzn0v/55v//7P//6wDItJvl0bns3cbj2sUAGQAAOSUYMigfEg4LMRwWIdN3vREAAAAASUVORK5CYII="
+  },
+  {
+    "src": "2.jpg",
+    "alt": "second",
+    "city": "Paris",
+    "title": "go beyond the horizon",
+    "placeholder": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAPElEQVR4nGNoVuMskmNo8jZakOHL0KQrZM/OYCvNWWApyxCsI+mnJuUvwnChKYhBhoFBgYEhxlD6/6dLAC+kDJm5EugJAAAAAElFTkSuQmCC"
+  },
+  {
+    "src": "3.jpg",
+    "alt": "third",
+    "city": "London",
+    "title": "explore the world",
+    "placeholder": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAM0lEQVR4nAEoANf/AHTV53Xc7VzF1wDM///E9//K//8Ag31tgHZmioV0ABYAADsoCUcwD/MKFAd4tFeYAAAAAElFTkSuQmCC"
+  },
+  {
+    "src": "4.jpg",
+    "alt": "fourth",
+    "city": "New York",
+    "title": "embrace the adventure",
+    "placeholder": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMUlEQVR4nGNYceLu6Wc/Xv3/zzAzK3xORdqDR/cZTO3MHB2stWwcGBjEGRgUVBk4JQC3DQ/c3oLnaQAAAABJRU5ErkJggg=="
+  },
+  {
+    "src": "5.jpg",
+    "alt": "fifth",
+    "city": "Tokyo",
+    "title": "experience the culture",
+    "placeholder": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVR4nGOY2ZZ1/PrVl///v/v4mqEpPyTAUdrfQUZLloEh1EXTUI7BXJ1BhoEBAH93DhyQDeoiAAAAAElFTkSuQmCC"
+  },
+  {
+    "src": "6.jpeg",
+    "alt": "sixth",
+    "city": "Rome",
+    "title": "taste new flavors",
+    "placeholder": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AHdcWIl1c+r//8fHzgBpLw6gb1Z6YlwmAAAAtKGK5tC6xq6RkXtfdF0TCfd4lUUAAAAASUVORK5CYII="
+  },
+  {
+    "src": "7.jpg",
+    "alt": "seventh",
+    "city": "Barcelona",
+    "title": "seek other paths",
+    "placeholder": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVR4nGPIKij8/vf/9Yevtu49yCCgIBQe65eQFMYgzsAgycagysSgxsAgysAAAFe5DAgF4waAAAAAAElFTkSuQmCC"
+  },
+  {
+    "src": "8.jpg",
+    "alt": "eighth",
+    "city": "Istanbul",
+    "title": "find your own way",
+    "placeholder": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAM0lEQVR4nAEoANf/ALu0qvPm3//9+wCqm5HLtq22pJ8AgnZzhHlwY1VNAJSAfRUAAJ2Mi++tFP0r2jShAAAAAElFTkSuQmCC"
+  },
+  {
+    "src": "9.jpg",
+    "alt": "ninth",
+    "city": "Rio de Janeiro",
+    "title": "discover the unknown",
+    "placeholder": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMUlEQVR4nGP48+fV6ycX7948zuBmq63AzmCkKcFgpi0pychgqizAEOJnExfmZGEgCwBW/wydcsDEeAAAAABJRU5ErkJggg=="
+  },
+  {
+    "src": "10.jpg",
+    "alt": "tenth",
+    "city": "Sydney",
+    "title": "create your own story",
+    "placeholder": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII="
+  }
+]

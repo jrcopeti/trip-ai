@@ -1,3 +1,4 @@
+'use client'
 import Image from "next/image";
 import suncloudy from "@/assets/weather/suncloudy.png";
 import { useWeather } from "@/hooks/useWeather";
@@ -8,6 +9,11 @@ import { TbSunrise } from "react-icons/tb";
 import { BsSunsetFill } from "react-icons/bs";
 import { Trip } from "@prisma/client";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 function WeatherSection({
   trip,
@@ -39,9 +45,18 @@ function WeatherSection({
   const humidity = main?.humidity ?? 0;
 
   const sys = weatherData?.sys;
-  const sunrise = dayjs.unix(sys?.sunrise ?? 0);
+  const timezone = weatherData?.timezone ?? 0;
+
+  const sunrise = dayjs
+    .unix(sys?.sunrise ?? 0)
+    .utc()
+    .add(timezone, "s");
   const formattedSunrise = sunrise.format("HH:mm");
-  const sunset = dayjs.unix(sys?.sunset ?? 0);
+
+  const sunset = dayjs
+    .unix(sys?.sunset ?? 0)
+    .utc()
+    .add(timezone, "s");
   const formattedSunset = sunset.format("HH:mm");
 
   const weather = weatherData?.weather?.[0];

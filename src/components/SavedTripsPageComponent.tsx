@@ -103,17 +103,17 @@ function SavedTripsPageComponent({
           },
         });
 
-        gsap.from(".pack-ready", {
-          autoAlpha: 0,
-          y: 100,
-          duration: 1,
-          scrollTrigger: {
-            trigger: ".pack-section",
-            start: "top center",
-            end: "center 300px",
-            toggleActions: "restart none play none",
-          },
-        });
+        // gsap.from(".pack-ready", {
+        //   autoAlpha: 0,
+        //   y: 100,
+        //   duration: 1,
+        //   scrollTrigger: {
+        //     trigger: ".pack-section",
+        //     start: "top center",
+        //     end: "center 300px",
+        //     toggleActions: "restart none play none",
+        //   },
+        // });
 
         gsap.from(".stamps", {
           autoAlpha: 0,

@@ -19,21 +19,21 @@ function ObjectsSection({ trip }: { trip: Trip }) {
           >
             <div className=" flex items-center justify-start space-x-4 text-sm text-cabaret-800  lg:text-lg">
               <span className="font-extrabold ">{object.quantity}</span>
-              <span className="whitespace-nowrap text-sm uppercase text-tuna-900 lg:text-lg ">
+              <span className="text-sm uppercase text-tuna-900 lg:text-lg ">
                 {object.item}
               </span>
             </div>
-            <span className="whitespace-normal text-xs text-tuna-600 md:text-base ">
+            <span className="text-xs text-tuna-600 md:text-base ">
               {object.description}
             </span>
           </div>
         ))}
-        <div className="absolute -z-10 h-[200px] w-[200px] translate-x-[120px] translate-y-[300px]  lg:h-[250px] lg:w-[350px] lg:translate-x-[350px] lg:translate-y-[100px] xl:h-[300px] xl:w-[400px] xl:translate-x-[450px] xl:translate-y-[100px]  ">
+        <div className="absolute -z-10 h-[200px] w-[200px] translate-x-[120px] translate-y-[300px] lg:h-[250px] lg:w-[350px] lg:translate-x-[350px] lg:translate-y-[100px] xl:h-[300px] xl:w-[400px] xl:translate-x-[450px] xl:translate-y-[100px]  ">
           <Image
             src={suitcase}
             alt="stamps"
             fill
-            className=" object-contain opacity-60 "
+            className="object-contain opacity-60 "
           />
         </div>
       </div>
