@@ -1,8 +1,7 @@
 import SavedTripsDisplay from "@/components/SavedTripsDisplay";
 import Container from "@/components/ui/Container";
-import Gradient1 from "@/components/ui/Gradient1";
 import GradientBg from "@/components/ui/GradientBg";
-import GridContainer from "@/components/ui/GridContainer";
+import SavedTripsContainer from "@/components/ui/SavedTripsContainer";
 import {
   HydrationBoundary,
   dehydrate,
@@ -11,15 +10,15 @@ import {
 
 function SavedTripsPage() {
   return (
-    <Container overflow="overflow-hidden">
+    <Container overflow="overflow-x-hidden">
       <GradientBg
         from="from-neptune-300"
         to="to-yellorange-200"
         blur="blur-[190px]"
       />
-      <GridContainer bg="bg-gallery-100/50">
+      <SavedTripsContainer>
         <SavedTripsDisplay />
-      </GridContainer>
+      </SavedTripsContainer>
     </Container>
   );
 }

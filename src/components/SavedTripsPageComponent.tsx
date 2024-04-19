@@ -176,6 +176,7 @@ function SavedTripsPageComponent({
             start: "100px bottom",
             end: "center 300px",
             toggleActions: "restart none play none",
+            markers: true,
           },
         });
       });
