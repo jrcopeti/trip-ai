@@ -106,7 +106,7 @@ function WeatherSection({
             </div>
             <div className="flex flex-col items-center">
               <LuWind size={20} />
-              <span>
+              <span className="whitespace-nowrap">
                 {speed.toFixed(0)}
                 <small>km/h</small>
               </span>

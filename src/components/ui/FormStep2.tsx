@@ -14,7 +14,6 @@ import FormTitle from "./FormTitle";
 
 function FormStep2({
   currentStep,
-  steps,
   control,
   errors,
   handleSelectionAutocomplete,
@@ -34,7 +33,7 @@ function FormStep2({
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
         >
-          <FormTitle steps={steps} currentStep={currentStep} />
+          <FormTitle currentStep={currentStep} />
 
           <div className="mt-10 grid grid-cols-2 justify-between gap-x-6 gap-y-[5rem] md:mt-[75px] ">
             <Controller

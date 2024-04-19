@@ -120,7 +120,6 @@ export interface Country {
 
 export interface FormStepProps {
   currentStep: number;
-  steps: Step[];
   control: Control<Inputs>;
   errors: FieldErrors<Inputs>;
   handleSelectionAutocomplete: (
@@ -151,7 +150,6 @@ export interface FormStep7Props extends Omit<FormStep3Props, "errors"> {
 
 export interface FormButtonsProps {
   currentStep: number;
-  steps: Step[];
   next: () => void;
   prev: () => void;
 }

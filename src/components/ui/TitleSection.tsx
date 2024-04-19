@@ -14,7 +14,7 @@ function TitleSection({
 }) {
   return (
     <>
-      <div className="grid h-[90%] w-[90%] grid-cols-none grid-rows-2 lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none shadow-xl ">
+      <div className="grid h-[90%] w-[90%] grid-cols-none grid-rows-2 lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none shadow-xl">
         <div className="relative h-full w-full ">
           <Image
             src={(trip?.image || imageData?.tripImage) ?? image1}

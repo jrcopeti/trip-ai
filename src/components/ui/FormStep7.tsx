@@ -4,9 +4,9 @@ import { motion } from "framer-motion";
 import { Controller } from "react-hook-form";
 import { Checkbox, Button } from "@nextui-org/react";
 import type { FormStep7Props } from "@/types";
+import { steps } from "@/data";
 
 function FormStep7({
-  steps,
   currentStep,
   delta,
   isWeatherSelected,
@@ -22,7 +22,7 @@ function FormStep7({
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
         >
-          <FormTitle steps={steps} currentStep={currentStep} />
+          <FormTitle currentStep={currentStep} />
           <ReviewForm
             weather={isWeatherSelected}
             reviewFormData={reviewFormData}

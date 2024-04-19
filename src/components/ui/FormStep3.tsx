@@ -9,9 +9,9 @@ import { Radio, RadioGroup } from "@nextui-org/react";
 import { Controller } from "react-hook-form";
 import { motion } from "framer-motion";
 import type { FormStep3Props } from "@/types";
+import { steps } from "@/data";
 
 function FormStep3({
-  steps,
   currentStep,
   control,
   errors,
@@ -25,7 +25,7 @@ function FormStep3({
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
         >
-          <FormTitle steps={steps} currentStep={currentStep} />
+          <FormTitle currentStep={currentStep} />
 
           <div className="mt-6 grid max-w-[80%] grid-cols-1 gap-x-4 gap-y-8  text-sm md:mt-[75px] lg:grid-cols-2">
             <Controller

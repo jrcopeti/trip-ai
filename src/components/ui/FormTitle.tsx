@@ -1,12 +1,6 @@
-import type { Step } from "@/types";
+import { steps } from "@/data";
 
-function FormTitle({
-  steps,
-  currentStep,
-}: {
-  steps: Step[];
-  currentStep: number;
-}) {
+function FormTitle({ currentStep }: { currentStep: number }) {
   return (
     <>
       <h2 className="text-3xl font-extrabold text-tuna-800 lg:text-5xl ">
