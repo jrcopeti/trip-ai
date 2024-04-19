@@ -1,4 +1,3 @@
-import React, { useState, ReactNode } from "react";
 import {
   useCheckbox,
   Chip,
@@ -6,11 +5,10 @@ import {
   VisuallyHidden,
   tv,
 } from "@nextui-org/react";
-
 import { BsCheck } from "react-icons/bs";
 
 interface CustomCheckboxProps {
-  children?: ReactNode;
+  children?: React.ReactNode;
   value: string;
   isSelected?: boolean;
   onChange?: () => void;

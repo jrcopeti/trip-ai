@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useCountries } from "@/hooks/useCountries";
-import { useTrip } from "@/hooks/useTrip";
+import { useTripResponse } from "@/hooks/useTripResponse";
 import { useImage } from "@/hooks/useImage";
 import { useWeather } from "@/hooks/useWeather";
 import { useFormData } from "@/hooks/useFormData";
@@ -23,6 +23,7 @@ import FormButtons from "./ui/FormButtons";
 import { steps } from "@/data";
 import type { FinalDataTypes, ProcessFormType } from "@/types";
 import type { Inputs, FieldName } from "@/types";
+import FormContainer from "./ui/FormContainer";
 
 function Form() {
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -70,7 +71,7 @@ function Form() {
     name: "requiredItems",
   });
   const { countries, isLoading: isLoadingCountries } = useCountries();
-  const { generateResponseAI, isPendingResponseAI } = useTrip();
+  const { generateResponseAI, isPendingResponseAI } = useTripResponse();
   const { generateForecast, forecastData } = useWeather();
   const { setFormData } = useFormData();
   const { generateImage } = useImage();
@@ -179,7 +180,7 @@ function Form() {
 
   return (
     <>
-      <div className="relative z-20 h-[80%] w-[80%] overflow-auto overflow-x-hidden bg-gallery-100 p-4 shadow-sm lg:p-8 ">
+      <FormContainer>
         <ProgressBar stepValue={stepValue} />
 
         <form
@@ -189,7 +190,6 @@ function Form() {
           <FormStep1
             currentStep={currentStep}
             delta={delta}
-            steps={steps}
             control={control}
             errors={errors}
             handleSelectionAutocomplete={handleSelectionAutocomplete}
@@ -198,7 +198,6 @@ function Form() {
           <FormStep2
             currentStep={currentStep}
             delta={delta}
-            steps={steps}
             control={control}
             errors={errors}
             handleSelectionAutocomplete={handleSelectionAutocomplete}
@@ -207,7 +206,6 @@ function Form() {
           <FormStep3
             currentStep={currentStep}
             delta={delta}
-            steps={steps}
             control={control}
             errors={errors}
           />
@@ -215,7 +213,6 @@ function Form() {
           <FormStep4
             currentStep={currentStep}
             delta={delta}
-            steps={steps}
             control={control}
             errors={errors}
             fields={fields}
@@ -226,7 +223,6 @@ function Form() {
           <FormStep5
             currentStep={currentStep}
             delta={delta}
-            steps={steps}
             control={control}
             errors={errors}
             isWeatherSelected={isWeatherSelected}
@@ -235,7 +231,6 @@ function Form() {
 
           <FormStep6
             currentStep={currentStep}
-            steps={steps}
             control={control}
             errors={errors}
             delta={delta}
@@ -243,7 +238,6 @@ function Form() {
 
           <FormStep7
             currentStep={currentStep}
-            steps={steps}
             control={control}
             delta={delta}
             isWeatherSelected={isWeatherSelected}
@@ -251,14 +245,8 @@ function Form() {
             reviewFormData={reviewFormData}
           />
         </form>
-      </div>
-
-      <FormButtons
-        currentStep={currentStep}
-        steps={steps}
-        next={next}
-        prev={prev}
-      />
+      </FormContainer>
+      <FormButtons currentStep={currentStep} next={next} prev={prev} />
     </>
   );
 }

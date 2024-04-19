@@ -1,10 +1,4 @@
-interface Gradient1Props {
-  left: string;
-  top: string;
-  color1: string;
-  color2: string;
-  blur: string;
-}
+import type { Gradient1Props } from "@/types";
 
 function Gradient1({ left, top, color1, color2, blur }: Gradient1Props) {
   return (

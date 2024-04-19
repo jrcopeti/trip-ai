@@ -5,7 +5,6 @@ import { Button, Input } from "@nextui-org/react";
 import type { FormStep4Props } from "@/types";
 
 function FormStep4({
-  steps,
   currentStep,
   fields,
   control,
@@ -21,7 +20,7 @@ function FormStep4({
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
         >
-          <FormTitle steps={steps} currentStep={currentStep} />
+          <FormTitle currentStep={currentStep} />
 
           <div className="mt-10 flex max-h-fit max-w-[600px] flex-col gap-8 lg:mt-[100px]  ">
             {fields.map((field, index) => (

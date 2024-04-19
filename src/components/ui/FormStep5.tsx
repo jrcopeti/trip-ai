@@ -6,7 +6,6 @@ import DatePicker from "./DatePicker";
 import type { FormStep5Props } from "@/types";
 
 function FormStep5({
-  steps,
   currentStep,
   delta,
   isWeatherSelected,
@@ -22,7 +21,7 @@ function FormStep5({
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
         >
-          <FormTitle steps={steps} currentStep={currentStep} />
+          <FormTitle currentStep={currentStep} />
 
           <div className="mt-10 flex flex-col gap-x-6 gap-y-8 ">
             <Checkbox

@@ -2,14 +2,12 @@ import { Autocomplete, AutocompleteItem, Input } from "@nextui-org/react";
 import { Controller } from "react-hook-form";
 import { motion } from "framer-motion";
 import FormTitle from "./FormTitle";
-import type { Step } from "@/types";
+
 import type { FormStepProps } from "@/types";
-import type { Control } from "react-hook-form";
 import { useCountries } from "@/hooks/useCountries";
 
 function FormStep1({
   currentStep,
-  steps,
   control,
   errors,
   handleSelectionAutocomplete,
@@ -27,7 +25,7 @@ function FormStep1({
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
         >
-          <FormTitle steps={steps} currentStep={currentStep} />
+          <FormTitle currentStep={currentStep} />
 
           <div className="mt-10 flex flex-col justify-between gap-x-6 gap-y-[5rem] md:mt-[100px] md:flex-row ">
             <Controller

@@ -1,16 +1,9 @@
-import { ImageDataTypes } from "@/types";
-import type { Trip } from "@prisma/client";
 import Image from "next/image";
 import image3 from "@/assets/homepage/3.jpg";
 import { defaultPlaceholder } from "@/lib/utils";
+import type { MustHaveSectionProps } from "@/types";
 
-function MustHaveSection({
-  trip,
-  imageData,
-}: {
-  trip: Trip;
-  imageData?: ImageDataTypes;
-}) {
+function MustHaveSection({ trip, imageData }: MustHaveSectionProps) {
   return (
     <>
       <div className="must-have grid h-[90%] w-[90%] grid-cols-none grid-rows-2 shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none ">

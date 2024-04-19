@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useLayoutEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getSingleSavedTrip } from "@/db/actions";
 import { useWeather } from "@/hooks/useWeather";
+import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -16,20 +15,15 @@ import PackReadySection from "./ui/PackReadySection";
 import MustHaveSection from "./ui/MustHaveSection";
 import FormDetailsSection from "./ui/FormDetailsSection";
 import FinalSection from "./ui/FinalSection";
+import GradientBg from "./ui/GradientBg";
+import Container from "./ui/Container";
 
 function SavedTripsPageComponent({
   params,
 }: {
   params: { id: number | string };
 }) {
-  const {
-    data: trip,
-    isPending,
-    error,
-  } = useQuery({
-    queryKey: ["trips", params.id],
-    queryFn: () => getSingleSavedTrip(Number(params.id)),
-  });
+  const { trip, isPending, error } = useSingleSavedTrip({ params });
 
   const { isPendingWeather, weatherData } = useWeather();
 
@@ -216,65 +210,73 @@ function SavedTripsPageComponent({
   return (
     <>
       {/* Section 1 */}
-      <section className="relative flex h-screen items-center justify-center overflow-x-hidden">
-        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-violay-200  bg-cover bg-center"></div>
+
+      <Container overflow="overflow-x-hidden">
+        <GradientBg from="from-gallery-100" to="to-violay-200" />
         {trip && <TitleSection trip={trip} />}
-      </section>
+      </Container>
 
       {/* Section 2 */}
 
-      <section className="description-section relative flex h-screen items-center justify-center overflow-x-hidden ">
-        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-violay-200 to-gallery-50 bg-cover bg-center"></div>
+      <Container
+        overflow="overflow-x-hidden"
+        animationClass="description-section"
+      >
+        <GradientBg from="from-violay-200" to="to-gallery-100" />
         {trip && <DescriptionSection trip={trip} />}
-      </section>
+      </Container>
 
       {/* Section 3 */}
 
-      <section className=" tours-section relative flex h-screen items-center justify-center overflow-x-hidden">
-        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-50 to-neptune-200 bg-cover bg-center"></div>
+      <Container overflow="overflow-x-hidden" animationClass="tours-section">
+        <GradientBg from="from-gallery-100" to="to-neptune-200" />
         {trip && <ToursSection trip={trip} />}
-      </section>
+      </Container>
 
       {/* Section 4 */}
 
-      <section className="pack-section relative flex h-screen items-center justify-center overflow-x-hidden">
-        <div className="absolute left-0 top-0 -z-10 h-full w-full  bg-gradient-to-b from-neptune-200  to-gallery-100 "></div>
+      <Container overflow="overflow-x-hidden" animationClass="pack-section">
+        <GradientBg from="from-neptune-200" to="to-gallery-100" />
         {trip && <PackReadySection trip={trip} />}
-      </section>
-
-      {/* Section 4 */}
-
-      <section className="objects-section relative flex h-screen items-center justify-center overflow-x-hidden">
-        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100  to-cabaret-100 "></div>
-        {trip && <ObjectsSection trip={trip} />}
-      </section>
+      </Container>
 
       {/* Section 5 */}
 
-      <section className=" musthave-section relative flex h-screen items-center justify-center overflow-x-hidden">
-        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-cabaret-100 to-gallery-100  "></div>
-        {trip && <MustHaveSection trip={trip} />}
-      </section>
+      <Container overflow="overflow-x-hidden" animationClass="objects-section">
+        <GradientBg from="from-gallery-100" to="to-cabaret-100" />
+        {trip && <ObjectsSection trip={trip} />}
+      </Container>
 
       {/* Section 6 */}
-      <section className=" weather-section relative flex h-screen items-center justify-center overflow-x-hidden">
-        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-yellorange-100 "></div>
-        {trip && <WeatherSection trip={trip} isPending={isPending} />}
-      </section>
+
+      <Container overflow="overflow-x-hidden" animationClass="musthave-section">
+        <GradientBg from="from-cabaret-100" to="to-gallery-100" />
+        {trip && <MustHaveSection trip={trip} />}
+      </Container>
 
       {/* Section 7 */}
 
-      <section className="formdetails-section relative flex h-screen items-center justify-center overflow-x-hidden">
-        <div className="absolute left-0 top-0 -z-10 h-full w-full  bg-gradient-to-b from-yellorange-100 to-gallery-100  "></div>
-        {trip && <FormDetailsSection trip={trip} />}
-      </section>
+      <Container overflow="overflow-x-hidden" animationClass="weather-section">
+        <GradientBg from="from-gallery-100" to="to-yellorange-100" />
+        {trip && <WeatherSection trip={trip} isPending={isPending} />}
+      </Container>
 
       {/* Section 8 */}
 
-      <section className="final-section relative flex h-screen items-center justify-center overflow-x-hidden">
-        <div className="absolute left-0 top-0 -z-10 h-full w-full bg-gradient-to-b from-gallery-100 to-deeporange-100"></div>
+      <Container
+        overflow="overflow-x-hidden"
+        animationClass="formdetails-section"
+      >
+        <GradientBg from="from-yellorange-100" to="to-gallery-100" />
+        {trip && <FormDetailsSection trip={trip} />}
+      </Container>
+
+      {/* Section 9 */}
+
+      <Container overflow="overflow-x-hidden" animationClass="final-section">
+        <GradientBg from="from-gallery-100" to="to-deeporange-100" />
         {trip && <FinalSection trip={trip} />}
-      </section>
+      </Container>
     </>
   );
 }

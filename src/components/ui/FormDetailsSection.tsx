@@ -9,6 +9,8 @@ import image4 from "@/assets/homepage/4.jpg";
 import { Trip } from "@prisma/client";
 import { FinalDataTypes, ImageDataTypes } from "@/types";
 
+
+
 function FormDetailsSection({
   trip,
   imageData,

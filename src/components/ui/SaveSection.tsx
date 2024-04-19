@@ -1,13 +1,7 @@
-import { ImageDataTypes } from "@/types";
 import Image from "next/image";
 import image5 from "@/assets/homepage/5.jpg";
 import { Button } from "@nextui-org/react";
-
-interface SaveSectionProps {
-  handleYesAnswer: () => void;
-  handleNoAnswer: () => void;
-  imageData?: ImageDataTypes | null;
-}
+import type { SaveSectionProps } from "@/types";
 
 function SaveSection({
   handleYesAnswer,
