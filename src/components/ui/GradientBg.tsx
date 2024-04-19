@@ -1,9 +1,4 @@
-interface GradientBgProps {
-  from: string;
-  to: string;
-  blur?: string;
-}
-
+import type { GradientBgProps } from "@/types";
 function GradientBg({ from, to, blur }: GradientBgProps) {
   return (
     <div
@@ -13,4 +8,3 @@ function GradientBg({ from, to, blur }: GradientBgProps) {
 }
 
 export default GradientBg;
-

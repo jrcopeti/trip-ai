@@ -3,16 +3,9 @@
 import { createContext } from "react";
 import { fetchResponseAI } from "@/api/openaiApi";
 import { useFormData } from "@/hooks/useFormData";
-import { useMutation} from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import type { Trip } from "@prisma/client"
-
-interface TripContextType {
-  tripData: Trip | undefined;
-  generateResponseAI: (prompt: string) => void;
-  isPendingResponseAI: boolean;
-  errorResponseAI: unknown;
-}
+import type { TripContextType } from "@/types";
 
 const defaultContextValue: TripContextType = {
   tripData: undefined,
@@ -25,7 +18,7 @@ const TripContext = createContext<TripContextType>(defaultContextValue);
 
 function TripProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const {formData} = useFormData()
+  const { formData } = useFormData();
 
   const {
     mutate: generateResponseAI,

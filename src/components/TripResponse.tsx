@@ -1,13 +1,12 @@
 "use client";
 import { useEffect, useLayoutEffect } from "react";
-import { createTripInDB } from "@/db/actions";
 
 import { useImage } from "@/hooks/useImage";
 import { useFormData } from "@/hooks/useFormData";
-import { useTrip } from "@/hooks/useTrip";
+import { useTripResponse } from "@/hooks/useTripResponse";
 import { useWeather } from "@/hooks/useWeather";
+import { useCreateTrip } from "@/hooks/useCreateTrip";
 
-import { useMutation } from "@tanstack/react-query";
 import { Prisma } from "@prisma/client";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -25,27 +24,14 @@ import SaveSection from "./ui/SaveSection";
 import GradientBg from "./ui/GradientBg";
 import Container from "./ui/Container";
 
-gsap.registerPlugin(ScrollTrigger);
-
 function TripResponse() {
+  const { createTrip, isCreatingTrip, createTripError } = useCreateTrip();
+
   const {
-    mutate: createTrip,
-    isPending: isCreatingTrip,
-    error: createTripError,
-  } = useMutation({
-    mutationKey: ["trips"],
-    mutationFn: (data: Prisma.TripCreateInput) => createTripInDB(data),
-
-    onSuccess: () => {
-      console.log("success createTrip ");
-      alert("Trip created successfully");
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-  });
-
-  const { tripData: trip, isPendingResponseAI, errorResponseAI } = useTrip();
+    tripData: trip,
+    isPendingResponseAI,
+    errorResponseAI,
+  } = useTripResponse();
   const { formData } = useFormData();
   const { isPendingWeather, weatherData } = useWeather();
   const { imageData, isPendingImage } = useImage();
@@ -53,7 +39,6 @@ function TripResponse() {
   console.log("trip Data in Trip", trip);
 
   const handleYesAnswer = () => {
-    console.log("formDataYEScalled");
     const saved = true;
     const finalData = {
       ...trip,
@@ -237,6 +222,7 @@ function TripResponse() {
 
   useIsomorphicLayoutEffect(() => {
     if (!isPendingResponseAI && !isPendingWeather && weatherData) {
+      gsap.registerPlugin(ScrollTrigger);
       const context = gsap.context(() => {
         gsap.from(".weather-card", {
           autoAlpha: 0,

@@ -1,9 +1,4 @@
-interface GradientConicProps {
-  left: string;
-  top: string;
-  from: string;
-  to: string;
-}
+import { GradientConicProps } from "@/types";
 
 function GradientConic({ left, top, from, to }: GradientConicProps) {
   return (

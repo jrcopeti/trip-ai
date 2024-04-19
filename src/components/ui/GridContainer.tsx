@@ -1,7 +1,4 @@
-interface GridContainerProps {
-  children: React.ReactNode;
-  bg?: string;
-}
+import type { GridContainerProps } from "@/types";
 
 function GridContainer({ children, bg }: GridContainerProps) {
   return (

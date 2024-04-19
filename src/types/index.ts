@@ -1,10 +1,10 @@
 import z from "zod";
 import { FormDataSchema } from "@/lib/schema";
 import { Control, FieldErrors } from "react-hook-form";
+import { Trip } from "@prisma/client";
 
 export type Inputs = z.infer<typeof FormDataSchema>;
 export type FieldName = keyof Inputs;
-
 export interface WeatherApiResponse {
   main: {
     temp: number;
@@ -87,17 +87,8 @@ export interface ImageDataTypes {
   placeholder: string | null;
 }
 
-export interface ImageData {
-  tripImage: string | null;
-  tripImage2: string | null;
-  tripImage3: string | null;
-  tripImage4: string | null;
-  tripImage5: string | null;
-  placeholder: string | null;
-}
-
 export interface ImageContextType {
-  imageData: ImageData | undefined;
+  imageData: ImageDataTypes | undefined;
   generateImage: (city: string) => void;
   isPendingImage: boolean;
   errorImage: unknown;
@@ -152,4 +143,79 @@ export interface FormButtonsProps {
   currentStep: number;
   next: () => void;
   prev: () => void;
+}
+
+export interface ContainerProps {
+  children: React.ReactNode;
+  overflow: string;
+  animationClass?: string;
+}
+
+export interface DescriptionSectionProps {
+  trip: Trip;
+  imageData?: ImageDataTypes;
+}
+
+export interface Gradient1Props {
+  left: string;
+  top: string;
+  color1: string;
+  color2: string;
+  blur: string;
+}
+
+export interface GradientBgProps {
+  from: string;
+  to: string;
+  blur?: string;
+}
+
+export interface GradientConicProps {
+  left: string;
+  top: string;
+  from: string;
+  to: string;
+}
+
+export interface GridContainerProps {
+  children: React.ReactNode;
+  bg?: string;
+}
+
+export interface MustHaveSectionProps {
+  trip: Trip;
+  imageData?: ImageDataTypes;
+}
+
+export interface ReviewFormProps {
+  reviewFormData: Inputs;
+  weather: boolean;
+}
+
+export interface SaveSectionProps {
+  handleYesAnswer: () => void;
+  handleNoAnswer: () => void;
+  imageData?: ImageDataTypes | null;
+}
+
+export interface TitleSectionProps {
+  trip: Trip;
+  imageData?: ImageDataTypes;
+}
+
+export interface WeatherSectionProps {
+  trip: Trip;
+  isPending: boolean;
+}
+
+export interface FormContextType {
+  formData: FinalDataTypes;
+  setFormData: (data: FinalDataTypes) => void;
+}
+
+export interface TripContextType {
+  tripData: Trip | undefined;
+  generateResponseAI: (prompt: string) => void;
+  isPendingResponseAI: boolean;
+  errorResponseAI: unknown;
 }

@@ -1,8 +1,4 @@
-interface ContainerProps {
-  children: React.ReactNode;
-  overflow: string;
-  animationClass?: string;
-}
+import type { ContainerProps } from "@/types";
 
 function Container({ children, overflow, animationClass }: ContainerProps) {
   return (

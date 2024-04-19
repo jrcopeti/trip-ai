@@ -7,19 +7,13 @@ import { IoWaterOutline } from "react-icons/io5";
 import { LuWind } from "react-icons/lu";
 import { TbSunrise } from "react-icons/tb";
 import { BsSunsetFill } from "react-icons/bs";
-import { Trip } from "@prisma/client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import type { WeatherSectionProps } from "@/types";
 
 dayjs.extend(utc);
 
-function WeatherSection({
-  trip,
-  isPending,
-}: {
-  trip: Trip;
-  isPending: boolean;
-}) {
+function WeatherSection({ trip, isPending }: WeatherSectionProps) {
   const { generateWeather, isPendingWeather, weatherData } = useWeather();
   console.log(weatherData);
   console.log("isPending`Weather", isPendingWeather);

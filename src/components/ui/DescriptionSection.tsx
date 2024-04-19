@@ -1,16 +1,9 @@
-import { ImageDataTypes } from "@/types";
-import { Trip } from "@prisma/client";
 import Image from "next/image";
 import image2 from "@/assets/homepage/2.jpg";
 import { defaultPlaceholder } from "@/lib/utils";
+import type { DescriptionSectionProps } from "@/types";
 
-function DescriptionSection({
-  trip,
-  imageData,
-}: {
-  trip: Trip;
-  imageData?: ImageDataTypes;
-}) {
+function DescriptionSection({ trip, imageData }: DescriptionSectionProps) {
   return (
     <>
       <div className="trip-description grid h-[90%] w-[90%] grid-cols-none grid-rows-2 shadow-sm lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none ">

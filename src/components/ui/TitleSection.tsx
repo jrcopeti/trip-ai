@@ -1,20 +1,12 @@
-import { Trip } from "@prisma/client";
 import Image from "next/image";
 import image1 from "@/assets/homepage/1.jpg";
-import { ImageDataTypes } from "@/types";
-import { image } from "@nextui-org/react";
 import { defaultPlaceholder } from "@/lib/utils";
+import type { TitleSectionProps } from "@/types";
 
-function TitleSection({
-  trip,
-  imageData,
-}: {
-  trip: Trip;
-  imageData?: ImageDataTypes;
-}) {
+function TitleSection({ trip, imageData }: TitleSectionProps) {
   return (
     <>
-      <div className="grid h-[90%] w-[90%] grid-cols-none grid-rows-2 lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none shadow-xl">
+      <div className="grid h-[90%] w-[90%] grid-cols-none grid-rows-2 shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none">
         <div className="relative h-full w-full ">
           <Image
             src={(trip?.image || imageData?.tripImage) ?? image1}

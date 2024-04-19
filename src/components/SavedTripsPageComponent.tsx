@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useLayoutEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getSingleSavedTrip } from "@/db/actions";
 import { useWeather } from "@/hooks/useWeather";
+import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -24,14 +23,7 @@ function SavedTripsPageComponent({
 }: {
   params: { id: number | string };
 }) {
-  const {
-    data: trip,
-    isPending,
-    error,
-  } = useQuery({
-    queryKey: ["trips", params.id],
-    queryFn: () => getSingleSavedTrip(Number(params.id)),
-  });
+  const { trip, isPending, error } = useSingleSavedTrip({ params });
 
   const { isPendingWeather, weatherData } = useWeather();
 

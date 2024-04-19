@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useCountries } from "@/hooks/useCountries";
-import { useTrip } from "@/hooks/useTrip";
+import { useTripResponse } from "@/hooks/useTripResponse";
 import { useImage } from "@/hooks/useImage";
 import { useWeather } from "@/hooks/useWeather";
 import { useFormData } from "@/hooks/useFormData";
@@ -71,7 +71,7 @@ function Form() {
     name: "requiredItems",
   });
   const { countries, isLoading: isLoadingCountries } = useCountries();
-  const { generateResponseAI, isPendingResponseAI } = useTrip();
+  const { generateResponseAI, isPendingResponseAI } = useTripResponse();
   const { generateForecast, forecastData } = useWeather();
   const { setFormData } = useFormData();
   const { generateImage } = useImage();

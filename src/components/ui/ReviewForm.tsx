@@ -1,13 +1,7 @@
 import { durationInDays, displayDuration } from "@/lib/utils";
-import { Inputs } from "@/types";
+import type { ReviewFormProps } from "@/types";
 
-function ReviewForm({
-  reviewFormData,
-  weather,
-}: {
-  reviewFormData: Inputs;
-  weather: boolean;
-}) {
+function ReviewForm({ reviewFormData, weather }: ReviewFormProps) {
   const {
     userName,
     city,

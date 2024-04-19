@@ -1,7 +1,6 @@
 "use client";
 
 import { fetchTripImage } from "@/api/unsplashApi";
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { createContext } from "react";

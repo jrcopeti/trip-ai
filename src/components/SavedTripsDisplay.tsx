@@ -1,18 +1,9 @@
 "use client";
-import { getAllTrips } from "@/db/actions";
-import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
+import { useSavedTrips } from "@/hooks/useSavedTrips";
 import SavedTripCard from "./ui/SavedTripCard";
 
 function SavedTripsDisplay() {
-  const {
-    data: savedTrips,
-    isPending: isPendingSavedTrips,
-    error: savedTripsError,
-  } = useQuery({
-    queryKey: ["trips"],
-    queryFn: () => getAllTrips(),
-  });
+  const { savedTrips, isPendingSavedTrips, savedTripsError } = useSavedTrips();
   console.log("savedTrips", savedTrips);
   if (isPendingSavedTrips) {
     return <div>Loading saved trips...</div>;

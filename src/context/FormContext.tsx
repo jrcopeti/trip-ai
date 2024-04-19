@@ -1,16 +1,7 @@
 "use client";
 
 import { useState, createContext } from "react";
-import { z } from "zod";
-
-import { FormDataSchema } from "@/lib/schema";
-import { FinalDataTypes } from "@/types";
-
-type Inputs = z.infer<typeof FormDataSchema>;
-interface FormContextType {
-  formData: FinalDataTypes;
-  setFormData: (data: FinalDataTypes) => void;
-}
+import type { FinalDataTypes, FormContextType, Inputs } from "@/types";
 
 const defaultFormData: Inputs = {
   userName: "",
