@@ -10,7 +10,7 @@ function SavedTripCard({ trip }: { trip: any }) {
   return (
     <Link
       href={`/saved-trips/${id}`}
-      className="saved-trip-card flex h-[40vh] w-[40vh] flex-col rounded-sm bg-gallery-100 px-4 py-3 shadow-md transition duration-300 ease-in-out hover:-translate-y-2 "
+      className="trip-card flex h-[40vh] w-[40vh] flex-col rounded-sm bg-gallery-100 px-4 py-3 opacity-0 shadow-md transition duration-300 ease-in-out hover:-translate-y-2 "
     >
       <div>
         <h2 className="text-xl font-semibold capitalize text-tuna-900">
