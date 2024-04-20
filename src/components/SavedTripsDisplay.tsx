@@ -5,7 +5,7 @@ import { savedTripDataCards } from "@/data";
 import { useEffect, useLayoutEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Loader from "./ui/Preloader";
+import Loader from "./ui/Loader";
 
 function SavedTripsDisplay() {
   const { savedTrips, isPendingSavedTrips, savedTripsError } = useSavedTrips();

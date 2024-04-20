@@ -11,6 +11,7 @@ import { Controller } from "react-hook-form";
 import { motion } from "framer-motion";
 import type { FormStepProps } from "@/types";
 import FormTitle from "./FormTitle";
+import Loader from "./Loader";
 
 function FormStep2({
   currentStep,
@@ -20,10 +21,6 @@ function FormStep2({
   delta,
 }: FormStepProps) {
   const { countries, isLoading: isLoadingCountries } = useCountries();
-
-  if (isLoadingCountries) {
-    return <p>Loading countries...</p>;
-  }
 
   return (
     <>

@@ -6,9 +6,10 @@ const COUNTRY_MAX_LENGTH = 25;
 
 export function useCountries() {
   const [countries, setCountries] = useState<Country[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    setIsLoading(true);
     const fetchCountries = async () => {
       try {
         const { data } = await axios.get<Record<string, string>>(
