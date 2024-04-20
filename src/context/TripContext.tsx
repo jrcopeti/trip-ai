@@ -30,7 +30,7 @@ function TripProvider({ children }: { children: React.ReactNode }) {
 
     onSuccess: () => {
       console.log("success trip");
-      router.push(`/trips/${formData.tripUrl}`);
+      router.push(`/trips/${crypto.randomUUID().slice(0, 5)}`);
     },
     onError: (error) => {
       console.log(error);

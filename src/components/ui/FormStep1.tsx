@@ -5,6 +5,7 @@ import FormTitle from "./FormTitle";
 
 import type { FormStepProps } from "@/types";
 import { useCountries } from "@/hooks/useCountries";
+import Loader from "./Loader";
 
 function FormStep1({
   currentStep,
@@ -14,9 +15,7 @@ function FormStep1({
   delta,
 }: FormStepProps) {
   const { countries, isLoading: isLoadingCountries } = useCountries();
-  if (isLoadingCountries) {
-    return <p>Loading countries...</p>;
-  }
+
   return (
     <>
       {currentStep === 0 && (

@@ -6,6 +6,7 @@ import {
   NavbarItem,
   Link,
 } from "@nextui-org/react";
+import { PiSuitcase } from "react-icons/pi";
 
 function NavbarComponent() {
   return (
@@ -18,10 +19,25 @@ function NavbarComponent() {
       >
         <NavbarBrand>
           <Link href="/">
-            <p className="font-bold text-inherit text-neptune-500">Trip AI</p>
+            <p className="flex items-center gap-1 font-bold text-inherit text-neptune-500">
+              {" "}
+              <span>
+                <PiSuitcase size={30} />
+              </span>
+              Trip AI
+            </p>
           </Link>
         </NavbarBrand>
         <NavbarContent className="flex gap-8" justify="center">
+          <NavbarItem>
+            <Link
+              className="font-semibold text-tuna-900"
+              href="/"
+              aria-current="page"
+            >
+              Home
+            </Link>
+          </NavbarItem>
           <NavbarItem>
             <Link className="font-semibold text-tuna-900" href="/form">
               Form

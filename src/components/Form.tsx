@@ -24,6 +24,8 @@ import { steps } from "@/data";
 import type { FinalDataTypes, ProcessFormType } from "@/types";
 import type { Inputs, FieldName } from "@/types";
 import FormContainer from "./ui/FormContainer";
+import Loader from "./ui/Loader";
+import Preloader from "./ui/Preloader";
 
 function Form() {
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -76,6 +78,10 @@ function Form() {
   const { setFormData } = useFormData();
   const { generateImage } = useImage();
 
+  if (isLoadingCountries) {
+    return <Loader />;
+  }
+
   const forecastDataString = JSON.stringify(forecastData);
 
   const stepValue = steps[currentStep].stepValue;
@@ -95,10 +101,6 @@ function Form() {
       }
     }
   };
-
-  if (isPendingResponseAI) {
-    return <div>Loading...</div>;
-  }
 
   const cityWatch = watch("city");
   const countryWatch = watch("country");
@@ -178,6 +180,10 @@ function Form() {
     reset();
   };
 
+  if (isPendingResponseAI) {
+    return <Loader />;
+  }
+
   return (
     <>
       <FormContainer>
@@ -246,6 +252,7 @@ function Form() {
           />
         </form>
       </FormContainer>
+
       <FormButtons currentStep={currentStep} next={next} prev={prev} />
     </>
   );

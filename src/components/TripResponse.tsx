@@ -23,6 +23,7 @@ import WeatherSection from "./ui/WeatherSection";
 import SaveSection from "./ui/SaveSection";
 import GradientBg from "./ui/GradientBg";
 import Container from "./ui/Container";
+import Loader from "./ui/Loader";
 
 function TripResponse() {
   const { createTrip, isCreatingTrip, createTripError } = useCreateTrip();
@@ -240,9 +241,8 @@ function TripResponse() {
     }
   }, [isPendingResponseAI, isPendingWeather, weatherData]);
 
-  if (isPendingImage) {
-    return <div>Loading image...</div>;
-  }
+
+  console.log("isPendingResponseAI", isPendingResponseAI, "isPending Weather", isPendingWeather, "weatherData", weatherData, "isPendingImage", isPendingImage, "imageData", );
 
   if (!trip) {
     notFound();
