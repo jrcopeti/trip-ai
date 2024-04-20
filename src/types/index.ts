@@ -219,3 +219,8 @@ export interface TripContextType {
   isPendingResponseAI: boolean;
   errorResponseAI: unknown;
 }
+
+export interface SavedTripsContainerProps {
+  children: React.ReactNode;
+  bg?: string;
+}
