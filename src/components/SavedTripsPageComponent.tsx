@@ -97,27 +97,13 @@ function SavedTripsPageComponent({
           },
         });
 
-        // gsap.from(".pack-ready", {
-        //   autoAlpha: 0,
-        //   y: 100,
-        //   duration: 1,
-        //   scrollTrigger: {
-        //     trigger: ".pack-section",
-        //     start: "top center",
-        //     end: "center 300px",
-        //     toggleActions: "restart none play none",
-        //   },
-        // });
-
         gsap.from(".stamps", {
           autoAlpha: 0,
 
           duration: 1,
           scrollTrigger: {
             trigger: ".stamps",
-            // start: "0px 300px",
-            // end: "400px 400px",
-            start: "250px bottom",
+            start: "300px bottom",
             end: "center -100px",
             scrub: 1,
           },
@@ -133,7 +119,6 @@ function SavedTripsPageComponent({
             gsap.from(elements, {
               autoAlpha: 0,
               y: 100,
-              // stagger: 0.2,
               ease: "power2.inOut",
               duration: 1.2,
             });
@@ -176,7 +161,6 @@ function SavedTripsPageComponent({
             start: "100px bottom",
             end: "center 300px",
             toggleActions: "restart none play none",
-            markers: true,
           },
         });
       });
