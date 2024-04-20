@@ -17,6 +17,8 @@ import FormDetailsSection from "./ui/FormDetailsSection";
 import FinalSection from "./ui/FinalSection";
 import GradientBg from "./ui/GradientBg";
 import Container from "./ui/Container";
+import Loader from "./ui/Preloader";
+import { AnimatePresence } from "framer-motion";
 
 function SavedTripsPageComponent({
   params,
@@ -189,7 +191,11 @@ function SavedTripsPageComponent({
   }, [isPending, isPendingWeather, weatherData]);
 
   if (isPending) {
-    return <div>Loading single trip...</div>;
+    return (
+      <AnimatePresence mode="wait">
+        <Loader />;
+      </AnimatePresence>
+    );
   }
 
   return (

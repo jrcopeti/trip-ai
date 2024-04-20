@@ -5,6 +5,7 @@ import { savedTripDataCards } from "@/data";
 import { useEffect, useLayoutEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Loader from "./ui/Preloader";
 
 function SavedTripsDisplay() {
   const { savedTrips, isPendingSavedTrips, savedTripsError } = useSavedTrips();
@@ -76,7 +77,7 @@ function SavedTripsDisplay() {
   }, [isPendingSavedTrips]);
 
   if (isPendingSavedTrips) {
-    return <div>Loading saved trips...</div>;
+    return <Loader />;
   }
   return (
     <div className="flex flex-col items-center gap-10 py-2 lg:px-16 lg:py-4 ">
