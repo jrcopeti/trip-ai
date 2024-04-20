@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { useCountries } from "@/hooks/useCountries";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { useImage } from "@/hooks/useImage";
@@ -19,15 +19,14 @@ import FormStep4 from "./ui/FormStep4";
 import FormStep5 from "./ui/FormStep5";
 import FormStep6 from "./ui/FormStep6";
 import FormStep7 from "./ui/FormStep7";
+import Loader from "./ui/Loader";
 import FormButtons from "./ui/FormButtons";
 import { steps } from "@/data";
 import type { FinalDataTypes, ProcessFormType } from "@/types";
 import type { Inputs, FieldName } from "@/types";
 import FormContainer from "./ui/FormContainer";
-import Loader from "./ui/Loader";
-import Preloader from "./ui/Preloader";
 
-function Form() {
+const Form = memo(function Form() {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [prevStep, setPrevStep] = useState<number>(0);
   const delta = currentStep - prevStep;
@@ -64,7 +63,6 @@ function Form() {
       weatherForecast: "",
       agreement: false,
       flagUrl: "",
-      tripUrl: crypto.randomUUID().slice(0, 5),
     },
   });
 
@@ -73,40 +71,38 @@ function Form() {
     name: "requiredItems",
   });
   const { countries, isLoading: isLoadingCountries } = useCountries();
-  const { generateResponseAI, isPendingResponseAI } = useTripResponse();
+  const { generateResponseAI, isPendingResponseAI, isNavigating } =
+    useTripResponse();
   const { generateForecast, forecastData } = useWeather();
   const { setFormData } = useFormData();
   const { generateImage } = useImage();
 
-  if (isLoadingCountries) {
+  // workaround to get the right value from the autocomplete
+  const handleSelectionAutocomplete = useCallback(
+    (selectedKey: string | number, fieldName: FieldName) => {
+      const selectedCountry = countries.find(
+        (country) => country.code === selectedKey,
+      );
+      if (selectedCountry) {
+        setValue(fieldName, selectedCountry.value);
+        if (fieldName === "country") {
+          setValue("flagUrl", selectedCountry.flagUrl);
+        }
+      }
+    },
+    [countries, setValue],
+  );
+
+  if (isLoadingCountries || isPendingResponseAI || isNavigating) {
     return <Loader />;
   }
 
   const forecastDataString = JSON.stringify(forecastData);
-
   const stepValue = steps[currentStep].stepValue;
-
-  // workaround to get the right value from the autocomplete
-  const handleSelectionAutocomplete = (
-    selectedKey: string | number,
-    fieldName: FieldName,
-  ) => {
-    const selectedCountry = countries.find(
-      (country) => country.code === selectedKey,
-    );
-    if (selectedCountry) {
-      setValue(fieldName, selectedCountry.value);
-      if (fieldName === "country") {
-        setValue("flagUrl", selectedCountry.flagUrl);
-      }
-    }
-  };
 
   const cityWatch = watch("city");
   const countryWatch = watch("country");
-
   const reviewFormData = getValues();
-  console.log("reviewFormData", reviewFormData);
 
   const next = async () => {
     const fields = steps[currentStep].fields;
@@ -114,15 +110,13 @@ function Form() {
       shouldFocus: true,
     });
 
-    // if (!output) return;
+    if (!output) return;
 
     if (currentStep === steps.length - 3) {
-      console.log("get image unsplash");
       generateImage(cityWatch);
     }
 
     if (isWeatherSelected && currentStep === steps.length - 2) {
-      console.log("get weather in the form");
       generateForecast({ city: cityWatch, country: countryWatch });
     }
 
@@ -175,14 +169,8 @@ function Form() {
       requiredItems: transformedRequiredItems,
       weatherForecast: forecastDataString,
     };
-
     setFormData(finalData);
-    reset();
   };
-
-  if (isPendingResponseAI) {
-    return <Loader />;
-  }
 
   return (
     <>
@@ -256,6 +244,6 @@ function Form() {
       <FormButtons currentStep={currentStep} next={next} prev={prev} />
     </>
   );
-}
+});
 
 export default Form;

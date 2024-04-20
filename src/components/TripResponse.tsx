@@ -10,7 +10,7 @@ import { useCreateTrip } from "@/hooks/useCreateTrip";
 import { Prisma } from "@prisma/client";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { notFound } from "next/navigation";
+import { notFound, usePathname } from "next/navigation";
 
 import FormDetailsSection from "./ui/FormDetailsSection";
 import TitleSection from "./ui/TitleSection";
@@ -27,17 +27,18 @@ import Loader from "./ui/Loader";
 
 function TripResponse() {
   const { createTrip, isCreatingTrip, createTripError } = useCreateTrip();
+  const pathname = usePathname();
+  const tripUrl = pathname.replace("/trips/", "");
 
   const {
     tripData: trip,
     isPendingResponseAI,
     errorResponseAI,
+    isNavigating,
   } = useTripResponse();
   const { formData } = useFormData();
   const { isPendingWeather, weatherData } = useWeather();
   const { imageData, isPendingImage } = useImage();
-  console.log("Form Data in Trip", formData);
-  console.log("trip Data in Trip", trip);
 
   const handleYesAnswer = () => {
     const saved = true;
@@ -52,6 +53,7 @@ function TripResponse() {
       image4: imageData?.tripImage4 ?? null,
       image5: imageData?.tripImage5 ?? null,
       placeholder: imageData?.placeholder ?? null,
+      tripUrl,
       saved,
     };
     console.log("finalDataYES", finalData);
@@ -60,7 +62,6 @@ function TripResponse() {
   };
 
   const handleNoAnswer = () => {
-    console.log("formDataNOcalled");
     const finalData = {
       ...trip,
       ...formData,
@@ -71,9 +72,9 @@ function TripResponse() {
       image3: imageData?.tripImage3 ?? null,
       image4: imageData?.tripImage4 ?? null,
       image5: imageData?.tripImage5 ?? null,
+      tripUrl,
       saved: false,
     };
-
     createTrip(finalData as Prisma.TripCreateInput);
   };
 
@@ -149,12 +150,9 @@ function TripResponse() {
 
         gsap.from(".stamps", {
           autoAlpha: 0,
-
           duration: 1,
           scrollTrigger: {
             trigger: ".stamps",
-            // start: "0px 300px",
-            // end: "400px 400px",
             start: "250px bottom",
             end: "center -100px",
             scrub: 1,
@@ -241,8 +239,9 @@ function TripResponse() {
     }
   }, [isPendingResponseAI, isPendingWeather, weatherData]);
 
-
-  console.log("isPendingResponseAI", isPendingResponseAI, "isPending Weather", isPendingWeather, "weatherData", weatherData, "isPendingImage", isPendingImage, "imageData", );
+  if (isPendingResponseAI) {
+    return <Loader />;
+  }
 
   if (!trip) {
     notFound();

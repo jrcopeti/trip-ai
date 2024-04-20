@@ -18,6 +18,5 @@ export const FormDataSchema = z.object({
   endDate: z.string().datetime().min(1, "End date is required"),
   weatherForecast: z.string().optional(),
   agreement: z.boolean().refine((val) => val === true, { message: "You must agree to the terms" }),
-  tripUrl: z.string().optional(),
   flagUrl: z.string(),
 });

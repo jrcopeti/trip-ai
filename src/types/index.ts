@@ -219,6 +219,7 @@ export interface TripContextType {
   generateResponseAI: (prompt: string) => void;
   isPendingResponseAI: boolean;
   errorResponseAI: unknown;
+  isNavigating: boolean;
 }
 
 export interface SavedTripsContainerProps {
