@@ -26,19 +26,26 @@ import Container from "./ui/Container";
 import Loader from "./ui/Loader";
 
 function TripResponse() {
+  useEffect(() => {
+    (async () => {
+      const LocomotiveScroll = (await import("locomotive-scroll" as any))
+        .default;
+      const locomotiveScroll = new LocomotiveScroll({
+        lenisOptions: {
+          lerp: 0.15,
+        },
+      });
+    })();
+  }, []);
+
   const { createTrip, isCreatingTrip, createTripError } = useCreateTrip();
   const pathname = usePathname();
   const tripUrl = pathname.replace("/trips/", "");
 
-  const {
-    tripData: trip,
-    isPendingResponseAI,
-    errorResponseAI,
-    isNavigating,
-  } = useTripResponse();
+  const { tripData: trip, isPendingResponseAI } = useTripResponse();
   const { formData } = useFormData();
   const { isPendingWeather, weatherData } = useWeather();
-  const { imageData, isPendingImage } = useImage();
+  const { imageData } = useImage();
 
   const handleYesAnswer = () => {
     const saved = true;
@@ -56,7 +63,6 @@ function TripResponse() {
       tripUrl,
       saved,
     };
-    console.log("finalDataYES", finalData);
 
     createTrip(finalData as Prisma.TripCreateInput);
   };
@@ -136,24 +142,12 @@ function TripResponse() {
           },
         });
 
-        gsap.from(".pack-ready", {
-          autoAlpha: 0,
-          y: 100,
-          duration: 1,
-          scrollTrigger: {
-            trigger: ".pack-section",
-            start: "top center",
-            end: "center 300px",
-            toggleActions: "restart none play none",
-          },
-        });
-
         gsap.from(".stamps", {
           autoAlpha: 0,
           duration: 1,
           scrollTrigger: {
             trigger: ".stamps",
-            start: "250px bottom",
+            start: "300px bottom",
             end: "center -100px",
             scrub: 1,
           },
@@ -169,7 +163,6 @@ function TripResponse() {
             gsap.from(elements, {
               autoAlpha: 0,
               y: 100,
-              // stagger: 0.2,
               ease: "power2.inOut",
               duration: 1.2,
             });

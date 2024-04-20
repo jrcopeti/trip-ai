@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { useCountries } from "@/hooks/useCountries";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { useImage } from "@/hooks/useImage";
@@ -21,10 +21,10 @@ import FormStep6 from "./ui/FormStep6";
 import FormStep7 from "./ui/FormStep7";
 import Loader from "./ui/Loader";
 import FormButtons from "./ui/FormButtons";
+import FormContainer from "./ui/FormContainer";
 import { steps } from "@/data";
 import type { FinalDataTypes, ProcessFormType } from "@/types";
 import type { Inputs, FieldName } from "@/types";
-import FormContainer from "./ui/FormContainer";
 
 const Form = memo(function Form() {
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -170,6 +170,7 @@ const Form = memo(function Form() {
       weatherForecast: forecastDataString,
     };
     setFormData(finalData);
+    reset();
   };
 
   return (

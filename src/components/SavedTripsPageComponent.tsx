@@ -100,7 +100,6 @@ function SavedTripsPageComponent({
 
         gsap.from(".stamps", {
           autoAlpha: 0,
-
           duration: 1,
           scrollTrigger: {
             trigger: ".stamps",
