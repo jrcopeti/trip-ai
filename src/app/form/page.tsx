@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import Form from "@/components/Form";
 import Container from "@/components/ui/Container";
 import FormContainer from "@/components/ui/FormContainer";
@@ -17,25 +17,28 @@ const DynamicForm = dynamic(() => import("@/components/Form"), {
   ssr: false,
 });
 
-
 function FormPage() {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1000);
+    }, 1500);
+    return () => {
+      clearTimeout(timer);
+    };
   }, []);
 
   return (
     <>
-    {isLoading && <Loader />}
+      {isLoading && <Loader />}
       <Container overflow="overflow-hidden">
         <GradientBg
           from="from-violay-300"
           to="to-deeporange-200"
           blur="blur-[190px]"
         />
+
         <DynamicForm />
       </Container>
     </>

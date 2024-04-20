@@ -10,7 +10,7 @@ import { useCreateTrip } from "@/hooks/useCreateTrip";
 import { Prisma } from "@prisma/client";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { notFound } from "next/navigation";
+import { notFound, usePathname } from "next/navigation";
 
 import FormDetailsSection from "./ui/FormDetailsSection";
 import TitleSection from "./ui/TitleSection";
@@ -26,18 +26,26 @@ import Container from "./ui/Container";
 import Loader from "./ui/Loader";
 
 function TripResponse() {
-  const { createTrip, isCreatingTrip, createTripError } = useCreateTrip();
+  useEffect(() => {
+    (async () => {
+      const LocomotiveScroll = (await import("locomotive-scroll" as any))
+        .default;
+      const locomotiveScroll = new LocomotiveScroll({
+        lenisOptions: {
+          lerp: 0.15,
+        },
+      });
+    })();
+  }, []);
 
-  const {
-    tripData: trip,
-    isPendingResponseAI,
-    errorResponseAI,
-  } = useTripResponse();
+  const { createTrip, isCreatingTrip, createTripError } = useCreateTrip();
+  const pathname = usePathname();
+  const tripUrl = pathname.replace("/trips/", "");
+
+  const { tripData: trip, isPendingResponseAI } = useTripResponse();
   const { formData } = useFormData();
   const { isPendingWeather, weatherData } = useWeather();
-  const { imageData, isPendingImage } = useImage();
-  console.log("Form Data in Trip", formData);
-  console.log("trip Data in Trip", trip);
+  const { imageData } = useImage();
 
   const handleYesAnswer = () => {
     const saved = true;
@@ -52,15 +60,14 @@ function TripResponse() {
       image4: imageData?.tripImage4 ?? null,
       image5: imageData?.tripImage5 ?? null,
       placeholder: imageData?.placeholder ?? null,
+      tripUrl,
       saved,
     };
-    console.log("finalDataYES", finalData);
 
     createTrip(finalData as Prisma.TripCreateInput);
   };
 
   const handleNoAnswer = () => {
-    console.log("formDataNOcalled");
     const finalData = {
       ...trip,
       ...formData,
@@ -71,9 +78,9 @@ function TripResponse() {
       image3: imageData?.tripImage3 ?? null,
       image4: imageData?.tripImage4 ?? null,
       image5: imageData?.tripImage5 ?? null,
+      tripUrl,
       saved: false,
     };
-
     createTrip(finalData as Prisma.TripCreateInput);
   };
 
@@ -135,27 +142,12 @@ function TripResponse() {
           },
         });
 
-        gsap.from(".pack-ready", {
-          autoAlpha: 0,
-          y: 100,
-          duration: 1,
-          scrollTrigger: {
-            trigger: ".pack-section",
-            start: "top center",
-            end: "center 300px",
-            toggleActions: "restart none play none",
-          },
-        });
-
         gsap.from(".stamps", {
           autoAlpha: 0,
-
           duration: 1,
           scrollTrigger: {
             trigger: ".stamps",
-            // start: "0px 300px",
-            // end: "400px 400px",
-            start: "250px bottom",
+            start: "300px bottom",
             end: "center -100px",
             scrub: 1,
           },
@@ -171,7 +163,6 @@ function TripResponse() {
             gsap.from(elements, {
               autoAlpha: 0,
               y: 100,
-              // stagger: 0.2,
               ease: "power2.inOut",
               duration: 1.2,
             });
@@ -241,8 +232,9 @@ function TripResponse() {
     }
   }, [isPendingResponseAI, isPendingWeather, weatherData]);
 
-
-  console.log("isPendingResponseAI", isPendingResponseAI, "isPending Weather", isPendingWeather, "weatherData", weatherData, "isPendingImage", isPendingImage, "imageData", );
+  if (isPendingResponseAI) {
+    return <Loader />;
+  }
 
   if (!trip) {
     notFound();

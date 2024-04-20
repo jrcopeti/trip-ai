@@ -22,7 +22,6 @@ const defaultFormData: Inputs = {
   weatherForecast: "",
   agreement: false,
   flagUrl: "",
-  tripUrl: crypto.randomUUID().slice(0, 5),
 };
 
 function transformInputsToFinalData(inputs: Inputs): FinalDataTypes {
