@@ -13,5 +13,5 @@ It still on development and the first version will be released soon 🚀
 - Next UI
 - Axios
 - OpenAI API
-- GSAP Animation
+- GSAP Animation and Framer Motion
 
