@@ -23,6 +23,7 @@ import Loader from "./ui/Loader";
 import FormButtons from "./ui/FormButtons";
 import FormContainer from "./ui/FormContainer";
 import { steps } from "@/data";
+
 import type { FinalDataTypes, ProcessFormType } from "@/types";
 import type { Inputs, FieldName } from "@/types";
 

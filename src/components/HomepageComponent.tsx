@@ -1,9 +1,10 @@
 "use client";
+import { useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
+
 import SwiperWithThumbs from "./ui/SwiperWithThumbs";
 import HomepageTitle from "./ui/HomepageTitle";
 import GridContainer from "./ui/GridContainer";
-import { useEffect, useState } from "react";
-import { AnimatePresence } from "framer-motion";
 import Preloader from "./ui/Preloader";
 
 function HomepageComponent() {

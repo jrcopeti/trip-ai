@@ -12,14 +12,14 @@ function NavbarComponent() {
   return (
     <>
       <Navbar
-        className="flex max-w-full bg-gradient-to-r from-gallery-50 to-gallery-100"
+        className="flex max-w-full bg-gradient-to-r from-gallery-100 to-gallery-200"
         maxWidth="2xl"
         height="3.5rem"
         shouldHideOnScroll
       >
         <NavbarBrand>
           <Link href="/">
-            <p className="flex items-center gap-1 font-bold text-inherit text-neptune-500">
+            <p className="flex items-center gap-1 text-sm font-bold text-inherit text-neptune-500 sm:text-base">
               {" "}
               <span>
                 <PiSuitcase size={30} />
@@ -31,7 +31,7 @@ function NavbarComponent() {
         <NavbarContent className="flex gap-8" justify="center">
           <NavbarItem>
             <Link
-              className="font-semibold text-tuna-900"
+              className="hidden text-sm font-semibold text-tuna-900 sm:block sm:text-base"
               href="/"
               aria-current="page"
             >
@@ -39,13 +39,16 @@ function NavbarComponent() {
             </Link>
           </NavbarItem>
           <NavbarItem>
-            <Link className="font-semibold text-tuna-900" href="/form">
+            <Link
+              className="text-sm font-semibold text-tuna-900 sm:text-base"
+              href="/form"
+            >
               Form
             </Link>
           </NavbarItem>
           <NavbarItem>
             <Link
-              className="font-semibold text-tuna-900"
+              className="text-sm font-semibold text-tuna-900 sm:text-base"
               href="/saved-trips"
               aria-current="page"
             >
@@ -53,7 +56,10 @@ function NavbarComponent() {
             </Link>
           </NavbarItem>
           <NavbarItem>
-            <Link className="font-semibold text-tuna-900" href="#">
+            <Link
+              className="text-sm font-semibold text-tuna-900 sm:text-base"
+              href="#"
+            >
               About
             </Link>
           </NavbarItem>

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useLayoutEffect } from "react";
+import { notFound, usePathname } from "next/navigation";
 
 import { useImage } from "@/hooks/useImage";
 import { useFormData } from "@/hooks/useFormData";
@@ -10,7 +11,6 @@ import { useCreateTrip } from "@/hooks/useCreateTrip";
 import { Prisma } from "@prisma/client";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { notFound, usePathname } from "next/navigation";
 
 import FormDetailsSection from "./ui/FormDetailsSection";
 import TitleSection from "./ui/TitleSection";

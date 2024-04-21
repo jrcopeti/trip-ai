@@ -29,7 +29,7 @@ function SwiperWithThumbs() {
         <Swiper
           speed={1000}
           modules={[Autoplay, FreeMode, Navigation, Thumbs, Pagination]}
-          loop={true}
+
           spaceBetween={30}
           pagination={{ clickable: true, dynamicBullets: true }}
           autoplay={{
@@ -41,7 +41,7 @@ function SwiperWithThumbs() {
               thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
           }}
           onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-          className="h-[77%] w-full"
+          className=" h-[70%] sx:h-[77%] w-full"
           style={
             {
               "--swiper-pagination-color": "#4e888c",
@@ -64,13 +64,13 @@ function SwiperWithThumbs() {
         </Swiper>
 
         <Swiper
-          className="mt-3 h-[10vh] w-[98%] lg:h-[15vh] "
+          className="mt-3 h-[9dvh] xs:h-[10dvh] w-[98%] lg:h-[15vh] "
           onSwiper={setThumbsSwiper}
-          loop={true}
+          loop
           spaceBetween={12}
           slidesPerView={3}
-          freeMode={true}
-          watchSlidesProgress={true}
+          freeMode
+          watchSlidesProgress
           modules={[Autoplay, FreeMode, Navigation, Thumbs]}
         >
           {homepageImages.map((image, index) => (
