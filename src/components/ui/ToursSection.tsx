@@ -7,7 +7,7 @@ function ToursSection({ trip }: { trip: Trip }) {
     <>
       <div className=" absolute h-[90%] w-[90%] lg:h-[80%] lg:w-[80%]  ">
         <div className="grid grid-cols-1 items-center gap-4 rounded-xl  text-center sm:text-start xl:grid-cols-[1fr,auto]  ">
-          <h1 className="title-tours bg-gallery-50/40 p-6 text-3xl font-extrabold capitalize text-shark-950 shadow-xl lg:text-4xl xl:text-5xl">
+          <h1 className="title-tours bg-gallery-50/40 p-6 text-3xl font-extrabold capitalize text-tuna-900 shadow-xl lg:text-4xl xl:text-5xl">
             Your suggested tours
           </h1>
           <div className="grid max-w-full grid-cols-1 gap-4 lg:gap-3 xl:gap-10  ">
@@ -16,7 +16,7 @@ function ToursSection({ trip }: { trip: Trip }) {
                 className="tour-item grid grid-cols-1 bg-gallery-50/40 p-5 shadow-md"
                 key={i}
               >
-                <li className="text-md max-h-fit font-semibold text-shark-950 md:text-lg  lg:text-xl 2xl:text-2xl ">
+                <li className=" text-sm xs:text-base max-h-fit font-semibold text-tuna-900 md:text-lg  lg:text-xl 2xl:text-2xl ">
                   <span className="font-bold text-neptune-600">{i + 1}.</span>
                   &nbsp;{tour}
                 </li>

@@ -34,7 +34,7 @@ function FormStep2({
         >
           <FormTitle currentStep={currentStep} />
 
-          <div className="mt-10 grid grid-cols-2 justify-between gap-x-6 gap-y-[5rem] md:mt-[75px] ">
+          <div className="mt-10 grid grid-cols-1 justify-between gap-x-6 gap-y-[5rem] sm:grid-cols-2 md:mt-[75px] ">
             <Controller
               name="city"
               control={control}
@@ -86,7 +86,7 @@ function FormStep2({
               )}
             />
 
-            <div className="col-span-2  md:max-w-[500px]">
+            <div className="col-span-1 sm:col-span-2  md:max-w-[500px]">
               <Controller
                 name="type"
                 control={control}

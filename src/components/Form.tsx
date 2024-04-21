@@ -111,7 +111,7 @@ const Form = memo(function Form() {
       shouldFocus: true,
     });
 
-    if (!output) return;
+    // if (!output) return;
 
     if (currentStep === steps.length - 3) {
       generateImage(cityWatch);
