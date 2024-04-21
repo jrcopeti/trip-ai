@@ -12,10 +12,10 @@ function PackReadySection({ trip }: { trip: Trip }) {
 
   return (
     <div className='flex flex-col flex-start p-6 bg-gallery-50/40 shadow-xl'>
-      <h1 className=" pack-ready text-center text-4xl font-extrabold capitalize text-tuna-900 md:text-6xl">
+      <h1 className=" pack-ready text-center text-2xl xs:text-3xl sm:text-4xl font-extrabold capitalize text-tuna-900 md:text-6xl">
         We have your pack ready
       </h1>
-      <h2 className=' p-4 mt-1 text-3xl text-tuna-600 font-semibold'>
+      <h2 className='p-4 mt-1 text-xl xs:text-2xl sm:text-3xl text-tuna-600 font-semibold'>
         {trip.weatherForecast
           ? "Based on the weather"
           : `From ${startDate} to ${endDate}`}

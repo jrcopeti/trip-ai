@@ -36,7 +36,7 @@ function TripProvider({ children }: { children: React.ReactNode }) {
 
     onSuccess: () => {
       setIsNavigating(true);
-      router.push(path);
+      router.replace(path);
       setTimeout(() => {
         setIsNavigating(false);
       }, 2000);

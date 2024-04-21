@@ -23,7 +23,7 @@ function TitleSection({ trip, imageData }: TitleSectionProps) {
         </div>
 
         <div className="bg-gallery-50/40 p-8 sm:p-16">
-          <h1 className="ml-4 mt-8 text-4xl font-extrabold text-tuna-900 sm:ml-8 sm:mt-3 sm:text-4xl md:text-5xl lg:text-6xl 2xl:text-7xl">
+          <h1 className="ml-4 mt-8 text-3xl font-extrabold text-tuna-900 sm:ml-8 sm:mt-3 xs:text-4xl md:text-5xl lg:text-6xl 2xl:text-7xl">
             {trip?.title}
           </h1>
         </div>

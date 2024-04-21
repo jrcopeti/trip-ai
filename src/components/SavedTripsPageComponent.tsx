@@ -18,6 +18,7 @@ import FinalSection from "./ui/FinalSection";
 import GradientBg from "./ui/GradientBg";
 import Container from "./ui/Container";
 import Loader from "./ui/Loader";
+import ButtonBackOutlined from "./ui/ButtonBackOutlined";
 
 function SavedTripsPageComponent({
   params,
@@ -198,6 +199,7 @@ function SavedTripsPageComponent({
 
       <Container overflow="overflow-x-hidden">
         <GradientBg from="from-gallery-100" to="to-violay-200" />
+        <ButtonBackOutlined position="absolute -top-1 -left-2 xs:top-0 xs:left-0 " />
         {trip && <TitleSection trip={trip} />}
       </Container>
 

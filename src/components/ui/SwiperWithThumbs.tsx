@@ -45,7 +45,7 @@ function SwiperWithThumbs() {
           style={
             {
               "--swiper-pagination-color": "#4e888c",
-              "--swiper-pagination-bullet-inactive-color": "#989898",
+              "--swiper-pagination-bullet-inactive-color": "#f8f8f8",
             } as React.CSSProperties
           }
         >
@@ -64,7 +64,7 @@ function SwiperWithThumbs() {
         </Swiper>
 
         <Swiper
-          className="mt-3 h-[9dvh] xs:h-[10dvh] w-[98%] lg:h-[15vh] "
+          className="mt-3 h-[9vh] xs:h-[10vh] w-[98%] lg:h-[15vh] 2xl:h-[18vh] "
           onSwiper={setThumbsSwiper}
           loop
           spaceBetween={12}
@@ -85,7 +85,7 @@ function SwiperWithThumbs() {
                   alt={image.alt}
                   placeholder="blur"
                   blurDataURL={image.placeholder}
-                  className="block h-full w-full rounded-md object-cover"
+                  className="block h-full w-full rounded-sm object-cover"
                 />
 
                 <p className="absolute w-full bg-gallery-50/70 p-1 text-center text-base font-bold capitalize leading-5 text-tuna-900 lg:text-lg">
