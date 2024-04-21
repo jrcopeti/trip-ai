@@ -1,11 +1,13 @@
 "use client";
-import { useSavedTrips } from "@/hooks/useSavedTrips";
-import SavedTripCard from "./ui/SavedTripCard";
-import { savedTripDataCards } from "@/data";
 import { useEffect, useLayoutEffect } from "react";
+import { useSavedTrips } from "@/hooks/useSavedTrips"
+;
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+import SavedTripCard from "./ui/SavedTripCard";
 import Loader from "./ui/Loader";
+import { savedTripDataCards } from "@/data";
 
 function SavedTripsDisplay() {
   const { savedTrips, isPendingSavedTrips, savedTripsError } = useSavedTrips();

@@ -1,5 +1,5 @@
-import { sortedTypes } from "@/data";
 import { useCountries } from "@/hooks/useCountries";
+
 import {
   Autocomplete,
   AutocompleteItem,
@@ -9,9 +9,11 @@ import {
 } from "@nextui-org/react";
 import { Controller } from "react-hook-form";
 import { motion } from "framer-motion";
-import type { FormStepProps } from "@/types";
+
 import FormTitle from "./FormTitle";
-import Loader from "./Loader";
+import { sortedTypes } from "@/data";
+
+import type { FormStepProps } from "@/types";
 
 function FormStep2({
   currentStep,

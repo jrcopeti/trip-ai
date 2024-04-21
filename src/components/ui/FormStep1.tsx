@@ -1,11 +1,12 @@
+import { useCountries } from "@/hooks/useCountries";
+
 import { Autocomplete, AutocompleteItem, Input } from "@nextui-org/react";
 import { Controller } from "react-hook-form";
 import { motion } from "framer-motion";
+
 import FormTitle from "./FormTitle";
 
 import type { FormStepProps } from "@/types";
-import { useCountries } from "@/hooks/useCountries";
-import Loader from "./Loader";
 
 function FormStep1({
   currentStep,
