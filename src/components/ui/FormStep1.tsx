@@ -38,8 +38,9 @@ function FormStep1({
                   id="userName"
                   type="text"
                   placeholder="What's your name?"
-                  className="max-w-lg text-tuna-700 "
+                  className="max-w-lg text-tuna-700 text-2xl "
                   radius="sm"
+                  size="lg"
                   variant="faded"
                   color="primary"
                   errorMessage={errors.userName?.message}
@@ -61,6 +62,7 @@ function FormStep1({
                   placeholder="How old are you?"
                   className="max-w-lg text-tuna-700  "
                   radius="sm"
+                  size="lg"
                   variant="faded"
                   color="primary"
                   isInvalid={!!errors.age}
@@ -82,6 +84,7 @@ function FormStep1({
                   placeholder="Select a country"
                   className="max-w-lg text-tuna-700  "
                   radius="sm"
+                  size="lg"
                   variant="faded"
                   color="primary"
                   onSelectionChange={(selectedKey) =>

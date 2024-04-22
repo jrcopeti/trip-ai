@@ -1,9 +1,9 @@
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Trip } from "@prisma/client";
 import { Button } from "@nextui-org/react";
+import Image from "next/image";
 import image9 from "@/assets/homepage/9.jpg";
 import { defaultPlaceholder } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 
 function FinalSection({ trip }: { trip: Trip }) {
   const router = useRouter();
@@ -21,8 +21,11 @@ function FinalSection({ trip }: { trip: Trip }) {
             className="object-cover"
           />
         </div>
-        <div className="bg-gallery-50/50 p-8 sm:p-16 ">
-          <Button onClick={router.back} className="bg-neptune-500 p-6 text-xl text-gallery-50">
+        <div className="bg-gallery-50/50 p-8 sm:p-10 ">
+          <Button
+            onClick={router.back}
+            className="bg-neptune-500 p-6 text-xl text-gallery-50"
+          >
             Back
           </Button>
         </div>

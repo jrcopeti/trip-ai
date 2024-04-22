@@ -6,7 +6,7 @@ import type { MustHaveSectionProps } from "@/types";
 function MustHaveSection({ trip, imageData }: MustHaveSectionProps) {
   return (
     <>
-      <div className="must-have grid h-[90%] w-[90%] grid-cols-none grid-rows-2 shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none ">
+      <div className="must-have grid h-[90%] w-[90%] grid-cols-1 grid-rows-2 shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-1 ">
         <div className="relative h-full w-full ">
           <Image
             src={(trip?.image3 || imageData?.tripImage3) ?? image3}
@@ -22,7 +22,7 @@ function MustHaveSection({ trip, imageData }: MustHaveSectionProps) {
           />
         </div>
 
-        <div className=" bg-gallery-50 px-4 py-2 sm:py-4 sm:px-8">
+        <div className=" bg-gallery-50 px-4 py-2 sm:py-4 sm:px-8 overflow-auto">
           <div className="ml-4">
             <h2 className=" text-2xl xs:text-3xl font-bold text-tuna-900 sm:mt-3 sm:text-4xl md:text-5xl">
               Your Must Have items

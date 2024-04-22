@@ -1,7 +1,8 @@
 import Image from "next/image";
 import image5 from "@/assets/homepage/5.jpg";
-import { Button } from "@nextui-org/react";
+import { Button, ButtonGroup } from "@nextui-org/react";
 import type { SaveSectionProps } from "@/types";
+import { defaultPlaceholder } from "@/lib/utils";
 
 function SaveSection({
   handleYesAnswer,
@@ -15,20 +16,33 @@ function SaveSection({
           <Image
             src={imageData?.tripImage5 ?? image5}
             alt="city"
-            blurDataURL={imageData?.placeholder ?? ""}
+            blurDataURL={imageData?.placeholder ?? defaultPlaceholder}
             placeholder="blur"
             priority
             fill
             className="object-cover shadow-xl "
           />
         </div>
-        <div>
-          <Button type="button" onClick={handleYesAnswer}>
-            Do you want to save your trip?
-          </Button>
-          <Button type="button" onClick={handleNoAnswer}>
-            No
-          </Button>
+        <div className="bg-gallery-50/50 p-8 sm:p-10">
+          <h2 className="mb-4 text-xl font-semibold text-tuna-900">
+            Do you want to save this trip?
+          </h2>
+          <ButtonGroup>
+            <Button
+              className="bg-neptune-500 font-semibold text-gallery-50"
+              type="button"
+              onClick={handleYesAnswer}
+            >
+              Yes
+            </Button>
+            <Button
+              className="font bg-neptune-500 text-gallery-50"
+              type="button"
+              onClick={handleNoAnswer}
+            >
+              No
+            </Button>
+          </ButtonGroup>
         </div>
       </div>
     </>
