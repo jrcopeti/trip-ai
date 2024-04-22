@@ -10,7 +10,7 @@ import {
 
 function SavedTripsPage() {
   return (
-    <Container overflow="overflow-x-hidden" height="h-auto">
+    <Container overflow="overflow-x-hidden" height="min-h-content">
       <GradientBg
         from="from-neptune-300"
         to="to-yellorange-200"
