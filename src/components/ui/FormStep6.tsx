@@ -63,6 +63,7 @@ function FormStep6({
                   placeholder="Anything you want to add?"
                   className="max-w-lg"
                   radius="none"
+                  size="lg"
                   variant="faded"
                   color="primary"
                 />

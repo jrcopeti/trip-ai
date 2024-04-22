@@ -84,7 +84,7 @@ function ReviewForm({ reviewFormData, weather }: ReviewFormProps) {
         <div>
           <small className="text-tuna-600">Duration</small>
           <p className="sm:text-md text-xs uppercase lg:text-lg">
-            {weather ? `7 days based on weather forecast` : duration}
+            {weather ? `7 days based on weather` : duration}
           </p>
         </div>
 

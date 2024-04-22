@@ -44,7 +44,7 @@ function FormStep2({
                   label="City"
                   id="city"
                   type="text"
-                  placeholder="What's your name?"
+                  placeholder="Where are you going?"
                   className="max-w-lg"
                   radius="sm"
                   variant="faded"

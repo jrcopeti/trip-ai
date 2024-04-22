@@ -28,7 +28,7 @@ function ToursSection({ trip }: { trip: Trip }) {
               src={plane}
               alt="plane"
               fill
-              className=" min-h-full min-w-full object-cover opacity-50 "
+              className="min-h-full min-w-full object-cover opacity-50 "
             />
           </div>
         </div>

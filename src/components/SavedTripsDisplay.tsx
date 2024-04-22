@@ -27,20 +27,21 @@ function SavedTripsDisplay() {
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
   useIsomorphicLayoutEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
     const windowWidth = window.innerWidth;
-    let batchMax;
+    gsap.registerPlugin(ScrollTrigger);
 
-    if (windowWidth >= 1536) {
-      batchMax = 4;
-    } else if (windowWidth >= 1280) {
-      batchMax = 3;
-    } else if (windowWidth >= 768) {
-      batchMax = 2;
-    } else {
-      batchMax = 1;
-    }
-    if (!isPendingSavedTrips) {
+    if (!isPendingSavedTrips && windowWidth >= 768) {
+      let batchMax;
+      if (windowWidth >= 1536) {
+        batchMax = 4;
+      } else if (windowWidth >= 1280) {
+        batchMax = 3;
+      } else if (windowWidth >= 768) {
+        batchMax = 2;
+      } else {
+        batchMax = 1;
+      }
+      console.log(batchMax);
       const context = gsap.context(() => {
         ScrollTrigger.batch(".trip-card", {
           interval: 0.5,
@@ -55,7 +56,6 @@ function SavedTripsDisplay() {
               ease: "power4.out",
               stagger: 0.15,
               overwrite: true,
-              invalidateOnRefresh: true,
             });
           },
 
@@ -65,7 +65,6 @@ function SavedTripsDisplay() {
               ease: "power4.in",
               stagger: 0.15,
               overwrite: true,
-              invalidateOnRefresh: true,
             });
           },
 
@@ -75,7 +74,6 @@ function SavedTripsDisplay() {
               ease: "power4.out",
               stagger: 0.15,
               overwrite: true,
-              invalidateOnRefresh: true,
             });
           },
           onLeaveBack: (batch) => {
@@ -84,7 +82,26 @@ function SavedTripsDisplay() {
               ease: "power4.in",
               stagger: 0.15,
               overwrite: true,
-              invalidateOnRefresh: true,
+            });
+          },
+        });
+        return () => context.revert();
+      });
+    } else {
+      const context = gsap.context(() => {
+        ScrollTrigger.batch(".trip-card", {
+          interval: 0.5,
+          batchMax: 1,
+          start: "top bottom",
+
+          onEnter: (batch) => {
+            gsap.to(batch, {
+              x: 0,
+              opacity: 1,
+              scale: 1,
+              ease: "power4.out",
+              stagger: 0.15,
+              overwrite: true,
             });
           },
         });
