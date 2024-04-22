@@ -11,82 +11,72 @@ import { savedTripDataCards } from "@/data";
 function SavedTripsDisplay() {
   const { savedTrips, isPendingSavedTrips, savedTripsError } = useSavedTrips();
 
-  useEffect(() => {
-    (async () => {
-      const LocomotiveScroll = (await import("locomotive-scroll" as any))
-        .default;
-      const locomotiveScroll = new LocomotiveScroll({
-        lenisOptions: {
-          lerp: 0.15,
-        },
-      });
-    })();
-  }, []);
-
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
   useIsomorphicLayoutEffect(() => {
     const windowWidth = window.innerWidth;
-    if (!isPendingSavedTrips && windowWidth >= 768) {
-      gsap.registerPlugin(ScrollTrigger);
-      let batchMax;
-      if (windowWidth >= 1536) {
-        batchMax = 4;
-      } else if (windowWidth >= 1280) {
-        batchMax = 3;
-      } else if (windowWidth >= 768) {
-        batchMax = 2;
-      } else {
-        batchMax = 1;
-      }
-      const context = gsap.context(() => {
-        ScrollTrigger.batch(".trip-card", {
-          interval: 0.5,
-          batchMax: batchMax,
-          start: "top bottom",
+    if (!isPendingSavedTrips) {
+      if (windowWidth >= 768) {
+        gsap.registerPlugin(ScrollTrigger);
+        let batchMax;
+        if (windowWidth >= 1536) {
+          batchMax = 4;
+        } else if (windowWidth >= 1280) {
+          batchMax = 3;
+        } else if (windowWidth >= 768) {
+          batchMax = 2;
+        } else {
+          batchMax = 1;
+        }
+        const context = gsap.context(() => {
+          ScrollTrigger.batch(".trip-card", {
+            interval: 0.5,
+            batchMax: batchMax,
+            start: "top bottom",
 
-          onEnter: (batch) => {
-            gsap.to(batch, {
-              x: 0,
-              opacity: 1,
-              scale: 1,
-              ease: "power4.out",
-              stagger: 0.15,
-              overwrite: true,
-            });
-          },
+            onEnter: (batch) => {
+              gsap.to(batch, {
+                x: 0,
+                opacity: 1,
+                scale: 1,
+                ease: "power4.out",
+                stagger: 0.15,
+                overwrite: true,
+              });
+            },
 
-          onLeave: (batch) => {
-            gsap.to(batch, {
-              opacity: 0,
-              ease: "power4.in",
-              stagger: 0.15,
-              overwrite: true,
-            });
-          },
+            onLeave: (batch) => {
+              gsap.to(batch, {
+                opacity: 0,
+                ease: "power4.in",
+                stagger: 0.15,
+                overwrite: true,
+              });
+            },
 
-          onEnterBack: (batch) => {
-            gsap.to(batch, {
-              opacity: 1,
-              ease: "power4.out",
-              stagger: 0.15,
-              overwrite: true,
-            });
-          },
-          onLeaveBack: (batch) => {
-            gsap.to(batch, {
-              opacity: 0,
-              ease: "power4.in",
-              stagger: 0.15,
-              overwrite: true,
-            });
-          },
+            onEnterBack: (batch) => {
+              gsap.to(batch, {
+                opacity: 1,
+                ease: "power4.out",
+                stagger: 0.15,
+                overwrite: true,
+              });
+            },
+            onLeaveBack: (batch) => {
+              gsap.to(batch, {
+                opacity: 0,
+                ease: "power4.in",
+                stagger: 0.15,
+                overwrite: true,
+              });
+            },
+          });
+          return () => context.revert();
         });
-        return () => context.revert();
-      });
-    } else {
-      return;
+      } else {
+        return;
+      }
     }
   }, [isPendingSavedTrips]);
 
