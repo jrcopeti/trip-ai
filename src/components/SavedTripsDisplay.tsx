@@ -86,7 +86,7 @@ function SavedTripsDisplay() {
         return () => context.revert();
       });
     } else {
-
+      return;
     }
   }, [isPendingSavedTrips]);
 
