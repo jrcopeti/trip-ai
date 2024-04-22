@@ -88,25 +88,7 @@ function SavedTripsDisplay() {
         return () => context.revert();
       });
     } else {
-      const context = gsap.context(() => {
-        ScrollTrigger.batch(".trip-card", {
-          interval: 0.5,
-          batchMax: 1,
-          start: "top bottom",
-
-          onEnter: (batch) => {
-            gsap.to(batch, {
-              x: 0,
-              opacity: 1,
-              scale: 1,
-              ease: "power4.out",
-              stagger: 0.15,
-              overwrite: true,
-            });
-          },
-        });
-        return () => context.revert();
-      });
+      return;
     }
   }, [isPendingSavedTrips]);
 
