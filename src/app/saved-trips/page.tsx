@@ -1,3 +1,4 @@
+"use client";
 import SavedTripsDisplay from "@/components/SavedTripsDisplay";
 import Container from "@/components/ui/Container";
 import GradientBg from "@/components/ui/GradientBg";
@@ -9,15 +10,19 @@ import {
 } from "@tanstack/react-query";
 
 function SavedTripsPage() {
+  const queryClient = useQueryClient();
+
   return (
-    <Container overflow="overflow-x-hidden" height="min-h-content">
+    <Container overflow="overflow-x-hidden" height="h-full">
       <GradientBg
         from="from-neptune-300"
         to="to-yellorange-200"
         blur="blur-[190px]"
       />
       <SavedTripsContainer>
-        <SavedTripsDisplay />
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <SavedTripsDisplay />
+        </HydrationBoundary>
       </SavedTripsContainer>
     </Container>
   );
