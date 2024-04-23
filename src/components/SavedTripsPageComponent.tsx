@@ -19,13 +19,16 @@ import GradientBg from "./ui/GradientBg";
 import Container from "./ui/Container";
 import Loader from "./ui/Loader";
 import ButtonBackOutlined from "./ui/ButtonBackOutlined";
+import { notFound } from "next/navigation";
+import NotFoundComponent from "./ui/ErrorComponent";
 
 function SavedTripsPageComponent({
   params,
 }: {
   params: { id: number | string };
 }) {
-  const { trip, isPending, error } = useSingleSavedTrip({ params });
+  const { trip, isPendingSingleSavedTrip, errorSingleSavedTrip } =
+    useSingleSavedTrip({ params });
 
   const { isPendingWeather, weatherData } = useWeather();
 
@@ -45,7 +48,7 @@ function SavedTripsPageComponent({
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
   useIsomorphicLayoutEffect(() => {
-    if (!isPending) {
+    if (!isPendingSingleSavedTrip) {
       gsap.registerPlugin(ScrollTrigger);
       const context = gsap.context(() => {
         gsap.from(".trip-description", {
@@ -167,10 +170,10 @@ function SavedTripsPageComponent({
       });
       return () => context.revert();
     }
-  }, [isPending]);
+  }, [isPendingSingleSavedTrip]);
 
   useIsomorphicLayoutEffect(() => {
-    if (!isPending && !isPendingWeather && weatherData) {
+    if (!isPendingSingleSavedTrip && !isPendingWeather && weatherData) {
       gsap.registerPlugin(ScrollTrigger);
       const context = gsap.context(() => {
         gsap.from(".weather-card", {
@@ -187,10 +190,22 @@ function SavedTripsPageComponent({
       });
       return () => context.revert();
     }
-  }, [isPending, isPendingWeather, weatherData]);
+  }, [isPendingSingleSavedTrip, isPendingWeather, weatherData]);
 
-  if (isPending) {
+  if (isPendingSingleSavedTrip) {
     return <Loader />;
+  }
+
+  if (errorSingleSavedTrip) {
+    <NotFoundComponent
+      message="OOOOPPPPSSSS"
+      path="/saved-trips"
+      button="Back to saved trips"
+    />;
+  }
+
+  if (!trip) {
+    notFound();
   }
 
   return (
@@ -245,7 +260,7 @@ function SavedTripsPageComponent({
 
       <Container overflow="overflow-x-hidden" animationClass="weather-section">
         <GradientBg from="from-gallery-100" to="to-yellorange-100" />
-        {trip && <WeatherSection trip={trip} isPending={isPending} />}
+        {trip && <WeatherSection trip={trip} />}
       </Container>
 
       {/* Section 8 */}
