@@ -1,8 +1,8 @@
 import type { GradientBgProps } from "@/types";
-function GradientBg({ from, to, blur }: GradientBgProps) {
+function GradientBg({ position = "absolute", from, to, blur }: GradientBgProps) {
   return (
     <div
-      className={`absolute left-0 top-0 -z-30 h-full w-full bg-gradient-to-b ${from} ${to} ${blur}`}
+      className={`${position} left-0 top-0 -z-30 h-full w-full bg-gradient-to-b ${from} ${to} ${blur}`}
     ></div>
   );
 }
