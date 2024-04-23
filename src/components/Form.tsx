@@ -26,6 +26,7 @@ import { steps } from "@/data";
 
 import type { FinalDataTypes, ProcessFormType } from "@/types";
 import type { Inputs, FieldName } from "@/types";
+import NotFoundComponent from "./ui/ErrorComponent";
 
 const Form = memo(function Form() {
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -72,7 +73,7 @@ const Form = memo(function Form() {
     name: "requiredItems",
   });
   const { countries, isLoading: isLoadingCountries } = useCountries();
-  const { generateResponseAI, isPendingResponseAI, isNavigating } =
+  const { generateResponseAI, isPendingResponseAI, isNavigating, errorResponseAI } =
     useTripResponse();
   const { generateForecast, forecastData } = useWeather();
   const { setFormData } = useFormData();
@@ -97,6 +98,11 @@ const Form = memo(function Form() {
   if (isLoadingCountries || isPendingResponseAI || isNavigating) {
     return <Loader />;
   }
+
+  if(errorResponseAI) {
+    return <NotFoundComponent message="error response AI in Form" path="/form" button="Form" />;
+  }
+
 
   const forecastDataString = JSON.stringify(forecastData);
   const stepValue = steps[currentStep].stepValue;

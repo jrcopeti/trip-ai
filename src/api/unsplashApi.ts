@@ -52,7 +52,6 @@ export const fetchTripImage = async (city: string) => {
     };
   } catch (error) {
     console.log(error);
-    throw new Error("Error fetching image from Unsplash API");
-
+    throw new Error("Error fetching image");
   }
 };

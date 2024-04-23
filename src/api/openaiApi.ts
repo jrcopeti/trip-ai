@@ -6,12 +6,11 @@ const openai = new OpenAI({
 });
 
 const systemInstructions =
-  "You are a seasoned tour guide specializing in assisting travelers with packing for their trips, taking into account their preferences, the destination, the trip's duration, and the weather forecast. Your task is to compile a detailed packing list of 9 different items, specifying quantities (e.g., 3 T-shirts, 2 pairs of shoes). Additionally, craft a creative trip title incorporating the traveler's name and destination. Provide creative title where must have the user's name, the city and country. Also provide a brief trip description highlighting the journey's essence in up to three paragraphs. Finally, recommend three specific activities to enjoy in the destination city, with maximum 3 paragraphs each. If the city does not exist or it is not located in the country, or it's population is less than 1, return { trip: null }, with no additional characters.";
-
+  "You are a seasoned tour guide specializing in assisting travelers with packing for their trips, considering their preferences, the destination, the trip's duration, and the weather forecast. Your task is to compile a detailed packing list of at least 9 different items, specifying quantities (e.g., 3 T-shirts, 2 pairs of shoes). Also, create a creative trip title incorporating the traveler's name, city, and country. Provide a brief trip description highlighting the journey's essence in up to three paragraphs. Recommend three specific activities to enjoy in the destination city. Each activity description should be up to three paragraphs long. If the city does not exist in the country specified, has a population less than one, any of the object's values are missing or incorrect, return { trip: null } immediately. This is crucial for the functionality of the app.";
 const functionData = {
   name: "displayData",
   description:
-    "Generate a detailed packing list and trip plan based on the tourist's trip information, weather forecast, and personal preferences.",
+    "Generate a detailed packing list and trip plan based on the tourist's trip information. Validate city existence in the specified country and other conditions. Return null for any validation failures.",
   parameters: {
     type: "object",
     properties: {
@@ -85,7 +84,7 @@ const functionData = {
         items: {
           type: "string",
         },
-        required: ["tour1", "tour2", "tour3"],
+        minItems: 3,
       },
     },
     required: [
@@ -112,19 +111,18 @@ export const fetchResponseAI = async (prompt: string) => {
       ],
       tools: [{ type: "function", function: functionData }],
       tool_choice: { type: "function", function: { name: "displayData" } },
-      temperature: 0.5,
+      temperature: 0,
     });
     console.log("responsing");
     const data =
       response?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments ??
       null;
-    const parsedData = JSON.parse(data ?? "{}");
+    const parsedData = JSON.parse(data ?? "{trip: null}");
     console.log("Data:", data);
     console.log("parsedData:", parsedData);
     return parsedData;
   } catch (error) {
     console.error("Error:", error);
-    throw new Error("Failed to fetch response from OpenAI API");
-    
+    return undefined;
   }
 };

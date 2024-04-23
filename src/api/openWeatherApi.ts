@@ -31,13 +31,14 @@ export const fetchForecast = async ({
     return forecast;
   } catch (err: unknown) {
     console.log("error", err);
+    throw new Error("Error fetching forecast data");
   }
 };
 
 export const fetchWeather = async ({
   city,
   country,
-}: FetchWeatherParams): Promise<WeatherApiResponse> => {
+}: FetchWeatherParams): Promise<WeatherApiResponse | undefined> => {
   const coordinatesUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city},${country}&limit=3&appid=${process.env.OPEN_WEATHER_KEY}`;
   console.log("weather key", process.env.OPEN_WEATHER_KEY);
   let weather;
@@ -55,6 +56,6 @@ export const fetchWeather = async ({
     return weather;
   } catch (err: unknown) {
     console.log("error", err);
-    throw new Error("Failed to fetch weather data");
+    throw new Error("Error fetching weather data");
   }
 };
