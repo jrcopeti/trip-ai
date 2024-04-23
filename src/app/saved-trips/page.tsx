@@ -20,7 +20,6 @@ function SavedTripsPage() {
           to="to-yellorange-200"
           blur="blur-[190px]"
         /> */}
-        <div className="gradient-background"></div>
         <SavedTripsContainer>
           <HydrationBoundary state={dehydrate(queryClient)}>
             <SavedTripsDisplay />
