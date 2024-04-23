@@ -2,8 +2,8 @@ import type { ContainerProps } from "@/types";
 
 function Container({
   children,
-  overflow,
-  height = "h-[calc(100dvh-3.5rem)]",
+  overflow = "",
+  height = "h-[calc(100vh-3.5rem)]",
   animationClass = "",
 }: ContainerProps) {
   return (
