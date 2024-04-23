@@ -9,11 +9,11 @@ import { TbSunrise } from "react-icons/tb";
 import { BsSunsetFill } from "react-icons/bs";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import type { WeatherSectionProps } from "@/types";
+import { Trip } from "@prisma/client";
 
 dayjs.extend(utc);
 
-function WeatherSection({ trip, isPending }: WeatherSectionProps) {
+function WeatherSection({ trip }: { trip: Trip }) {
   const { generateWeather, isPendingWeather, weatherData } = useWeather();
   console.log(weatherData);
   console.log("isPending`Weather", isPendingWeather);

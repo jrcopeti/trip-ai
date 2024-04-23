@@ -181,7 +181,7 @@ const Form = memo(function Form() {
 
         <form
           onSubmit={handleSubmit(processForm)}
-          className="z-30 overflow-auto px-4 py-4 lg:p-8"
+          className="z-30  px-4 py-4 lg:p-8"
         >
           <FormStep1
             currentStep={currentStep}

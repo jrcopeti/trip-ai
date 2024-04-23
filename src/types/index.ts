@@ -205,11 +205,6 @@ export interface TitleSectionProps {
   imageData?: ImageDataTypes;
 }
 
-export interface WeatherSectionProps {
-  trip: Trip;
-  isPending: boolean;
-}
-
 export interface FormContextType {
   formData: FinalDataTypes;
   setFormData: (data: FinalDataTypes) => void;
@@ -226,4 +221,9 @@ export interface TripContextType {
 export interface SavedTripsContainerProps {
   children: React.ReactNode;
   bg?: string;
+}
+export interface NotFoundComponentProps {
+  message: string;
+  path: string;
+  button: string;
 }

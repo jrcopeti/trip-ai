@@ -7,15 +7,19 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import SavedTripCard from "./ui/SavedTripCard";
 import Loader from "./ui/Loader";
 import { savedTripDataCards } from "@/data";
+import ErrorComponent from "./ui/ErrorComponent";
+import { useWindowSize } from "@/hooks/useWindow";
+import { notFound } from "next/navigation";
 
 function SavedTripsDisplay() {
   const { savedTrips, isPendingSavedTrips, savedTripsError } = useSavedTrips();
+  const { width } = useWindowSize();
 
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
   useIsomorphicLayoutEffect(() => {
-    const windowWidth = window.innerWidth;
+    const windowWidth = width;
     if (!isPendingSavedTrips) {
       gsap.registerPlugin(ScrollTrigger);
       let batchMax;
@@ -78,6 +82,12 @@ function SavedTripsDisplay() {
 
   if (isPendingSavedTrips) {
     return <Loader />;
+  }
+  // if (savedTripsError) {
+  //   return <ErrorComponent />;
+  // }
+  if (!savedTripDataCards) {
+     notFound();
   }
   return (
     <div className="mt-2 flex flex-col items-center gap-10 py-2 lg:px-16 lg:py-4">
