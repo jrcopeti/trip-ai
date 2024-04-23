@@ -14,14 +14,13 @@ function SavedTripsPage() {
 
   return (
     <>
-      <Container height="min-h-[calc(100vh-3.5rem)]">
+      <Container height="h-full">
         <GradientBg
           position="fixed"
           from="from-neptune-300"
           to="to-yellorange-200"
           blur="blur-[190px]"
         />
-        {/* <div className="gradient-background relative"></div> */}
         <SavedTripsContainer>
           <HydrationBoundary state={dehydrate(queryClient)}>
             <SavedTripsDisplay />
