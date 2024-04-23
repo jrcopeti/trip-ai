@@ -166,6 +166,7 @@ export interface Gradient1Props {
 }
 
 export interface GradientBgProps {
+  position?: string;
   from: string;
   to: string;
   blur?: string;
