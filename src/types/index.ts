@@ -147,7 +147,7 @@ export interface FormButtonsProps {
 
 export interface ContainerProps {
   children: React.ReactNode;
-  overflow: string;
+  overflow?: string;
   height?: string;
   animationClass?: string;
 }

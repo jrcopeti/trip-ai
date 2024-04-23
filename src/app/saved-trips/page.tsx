@@ -13,18 +13,20 @@ function SavedTripsPage() {
   const queryClient = useQueryClient();
 
   return (
-    <Container overflow="overflow-x-hidden" height="h-full">
-      <GradientBg
-        from="from-neptune-300"
-        to="to-yellorange-200"
-        blur="blur-[190px]"
-      />
-      <SavedTripsContainer>
-        <HydrationBoundary state={dehydrate(queryClient)}>
-          <SavedTripsDisplay />
-        </HydrationBoundary>
-      </SavedTripsContainer>
-    </Container>
+    <>
+      <Container height="min-h-[calc(100vh-3.5rem)]">
+        <GradientBg
+          from="from-neptune-300"
+          to="to-yellorange-200"
+          blur="blur-[190px]"
+        />
+        <SavedTripsContainer>
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <SavedTripsDisplay />
+          </HydrationBoundary>
+        </SavedTripsContainer>
+      </Container>
+    </>
   );
 }
 
