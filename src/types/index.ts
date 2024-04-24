@@ -210,7 +210,7 @@ export interface SaveSectionProps {
 export interface FormDetailsSectionProps {
   trip: Trip;
   imageData?: ImageDataTypes;
-  formData: FinalDataTypes;
+  formData?: FinalDataTypes;
 }
 
 export interface TitleSectionProps {
@@ -226,7 +226,11 @@ export type TripResponse = { trip: Trip | null } | Trip;
 
 export interface TripContextType {
   tripData: Trip | null;
-  generateResponseAI: ({prompt, city, country}:FetchResponseAIParams ) => void;
+  generateResponseAI: ({
+    prompt,
+    city,
+    country,
+  }: FetchResponseAIParams) => void;
   isPendingResponseAI: boolean;
   errorResponseAI: unknown;
   isNavigating: boolean;
