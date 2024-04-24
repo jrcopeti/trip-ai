@@ -1,16 +1,7 @@
-"use server";
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-const systemInstructions =
-  "You are a seasoned tour guide specializing in assisting travelers with packing for their trips, considering their preferences, the destination, the trip's duration, and the weather forecast. Your task is to compile a detailed packing list of at least 9 different items, specifying quantities (e.g., 3 T-shirts, 2 pairs of shoes). Also, create a creative trip title incorporating the traveler's name, city, and country. Provide a brief trip description highlighting the journey's essence in up to three paragraphs. Recommend three specific activities to enjoy in the destination city. Each activity description should be up to three paragraphs long. If the city does not exist in the country specified, has a population less than one, any of the object's values are missing or incorrect, return { trip: null } immediately. This is crucial for the functionality of the app.";
-const functionData = {
+{
   name: "displayData",
   description:
-    "Generate a detailed packing list and trip plan based on the tourist's trip information. Validate city existence in the specified country and other conditions. Return {trip: null} for any validation failures.",
+    "Generate a detailed packing list and trip plan based on the tourist's trip information. Validate city existence in the specified country and other conditions. Return null for any validation failures.",
   parameters: {
     type: "object",
     properties: {
@@ -86,11 +77,6 @@ const functionData = {
         },
         minItems: 3,
       },
-      tip: {
-        type: "string",
-        description:
-          "A brief tip of maximum 15 words, taking in consideration the transport, luggage size and weather.",
-      },
     },
     required: [
       "city",
@@ -101,34 +87,6 @@ const functionData = {
       "mustHave",
       "description",
       "tour",
-      "tip",
     ],
   },
-};
-
-export const fetchResponseAI = async (prompt: string) => {
-  console.log("Generating response");
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: systemInstructions },
-        { role: "user", content: prompt },
-      ],
-      tools: [{ type: "function", function: functionData }],
-      tool_choice: { type: "function", function: { name: "displayData" } },
-      temperature: 0,
-    });
-    console.log("responsing");
-    const data =
-      response?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments ??
-      null;
-    const parsedData = JSON.parse(data ?? "{trip: null}");
-    console.log("Data:", data);
-    console.log("parsedData:", parsedData);
-    return parsedData;
-  } catch (error) {
-    console.error("Error:", error);
-    return undefined;
-  }
-};
+}

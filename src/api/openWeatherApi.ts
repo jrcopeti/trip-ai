@@ -38,7 +38,7 @@ export const fetchForecast = async ({
 export const fetchWeather = async ({
   city,
   country,
-}: FetchWeatherParams): Promise<WeatherApiResponse | undefined> => {
+}: FetchWeatherParams): Promise<WeatherApiResponse> => {
   const coordinatesUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city},${country}&limit=3&appid=${process.env.OPEN_WEATHER_KEY}`;
   console.log("weather key", process.env.OPEN_WEATHER_KEY);
   let weather;
