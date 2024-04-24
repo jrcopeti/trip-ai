@@ -31,6 +31,7 @@ export const fetchForecast = async ({
     return forecast;
   } catch (err: unknown) {
     console.log("error", err);
+    return undefined;
   }
 };
 
@@ -55,6 +56,6 @@ export const fetchWeather = async ({
     return weather;
   } catch (err: unknown) {
     console.log("error", err);
-    throw new Error("Failed to fetch weather data");
+    throw new Error("Error fetching weather data");
   }
 };

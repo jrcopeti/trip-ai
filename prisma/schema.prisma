@@ -50,6 +50,7 @@ model Trip {
   objectsList Json?
   mustHave String[]
   tours Json?
+  tip String
   createdAt  DateTime @default(now())
   updatedAt DateTime @updatedAt
 

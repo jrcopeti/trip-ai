@@ -30,6 +30,9 @@ function ImageProvider({ children }: { children: React.ReactNode }) {
     },
     onError: (error) => {
       console.log(error);
+      console.log("error Image Context ");
+      return null;
+
     },
   });
 

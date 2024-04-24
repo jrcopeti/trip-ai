@@ -4,11 +4,11 @@ import { createContext, useEffect, useState } from "react";
 import { fetchResponseAI } from "@/api/openaiApi";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import type { TripContextType } from "@/types";
+import type { FetchResponseAIParams, TripContextType } from "@/types";
 
 const defaultContextValue: TripContextType = {
-  tripData: undefined,
-  generateResponseAI: () => {},
+  tripData: null,
+  generateResponseAI: async () => {},
   isPendingResponseAI: false,
   errorResponseAI: null,
   isNavigating: false,
@@ -32,9 +32,11 @@ function TripProvider({ children }: { children: React.ReactNode }) {
     isPending: isPendingResponseAI,
     error: errorResponseAI,
   } = useMutation({
-    mutationFn: (prompt: string) => fetchResponseAI(prompt),
+    mutationFn: ({ prompt, city, country }: FetchResponseAIParams) =>
+      fetchResponseAI({ prompt, city, country }),
 
     onSuccess: () => {
+      console.log("success trip em trip context");
       setIsNavigating(true);
       router.replace(path);
       setTimeout(() => {
@@ -42,7 +44,7 @@ function TripProvider({ children }: { children: React.ReactNode }) {
       }, 2000);
     },
     onError: (error) => {
-      console.log(error);
+      console.log("error em trip context", error);
     },
   });
 

@@ -1,6 +1,6 @@
 {
   "name": "displayData",
-  "description": "Generate a detailed packing list and trip plan based on the tourist's trip information, weather forecast, and personal preferences.",
+  "description": "Generate a detailed packing list and trip plan based on the tourist's trip information. Validate city existence in the specified country and other conditions. Return null for any validation failures.",
   "parameters": {
     "type": "object",
     "properties": {
@@ -18,7 +18,7 @@
       },
       "title": {
         "type": "string",
-        "description": "A creative title for the trip that includes the userName and the destination in the format: City, Country."
+        "description": "A creative title for the trip with 12 words, that includes the userName, city and country."
       },
       "objectsList": {
         "type": "array",
@@ -36,16 +36,12 @@
             },
             "description": {
               "type": "string",
-              "description": "A short description or reason why this item is recommended."
+              "description": "A short description or reason why this item is recommended with maximum 10 words."
             }
           },
-          "required": [
-            "quantity",
-            "item",
-            "description"
-          ]
+          "required": ["quantity", "item", "description"]
         },
-        "minItems": 10
+        "minItems": 9
       },
       "mustHave": {
         "type": "array",
@@ -65,16 +61,17 @@
         "type": "string",
         "description": "A brief description of the trip, capturing its essence in a maximum of three paragraphs."
       },
-      "countryCode": {
-        "type": "string",
-        "description": "The ISO-3166 country code for the trip destination."
-      },
       "tour": {
         "type": "array",
         "description": "Three suggested tours or activities in the city or location in 2 paragraphs each.",
         "items": {
           "type": "string"
-        }
+        },
+        "minItems": 3
+      },
+      "tip": {
+        "type": "string",
+        "description": "A brief tip of maximum 15 words, taking in consideration the city, country, transport, luggage size and weather."
       }
     },
     "required": [
@@ -86,7 +83,7 @@
       "mustHave",
       "description",
       "tour",
-      "countryCode"
+      "tip"
     ]
   }
 }

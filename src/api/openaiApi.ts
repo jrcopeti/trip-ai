@@ -1,32 +1,21 @@
 "use server";
 import OpenAI from "openai";
+import { fetchWeather } from "./openWeatherApi";
+import type { FetchResponseAIParams } from "@/types";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 const systemInstructions =
-  "You are a seasoned tour guide specializing in assisting travelers with packing for their trips, taking into account their preferences, the destination, the trip's duration, and the weather forecast. Your task is to compile a detailed packing list of 9 different items, specifying quantities (e.g., 3 T-shirts, 2 pairs of shoes). Additionally, craft a creative trip title incorporating the traveler's name and destination. Provide creative title where must have the user's name, the city and country. Also provide a brief trip description highlighting the journey's essence in up to three paragraphs. Finally, recommend three specific activities to enjoy in the destination city, with maximum 3 paragraphs each. If the city does not exist or it is not located in the country, or it's population is less than 1, return { trip: null }, with no additional characters.";
-
+  "Crucially, before any planning begins, verify the existence and validity of the city within the specified country. If the city does not exist, has a population less than one, or if any provided values are missing or incorrect, immediately return { trip: null }. This validation step is crucial for the functionality of the app and ensures the integrity of the travel advice provided. You are a seasoned tour guide specializing in assisting travelers with packing for their trips, considering their preferences, the destination, the trip's duration, and the weather forecast. Your task is to compile a detailed packing list of at least 9 different items, specifying quantities (e.g., 3 T-shirts, 2 pairs of shoes). Also, create a creative trip title incorporating the traveler's name, city, and country. Provide a brief trip description highlighting the journey's essence in up to three paragraphs. Recommend three specific activities to enjoy in the destination city, with each description being up to three paragraphs long.";
 const functionData = {
   name: "displayData",
   description:
-    "Generate a detailed packing list and trip plan based on the tourist's trip information, weather forecast, and personal preferences.",
+    "This function generates a detailed packing list and a comprehensive trip plan based on the tourist's provided trip information. The first step in the function is to validate the existence of the specified city within the given country using a reliable data source. If this validation fails due to the city not existing, having a population less than one, or any other critical data mismatch, the function must immediately return { trip: null } without further processing. This ensures the integrity and applicability of the travel planning process. If validation is successful, the function will then proceed to create a packing list, a creative trip title, a descriptive trip summary, and suggestions for three activities based on the traveler's preferences and the local weather conditions.",
   parameters: {
     type: "object",
     properties: {
-      city: {
-        type: "string",
-        description: "The city or location name of the trip destination.",
-      },
-      country: {
-        type: "string",
-        description: "The country name of the trip destination.",
-      },
-      userName: {
-        type: "string",
-        description: "The name of the traveler.",
-      },
       title: {
         type: "string",
         description:
@@ -85,23 +74,36 @@ const functionData = {
         items: {
           type: "string",
         },
-        required: ["tour1", "tour2", "tour3"],
+        minItems: 3,
+      },
+      tip: {
+        type: "string",
+        description:
+          "A brief tip of maximum 15 words, taking in consideration the transport, luggage size and weather.",
       },
     },
     required: [
-      "city",
-      "country",
-      "userName",
       "title",
       "objectsList",
       "mustHave",
       "description",
       "tour",
+      "tip",
     ],
   },
 };
 
-export const fetchResponseAI = async (prompt: string) => {
+export const fetchResponseAI = async ({
+  prompt,
+  city,
+  country,
+}: FetchResponseAIParams) => {
+  const isValidCity = await fetchWeather({ city: city, country: country });
+  if (!isValidCity) {
+    console.log("City is not valid")
+    return null;
+  }
+
   console.log("Generating response");
   try {
     const response = await openai.chat.completions.create({
@@ -112,19 +114,22 @@ export const fetchResponseAI = async (prompt: string) => {
       ],
       tools: [{ type: "function", function: functionData }],
       tool_choice: { type: "function", function: { name: "displayData" } },
-      temperature: 0.5,
+      temperature: 0,
     });
     console.log("responsing");
     const data =
-      response?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments ??
-      null;
-    const parsedData = JSON.parse(data ?? "{}");
+      response.choices?.[0].message.tool_calls?.[0]?.function.arguments ?? null;
     console.log("Data:", data);
-    console.log("parsedData:", parsedData);
-    return parsedData;
-  } catch (error) {
+    const parsedData = JSON.parse(data ?? "");
+
+    if (parsedData.trip === null) {
+      return null;
+    } else {
+      console.log("parsedData:", parsedData);
+      return parsedData;
+    }
+  } catch (error: unknown) {
     console.error("Error:", error);
-    throw new Error("Failed to fetch response from OpenAI API");
-    
+    throw new Error("Error in generating response from AI.");
   }
 };

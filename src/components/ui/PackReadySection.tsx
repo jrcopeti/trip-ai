@@ -16,16 +16,17 @@ function PackReadySection({ trip }: { trip: Trip }) {
         We have your pack ready
       </h1>
       <h2 className='p-4 mt-1 text-xl xs:text-2xl sm:text-3xl text-tuna-600 font-semibold'>
-        {trip.weatherForecast
+        {/* TODO: fix  */}
+        {trip?.weatherForecast
           ? "Based on the weather"
           : `From ${startDate} to ${endDate}`}
       </h2>
       <div className='stamps absolute md:h-[450px] md:w-[550px] h-[350px] w-[350px] -z-10 -translate-y-[87px] translate-x-[120px] md:-translate-y-[133px] md:translate-x-[400px] '>
 
-      <Image src={stamps2} alt="stamps" fill className="object-contain  " />
+      <Image src={stamps2} alt="stamps" fill className="object-contain" />
       </div>
       <div className='stamps absolute md:h-[300px] md:w-[400px] h-[300px] w-[250px] -z-10 translate-y-[50px] -translate-x-[80px] md:translate-y-[20px] md:-translate-x-[200px]'>
-        <Image src={stamps3} alt="stamps" fill className="object-contain  " />
+        <Image src={stamps3} alt="stamps" fill className="object-contain" />
       </div>
     </div>
   );
