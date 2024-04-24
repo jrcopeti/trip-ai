@@ -45,6 +45,12 @@ export interface FetchWeatherParams {
   country: string;
 }
 
+export interface FetchResponseAIParams {
+  prompt: string;
+  city: string;
+  country: string;
+}
+
 export interface WeatherContextType {
   forecastData: WeatherDataTypes | undefined;
   generateForecast: ({
@@ -198,6 +204,13 @@ export interface SaveSectionProps {
   handleYesAnswer: () => void;
   handleNoAnswer: () => void;
   imageData?: ImageDataTypes | null;
+  trip: Trip;
+}
+
+export interface FormDetailsSectionProps {
+  trip: Trip;
+  imageData?: ImageDataTypes;
+  formData: FinalDataTypes;
 }
 
 export interface TitleSectionProps {
@@ -209,10 +222,11 @@ export interface FormContextType {
   formData: FinalDataTypes;
   setFormData: (data: FinalDataTypes) => void;
 }
+export type TripResponse = { trip: Trip | null } | Trip;
 
 export interface TripContextType {
-  tripData: Trip | undefined;
-  generateResponseAI: (prompt: string) => void;
+  tripData: Trip | null;
+  generateResponseAI: ({prompt, city, country}:FetchResponseAIParams ) => void;
   isPendingResponseAI: boolean;
   errorResponseAI: unknown;
   isNavigating: boolean;

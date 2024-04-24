@@ -24,6 +24,8 @@ import SaveSection from "./ui/SaveSection";
 import GradientBg from "./ui/GradientBg";
 import Container from "./ui/Container";
 import Loader from "./ui/Loader";
+import NotFoundComponent from "./ui/ErrorComponent";
+import { TripResponse as TripResponseType } from "@/types";
 
 function TripResponse() {
   useEffect(() => {
@@ -237,8 +239,20 @@ function TripResponse() {
   }
   console.log("trip", trip);
   console.log("imageData", imageData);
-  if (!trip) {
-    // if (!trip || !trip.city || !trip.country || !trip.userName || !trip.title || !trip.objectsList || !trip.mustHave || !trip.description || !trip.tours || !trip.requiredItems) {
+  console.log("title", trip?.title);
+
+  
+  if (trip === null) {
+    return (
+      <NotFoundComponent
+        message="returned trip is not valid"
+        path="/trips"
+        button="Trips"
+      />
+    );
+  }
+
+  if (trip === undefined) {
     notFound();
   }
 
@@ -314,11 +328,14 @@ function TripResponse() {
 
       <Container overflow="overflow-x-hidden" animationClass="final-section">
         <GradientBg from="from-gallery-100" to="to-deeporange-100" />
-        <SaveSection
-          handleYesAnswer={handleYesAnswer}
-          handleNoAnswer={handleNoAnswer}
-          imageData={imageData}
-        />
+        {trip && (
+          <SaveSection
+            handleYesAnswer={handleYesAnswer}
+            handleNoAnswer={handleNoAnswer}
+            imageData={imageData}
+            trip={trip}
+          />
+        )}
       </Container>
     </>
   );

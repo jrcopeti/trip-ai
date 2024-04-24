@@ -136,7 +136,7 @@ const Form = memo(function Form() {
       generateImage(cityWatch);
     }
 
-    if (isWeatherSelected && currentStep === steps.length - 2) {
+    if (currentStep === steps.length - 5) {
       generateForecast({ city: cityWatch, country: countryWatch });
     }
 
@@ -180,9 +180,13 @@ const Form = memo(function Form() {
 
     if (isWeatherSelected) {
       setValue("weatherForecast", forecastDataString);
-      generateResponseAI(promptModelWeather);
+      generateResponseAI({
+        prompt: promptModelWeather,
+        city,
+        country,
+      });
     } else {
-      generateResponseAI(promptModel);
+      generateResponseAI({ prompt: promptModel, city, country });
     }
 
     const finalData: FinalDataTypes = {

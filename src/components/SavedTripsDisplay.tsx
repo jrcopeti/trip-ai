@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useSavedTrips } from "@/hooks/useSavedTrips";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -13,13 +13,14 @@ import { notFound } from "next/navigation";
 
 function SavedTripsDisplay() {
   const { savedTrips, isPendingSavedTrips, savedTripsError } = useSavedTrips();
-  const { width } = useWindowSize();
+
+  const windowSize = useWindowSize();
 
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
   useIsomorphicLayoutEffect(() => {
-    const windowWidth = width;
+    const windowWidth = windowSize.width;
     if (!isPendingSavedTrips) {
       gsap.registerPlugin(ScrollTrigger);
       let batchMax;
@@ -83,11 +84,18 @@ function SavedTripsDisplay() {
   if (isPendingSavedTrips) {
     return <Loader />;
   }
-  // if (savedTripsError) {
-  //   return <ErrorComponent />;
-  // }
+
+  if (savedTripsError) {
+    return (
+      <ErrorComponent
+        message="saved trips error in trips display component"
+        path="/saved-trips"
+        button="saved-trips"
+      />
+    );
+  }
   if (!savedTripDataCards) {
-     notFound();
+    notFound();
   }
   return (
     <div className="mt-2 flex flex-col items-center gap-10 py-2 lg:px-16 lg:py-4">

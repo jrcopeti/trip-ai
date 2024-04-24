@@ -25,7 +25,11 @@ function WeatherSection({ trip }: { trip: Trip }) {
   }, [generateWeather, trip.city, trip.country]);
 
   if (!weatherData) {
-    return <p>loading weather data</p>;
+    return (
+      <p className="text-xl font-semibold text-tuna-900">
+        Weather data is not available
+      </p>
+    );
   }
 
   const { weatherIconSrc } = weatherData;

@@ -8,6 +8,7 @@ function SaveSection({
   handleYesAnswer,
   handleNoAnswer,
   imageData,
+  trip,
 }: SaveSectionProps) {
   return (
     <>
@@ -24,25 +25,32 @@ function SaveSection({
           />
         </div>
         <div className="bg-gallery-50/50 p-8 sm:p-10">
-          <h2 className="mb-4 text-xl font-semibold text-tuna-900">
-            Do you want to save this trip?
-          </h2>
-          <ButtonGroup>
-            <Button
-              className="bg-neptune-500 font-semibold text-gallery-50"
-              type="button"
-              onClick={handleYesAnswer}
-            >
-              Yes
-            </Button>
-            <Button
-              className="font bg-neptune-500 text-gallery-50"
-              type="button"
-              onClick={handleNoAnswer}
-            >
-              No
-            </Button>
-          </ButtonGroup>
+          <div className="flex flex-col gap-3">
+            <h2 className="text-3xl font-bold text-tuna-900">Good to know!</h2>
+            <p className="text-lg font-semibold lg:text-xl">{trip?.tip} </p>
+          </div>
+
+          <div>
+            <h2 className="mb-4 text-xl font-semibold text-tuna-900">
+              Do you want to save this trip?
+            </h2>
+            <ButtonGroup>
+              <Button
+                className="bg-neptune-500 font-semibold text-gallery-50"
+                type="button"
+                onClick={handleYesAnswer}
+              >
+                Yes
+              </Button>
+              <Button
+                className="font bg-neptune-500 text-gallery-50"
+                type="button"
+                onClick={handleNoAnswer}
+              >
+                No
+              </Button>
+            </ButtonGroup>
+          </div>
         </div>
       </div>
     </>

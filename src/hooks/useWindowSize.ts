@@ -1,17 +1,17 @@
-"use client";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 
 export function useWindowSize() {
+  const useIsomorphicLayoutEffect =
+    typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
-    height: window.innerHeight,
   });
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     function handleResize() {
       setWindowSize({
         width: window.innerWidth,
-        height: window.innerHeight,
       });
     }
     window.addEventListener("resize", handleResize);

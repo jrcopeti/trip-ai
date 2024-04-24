@@ -1,16 +1,10 @@
 "use client";
 import Form from "@/components/Form";
 import Container from "@/components/ui/Container";
-import FormContainer from "@/components/ui/FormContainer";
 import GradientBg from "@/components/ui/GradientBg";
 import Loader from "@/components/ui/Loader";
-import { Suspense, useEffect, useState } from "react";
-import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+
 import dynamic from "next/dynamic";
 
 const DynamicForm = dynamic(() => import("@/components/Form"), {

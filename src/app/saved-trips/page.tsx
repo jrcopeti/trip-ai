@@ -3,14 +3,13 @@ import SavedTripsDisplay from "@/components/SavedTripsDisplay";
 import Container from "@/components/ui/Container";
 import GradientBg from "@/components/ui/GradientBg";
 import SavedTripsContainer from "@/components/ui/SavedTripsContainer";
-import {
-  HydrationBoundary,
-  dehydrate,
-  useQueryClient,
-} from "@tanstack/react-query";
+import dynamic from "next/dynamic";
 
+const DynamicSavedTripsDisplay = dynamic(() => import("@/components/SavedTripsDisplay"), {
+  ssr: false,
+});
 function SavedTripsPage() {
-  const queryClient = useQueryClient();
+
 
   return (
     <>
@@ -22,9 +21,7 @@ function SavedTripsPage() {
           blur="blur-[190px]"
         />
         <SavedTripsContainer>
-          <HydrationBoundary state={dehydrate(queryClient)}>
-            <SavedTripsDisplay />
-          </HydrationBoundary>
+          <DynamicSavedTripsDisplay />
         </SavedTripsContainer>
       </Container>
     </>
