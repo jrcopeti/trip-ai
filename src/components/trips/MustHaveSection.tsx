@@ -53,7 +53,9 @@ function MustHaveSection({ trip, imageData }: MustHaveSectionProps) {
                   </ul>
                 ))
               ) : (
-                <p className="text-base font-semibold capitalize text-gallery-600 xs:text-lg lg:text-2xl 2xl:text-3xl">--</p>
+                <p className="text-base font-semibold capitalize text-gallery-600 xs:text-lg lg:text-2xl 2xl:text-3xl">
+                  --
+                </p>
               )}
             </div>
           </div>

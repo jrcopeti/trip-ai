@@ -4,7 +4,6 @@ import { defaultPlaceholder } from "@/lib/utils";
 import type { TitleSectionProps } from "@/types";
 
 function TitleSection({ trip, imageData }: TitleSectionProps) {
- 
   return (
     <>
       <div className="grid h-[90%] w-[90%] grid-cols-1 grid-rows-2 shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-1">
@@ -23,8 +22,8 @@ function TitleSection({ trip, imageData }: TitleSectionProps) {
           />
         </div>
 
-        <div className="bg-gallery-50/40 p-8 sm:p-16">
-          <h1 className="ml-4 mt-8 text-3xl font-extrabold text-tuna-900 sm:ml-8 sm:mt-3 xs:text-4xl md:text-5xl lg:text-6xl 2xl:text-7xl">
+        <div className="bg-gallery-50/40 p-4 xs:p-6 sm:p-8 md:p-10 lg:p-12 xl:p-14">
+          <h1 className="mb-auto ml-4 mt-8 text-3xl font-extrabold text-tuna-900 xs:text-4xl sm:ml-8 sm:mt-3 md:text-5xl lg:text-6xl 2xl:text-7xl">
             {trip?.title}
           </h1>
         </div>
