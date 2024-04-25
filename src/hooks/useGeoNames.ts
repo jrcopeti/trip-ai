@@ -1,11 +1,7 @@
 "use client";
 import axios from "axios";
 import { useEffect, useState } from "react";
-
-interface useGeoNamesProps {
-  city: string;
-  countryCode?: string;
-}
+import type { useGeoNamesProps } from "@/types";
 
 export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
   const [isCityValid, setIsCityValid] = useState<boolean>(false);
@@ -13,7 +9,7 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
   const [errorCityValid, setErrorCityValid] = useState<string>("");
 
   useEffect(() => {
-    if (city.length < 2 || !countryCode) {
+    if (city.length < 3 || !countryCode) {
       setIsCityValid(false);
       setErrorCityValid("");
       return;
@@ -21,7 +17,7 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
 
     const source = axios.CancelToken.source();
     const username = process.env.NEXT_PUBLIC_GEONAMES_USERNAME;
-    const url = `http://api.geonames.org/searchJSON?q=${encodeURIComponent(city)}&country=${countryCode}&maxRows=1&username=${username}`;
+    const url = `http://api.geonames.org/searchJSON?q=${encodeURIComponent(city)}&country=${countryCode}&maxRows=1&username=${username}&featureClass=P`;
     const debounce = setTimeout(async function validateCityCountry() {
       setIsLoadingCityValid(true);
       setErrorCityValid("");
@@ -29,13 +25,12 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
         .get(url, { cancelToken: source.token })
         .then((response) => {
           if (response.data.totalResultsCount === 0) {
-            throw new Error("The location is not valid. Please try again");
+            throw new Error("Location is not valid. Please try again.");
           }
           console.log(
             "City and countryCode match found",
             response.data,
             response.data.geonames[0],
-            response.data.geonames[0].countryName,
           );
           setIsCityValid(true);
           setErrorCityValid("");

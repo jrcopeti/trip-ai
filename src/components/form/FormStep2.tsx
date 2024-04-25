@@ -39,7 +39,7 @@ function FormStep2({
               render={({ field }) => (
                 <Input
                   {...field}
-                  label="City"
+                  label="Location"
                   id="city"
                   type="text"
                   placeholder="Where are you going?"
@@ -94,13 +94,13 @@ function FormStep2({
                 </p>
               )}
               {isCityValid && (
-                <p className="flex items-center gap-2 text-center text-lg font-semibold text-neptune-500 md:text-xl">
-                  <MdOutlineCheckCircle /> The location was found
+                <p className="flex items-center gap-2 text-center text-lg text-tuna-900 md:text-xl">
+                  <MdOutlineCheckCircle color="#4e888c" /> Location found
                 </p>
               )}
               {errorCityValid && (
-                <p className=" flex items-center gap-2 text-center text-base text-deeporange-700 md:text-lg">
-                  <MdOutlineErrorOutline /> {errorCityValid}
+                <p className=" flex items-center gap-2 text-center text-base text-tuna-900 md:text-lg">
+                  <MdOutlineErrorOutline color="#c2150c" /> {errorCityValid}
                 </p>
               )}
             </div>
