@@ -23,6 +23,8 @@ import Loader from "../ui/Loader";
 import FormButtons from "./FormButtons";
 import FormContainer from "./FormContainer";
 import NotFoundComponent from "../ui/NotFoundComponent";
+import Container from "../ui/Container";
+import GradientBg from "../ui/GradientBg";
 import { steps } from "@/data";
 
 import type {
@@ -94,7 +96,7 @@ const Form = memo(function Form() {
   const cityWatch = watch("city");
   const countryWatch = watch("country");
   const reviewFormData = getValues();
-  console.log("reviewFormData", reviewFormData)
+  console.log("reviewFormData", reviewFormData);
 
   const findCountry = countries.find(
     (country) => country.value === countryWatch,
@@ -211,13 +213,24 @@ const Form = memo(function Form() {
   };
 
   return (
-    <>
+    <Container overflow="overflow-hidden">
+      <GradientBg
+        // from="from-violay-300"
+        // to="to-deeporange-200"
+        // blur="blur-[190px]"
+        from="from-violay-300"
+        to="to-neptune-300"
+        blur="blur-[150px]"
+        // from="from-neptune-300"
+        // to="to-yellorange-200"
+        // blur="blur-[190px]"
+      />
       <FormContainer>
         <ProgressBar stepValue={stepValue} />
 
         <form
           onSubmit={handleSubmit(processForm)}
-          className="z-30  px-4 py-4 lg:p-8"
+          className="z-30 px-4 py-4 lg:p-8"
         >
           <FormStep1
             currentStep={currentStep}
@@ -288,7 +301,7 @@ const Form = memo(function Form() {
         prev={prev}
         isCityValid={isCityValid}
       />
-    </>
+    </Container>
   );
 });
 

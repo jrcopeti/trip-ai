@@ -58,7 +58,7 @@ function NavbarComponent() {
           <NavbarItem>
             <Link
               className="text-xs xs:text-sm font-semibold text-tuna-900 sm:text-base"
-              href="#"
+              href="/about"
             >
               About
             </Link>

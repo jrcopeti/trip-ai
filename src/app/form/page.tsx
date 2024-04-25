@@ -1,7 +1,4 @@
 "use client";
-import Form from "@/components/form/Form";
-import Container from "@/components/ui/Container";
-import GradientBg from "@/components/ui/GradientBg";
 import Loader from "@/components/ui/Loader";
 import { useEffect, useState } from "react";
 
@@ -26,14 +23,7 @@ function FormPage() {
   return (
     <>
       {isLoading && <Loader />}
-      <Container overflow="overflow-hidden">
-        <GradientBg
-          from="from-violay-300"
-          to="to-deeporange-200"
-          blur="blur-[190px]"
-        />
-        <DynamicForm />
-      </Container>
+      <DynamicForm />
     </>
   );
 }

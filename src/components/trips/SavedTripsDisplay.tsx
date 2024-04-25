@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { useSavedTrips } from "@/hooks/useSavedTrips";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -8,6 +8,10 @@ import SavedTripCard from "./SavedTripCard";
 import Loader from "../ui/Loader";
 import { savedTripDataCards } from "@/data";
 import ErrorComponent from "../ui/NotFoundComponent";
+import Container from "../ui/Container";
+import GradientBg from "../ui/GradientBg";
+import SavedTripsContainer from "./SavedTripsContainer";
+
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { notFound } from "next/navigation";
 
@@ -98,14 +102,27 @@ function SavedTripsDisplay() {
     notFound();
   }
   return (
-    <div className="mt-2 flex flex-col items-center gap-10 py-2 lg:px-16 lg:py-4">
-      <h1 className="text-5xl font-bold text-tuna-900">Saved Trips</h1>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 2xl:gap-8">
-        {savedTripDataCards?.map((trip) => (
-          <SavedTripCard key={trip.id} trip={trip} />
-        ))}
-      </div>
-    </div>
+    <Container height="h-full">
+      <GradientBg
+        position="fixed"
+        // from="from-neptune-300"
+        // to="to-yellorange-200"
+        // blur="blur-[190px]"
+        from="from-violay-300"
+        to="to-neptune-300"
+        blur="blur-[150px]"
+      />
+      <SavedTripsContainer>
+        <div className="mt-2 flex flex-col items-center gap-10 py-2 lg:px-16 lg:py-4">
+          <h1 className="text-5xl font-bold text-tuna-900">Saved Trips</h1>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 2xl:gap-8">
+            {savedTripDataCards?.map((trip) => (
+              <SavedTripCard key={trip.id} trip={trip} />
+            ))}
+          </div>
+        </div>
+      </SavedTripsContainer>
+    </Container>
   );
 }
 

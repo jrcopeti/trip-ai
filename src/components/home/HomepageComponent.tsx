@@ -6,6 +6,8 @@ import SwiperWithThumbs from "./SwiperWithThumbs";
 import HomepageTitle from "./HomepageTitle";
 import GridContainer from "../ui/GridContainer";
 import Preloader from "./Preloader";
+import Container from "../ui/Container";
+import GradientBg from "../ui/GradientBg";
 
 function HomepageComponent() {
   const [isLoading, setIsLoading] = useState(true);
@@ -20,7 +22,15 @@ function HomepageComponent() {
   }, []);
 
   return (
-    <>
+    <Container overflow="overflow-hidden">
+      <GradientBg
+        from="from-violay-300"
+        to="to-neptune-300"
+        blur="blur-[150px]"
+        // from="from-neptune-300"
+        // to="to-yellorange-200"
+        // blur="blur-[190px]"
+      />
       <AnimatePresence mode="wait">
         {isLoading && <Preloader />}
       </AnimatePresence>
@@ -28,7 +38,7 @@ function HomepageComponent() {
         <SwiperWithThumbs />
         <HomepageTitle />
       </GridContainer>
-    </>
+    </Container>
   );
 }
 

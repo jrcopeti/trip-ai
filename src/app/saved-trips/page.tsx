@@ -14,17 +14,7 @@ const DynamicSavedTripsDisplay = dynamic(
 function SavedTripsPage() {
   return (
     <>
-      <Container height="h-full">
-        <GradientBg
-          position="fixed"
-          from="from-neptune-300"
-          to="to-yellorange-200"
-          blur="blur-[190px]"
-        />
-        <SavedTripsContainer>
-          <DynamicSavedTripsDisplay />
-        </SavedTripsContainer>
-      </Container>
+      <DynamicSavedTripsDisplay />
     </>
   );
 }
