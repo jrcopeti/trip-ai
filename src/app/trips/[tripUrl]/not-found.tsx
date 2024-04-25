@@ -1,11 +1,11 @@
-import NotFoundComponent from "@/components/ui/ErrorComponent";
+import NotFoundComponent from "@/components/ui/NotFoundComponent";
 
 function NotFound() {
   return (
     <NotFoundComponent
-      message="error response AI in TRIP RESPONSE PAGE"
-      path="/trips"
-      button="TRIPS"
+      message="This trip is no longer available."
+      path="/"
+      button="Back to Home"
     />
   );
 }

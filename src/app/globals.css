@@ -2,9 +2,3 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
-  .gradient-background::before {
-    content: "";
-    @apply  inset-0 bg-gradient-to-b from-neptune-300 to-yellorange-200 -z-30 blur-[190px] fixed;
-  }
-}

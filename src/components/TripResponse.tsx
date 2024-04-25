@@ -24,7 +24,7 @@ import SaveSection from "./ui/SaveSection";
 import GradientBg from "./ui/GradientBg";
 import Container from "./ui/Container";
 import Loader from "./ui/Loader";
-import NotFoundComponent from "./ui/ErrorComponent";
+import NotFoundComponent from "./ui/NotFoundComponent";
 import { TripResponse as TripResponseType } from "@/types";
 
 function TripResponse() {
@@ -244,9 +244,9 @@ function TripResponse() {
   if (trip === null) {
     return (
       <NotFoundComponent
-        message="returned trip is not valid in trip response component"
-        path="/trips"
-        button="Trips"
+        message="There was an error generating the trip. Please try again."
+        path="/form"
+        button="Back to New Trip"
       />
     );
   }

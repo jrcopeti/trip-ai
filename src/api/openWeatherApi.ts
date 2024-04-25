@@ -32,7 +32,7 @@ export const fetchForecast = async ({
   } catch (err: unknown) {
     console.log("error", err);
    throw new Error("Error fetching forecast data");
-   
+
   }
 };
 

@@ -79,11 +79,11 @@ function WeatherSection({ trip, formData }: WeatherSectionProps) {
           width={400}
           alt="weather-icon"
           src={weatherIconSrc ?? suncloudy}
-          className=" -mt-[86px] mb-[30px] ml-[10px] h-[45vw] w-[45vw] object-contain saturate-150 filter xs:ml-[22%] sm:-ml-[145px] sm:-mt-[0px] sm:mb-[30px] sm:h-[300px] sm:w-full md:-ml-[161px] md:-mt-[0] md:mr-[30px] md:h-[300px] md:max-w-full "
+          className="-mt-[86px] mb-[30px] ml-[10px] h-[45vw] w-[45vw] object-contain saturate-150 filter xs:ml-[22%] sm:-ml-[145px] sm:-mt-[0px] sm:mb-[30px] sm:h-[300px] sm:w-full md:-ml-[161px] md:-mt-[0] md:mr-[30px] md:h-[300px] md:max-w-full "
         />
         <div className="text-tuna-900">
           <p className="mb-4 uppercase sm:mb-2">
-            {trip?.city}, {trip?.country}
+            {trip?.city || formData?.city}, {trip?.country || formData?.country}
           </p>
           <section>
             <h2 className=" mt-0 text-7xl font-semibold sm:mr-0 sm:text-[6rem]">

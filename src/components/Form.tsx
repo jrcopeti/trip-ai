@@ -22,7 +22,7 @@ import FormStep7 from "./ui/FormStep7";
 import Loader from "./ui/Loader";
 import FormButtons from "./ui/FormButtons";
 import FormContainer from "./ui/FormContainer";
-import NotFoundComponent from "./ui/ErrorComponent";
+import NotFoundComponent from "./ui/NotFoundComponent";
 import { steps } from "@/data";
 
 import type {
@@ -112,9 +112,9 @@ const Form = memo(function Form() {
   if (errorResponseAI) {
     return (
       <NotFoundComponent
-        message="error response AI in Form"
+        message="There was an error generating the trip. Please try again."
         path="/form"
-        button="Form"
+        button="Back to Form"
       />
     );
   }
