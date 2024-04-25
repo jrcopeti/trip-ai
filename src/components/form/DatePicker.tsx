@@ -99,7 +99,7 @@ const DatePicker = forwardRef(
             mode="single"
             selected={dayjs(date).toDate()}
             onSelect={(_val) => {
-              const formattedDate = dayjs(_val).toISOString();
+              const formattedDate = dayjs(_val).format();
 
               setDate(formattedDate);
               onChange?.(formattedDate);

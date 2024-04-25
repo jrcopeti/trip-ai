@@ -32,6 +32,7 @@ import type {
   FieldName,
 } from "@/types";
 import { useGeoNames } from "@/hooks/useGeoNames";
+import dayjs from "dayjs";
 
 const Form = memo(function Form() {
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -65,8 +66,8 @@ const Form = memo(function Form() {
       requiredItems: [{ item: "" }],
       interests: [],
       note: "",
-      startDate: new Date().toISOString(),
-      endDate: new Date().toISOString(),
+      startDate: dayjs(new Date()).format(),
+      endDate: dayjs(new Date()).format(),
       weatherForecast: "",
       agreement: false,
       flagUrl: "",
@@ -93,6 +94,7 @@ const Form = memo(function Form() {
   const cityWatch = watch("city");
   const countryWatch = watch("country");
   const reviewFormData = getValues();
+  console.log("reviewFormData", reviewFormData)
 
   const findCountry = countries.find(
     (country) => country.value === countryWatch,

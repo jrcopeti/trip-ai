@@ -32,7 +32,6 @@ function FormPage() {
           to="to-deeporange-200"
           blur="blur-[190px]"
         />
-
         <DynamicForm />
       </Container>
     </>
