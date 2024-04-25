@@ -195,7 +195,7 @@ function SavedTripsPageComponent({
     return <Loader />;
   }
 
-  if (!tryip) {
+  if (!trip) {
     notFound();
   }
 
