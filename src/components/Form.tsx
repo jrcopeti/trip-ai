@@ -99,9 +99,15 @@ const Form = memo(function Form() {
           setValue("flagUrl", selectedCountry.flagUrl);
         }
       }
+      return selectedCountry?.code;
     },
     [countries, setValue],
   );
+  const findCountry = countries.find(
+    (country) => country.value === watch("country"),
+  );
+  const countryCode = findCountry?.code.toUpperCase();
+  console.log(countryCode);
 
   if (isLoadingCountries || isPendingResponseAI || isNavigating) {
     return <Loader />;
@@ -136,7 +142,7 @@ const Form = memo(function Form() {
       generateImage(cityWatch);
     }
 
-    if (currentStep === steps.length - 5) {
+    if (isWeatherSelected && currentStep === steps.length - 2) {
       generateForecast({ city: cityWatch, country: countryWatch });
     }
 
@@ -183,10 +189,10 @@ const Form = memo(function Form() {
       generateResponseAI({
         prompt: promptModelWeather,
         city,
-        country,
+        country: countryCode,
       });
     } else {
-      generateResponseAI({ prompt: promptModel, city, country });
+      generateResponseAI({ prompt: promptModel, city, country: countryCode });
     }
 
     const finalData: FinalDataTypes = {

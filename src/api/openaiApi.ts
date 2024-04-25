@@ -2,6 +2,7 @@
 import OpenAI from "openai";
 import { fetchWeather } from "./openWeatherApi";
 import type { FetchResponseAIParams } from "@/types";
+import { validateCityCountry } from "./geoNames";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -98,9 +99,12 @@ export const fetchResponseAI = async ({
   city,
   country,
 }: FetchResponseAIParams) => {
-  const isValidCity = await fetchWeather({ city: city, country: country });
+  const isValidCity = await validateCityCountry({
+    city: city,
+    country: country,
+  });
   if (!isValidCity) {
-    console.log("City is not valid")
+    console.log("City is not valid");
     return null;
   }
 

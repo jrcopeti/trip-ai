@@ -241,11 +241,10 @@ function TripResponse() {
   console.log("imageData", imageData);
   console.log("title", trip?.title);
 
-  
   if (trip === null) {
     return (
       <NotFoundComponent
-        message="returned trip is not valid"
+        message="returned trip is not valid in trip response component"
         path="/trips"
         button="Trips"
       />
@@ -305,7 +304,7 @@ function TripResponse() {
       {/* Section 7 */}
       <Container overflow="overflow-x-hidden" animationClass="weather-section">
         <GradientBg from="from-gallery-100" to="to-yellorange-100" />
-        {trip && <WeatherSection trip={trip} />}
+        {trip && <WeatherSection trip={trip} formData={formData} />}
       </Container>
 
       {/* Section 8 */}

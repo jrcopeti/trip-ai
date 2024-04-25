@@ -9,20 +9,29 @@ import { TbSunrise } from "react-icons/tb";
 import { BsSunsetFill } from "react-icons/bs";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { Trip } from "@prisma/client";
+import type { WeatherSectionProps } from "@/types";
 
 dayjs.extend(utc);
 
-function WeatherSection({ trip }: { trip: Trip }) {
+function WeatherSection({ trip, formData }: WeatherSectionProps) {
   const { generateWeather, isPendingWeather, weatherData } = useWeather();
   console.log(weatherData);
   console.log("isPending`Weather", isPendingWeather);
 
   useEffect(() => {
-    if (trip.city && trip.country) {
-      generateWeather({ city: trip.city, country: trip.country });
+    if ((trip.city && trip.country) || (formData?.city && formData?.country)) {
+      generateWeather({
+        city: trip.city || formData?.city,
+        country: trip.country || formData?.country,
+      });
     }
-  }, [generateWeather, trip.city, trip.country]);
+  }, [
+    generateWeather,
+    trip.city,
+    trip.country,
+    formData?.city,
+    formData?.country,
+  ]);
 
   if (!weatherData) {
     return (

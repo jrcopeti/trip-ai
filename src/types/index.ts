@@ -48,7 +48,7 @@ export interface FetchWeatherParams {
 export interface FetchResponseAIParams {
   prompt: string;
   city: string;
-  country: string;
+  country?: string;
 }
 
 export interface WeatherContextType {
@@ -67,8 +67,8 @@ export interface WeatherContextType {
     city,
     country,
   }: {
-    city: string;
-    country: string;
+    city?: string;
+    country?: string;
   }) => void;
 
   isPendingWeather: boolean;
@@ -211,6 +211,12 @@ export interface FormDetailsSectionProps {
   trip: Trip;
   imageData?: ImageDataTypes;
   formData?: FinalDataTypes;
+}
+
+export interface WeatherSectionProps {
+  trip: Trip;
+  formData?: FinalDataTypes
+
 }
 
 export interface TitleSectionProps {
