@@ -32,8 +32,8 @@ function TripProvider({ children }: { children: React.ReactNode }) {
     isPending: isPendingResponseAI,
     error: errorResponseAI,
   } = useMutation({
-    mutationFn: ({ prompt, city, country }: FetchResponseAIParams) =>
-      fetchResponseAI({ prompt, city, country }),
+    mutationFn: (prompt: string) =>
+      fetchResponseAI(prompt),
 
     onSuccess: () => {
       console.log("success trip em trip context");

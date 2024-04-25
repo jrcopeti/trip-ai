@@ -11,9 +11,7 @@ import { Controller } from "react-hook-form";
 import { motion } from "framer-motion";
 
 import FormTitle from "./FormTitle";
-import { sortedTypes } from "@/data";
-
-import type { FormStepProps } from "@/types";
+import type { FormStep2Props } from "@/types";
 
 function FormStep2({
   currentStep,
@@ -21,8 +19,11 @@ function FormStep2({
   errors,
   handleSelectionAutocomplete,
   delta,
-}: FormStepProps) {
-  const { countries, isLoading: isLoadingCountries } = useCountries();
+  isCityValid,
+  isLoadingCityValid,
+  errorCityValid,
+}: FormStep2Props) {
+  const { countries } = useCountries();
 
   return (
     <>
@@ -51,6 +52,7 @@ function FormStep2({
                   color="primary"
                   errorMessage={errors.city?.message}
                   isInvalid={!!errors.city}
+                  isDisabled={isLoadingCityValid}
                   isRequired
                 />
               )}
@@ -75,6 +77,7 @@ function FormStep2({
                   }
                   errorMessage={errors.country?.message}
                   isInvalid={!!errors.country}
+                  isDisabled={isLoadingCityValid}
                   isRequired
                 >
                   {(country) => (
@@ -85,34 +88,16 @@ function FormStep2({
                 </Autocomplete>
               )}
             />
-
-            <div className="col-span-1 sm:col-span-2  md:max-w-[500px]">
-              <Controller
-                name="type"
-                control={control}
-                render={({ field }) => (
-                  <RadioGroup
-                    {...field}
-                    id="type"
-                    label="How do you describe your trip?"
-                    orientation="horizontal"
-                    color="success"
-                    errorMessage={errors.type?.message}
-                    isInvalid={!!errors.type}
-                    isRequired
-                  >
-                    {sortedTypes.map((type) => (
-                      <Radio
-                        key={type.value}
-                        value={type.value}
-                        className="font-semibold"
-                      >
-                        {type.label}
-                      </Radio>
-                    ))}
-                  </RadioGroup>
-                )}
-              />
+            <div>
+              {isLoadingCityValid && (
+                <p className="text-sm text-gallery-500">Validating city...</p>
+              )}
+              {isCityValid && (
+                <p className="text-xl text-neptune-400">City found!</p>
+              )}
+              {errorCityValid && (
+                <p className="text-sm text-deeporange-500">{errorCityValid}</p>
+              )}
             </div>
           </div>
         </motion.div>

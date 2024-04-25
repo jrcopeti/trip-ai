@@ -126,6 +126,11 @@ export interface FormStepProps {
   delta: number;
 }
 
+export interface FormStep2Props extends FormStepProps {
+  isCityValid: boolean;
+  isLoadingCityValid: boolean;
+  errorCityValid: string;
+}
 export interface FormStep3Props
   extends Omit<FormStepProps, "handleSelectionAutocomplete"> {}
 
@@ -149,6 +154,7 @@ export interface FormButtonsProps {
   currentStep: number;
   next: () => void;
   prev: () => void;
+  isCityValid: boolean;
 }
 
 export interface ContainerProps {
@@ -215,8 +221,7 @@ export interface FormDetailsSectionProps {
 
 export interface WeatherSectionProps {
   trip: Trip;
-  formData?: FinalDataTypes
-
+  formData?: FinalDataTypes;
 }
 
 export interface TitleSectionProps {
@@ -232,11 +237,7 @@ export type TripResponse = { trip: Trip | null } | Trip;
 
 export interface TripContextType {
   tripData: Trip | null;
-  generateResponseAI: ({
-    prompt,
-    city,
-    country,
-  }: FetchResponseAIParams) => void;
+  generateResponseAI: (prompt: string) => void;
   isPendingResponseAI: boolean;
   errorResponseAI: unknown;
   isNavigating: boolean;

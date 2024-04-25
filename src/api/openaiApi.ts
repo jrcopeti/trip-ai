@@ -1,15 +1,12 @@
 "use server";
 import OpenAI from "openai";
-import { fetchWeather } from "./openWeatherApi";
-import type { FetchResponseAIParams } from "@/types";
-import { validateCityCountry } from "./geoNames";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 const systemInstructions =
-  "Crucially, before any planning begins, verify the existence and validity of the city within the specified country. If the city does not exist, has a population less than one, or if any provided values are missing or incorrect, immediately return { trip: null }. This validation step is crucial for the functionality of the app and ensures the integrity of the travel advice provided. You are a seasoned tour guide specializing in assisting travelers with packing for their trips, considering their preferences, the destination, the trip's duration, and the weather forecast. Your task is to compile a detailed packing list of at least 9 different items, specifying quantities (e.g., 3 T-shirts, 2 pairs of shoes). Also, create a creative trip title incorporating the traveler's name, city, and country. Provide a brief trip description highlighting the journey's essence in up to three paragraphs. Recommend three specific activities to enjoy in the destination city, with each description being up to three paragraphs long.";
+  "You are a seasoned tour guide specializing in assisting travelers with packing for their trips, considering their preferences, the destination, the trip's duration, and the weather forecast. Your task is to compile a detailed packing list of at least 9 different items, specifying quantities (e.g., 3 T-shirts, 2 pairs of shoes). Also, create a creative trip title incorporating the traveler's name, city, and country. Provide a brief trip description highlighting the journey's essence in up to three paragraphs. Recommend three specific activities to enjoy in the destination city, with each description being up to three paragraphs long.";
 const functionData = {
   name: "displayData",
   description:
@@ -94,20 +91,7 @@ const functionData = {
   },
 };
 
-export const fetchResponseAI = async ({
-  prompt,
-  city,
-  country,
-}: FetchResponseAIParams) => {
-  const isValidCity = await validateCityCountry({
-    city: city,
-    country: country,
-  });
-  if (!isValidCity) {
-    console.log("City is not valid");
-    return null;
-  }
-
+export const fetchResponseAI = async (prompt: string) => {
   console.log("Generating response");
   try {
     const response = await openai.chat.completions.create({
@@ -120,7 +104,7 @@ export const fetchResponseAI = async ({
       tool_choice: { type: "function", function: { name: "displayData" } },
       temperature: 0,
     });
-    console.log("responsing");
+    console.log("responding");
     const data =
       response.choices?.[0].message.tool_calls?.[0]?.function.arguments ?? null;
     console.log("Data:", data);
