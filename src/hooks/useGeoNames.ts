@@ -13,7 +13,7 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
   const [errorCityValid, setErrorCityValid] = useState<string>("");
 
   useEffect(() => {
-    if (!city || !countryCode) {
+    if (city.length < 2 || !countryCode) {
       setIsCityValid(false);
       setErrorCityValid("");
       return;
@@ -24,14 +24,16 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
     const url = `http://api.geonames.org/searchJSON?q=${encodeURIComponent(city)}&country=${countryCode}&maxRows=1&username=${username}`;
     const debounce = setTimeout(async function validateCityCountry() {
       setIsLoadingCityValid(true);
+      setErrorCityValid("");
       axios
         .get(url, { cancelToken: source.token })
         .then((response) => {
           if (response.data.totalResultsCount === 0) {
-            throw new Error("City not found");
+            throw new Error("The location is not valid. Please try again");
           }
           console.log(
             "City and countryCode match found",
+            response.data,
             response.data.geonames[0],
             response.data.geonames[0].countryName,
           );
@@ -42,7 +44,7 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
           if (axios.isCancel(error)) {
             console.log("Request canceled", error.message);
           } else {
-            console.error("Error accessing GeoNames API", error);
+            console.error("Error Validating City", error);
             setIsCityValid(false);
             setErrorCityValid(error.message);
           }

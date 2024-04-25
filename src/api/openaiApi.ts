@@ -10,7 +10,7 @@ const systemInstructions =
 const functionData = {
   name: "displayData",
   description:
-    "This function generates a detailed packing list and a comprehensive trip plan based on the tourist's provided trip information. The first step in the function is to validate the existence of the specified city within the given country using a reliable data source. If this validation fails due to the city not existing, having a population less than one, or any other critical data mismatch, the function must immediately return { trip: null } without further processing. This ensures the integrity and applicability of the travel planning process. If validation is successful, the function will then proceed to create a packing list, a creative trip title, a descriptive trip summary, and suggestions for three activities based on the traveler's preferences and the local weather conditions.",
+    "The first step in the function is to validate the existence of the specified city within the given country using a reliable data source. If this validation fails due to the city not existing, having a population less than one, or any other critical data mismatch, the function must immediately return { trip: null } without further processing. This ensures the integrity and applicability of the travel planning process. If validation is successful, the function will then proceed to: This function generates a detailed packing list and a comprehensive trip plan based on the tourist's provided trip information. Create a packing list, a creative trip title, a descriptive trip summary, and suggestions for three activities based on the traveler's preferences and the local weather conditions.",
   parameters: {
     type: "object",
     properties: {

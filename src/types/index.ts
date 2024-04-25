@@ -41,8 +41,8 @@ export interface FetchForecastParams {
 }
 
 export interface FetchWeatherParams {
-  city: string;
-  country: string;
+  city: string | undefined;
+  country: string | undefined;
 }
 
 export interface FetchResponseAIParams {
@@ -67,8 +67,8 @@ export interface WeatherContextType {
     city,
     country,
   }: {
-    city?: string;
-    country?: string;
+    city: string | undefined;
+    country: string | undefined;
   }) => void;
 
   isPendingWeather: boolean;

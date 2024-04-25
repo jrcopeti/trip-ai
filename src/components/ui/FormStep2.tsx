@@ -1,14 +1,11 @@
 import { useCountries } from "@/hooks/useCountries";
 
-import {
-  Autocomplete,
-  AutocompleteItem,
-  Input,
-  Radio,
-  RadioGroup,
-} from "@nextui-org/react";
+import { Autocomplete, AutocompleteItem, Input } from "@nextui-org/react";
 import { Controller } from "react-hook-form";
 import { motion } from "framer-motion";
+import { PulseLoader } from "react-spinners";
+import { MdOutlineCheckCircle } from "react-icons/md";
+import { MdOutlineErrorOutline } from "react-icons/md";
 
 import FormTitle from "./FormTitle";
 import type { FormStep2Props } from "@/types";
@@ -50,6 +47,7 @@ function FormStep2({
                   radius="sm"
                   variant="faded"
                   color="primary"
+                  size="lg"
                   errorMessage={errors.city?.message}
                   isInvalid={!!errors.city}
                   isDisabled={isLoadingCityValid}
@@ -72,6 +70,7 @@ function FormStep2({
                   radius="sm"
                   variant="faded"
                   color="primary"
+                  size="lg"
                   onSelectionChange={(selectedKey) =>
                     handleSelectionAutocomplete(selectedKey, "country")
                   }
@@ -90,13 +89,19 @@ function FormStep2({
             />
             <div>
               {isLoadingCityValid && (
-                <p className="text-sm text-gallery-500">Validating city...</p>
+                <p className="text-sm text-gallery-500">
+                  <PulseLoader color="#656565" />
+                </p>
               )}
               {isCityValid && (
-                <p className="text-xl text-neptune-400">City found!</p>
+                <p className="flex items-center gap-2 text-center text-lg font-semibold text-neptune-500 md:text-xl">
+                  <MdOutlineCheckCircle /> The location was found
+                </p>
               )}
               {errorCityValid && (
-                <p className="text-sm text-deeporange-500">{errorCityValid}</p>
+                <p className=" flex items-center gap-2 text-center text-base text-deeporange-700 md:text-lg">
+                  <MdOutlineErrorOutline /> {errorCityValid}
+                </p>
               )}
             </div>
           </div>
