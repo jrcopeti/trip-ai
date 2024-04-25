@@ -252,3 +252,7 @@ export interface NotFoundComponentProps {
   path: string;
   button: string;
 }
+export interface useGeoNamesProps {
+  city: string;
+  countryCode?: string;
+}

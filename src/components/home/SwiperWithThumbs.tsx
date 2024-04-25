@@ -41,7 +41,7 @@ function SwiperWithThumbs() {
               thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
           }}
           onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-          className=" h-[70%] sx:h-[77%] w-full"
+          className=" h-[70%] xs:h-[77%] w-full"
           style={
             {
               "--swiper-pagination-color": "#4e888c",
@@ -64,7 +64,7 @@ function SwiperWithThumbs() {
         </Swiper>
 
         <Swiper
-          className="mt-3 h-[9vh] xs:h-[10vh] w-[98%] lg:h-[15vh] 2xl:h-[18vh] "
+          className="mt-3 h-[30%] xs:h-[21%] w-[99.5%] "
           onSwiper={setThumbsSwiper}
           loop
           spaceBetween={12}
