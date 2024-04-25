@@ -195,14 +195,14 @@ const steps = [
     title: "Destination",
     subtitle: "What's your next trip?",
     stepValue: 16,
-    fields: ["city", "country", "type"],
+    fields: ["city", "country"],
   },
   {
     id: "step 3",
     title: "Travel Details",
     subtitle: "How do you like to travel?",
     stepValue: 32,
-    fields: ["luggageSize", "accommodation", "budget", "transport"],
+    fields: ["type", "luggageSize", "accommodation", "budget", "transport"],
   },
   {
     id: "step 4",

@@ -6,29 +6,28 @@ import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import WeatherSection from "./ui/WeatherSection";
-import ObjectsSection from "./ui/ObjectsSection";
-import ToursSection from "./ui/ToursSection";
-import DescriptionSection from "./ui/DescriptionSection";
-import TitleSection from "./ui/TitleSection";
-import PackReadySection from "./ui/PackReadySection";
-import MustHaveSection from "./ui/MustHaveSection";
-import FormDetailsSection from "./ui/FormDetailsSection";
-import FinalSection from "./ui/FinalSection";
-import GradientBg from "./ui/GradientBg";
-import Container from "./ui/Container";
-import Loader from "./ui/Loader";
-import ButtonBackOutlined from "./ui/ButtonBackOutlined";
+import WeatherSection from "./WeatherSection";
+import ObjectsSection from "./ObjectsSection";
+import ToursSection from "./ToursSection";
+import DescriptionSection from "./DescriptionSection";
+import TitleSection from "./TitleSection";
+import PackReadySection from "./PackReadySection";
+import MustHaveSection from "./MustHaveSection";
+import FormDetailsSection from "./FormDetailsSection";
+import FinalSection from "./FinalSection";
+import GradientBg from "../ui/GradientBg";
+import Container from "../ui/Container";
+import Loader from "../ui/Loader";
+import ButtonBackOutlined from "../ui/ButtonBackOutlined";
 import { notFound } from "next/navigation";
-import NotFoundComponent from "./ui/ErrorComponent";
+import NotFoundComponent from "../ui/NotFoundComponent";
 
 function SavedTripsPageComponent({
   params,
 }: {
   params: { id: number | string };
 }) {
-  const { trip, isPendingSingleSavedTrip, errorSingleSavedTrip } =
-    useSingleSavedTrip({ params });
+  const { trip, isPendingSingleSavedTrip } = useSingleSavedTrip({ params });
 
   const { isPendingWeather, weatherData } = useWeather();
 
@@ -194,14 +193,6 @@ function SavedTripsPageComponent({
 
   if (isPendingSingleSavedTrip) {
     return <Loader />;
-  }
-
-  if (errorSingleSavedTrip) {
-    <NotFoundComponent
-      message="OOOOPPPPSSSS"
-      path="/saved-trips"
-      button="Back to saved trips"
-    />;
   }
 
   if (!trip) {

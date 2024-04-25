@@ -3,6 +3,7 @@ import {
   luggageSizes,
   sortedTransports,
   budgets,
+  sortedTypes,
 } from "@/data";
 import FormTitle from "./FormTitle";
 import { Radio, RadioGroup } from "@nextui-org/react";
@@ -11,12 +12,7 @@ import { motion } from "framer-motion";
 import type { FormStep3Props } from "@/types";
 import { steps } from "@/data";
 
-function FormStep3({
-  currentStep,
-  control,
-  errors,
-  delta,
-}: FormStep3Props) {
+function FormStep3({ currentStep, control, errors, delta }: FormStep3Props) {
   return (
     <>
       {currentStep === 2 && (
@@ -27,29 +23,29 @@ function FormStep3({
         >
           <FormTitle currentStep={currentStep} />
 
-          <div className="mt-6 grid max-w-[80%] grid-cols-1 gap-x-4 gap-y-8  text-sm md:mt-[75px] lg:grid-cols-2">
+          <div className="mt-6 grid max-w-[80%] grid-cols-1 gap-x-4 gap-y-8  text-sm md:mt-[60px] lg:grid-cols-2 xl:grid-cols-3 ">
             <Controller
-              name="luggageSize"
+              name="type"
               control={control}
               render={({ field }) => (
                 <RadioGroup
                   {...field}
-                  id="luggageSize"
-                  label="What's the size of your luggage?"
+                  id="type"
+                  label="How do you describe your trip?"
                   orientation="horizontal"
                   color="success"
                   className="max-w-[300px]"
-                  errorMessage={errors.luggageSize?.message}
-                  isInvalid={!!errors.luggageSize}
+                  errorMessage={errors.type?.message}
+                  isInvalid={!!errors.type}
                   isRequired
                 >
-                  {luggageSizes.map((luggageSize) => (
+                  {sortedTypes.map((type) => (
                     <Radio
-                      key={luggageSize.value}
-                      value={luggageSize.value}
+                      key={type.value}
+                      value={type.value}
                       className="font-semibold"
                     >
-                      {luggageSize.label}
+                      {type.label}
                     </Radio>
                   ))}
                 </RadioGroup>
@@ -78,6 +74,34 @@ function FormStep3({
                       className="font-semibold"
                     >
                       {accommodation.label}
+                    </Radio>
+                  ))}
+                </RadioGroup>
+              )}
+            />
+
+            <Controller
+              name="luggageSize"
+              control={control}
+              render={({ field }) => (
+                <RadioGroup
+                  {...field}
+                  id="luggageSize"
+                  label="What's the size of your luggage?"
+                  orientation="horizontal"
+                  color="success"
+                  className="max-w-[300px]"
+                  errorMessage={errors.luggageSize?.message}
+                  isInvalid={!!errors.luggageSize}
+                  isRequired
+                >
+                  {luggageSizes.map((luggageSize) => (
+                    <Radio
+                      key={luggageSize.value}
+                      value={luggageSize.value}
+                      className="font-semibold"
+                    >
+                      {luggageSize.label}
                     </Radio>
                   ))}
                 </RadioGroup>

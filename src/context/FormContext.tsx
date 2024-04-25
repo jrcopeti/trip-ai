@@ -2,6 +2,7 @@
 
 import { useState, createContext } from "react";
 import type { FinalDataTypes, FormContextType, Inputs } from "@/types";
+import dayjs from "dayjs";
 
 const defaultFormData: Inputs = {
   userName: "",
@@ -17,8 +18,8 @@ const defaultFormData: Inputs = {
   requiredItems: [{ item: "" }],
   interests: [""],
   note: "",
-  startDate: new Date().toISOString(),
-  endDate: new Date().toISOString(),
+  startDate: dayjs(new Date()).format(),
+  endDate: dayjs(new Date()).format(),
   weatherForecast: "",
   agreement: false,
   flagUrl: "",

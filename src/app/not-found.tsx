@@ -1,6 +1,4 @@
-import NotFoundComponent from "@/components/ui/ErrorComponent";
-import { Button } from "@nextui-org/react";
-import Link from "next/link";
+import NotFoundComponent from "@/components/ui/NotFoundComponent";
 
 function NotFound() {
   return (

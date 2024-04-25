@@ -1,16 +1,17 @@
 "use client";
-import SavedTripsDisplay from "@/components/SavedTripsDisplay";
+import SavedTripsDisplay from "@/components/trips/SavedTripsDisplay";
 import Container from "@/components/ui/Container";
 import GradientBg from "@/components/ui/GradientBg";
-import SavedTripsContainer from "@/components/ui/SavedTripsContainer";
+import SavedTripsContainer from "@/components/trips/SavedTripsContainer";
 import dynamic from "next/dynamic";
 
-const DynamicSavedTripsDisplay = dynamic(() => import("@/components/SavedTripsDisplay"), {
-  ssr: false,
-});
+const DynamicSavedTripsDisplay = dynamic(
+  () => import("@/components/trips/SavedTripsDisplay"),
+  {
+    ssr: false,
+  },
+);
 function SavedTripsPage() {
-
-
   return (
     <>
       <Container height="h-full">

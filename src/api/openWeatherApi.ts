@@ -31,7 +31,8 @@ export const fetchForecast = async ({
     return forecast;
   } catch (err: unknown) {
     console.log("error", err);
-    return undefined;
+   throw new Error("Error fetching forecast data");
+
   }
 };
 

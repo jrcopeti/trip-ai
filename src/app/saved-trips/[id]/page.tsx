@@ -1,5 +1,3 @@
-
-
 // import dynamic from "next/dynamic";
 
 // const DynamicSavedTripsPageComponent = dynamic(
@@ -8,7 +6,7 @@
 //     ssr: false,
 //   },
 // );
-import SavedTripsPageComponent from "@/components/SavedTripsPageComponent";
+import SavedTripsPageComponent from "@/components/trips/SavedTripsPageComponent";
 
 import {
   HydrationBoundary,
@@ -21,7 +19,7 @@ function SavedTripsPageId({ params }: { params: { id: number | string } }) {
 
   return (
     // <HydrationBoundary state={dehydrate(queryClient)}>
-      <SavedTripsPageComponent params={params} />
+    <SavedTripsPageComponent params={params} />
     // </HydrationBoundary>
   );
 }

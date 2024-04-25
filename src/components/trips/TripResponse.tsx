@@ -12,19 +12,19 @@ import { Prisma } from "@prisma/client";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import FormDetailsSection from "./ui/FormDetailsSection";
-import TitleSection from "./ui/TitleSection";
-import DescriptionSection from "./ui/DescriptionSection";
-import ToursSection from "./ui/ToursSection";
-import PackReadySection from "./ui/PackReadySection";
-import ObjectsSection from "./ui/ObjectsSection";
-import MustHaveSection from "./ui/MustHaveSection";
-import WeatherSection from "./ui/WeatherSection";
-import SaveSection from "./ui/SaveSection";
-import GradientBg from "./ui/GradientBg";
-import Container from "./ui/Container";
-import Loader from "./ui/Loader";
-import NotFoundComponent from "./ui/ErrorComponent";
+import FormDetailsSection from "./FormDetailsSection";
+import TitleSection from "./TitleSection";
+import DescriptionSection from "./DescriptionSection";
+import ToursSection from "./ToursSection";
+import PackReadySection from "./PackReadySection";
+import ObjectsSection from "./ObjectsSection";
+import MustHaveSection from "./MustHaveSection";
+import WeatherSection from "./WeatherSection";
+import SaveSection from "./SaveSection";
+import GradientBg from "../ui/GradientBg";
+import Container from "../ui/Container";
+import Loader from "../ui/Loader";
+import NotFoundComponent from "../ui/NotFoundComponent";
 import { TripResponse as TripResponseType } from "@/types";
 
 function TripResponse() {
@@ -241,13 +241,12 @@ function TripResponse() {
   console.log("imageData", imageData);
   console.log("title", trip?.title);
 
-  
   if (trip === null) {
     return (
       <NotFoundComponent
-        message="returned trip is not valid"
-        path="/trips"
-        button="Trips"
+        message="There was an error generating the trip. Please try again."
+        path="/form"
+        button="Back to New Trip"
       />
     );
   }
@@ -305,7 +304,7 @@ function TripResponse() {
       {/* Section 7 */}
       <Container overflow="overflow-x-hidden" animationClass="weather-section">
         <GradientBg from="from-gallery-100" to="to-yellorange-100" />
-        {trip && <WeatherSection trip={trip} />}
+        {trip && <WeatherSection trip={trip} formData={formData} />}
       </Container>
 
       {/* Section 8 */}

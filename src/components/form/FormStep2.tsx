@@ -1,19 +1,14 @@
 import { useCountries } from "@/hooks/useCountries";
 
-import {
-  Autocomplete,
-  AutocompleteItem,
-  Input,
-  Radio,
-  RadioGroup,
-} from "@nextui-org/react";
+import { Autocomplete, AutocompleteItem, Input } from "@nextui-org/react";
 import { Controller } from "react-hook-form";
 import { motion } from "framer-motion";
+import { PulseLoader } from "react-spinners";
+import { MdOutlineCheckCircle } from "react-icons/md";
+import { MdOutlineErrorOutline } from "react-icons/md";
 
 import FormTitle from "./FormTitle";
-import { sortedTypes } from "@/data";
-
-import type { FormStepProps } from "@/types";
+import type { FormStep2Props } from "@/types";
 
 function FormStep2({
   currentStep,
@@ -21,8 +16,11 @@ function FormStep2({
   errors,
   handleSelectionAutocomplete,
   delta,
-}: FormStepProps) {
-  const { countries, isLoading: isLoadingCountries } = useCountries();
+  isCityValid,
+  isLoadingCityValid,
+  errorCityValid,
+}: FormStep2Props) {
+  const { countries } = useCountries();
 
   return (
     <>
@@ -49,8 +47,10 @@ function FormStep2({
                   radius="sm"
                   variant="faded"
                   color="primary"
+                  size="lg"
                   errorMessage={errors.city?.message}
                   isInvalid={!!errors.city}
+                  isDisabled={isLoadingCityValid}
                   isRequired
                 />
               )}
@@ -70,11 +70,13 @@ function FormStep2({
                   radius="sm"
                   variant="faded"
                   color="primary"
+                  size="lg"
                   onSelectionChange={(selectedKey) =>
                     handleSelectionAutocomplete(selectedKey, "country")
                   }
                   errorMessage={errors.country?.message}
                   isInvalid={!!errors.country}
+                  isDisabled={isLoadingCityValid}
                   isRequired
                 >
                   {(country) => (
@@ -85,34 +87,22 @@ function FormStep2({
                 </Autocomplete>
               )}
             />
-
-            <div className="col-span-1 sm:col-span-2  md:max-w-[500px]">
-              <Controller
-                name="type"
-                control={control}
-                render={({ field }) => (
-                  <RadioGroup
-                    {...field}
-                    id="type"
-                    label="How do you describe your trip?"
-                    orientation="horizontal"
-                    color="success"
-                    errorMessage={errors.type?.message}
-                    isInvalid={!!errors.type}
-                    isRequired
-                  >
-                    {sortedTypes.map((type) => (
-                      <Radio
-                        key={type.value}
-                        value={type.value}
-                        className="font-semibold"
-                      >
-                        {type.label}
-                      </Radio>
-                    ))}
-                  </RadioGroup>
-                )}
-              />
+            <div>
+              {isLoadingCityValid && (
+                <p className="text-sm text-gallery-500">
+                  <PulseLoader color="#656565" />
+                </p>
+              )}
+              {isCityValid && (
+                <p className="flex items-center gap-2 text-center text-lg font-semibold text-neptune-500 md:text-xl">
+                  <MdOutlineCheckCircle /> The location was found
+                </p>
+              )}
+              {errorCityValid && (
+                <p className=" flex items-center gap-2 text-center text-base text-deeporange-700 md:text-lg">
+                  <MdOutlineErrorOutline /> {errorCityValid}
+                </p>
+              )}
             </div>
           </div>
         </motion.div>

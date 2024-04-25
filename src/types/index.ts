@@ -41,14 +41,14 @@ export interface FetchForecastParams {
 }
 
 export interface FetchWeatherParams {
-  city: string;
-  country: string;
+  city: string | undefined;
+  country: string | undefined;
 }
 
 export interface FetchResponseAIParams {
   prompt: string;
   city: string;
-  country: string;
+  country?: string;
 }
 
 export interface WeatherContextType {
@@ -67,8 +67,8 @@ export interface WeatherContextType {
     city,
     country,
   }: {
-    city: string;
-    country: string;
+    city: string | undefined;
+    country: string | undefined;
   }) => void;
 
   isPendingWeather: boolean;
@@ -126,6 +126,11 @@ export interface FormStepProps {
   delta: number;
 }
 
+export interface FormStep2Props extends FormStepProps {
+  isCityValid: boolean;
+  isLoadingCityValid: boolean;
+  errorCityValid: string;
+}
 export interface FormStep3Props
   extends Omit<FormStepProps, "handleSelectionAutocomplete"> {}
 
@@ -149,6 +154,7 @@ export interface FormButtonsProps {
   currentStep: number;
   next: () => void;
   prev: () => void;
+  isCityValid: boolean;
 }
 
 export interface ContainerProps {
@@ -213,6 +219,11 @@ export interface FormDetailsSectionProps {
   formData?: FinalDataTypes;
 }
 
+export interface WeatherSectionProps {
+  trip: Trip;
+  formData?: FinalDataTypes;
+}
+
 export interface TitleSectionProps {
   trip: Trip;
   imageData?: ImageDataTypes;
@@ -226,11 +237,7 @@ export type TripResponse = { trip: Trip | null } | Trip;
 
 export interface TripContextType {
   tripData: Trip | null;
-  generateResponseAI: ({
-    prompt,
-    city,
-    country,
-  }: FetchResponseAIParams) => void;
+  generateResponseAI: (prompt: string) => void;
   isPendingResponseAI: boolean;
   errorResponseAI: unknown;
   isNavigating: boolean;

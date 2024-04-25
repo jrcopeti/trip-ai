@@ -33,7 +33,7 @@ function FormDetailsSection({
             />
           </div>
           <div className="grid grid-cols-3 gap-x-2 gap-y-2">
-            <div>
+            <div className="mt-2">
               <small className="text-[0.5rem] text-tuna-600 xs:text-xs">
                 Destination
               </small>

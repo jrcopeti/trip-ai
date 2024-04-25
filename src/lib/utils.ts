@@ -13,6 +13,8 @@ import snow from "@/assets/weather/snow.png";
 import sun from "@/assets/weather/sun.png";
 import suncloudy from "@/assets/weather/suncloudy.png";
 
+dayjs.extend(duration);
+
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -81,7 +83,7 @@ const placeWeatherIcons = (condition: string, icon: string) => {
 };
 
 const durationInDays = (startDate: Dayjs | string, endDate: Dayjs | string) => {
-  dayjs.extend(duration);
+
   const start = dayjs(startDate);
   const end = dayjs(endDate);
   const differenceInDays = end.diff(start);
