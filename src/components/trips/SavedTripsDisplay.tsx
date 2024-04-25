@@ -4,10 +4,10 @@ import { useSavedTrips } from "@/hooks/useSavedTrips";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import SavedTripCard from "./ui/SavedTripCard";
-import Loader from "./ui/Loader";
+import SavedTripCard from "./SavedTripCard";
+import Loader from "../ui/Loader";
 import { savedTripDataCards } from "@/data";
-import ErrorComponent from "./ui/NotFoundComponent";
+import ErrorComponent from "../ui/NotFoundComponent";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { notFound } from "next/navigation";
 

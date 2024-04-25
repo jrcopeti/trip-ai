@@ -52,7 +52,6 @@ function FormStep3({ currentStep, control, errors, delta }: FormStep3Props) {
               )}
             />
 
-
             <Controller
               name="accommodation"
               control={control}
@@ -81,7 +80,7 @@ function FormStep3({ currentStep, control, errors, delta }: FormStep3Props) {
               )}
             />
 
-<Controller
+            <Controller
               name="luggageSize"
               control={control}
               render={({ field }) => (
@@ -108,7 +107,6 @@ function FormStep3({ currentStep, control, errors, delta }: FormStep3Props) {
                 </RadioGroup>
               )}
             />
-
 
             <Controller
               name="transport"

@@ -1,4 +1,4 @@
-import HomepageComponent from "@/components/HomepageComponent";
+import HomepageComponent from "@/components/home/HomepageComponent";
 import Container from "@/components/ui/Container";
 import GradientBg from "@/components/ui/GradientBg";
 

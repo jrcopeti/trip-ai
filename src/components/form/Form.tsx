@@ -11,18 +11,18 @@ import { FormDataSchema } from "@/lib/schema";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import ProgressBar from "./ui/Progress";
-import FormStep1 from "./ui/FormStep1";
-import FormStep2 from "./ui/FormStep2";
-import FormStep3 from "./ui/FormStep3";
-import FormStep4 from "./ui/FormStep4";
-import FormStep5 from "./ui/FormStep5";
-import FormStep6 from "./ui/FormStep6";
-import FormStep7 from "./ui/FormStep7";
-import Loader from "./ui/Loader";
-import FormButtons from "./ui/FormButtons";
-import FormContainer from "./ui/FormContainer";
-import NotFoundComponent from "./ui/NotFoundComponent";
+import ProgressBar from "./Progress";
+import FormStep1 from "./FormStep1";
+import FormStep2 from "./FormStep2";
+import FormStep3 from "./FormStep3";
+import FormStep4 from "./FormStep4";
+import FormStep5 from "./FormStep5";
+import FormStep6 from "./FormStep6";
+import FormStep7 from "./FormStep7";
+import Loader from "../ui/Loader";
+import FormButtons from "./FormButtons";
+import FormContainer from "./FormContainer";
+import NotFoundComponent from "../ui/NotFoundComponent";
 import { steps } from "@/data";
 
 import type {

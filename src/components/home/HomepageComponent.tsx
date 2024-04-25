@@ -2,10 +2,10 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 
-import SwiperWithThumbs from "./ui/SwiperWithThumbs";
-import HomepageTitle from "./ui/HomepageTitle";
-import GridContainer from "./ui/GridContainer";
-import Preloader from "./ui/Preloader";
+import SwiperWithThumbs from "./SwiperWithThumbs";
+import HomepageTitle from "./HomepageTitle";
+import GridContainer from "../ui/GridContainer";
+import Preloader from "./Preloader";
 
 function HomepageComponent() {
   const [isLoading, setIsLoading] = useState(true);

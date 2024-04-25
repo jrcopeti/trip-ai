@@ -38,7 +38,7 @@ function FormStep1({
                   id="userName"
                   type="text"
                   placeholder="What's your name?"
-                  className="max-w-lg text-tuna-700 text-2xl "
+                  className="max-w-lg text-2xl text-tuna-700 "
                   radius="sm"
                   size="lg"
                   variant="faded"

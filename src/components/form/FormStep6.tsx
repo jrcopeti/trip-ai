@@ -6,12 +6,7 @@ import { CheckboxGroup, Textarea } from "@nextui-org/react";
 import { sortedInterest } from "@/data";
 import type { FormStep3Props } from "@/types";
 
-function FormStep6({
-  currentStep,
-  control,
-  errors,
-  delta,
-}: FormStep3Props) {
+function FormStep6({ currentStep, control, errors, delta }: FormStep3Props) {
   return (
     <>
       {currentStep === 5 && (
