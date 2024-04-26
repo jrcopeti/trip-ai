@@ -1,6 +1,12 @@
 "use server";
 import OpenAI from "openai";
 
+export const config = {
+  api: {
+    maxDuration: 35,
+  },
+};
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -95,7 +101,7 @@ export const fetchResponseAI = async (prompt: string) => {
   console.log("Generating response");
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4",
       messages: [
         { role: "system", content: systemInstructions },
         { role: "user", content: prompt },
