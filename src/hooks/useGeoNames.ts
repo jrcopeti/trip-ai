@@ -36,7 +36,7 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
           });
           console.log("Valid City", validCity);
           if (!validCity) {
-            throw new Error("No valid city found. Please try again.");
+            throw new Error("Location is not valid. Please try again.");
           } else {
             console.log(
               "City and countryCode match found",
