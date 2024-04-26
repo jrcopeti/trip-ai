@@ -27,7 +27,7 @@ function FormStep1({
         >
           <FormTitle currentStep={currentStep} />
 
-          <div className="mt-10 flex flex-col justify-between gap-x-6 gap-y-[5rem] md:mt-[100px] md:flex-row ">
+          <div className="mt-10 flex flex-col justify-between gap-x-6 gap-y-12 lg:gap-y-20 md:mt-[100px] md:flex-row ">
             <Controller
               name="userName"
               control={control}
@@ -93,6 +93,8 @@ function FormStep1({
                   isInvalid={!!errors.nationality}
                   isRequired
                   errorMessage={errors.nationality?.message}
+                  popoverProps={{placement: "top"}}
+
                 >
                   {(country) => (
                     <AutocompleteItem key={country.code}>

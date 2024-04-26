@@ -19,6 +19,7 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
     const username = process.env.NEXT_PUBLIC_GEONAMES_USERNAME;
     const url = `https://secure.geonames.org/searchJSON?q=${encodeURIComponent(city)}&country=${countryCode}&maxRows=1&featureClass=P&username=${username}`;
     const debounce = setTimeout(async function validateCityCountry() {
+      setIsCityValid(false);
       setIsLoadingCityValid(true);
       setErrorCityValid("");
       axios
