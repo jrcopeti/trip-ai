@@ -18,6 +18,8 @@ const nextConfig = {
       },
     ],
   },
+
+
 };
 
 export default withPlaiceholder(nextConfig);

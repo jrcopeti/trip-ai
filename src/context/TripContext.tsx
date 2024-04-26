@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useEffect, useState } from "react";
-import { fetchResponseAI } from "@/api/openaiApi";
+import { fetchResponseAI } from "@/app/api/openaiApi";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import type { FetchResponseAIParams, TripContextType } from "@/types";
@@ -32,8 +32,7 @@ function TripProvider({ children }: { children: React.ReactNode }) {
     isPending: isPendingResponseAI,
     error: errorResponseAI,
   } = useMutation({
-    mutationFn: (prompt: string) =>
-      fetchResponseAI(prompt),
+    mutationFn: (prompt: string) => fetchResponseAI(prompt),
 
     onSuccess: () => {
       console.log("success trip em trip context");

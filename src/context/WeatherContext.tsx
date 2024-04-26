@@ -2,7 +2,7 @@
 
 import { createContext, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { fetchForecast, fetchWeather } from "@/api/openWeatherApi";
+import { fetchForecast, fetchWeather } from "@/app/api/openWeatherApi";
 import { placeWeatherIcons } from "@/lib/utils";
 import type {
   FetchForecastParams,

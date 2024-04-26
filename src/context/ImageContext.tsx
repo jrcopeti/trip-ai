@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchTripImage } from "@/api/unsplashApi";
+import { fetchTripImage } from "@/app/api/unsplashApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { createContext } from "react";
@@ -31,8 +31,6 @@ function ImageProvider({ children }: { children: React.ReactNode }) {
     onError: (error) => {
       console.log(error);
       console.log("error Image Context ");
-   
-
     },
   });
 
