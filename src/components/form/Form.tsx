@@ -6,6 +6,7 @@ import { useTripResponse } from "@/hooks/useTripResponse";
 import { useImage } from "@/hooks/useImage";
 import { useWeather } from "@/hooks/useWeather";
 import { useFormData } from "@/hooks/useFormData";
+import { useGeoNames } from "@/hooks/useGeoNames";
 
 import { FormDataSchema } from "@/lib/schema";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -25,6 +26,7 @@ import FormContainer from "./FormContainer";
 import NotFoundComponent from "../ui/NotFoundComponent";
 import Container from "../ui/Container";
 import GradientBg from "../ui/GradientBg";
+import LoaderResponseAI from "../ui/LoaderResponseAI";
 import { steps } from "@/data";
 
 import type {
@@ -33,7 +35,7 @@ import type {
   Inputs,
   FieldName,
 } from "@/types";
-import { useGeoNames } from "@/hooks/useGeoNames";
+
 import dayjs from "dayjs";
 
 const Form = memo(function Form() {
@@ -68,8 +70,8 @@ const Form = memo(function Form() {
       requiredItems: [{ item: "" }],
       interests: [],
       note: "",
-      startDate: dayjs(new Date()).format(),
-      endDate: dayjs(new Date()).format(),
+      startDate: new Date().toISOString(),
+      endDate: new Date().toISOString(),
       weatherForecast: "",
       agreement: false,
       flagUrl: "",
@@ -109,8 +111,12 @@ const Form = memo(function Form() {
     countryCode,
   });
 
-  if (isLoadingCountries || isPendingResponseAI || isNavigating) {
+  if (isLoadingCountries) {
     return <Loader />;
+  }
+
+  if (isPendingResponseAI || isNavigating) {
+    return <LoaderResponseAI />;
   }
 
   if (errorResponseAI) {
@@ -148,7 +154,7 @@ const Form = memo(function Form() {
       shouldFocus: true,
     });
 
-    // if (!output) return;
+    if (!output) return;
 
     if (currentStep === steps.length - 3) {
       generateImage(cityWatch);
@@ -190,11 +196,15 @@ const Form = memo(function Form() {
     } = data;
 
     const transformedRequiredItems =
-      requiredItems?.map((requiredItem) => requiredItem.item) ?? [];
+      requiredItems?.map((requiredItem) =>
+        requiredItem.item.trim().toLowerCase(),
+      ) ?? [];
+    const formattedCity = city.trim().toLowerCase();
+    const formattedNote = note?.trim().toLowerCase();
 
-    const promptModel = `${userName}, a ${age}-year-old traveler from ${nationality}, is planning a ${type} trip to ${city}, ${country} with a ${budget} budget. The trip is scheduled from ${startDate} to ${endDate}. ${userName} prefers to travel by ${transport}, with a ${luggageSize} lugagge size and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. (If there is no required items, return an empty array). Staying in a ${accommodation}, he/she is interested in ${interests}. Additionally, he/she has noted he/she would specifically like to have: ${note} (If there is no note, skip this part). Based on ${userName}'s preferences and trip details, plus the average weather for ${city}, ${country} during the trip, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${userName}, ${city}, and ${country}, a brief description highlighting the essence of their journey, and three must-do activities with maximum three paragraphs each. Finally, especify a tip taking in consideration the transport, luggage size, weather and notes.`;
+    const promptModel = `${userName}, a ${age}-year-old traveler from ${nationality}, is planning a ${type} trip to ${formattedCity}, ${country} with a ${budget} budget. The trip is scheduled from ${startDate} to ${endDate}. ${userName} prefers to travel by ${transport}, with a ${luggageSize} lugagge size and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. (If there is no required items, return an empty array). Staying in a ${accommodation}, he/she is interested in ${interests}. Additionally, he/she has noted he/she would specifically like to have: ${formattedNote} (If there is no note, skip this part). Based on ${userName}'s preferences and trip details, plus the average weather for ${formattedCity}, ${country} during the trip, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${userName}, ${formattedCity}, and ${country}, a brief description highlighting the essence of their journey, and three must-do activities with maximum three paragraphs each. Finally, especify a tip taking in consideration the transport, luggage size, weather and notes.`;
 
-    const promptModelWeather = `${userName}, a ${age}-year-old traveler from ${nationality}, is planning a ${type} trip to ${city}, ${country} with a ${budget} budget. ${userName} prefers to travel by ${transport}, with a ${luggageSize} luggage size and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. (If there is no required items, return an empty array). Staying in a ${accommodation}, he/she is interested in ${interests}. Additionally, he/she has noted he/she would specifically like to have: ${note} (If there is no note, skip this part). Based on ${userName}'s preferences and trip details, plus the weather forecast that is in the end of the prompt, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${userName}, ${city}, and ${country}, a brief description highlighting the essence of their journey, and three must-do activities with maximum three paragraphs each. Finally, especify a tip taking in consideration the transport, luggage size, weather and notes. Weather forecast for ${city}, ${country}: ${weatherForecast}.`;
+    const promptModelWeather = `${userName}, a ${age}-year-old traveler from ${nationality}, is planning a ${type} trip to ${formattedCity}, ${country} with a ${budget} budget. ${userName} prefers to travel by ${transport}, with a ${luggageSize} luggage size and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. (If there is no required items, return an empty array). Staying in a ${accommodation}, he/she is interested in ${interests}. Additionally, he/she has noted he/she would specifically like to have: ${formattedNote} (If there is no note, skip this part). Based on ${userName}'s preferences and trip details, plus the weather forecast that is in the end of the prompt, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${userName}, ${formattedCity}, and ${country}, a brief description highlighting the essence of their journey, and three must-do activities with maximum three paragraphs each. Finally, especify a tip taking in consideration the transport, luggage size, weather and notes. Weather forecast for ${formattedCity}, ${country}: ${weatherForecast}.`;
 
     if (isWeatherSelected) {
       setValue("weatherForecast", forecastDataString);
@@ -205,6 +215,8 @@ const Form = memo(function Form() {
 
     const finalData: FinalDataTypes = {
       ...data,
+      city: formattedCity,
+      note: formattedNote,
       requiredItems: transformedRequiredItems,
       weatherForecast: forecastDataString,
     };

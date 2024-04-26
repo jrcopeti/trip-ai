@@ -11,6 +11,7 @@ function ProgressBar({ stepValue }: { stepValue: number }) {
           value: "text-shark-500/60",
         }}
         aria-label="Loading..."
+        title="Progress Bar"
         value={stepValue}
       />
     </section>

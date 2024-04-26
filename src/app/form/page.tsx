@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import dynamic from "next/dynamic";
 
+
 const DynamicForm = dynamic(() => import("@/components/form/Form"), {
   ssr: false,
 });
@@ -14,7 +15,7 @@ function FormPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1500);
+    }, 2000);
     return () => {
       clearTimeout(timer);
     };

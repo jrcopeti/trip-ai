@@ -85,10 +85,6 @@ function SavedTripsDisplay() {
     }
   }, [isPendingSavedTrips]);
 
-  if (isPendingSavedTrips) {
-    return <Loader />;
-  }
-
   if (savedTripsError) {
     return (
       <ErrorComponent
@@ -116,7 +112,7 @@ function SavedTripsDisplay() {
         <div className="mt-2 flex flex-col items-center gap-10 py-2 lg:px-16 lg:py-4">
           <h1 className="text-5xl font-bold text-tuna-900">Saved Trips</h1>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 2xl:gap-8">
-            {savedTripDataCards?.map((trip) => (
+            {savedTrips?.map((trip) => (
               <SavedTripCard key={trip.id} trip={trip} />
             ))}
           </div>

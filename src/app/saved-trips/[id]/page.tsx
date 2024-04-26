@@ -18,9 +18,9 @@ function SavedTripsPageId({ params }: { params: { id: number | string } }) {
   const queryClient = new QueryClient();
 
   return (
-    // <HydrationBoundary state={dehydrate(queryClient)}>
-    <SavedTripsPageComponent params={params} />
-    // </HydrationBoundary>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <SavedTripsPageComponent params={params} />
+    </HydrationBoundary>
   );
 }
 
