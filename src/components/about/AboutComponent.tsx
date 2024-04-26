@@ -7,7 +7,7 @@ import GradientBg from "../ui/GradientBg";
 
 function AboutComponent() {
   return (
-    <Container>
+    <Container overflow="overflow-hidden" height="h-[calc(100dvh-3.5rem)]">
       <GradientBg
         from="from-violay-300"
         to="to-neptune-300"
