@@ -57,7 +57,6 @@ function FormStep2({
                   size="lg"
                   errorMessage={errors.city?.message}
                   isInvalid={!!errors.city}
-                  isDisabled={isLoadingCityValid}
                   isRequired
                 />
               )}
@@ -84,7 +83,6 @@ function FormStep2({
                   popoverProps={{ placement: "top" }}
                   errorMessage={errors.country?.message}
                   isInvalid={!!errors.country}
-                  isDisabled={isLoadingCityValid}
                   isRequired
                 >
                   {(country) => (
