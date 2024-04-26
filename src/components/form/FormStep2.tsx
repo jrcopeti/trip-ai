@@ -1,14 +1,21 @@
 import { useCountries } from "@/hooks/useCountries";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { Autocomplete, AutocompleteItem, Input } from "@nextui-org/react";
 import { Controller } from "react-hook-form";
-import { motion } from "framer-motion";
 import { PulseLoader } from "react-spinners";
 import { MdOutlineCheckCircle } from "react-icons/md";
 import { MdOutlineErrorOutline } from "react-icons/md";
 
 import FormTitle from "./FormTitle";
 import type { FormStep2Props } from "@/types";
+
+
+const variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+};
 
 function FormStep2({
   currentStep,
@@ -74,6 +81,7 @@ function FormStep2({
                   onSelectionChange={(selectedKey) =>
                     handleSelectionAutocomplete(selectedKey, "country")
                   }
+                  popoverProps={{ placement: "top" }}
                   errorMessage={errors.country?.message}
                   isInvalid={!!errors.country}
                   isDisabled={isLoadingCityValid}
@@ -88,21 +96,47 @@ function FormStep2({
               )}
             />
             <div>
-              {isLoadingCityValid && (
-                <p className="text-sm text-gallery-500">
-                  <PulseLoader color="#656565" />
-                </p>
-              )}
-              {isCityValid && (
-                <p className="flex items-center gap-2 text-center text-lg text-tuna-900 md:text-xl">
-                  <MdOutlineCheckCircle color="#4e888c" /> Location found
-                </p>
-              )}
-              {errorCityValid && (
-                <p className=" flex items-center gap-2 text-center text-base text-tuna-900 md:text-lg">
-                  <MdOutlineErrorOutline color="#c2150c" /> {errorCityValid}
-                </p>
-              )}
+              <AnimatePresence mode="popLayout">
+                {isLoadingCityValid && (
+                  <motion.p
+                    key="loading"
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    variants={variants}
+                    transition={{duration: 0.4, delay: 0.1, ease: "easeInOut"  }}
+                    className="text-sm text-gallery-500"
+                  >
+                    <PulseLoader color="#656565" />
+                  </motion.p>
+                )}
+                {isCityValid && (
+                  <motion.p
+                    key="success"
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    variants={variants}
+                    transition={{ duration: 0.5, delay: 0.1, ease: "easeInOut" }}
+                    className="flex items-center gap-2 text-center text-lg text-tuna-900 md:text-xl"
+                  >
+                    <MdOutlineCheckCircle color="#4e888c" /> Location found
+                  </motion.p>
+                )}
+                {errorCityValid && (
+                  <motion.p
+                    key="error"
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    variants={variants}
+                    transition={{ duration: 0.5, delay: 0.1, ease: "easeInOut"  }}
+                    className="flex items-center gap-2 text-center text-base text-tuna-900 md:text-lg"
+                  >
+                    <MdOutlineErrorOutline color="#c2150c" /> {errorCityValid}
+                  </motion.p>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </motion.div>
