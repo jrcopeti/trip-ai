@@ -17,7 +17,7 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
 
     const source = axios.CancelToken.source();
     const username = process.env.NEXT_PUBLIC_GEONAMES_USERNAME;
-    const url = `https://secure.geonames.org/searchJSON?q=${encodeURIComponent(city)}&country=${countryCode}&maxRows=10&featureClass=P&username=${username}`;
+    const url = `https://api.geonames.org/searchJSON?q=${encodeURIComponent(city)}&country=${countryCode}&maxRows=10&featureClass=P&username=${username}`;
     const debounce = setTimeout(async function validateCityCountry() {
       setIsCityValid(false);
       setIsLoadingCityValid(true);
@@ -34,7 +34,7 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
             const formattedGeoName = geo.name.trim().toLowerCase();
             return formattedGeoName === formattedCity && geo.population > 1;
           });
-          
+
           console.log("Valid City", validCity);
           if (!validCity) {
             throw new Error("Location is not valid. Please try again.");
