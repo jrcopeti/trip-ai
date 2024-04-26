@@ -1,12 +1,6 @@
 "use server";
 import OpenAI from "openai";
 
-export const config = {
-  api: {
-    maxDuration: 35,
-  },
-};
-
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });

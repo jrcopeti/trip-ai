@@ -36,8 +36,6 @@ import type {
   FieldName,
 } from "@/types";
 
-import dayjs from "dayjs";
-
 const Form = memo(function Form() {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [prevStep, setPrevStep] = useState<number>(0);
@@ -106,7 +104,7 @@ const Form = memo(function Form() {
   const countryCode = findCountry?.code.toUpperCase();
 
   console.log(countryCode);
-  const { isLoadingCityValid, isCityValid, errorCityValid } = useGeoNames({
+  const { isCityValid, isLoadingCityValid, message } = useGeoNames({
     city: cityWatch,
     countryCode,
   });
@@ -260,7 +258,7 @@ const Form = memo(function Form() {
             handleSelectionAutocomplete={handleSelectionAutocomplete}
             isCityValid={isCityValid}
             isLoadingCityValid={isLoadingCityValid}
-            errorCityValid={errorCityValid}
+            message={message}
           />
 
           <FormStep3

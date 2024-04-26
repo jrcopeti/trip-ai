@@ -4,14 +4,19 @@ import Geonames from "geonames.js";
 import type { useGeoNamesProps, GeoName } from "@/types";
 
 export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
-  const [isCityValid, setIsCityValid] = useState<boolean>(false);
-  const [isLoadingCityValid, setIsLoadingCityValid] = useState<boolean>(false);
-  const [errorCityValid, setErrorCityValid] = useState<string>("");
+  const [status, setStatus] = useState({
+    isLoadingCityValid: false,
+    isCityValid: false,
+    message: "",
+  });
 
   useEffect(() => {
     if (city.length < 3 || !countryCode) {
-      setIsCityValid(false);
-      setErrorCityValid("");
+      setStatus({
+        isLoadingCityValid: false,
+        isCityValid: false,
+        message: "",
+      });
       return;
     }
     const username = process.env.NEXT_PUBLIC_GEONAMES_USERNAME;
@@ -21,9 +26,11 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
       encoding: "JSON",
     });
     const debounce = setTimeout(() => {
-      setIsLoadingCityValid(true);
-      setIsCityValid(false);
-      setErrorCityValid("");
+      setStatus({
+        isLoadingCityValid: true,
+        isCityValid: false,
+        message: "",
+      });
       geonames
         .search({
           q: city,
@@ -49,23 +56,26 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
               response,
               response.geonames[0],
             );
-            setIsCityValid(true);
-            setErrorCityValid("");
+            setStatus({
+              isLoadingCityValid: false,
+              isCityValid: true,
+              message: "Location found and valid",
+            });
           }
         })
         .catch((error) => {
           console.error("Error Validating City", error);
-          setIsCityValid(false);
-          setErrorCityValid(error.message || "An error occurred");
-        })
-        .finally(() => {
-          setIsLoadingCityValid(false);
+          setStatus({
+            isLoadingCityValid: false,
+            isCityValid: false,
+            message: error.message,
+          });
         });
-    }, 500);
+    }, 800);
     return () => {
       clearTimeout(debounce);
     };
   }, [city, countryCode]);
 
-  return { isCityValid, isLoadingCityValid, errorCityValid };
+  return status;
 }
