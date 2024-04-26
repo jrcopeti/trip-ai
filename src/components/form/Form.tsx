@@ -6,6 +6,7 @@ import { useTripResponse } from "@/hooks/useTripResponse";
 import { useImage } from "@/hooks/useImage";
 import { useWeather } from "@/hooks/useWeather";
 import { useFormData } from "@/hooks/useFormData";
+import { useGeoNames } from "@/hooks/useGeoNames";
 
 import { FormDataSchema } from "@/lib/schema";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -25,6 +26,7 @@ import FormContainer from "./FormContainer";
 import NotFoundComponent from "../ui/NotFoundComponent";
 import Container from "../ui/Container";
 import GradientBg from "../ui/GradientBg";
+import LoaderResponseAI from "../ui/LoaderResponseAI";
 import { steps } from "@/data";
 
 import type {
@@ -33,7 +35,7 @@ import type {
   Inputs,
   FieldName,
 } from "@/types";
-import { useGeoNames } from "@/hooks/useGeoNames";
+
 import dayjs from "dayjs";
 
 const Form = memo(function Form() {
@@ -68,8 +70,8 @@ const Form = memo(function Form() {
       requiredItems: [{ item: "" }],
       interests: [],
       note: "",
-      startDate: dayjs(new Date()).format(),
-      endDate: dayjs(new Date()).format(),
+      startDate: new Date().toISOString(),
+      endDate: new Date().toISOString(),
       weatherForecast: "",
       agreement: false,
       flagUrl: "",
@@ -109,8 +111,12 @@ const Form = memo(function Form() {
     countryCode,
   });
 
-  if (isLoadingCountries || isPendingResponseAI || isNavigating) {
+  if (isLoadingCountries) {
     return <Loader />;
+  }
+
+  if (isPendingResponseAI || isNavigating) {
+    return <LoaderResponseAI />;
   }
 
   if (errorResponseAI) {
@@ -148,7 +154,7 @@ const Form = memo(function Form() {
       shouldFocus: true,
     });
 
-    // if (!output) return;
+    if (!output) return;
 
     if (currentStep === steps.length - 3) {
       generateImage(cityWatch);

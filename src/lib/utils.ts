@@ -87,7 +87,7 @@ const durationInDays = (startDate: Dayjs | string, endDate: Dayjs | string) => {
   const start = dayjs(startDate);
   const end = dayjs(endDate);
   const differenceInDays = end.diff(start);
-  return dayjs.duration(differenceInDays).asDays();
+  return Math.ceil(dayjs.duration(differenceInDays).asDays());
 };
 
 const displayDuration = (durationDays: number) => {
