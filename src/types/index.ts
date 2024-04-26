@@ -256,3 +256,7 @@ export interface useGeoNamesProps {
   city: string;
   countryCode?: string;
 }
+export interface GeoName {
+  name: string;
+  population: number;
+}

@@ -96,7 +96,7 @@ function FormStep2({
               )}
             />
             <div>
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="popLayout">
                 {isLoadingCityValid && (
                   <motion.p
                     key="loading"

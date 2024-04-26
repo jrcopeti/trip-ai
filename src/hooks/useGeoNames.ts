@@ -1,7 +1,7 @@
 "use client";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import type { useGeoNamesProps } from "@/types";
+import type { useGeoNamesProps, GeoName } from "@/types";
 
 export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
   const [isCityValid, setIsCityValid] = useState<boolean>(false);
@@ -17,7 +17,8 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
 
     const source = axios.CancelToken.source();
     const username = process.env.NEXT_PUBLIC_GEONAMES_USERNAME;
-    const url = `https://secure.geonames.org/searchJSON?q=${encodeURIComponent(city)}&country=${countryCode}&maxRows=1&featureClass=P&username=${username}`;
+    const url = `https://secure.geonames.org/searchJSON?q=${encodeURIComponent(city)}&country=${countryCode}&maxRows=10&featureClass=P&username=${username}`;
+    console.log("URL", url);
     const debounce = setTimeout(async function validateCityCountry() {
       setIsCityValid(false);
       setIsLoadingCityValid(true);
@@ -28,13 +29,23 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
           if (response.data.totalResultsCount === 0) {
             throw new Error("Location is not valid. Please try again.");
           }
-          console.log(
-            "City and countryCode match found",
-            response.data,
-            response.data.geonames[0],
-          );
-          setIsCityValid(true);
-          setErrorCityValid("");
+          const validCity = response.data.geonames.find((geo: GeoName) => {
+            const formattedCity = city.trim().toLowerCase();
+            const formattedGeoName = geo.name.trim().toLowerCase();
+            return formattedGeoName === formattedCity && geo.population > 1;
+          });
+          console.log("Valid City", validCity);
+          if (!validCity) {
+            throw new Error("No valid city found. Please try again.");
+          } else {
+            console.log(
+              "City and countryCode match found",
+              response.data,
+              response.data.geonames[0],
+            );
+            setIsCityValid(true);
+            setErrorCityValid("");
+          }
         })
         .catch((error) => {
           if (axios.isCancel(error)) {
