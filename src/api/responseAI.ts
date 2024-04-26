@@ -3,7 +3,7 @@ import { fetchResponseAI } from "./openaiApi";
 
 export const config = {
   api: {
-    maxDuration: 35,
+    maxDuration: 120,
   },
 };
 export default async function handler(
