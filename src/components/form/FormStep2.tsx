@@ -10,7 +10,6 @@ import { MdOutlineErrorOutline } from "react-icons/md";
 import FormTitle from "./FormTitle";
 import type { FormStep2Props } from "@/types";
 
-
 const variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
@@ -25,10 +24,11 @@ function FormStep2({
   delta,
   isCityValid,
   isLoadingCityValid,
-  errorCityValid,
+  message,
 }: FormStep2Props) {
   const { countries } = useCountries();
 
+  console.log(isCityValid, isLoadingCityValid, message);
   return (
     <>
       {currentStep === 1 && (
@@ -94,44 +94,56 @@ function FormStep2({
               )}
             />
             <div>
-              <AnimatePresence mode="popLayout">
+              <AnimatePresence mode="popLayout" initial={false}>
                 {isLoadingCityValid && (
-                  <motion.p
+                  <motion.div
                     key="loading"
                     initial="hidden"
                     animate="visible"
                     exit="exit"
                     variants={variants}
-                    transition={{duration: 0.4, delay: 0.1, ease: "easeInOut"  }}
+                    transition={{
+                      duration: 0.4,
+                      delay: 0.1,
+                      ease: "easeInOut",
+                    }}
                     className="text-sm text-gallery-500"
                   >
                     <PulseLoader color="#656565" />
-                  </motion.p>
+                  </motion.div>
                 )}
-                {isCityValid && (
-                  <motion.p
+                {isCityValid && !isLoadingCityValid && (
+                  <motion.div
                     key="success"
                     initial="hidden"
                     animate="visible"
                     exit="exit"
                     variants={variants}
-                    transition={{ duration: 0.5, delay: 0.1, ease: "easeInOut" }}
+                    transition={{
+                      duration: 0.5,
+                      delay: 0.1,
+                      ease: "easeInOut",
+                    }}
                     className="flex items-center gap-2 text-center text-lg text-tuna-900 md:text-xl"
                   >
-                    <MdOutlineCheckCircle color="#4e888c" /> Location found
-                  </motion.p>
+                    <MdOutlineCheckCircle color="#4e888c" /> {message}
+                  </motion.div>
                 )}
-                {errorCityValid && (
+                {!isCityValid && !isLoadingCityValid && message && (
                   <motion.p
                     key="error"
                     initial="hidden"
                     animate="visible"
                     exit="exit"
                     variants={variants}
-                    transition={{ duration: 0.5, delay: 0.1, ease: "easeInOut"  }}
+                    transition={{
+                      duration: 0.5,
+                      delay: 0.1,
+                      ease: "easeInOut",
+                    }}
                     className="flex items-center gap-2 text-center text-base text-tuna-900 md:text-lg"
                   >
-                    <MdOutlineErrorOutline color="#c2150c" /> {errorCityValid}
+                    <MdOutlineErrorOutline color="#c2150c" /> {message}
                   </motion.p>
                 )}
               </AnimatePresence>

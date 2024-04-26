@@ -129,8 +129,9 @@ export interface FormStepProps {
 export interface FormStep2Props extends FormStepProps {
   isCityValid: boolean;
   isLoadingCityValid: boolean;
-  errorCityValid: string;
+  message: string;
 }
+
 export interface FormStep3Props
   extends Omit<FormStepProps, "handleSelectionAutocomplete"> {}
 
