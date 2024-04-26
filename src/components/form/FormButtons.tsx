@@ -16,6 +16,7 @@ function FormButtons({ currentStep, next, prev, isCityValid }: FormButtonsProps)
           isDisabled={currentStep === 0}
           onClick={prev}
           className="bg-transparent text-3xl text-neptune-600 md:text-4xl"
+          title="Previous Step"
         >
           <FaAngleLeft />
         </Button>
@@ -27,6 +28,8 @@ function FormButtons({ currentStep, next, prev, isCityValid }: FormButtonsProps)
           onClick={next}
           isDisabled={currentStep === steps.length - 1 || (currentStep > 0 && !isCityValid )}
           className="bg-transparent text-3xl text-neptune-600 md:text-4xl"
+          aria-label="Next Step"
+          title="Next Step"
         >
           <FaAngleRight />
         </Button>
