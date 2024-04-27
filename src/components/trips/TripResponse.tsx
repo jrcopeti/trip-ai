@@ -7,6 +7,7 @@ import { useFormData } from "@/hooks/useFormData";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { useWeather } from "@/hooks/useWeather";
 import { useCreateTrip } from "@/hooks/useCreateTrip";
+import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
 
 import { Prisma } from "@prisma/client";
 import gsap from "gsap";
@@ -25,10 +26,10 @@ import GradientBg from "../ui/GradientBg";
 import Container from "../ui/Container";
 import Loader from "../ui/Loader";
 import NotFoundComponent from "../ui/NotFoundComponent";
-import toast from "react-hot-toast";
 import ErrorToaster from "../ui/ErrorToaster";
 import CustomToaster from "../ui/CustomToaster";
-import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
+
+import toast from "react-hot-toast";
 
 function TripResponse() {
   const [isSaved, setIsSaved] = useState(false);

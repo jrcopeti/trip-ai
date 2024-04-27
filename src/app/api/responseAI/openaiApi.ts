@@ -77,7 +77,7 @@ const functionData = {
       tip: {
         type: "string",
         description:
-          "A brief tip of maximum 15 words, taking in consideration the transport, luggage size and weather.",
+          "A brief tip of 20 words, taking in consideration the transport luggage size from the user's prompt and the weather from forecast data or the average for the time of the year.",
       },
     },
     required: [

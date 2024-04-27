@@ -27,7 +27,7 @@ function FormStep1({
         >
           <FormTitle currentStep={currentStep} />
 
-          <div className="mt-10 flex flex-col justify-between gap-x-6 gap-y-12 lg:gap-y-20 md:mt-[100px] md:flex-row ">
+          <div className="mt-10 flex flex-col justify-between gap-x-6 gap-y-12 md:mt-[100px] md:flex-row lg:gap-y-20 ">
             <Controller
               name="userName"
               control={control}
@@ -38,7 +38,7 @@ function FormStep1({
                   id="userName"
                   type="text"
                   placeholder="What's your name?"
-                  className="max-w-lg text-2xl text-tuna-700 "
+                  className="max-w-lg text-2xl text-tuna-700 focus:outline-none focus:ring-2 focus:ring-yellorange-300 "
                   radius="sm"
                   size="lg"
                   variant="faded"
@@ -93,8 +93,7 @@ function FormStep1({
                   isInvalid={!!errors.nationality}
                   isRequired
                   errorMessage={errors.nationality?.message}
-                  popoverProps={{placement: "top"}}
-
+                  popoverProps={{ placement: "top" }}
                 >
                   {(country) => (
                     <AutocompleteItem key={country.code}>

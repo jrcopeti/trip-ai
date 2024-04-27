@@ -8,6 +8,13 @@ import image7 from "@/assets/homepage/7.jpg";
 import image8 from "@/assets/homepage/8.jpg";
 import image9 from "@/assets/homepage/9.jpg";
 import image10 from "@/assets/homepage/10.jpg";
+import image11 from "@/assets/homepage/11.jpg";
+import image12 from "@/assets/homepage/12.jpg";
+import image13 from "@/assets/homepage/13.jpg";
+import image14 from "@/assets/homepage/14.jpg";
+import image15 from "@/assets/homepage/15.jpg";
+import image16 from "@/assets/homepage/16.jpg";
+
 
 const types = [
   { value: "family", label: "Family" },
@@ -177,6 +184,54 @@ const homepageImages = [
     alt: "tenth",
     city: "Sydney",
     title: "create your own story",
+    placeholder:
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII=",
+  },
+  {
+    src: image11,
+    alt: "tenth",
+    city: "Sydney",
+    title: "discover the unseen",
+    placeholder:
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII=",
+  },
+  {
+    src: image12,
+    alt: "tenth",
+    city: "Sydney",
+    title: "go beyond the horizon",
+    placeholder:
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII=",
+  },
+  {
+    src: image13,
+    alt: "tenth",
+    city: "Sydney",
+    title: "explore the world",
+    placeholder:
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII=",
+  },
+  {
+    src: image14,
+    alt: "tenth",
+    city: "Sydney",
+    title: "embrace the adventure",
+    placeholder:
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII=",
+  },
+  {
+    src: image15,
+    alt: "tenth",
+    city: "Sydney",
+    title: "experience the culture",
+    placeholder:
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII=",
+  },
+  {
+    src: image16,
+    alt: "tenth",
+    city: "Sydney",
+    title: "taste new flavors",
     placeholder:
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII=",
   },
