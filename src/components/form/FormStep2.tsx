@@ -6,15 +6,15 @@ import { Controller } from "react-hook-form";
 import { PulseLoader } from "react-spinners";
 import { MdOutlineCheckCircle } from "react-icons/md";
 import { MdOutlineErrorOutline } from "react-icons/md";
+import { BiMessageSquareCheck } from "react-icons/bi";
+import { BiMessageSquareError } from "react-icons/bi";
 
 import FormTitle from "./FormTitle";
 import type { FormStep2Props } from "@/types";
-
-const variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 },
-};
+import CustomToaster from "../ui/CustomToaster";
+import toast from "react-hot-toast";
+import ErrorToaster from "../ui/ErrorToaster";
+import { useEffect } from "react";
 
 function FormStep2({
   currentStep,
@@ -29,6 +29,16 @@ function FormStep2({
   const { countries } = useCountries();
 
   console.log(isCityValid, isLoadingCityValid, message);
+
+  useEffect(() => {
+    if (isCityValid && !isLoadingCityValid) {
+      toast.custom(<CustomToaster message={message} />);
+    }
+
+    if (!isCityValid && !isLoadingCityValid && message) {
+      toast.custom(<ErrorToaster message={message} />);
+    }
+  }, [isCityValid, isLoadingCityValid, message]);
   return (
     <>
       {currentStep === 1 && (
@@ -93,61 +103,11 @@ function FormStep2({
                 </Autocomplete>
               )}
             />
-            <div>
-              <AnimatePresence mode="popLayout" initial={false}>
-                {isLoadingCityValid && (
-                  <motion.div
-                    key="loading"
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    variants={variants}
-                    transition={{
-                      duration: 0.4,
-                      delay: 0.1,
-                      ease: "easeInOut",
-                    }}
-                    className="text-sm text-gallery-500"
-                  >
-                    <PulseLoader color="#656565" />
-                  </motion.div>
-                )}
-                {isCityValid && !isLoadingCityValid && (
-                  <motion.div
-                    key="success"
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    variants={variants}
-                    transition={{
-                      duration: 0.5,
-                      delay: 0.1,
-                      ease: "easeInOut",
-                    }}
-                    className="flex items-center gap-2 text-center text-lg text-tuna-900 md:text-xl"
-                  >
-                    <MdOutlineCheckCircle color="#4e888c" /> {message}
-                  </motion.div>
-                )}
-                {!isCityValid && !isLoadingCityValid && message && (
-                  <motion.p
-                    key="error"
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    variants={variants}
-                    transition={{
-                      duration: 0.5,
-                      delay: 0.1,
-                      ease: "easeInOut",
-                    }}
-                    className="flex items-center gap-2 text-center text-base text-tuna-900 md:text-lg"
-                  >
-                    <MdOutlineErrorOutline color="#c2150c" /> {message}
-                  </motion.p>
-                )}
-              </AnimatePresence>
-            </div>
+            {isLoadingCityValid && (
+              <div className="text-sm text-gallery-500">
+                <PulseLoader color="#7c7c7c" />
+              </div>
+            )}
           </div>
         </motion.div>
       )}

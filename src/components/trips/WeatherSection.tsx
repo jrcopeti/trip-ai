@@ -10,6 +10,7 @@ import { BsSunsetFill } from "react-icons/bs";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import type { WeatherSectionProps } from "@/types";
+import { BiMessageSquareError } from "react-icons/bi";
 
 dayjs.extend(utc);
 
@@ -36,7 +37,7 @@ function WeatherSection({ trip, formData }: WeatherSectionProps) {
   if (!weatherData) {
     return (
       <p className="text-xl font-semibold text-tuna-900">
-        Weather data is not available
+        <BiMessageSquareError color="#c2150c" /> Weather data is not available
       </p>
     );
   }

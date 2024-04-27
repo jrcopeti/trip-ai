@@ -15,6 +15,10 @@ import SavedTripsContainer from "./SavedTripsContainer";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { notFound } from "next/navigation";
 import { Input } from "@nextui-org/react";
+import toast from "react-hot-toast";
+import { PuffLoader } from "react-spinners";
+import { MdOutlineErrorOutline } from "react-icons/md";
+import CustomToaster from "../ui/CustomToaster";
 
 function SavedTripsDisplay() {
   const {
@@ -132,13 +136,13 @@ function SavedTripsDisplay() {
           />
 
           {savedTrips?.length === 0 && !isPendingSavedTrips && (
-            <h2 className="text-2xl font-semibold text-tuna-900">
-              No trips found
+            <h2 className="flex items-center gap-2 text-2xl font-semibold text-tuna-900">
+              <MdOutlineErrorOutline color="#c2150c" /> No trips found
             </h2>
           )}
 
           {isPendingSavedTrips ? (
-            <div>isLoading...</div>
+            <PuffLoader size={80} color="#4e888c" />
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 2xl:gap-8">
               {savedTrips?.map((trip) => (

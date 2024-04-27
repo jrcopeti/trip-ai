@@ -9,7 +9,9 @@ function SaveSection({
   handleNoAnswer,
   imageData,
   trip,
+  isCreatingTrip,
 }: SaveSectionProps) {
+
   return (
     <>
       <div className="final-card grid h-[90%] w-[90%] grid-cols-none grid-rows-2 shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none ">
@@ -39,6 +41,7 @@ function SaveSection({
                 className="bg-neptune-500 font-semibold text-gallery-50"
                 type="button"
                 onClick={handleYesAnswer}
+                disabled={isCreatingTrip}
               >
                 Yes
               </Button>
@@ -46,6 +49,7 @@ function SaveSection({
                 className="font bg-neptune-500 text-gallery-50"
                 type="button"
                 onClick={handleNoAnswer}
+                disabled={isCreatingTrip}
               >
                 No
               </Button>

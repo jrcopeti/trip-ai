@@ -12,7 +12,7 @@ function NavbarComponent() {
   return (
     <>
       <Navbar
-        className="flex max-w-full bg-gradient-to-r from-gallery-100 to-gallery-200"
+        className="flex max-w-full bg-gradient-to-r from-gallery-100 to-gallery-200 z-50"
         maxWidth="2xl"
         height="3.5rem"
         shouldHideOnScroll

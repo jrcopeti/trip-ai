@@ -5,6 +5,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { createContext } from "react";
 import type { ImageContextType } from "@/types";
+import toast from "react-hot-toast";
+import ErrorToaster from "@/components/ui/ErrorToaster";
 
 const defaultContextValue: ImageContextType = {
   imageData: undefined,
@@ -24,13 +26,14 @@ function ImageProvider({ children }: { children: React.ReactNode }) {
   } = useMutation({
     mutationFn: (city: string) => fetchTripImage(city),
 
-    onSuccess: (data) => {
-      console.log(data);
+    onSuccess: () => {
       console.log("success Image Context ");
     },
     onError: (error) => {
       console.log(error);
-      console.log("error Image Context ");
+      toast.custom(
+        <ErrorToaster message="There was an error generating the image" />,
+      );
     },
   });
 

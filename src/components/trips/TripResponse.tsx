@@ -49,7 +49,6 @@ function TripResponse() {
   const { imageData } = useImage();
 
   const handleYesAnswer = () => {
-    const saved = true;
     const finalData = {
       ...trip,
       ...formData,
@@ -62,10 +61,14 @@ function TripResponse() {
       image5: imageData?.tripImage5 ?? null,
       placeholder: imageData?.placeholder ?? null,
       tripUrl,
-      saved,
+      saved: true,
     };
 
-    createTrip(finalData as Prisma.TripCreateInput);
+    createTrip(finalData as Prisma.TripCreateInput, {
+      onSuccess: () => {
+        alert("Trip saved successfully");
+      },
+    });
   };
 
   const handleNoAnswer = () => {
@@ -82,7 +85,11 @@ function TripResponse() {
       tripUrl,
       saved: false,
     };
-    createTrip(finalData as Prisma.TripCreateInput);
+    createTrip(finalData as Prisma.TripCreateInput, {
+      onSuccess: () => {
+        alert("Trip was not saved");
+      },
+    });
   };
 
   const useIsomorphicLayoutEffect =
@@ -332,6 +339,7 @@ function TripResponse() {
             handleNoAnswer={handleNoAnswer}
             imageData={imageData}
             trip={trip}
+            isCreatingTrip={isCreatingTrip}
           />
         )}
       </Container>

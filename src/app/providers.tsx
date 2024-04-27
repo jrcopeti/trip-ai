@@ -1,9 +1,10 @@
 "use client";
+import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
 import { NextUIProvider } from "@nextui-org/react";
-import { useState } from "react";
+import { Toaster } from "react-hot-toast";
+
 import { TripProvider } from "@/context/TripContext";
 import { WeatherProvider } from "@/context/WeatherContext";
 import { FormProvider } from "@/context/FormContext";
@@ -26,6 +27,13 @@ function Providers({ children }: ProvidersProps) {
   );
   return (
     <QueryClientProvider client={queryClient}>
+      <Toaster
+        position="top-right"
+        gutter={12}
+        toastOptions={{
+          duration: 5000,
+        }}
+      />
       <FormProvider>
         <ImageProvider>
           <WeatherProvider>

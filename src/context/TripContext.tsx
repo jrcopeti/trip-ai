@@ -5,6 +5,8 @@ import { fetchResponseAI } from "@/app/api/responseAI/openaiApi";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import type { FetchResponseAIParams, TripContextType } from "@/types";
+import ErrorToaster from "@/components/ui/ErrorToaster";
+import toast from "react-hot-toast";
 
 const defaultContextValue: TripContextType = {
   tripData: null,
@@ -43,7 +45,8 @@ function TripProvider({ children }: { children: React.ReactNode }) {
       }, 2000);
     },
     onError: (error) => {
-      console.log("error em trip context", error);
+      console.log("error trip em trip context", error);
+      toast.custom(<ErrorToaster message="There was an error generating your trip. Please try again." />);
     },
   });
 
