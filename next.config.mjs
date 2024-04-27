@@ -18,11 +18,6 @@ const nextConfig = {
       },
     ],
   },
-  functions: {
-    "src/app/api/**/*": {
-      maxDuration: 120,
-    },
-  },
 };
 
 export default withPlaiceholder(nextConfig);
