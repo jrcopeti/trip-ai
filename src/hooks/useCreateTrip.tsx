@@ -2,7 +2,6 @@ import { createTripInDB } from "@/db/actions";
 import { Prisma } from "@prisma/client";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import CustomToaster from "@/components/ui/CustomToaster";
 import ErrorToaster from "@/components/ui/ErrorToaster";
 
 export function useCreateTrip() {

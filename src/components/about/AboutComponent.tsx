@@ -1,6 +1,6 @@
 import { defaultPlaceholder } from "@/lib/utils";
 import GridContainer from "../ui/GridContainer";
-import image1 from "@/assets/homepage/1.jpg";
+import image16 from "@/assets/homepage/16.jpg";
 import Image from "next/image";
 import Container from "../ui/Container";
 import GradientBg from "../ui/GradientBg";
@@ -31,7 +31,7 @@ function AboutComponent() {
         </div>
         <div className="relative h-full w-full ">
           <Image
-            src={image1}
+            src={image16}
             alt="city"
             blurDataURL={defaultPlaceholder}
             placeholder="blur"

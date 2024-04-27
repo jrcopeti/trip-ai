@@ -1,8 +1,8 @@
-import { motion } from "framer-motion";
-import FormTitle from "./FormTitle";
 import { Controller } from "react-hook-form";
+import { motion } from "framer-motion";
 import { Checkbox } from "@nextui-org/react";
 import DatePicker from "./DatePicker";
+import FormTitle from "./FormTitle";
 import type { FormStep5Props } from "@/types";
 
 function FormStep5({
@@ -28,9 +28,11 @@ function FormStep5({
               isSelected={isWeatherSelected}
               onValueChange={setIsWeatherSelected}
               color="default"
-              className="font-semibold"
+              size="lg"
+              title="Weather forecast"
+              className="font-semibold text-gallery-50"
             >
-              Weather Forecast
+              <p className='text-tuna-900'>Based on the weather</p>
             </Checkbox>
             {!isWeatherSelected ? (
               <>
@@ -72,9 +74,9 @@ function FormStep5({
                 )}
               </>
             ) : (
-              <p className="text-inherit">
-                Your trip plans is based on the weather forecast for the next 7
-                days.
+              <p className="text-tuna-900">
+                Your trip plans will be based on the weather forecast for the
+                next 7 days.
               </p>
             )}
           </div>

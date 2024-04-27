@@ -3,8 +3,12 @@ import { Button } from "@nextui-org/react";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { steps } from "@/data";
 
-function FormButtons({ currentStep, next, prev, isCityValid }: FormButtonsProps) {
-
+function FormButtons({
+  currentStep,
+  next,
+  prev,
+  isCityValid,
+}: FormButtonsProps) {
   console.log("currentStep", currentStep);
   console.log("isCityValid", isCityValid);
   return (
@@ -17,11 +21,13 @@ function FormButtons({ currentStep, next, prev, isCityValid }: FormButtonsProps)
           onClick={prev}
           className="bg-transparent text-3xl text-neptune-600 md:text-4xl"
           title="Previous Step"
+
+
         >
           <FaAngleLeft />
         </Button>
       </div>
-      <div className="absolute right-16 top-[95%] z-50 -translate-y-1/2 transform lg:top-1/2">
+      <div className="absolute right-16 top-[95%] z-50 -translate-y-1/2 transform focus:ring-2 focus:ring-yellorange-300 lg:top-1/2          ">
         <Button
           type="button"
           size="sm"

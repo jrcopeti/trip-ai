@@ -1,10 +1,10 @@
+import { Checkbox, Button } from "@nextui-org/react";
+import { Controller } from "react-hook-form";
+import { motion } from "framer-motion";
 import FormTitle from "./FormTitle";
 import ReviewForm from "./ReviewForm";
-import { motion } from "framer-motion";
-import { Controller } from "react-hook-form";
-import { Checkbox, Button } from "@nextui-org/react";
-import type { FormStep7Props } from "@/types";
 import { steps } from "@/data";
+import type { FormStep7Props } from "@/types";
 
 function FormStep7({
   currentStep,
@@ -35,9 +35,9 @@ function FormStep7({
                 <Checkbox
                   isSelected={field.value}
                   onValueChange={field.onChange}
-                  className="font-semibold"
+                  className="font-semibold text-gallery-50"
                 >
-                  <small>
+                  <small className="text-tuna-900">
                     By agreeing, you consent to share your information with
                     OpenAI. Please note, this application is designed only for
                     entertainment purposes{" "}

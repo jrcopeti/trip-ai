@@ -19,6 +19,7 @@ import toast from "react-hot-toast";
 import { PuffLoader } from "react-spinners";
 import { MdOutlineErrorOutline } from "react-icons/md";
 import CustomToaster from "../ui/CustomToaster";
+import { BiMessageSquareError } from "react-icons/bi";
 
 function SavedTripsDisplay() {
   const {
@@ -137,7 +138,7 @@ function SavedTripsDisplay() {
 
           {savedTrips?.length === 0 && !isPendingSavedTrips && (
             <h2 className="flex items-center gap-2 text-2xl font-semibold text-tuna-900">
-              <MdOutlineErrorOutline color="#c2150c" /> No trips found
+              <BiMessageSquareError color="#c2150c" /> No trips found
             </h2>
           )}
 
