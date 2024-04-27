@@ -19,7 +19,6 @@ function FormStep5({
     setIsWeatherSelected(!isWeatherSelected);
     const startDate = dayjs();
     setValue("startDate", startDate.toISOString());
-
     const endDate = startDate.add(1, "day");
     setValue("endDate", endDate.toISOString());
   };
