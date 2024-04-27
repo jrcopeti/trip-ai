@@ -8,8 +8,8 @@ import stamps3 from "@/assets/travel/stamps3.png";
 import type { PackReadySectionProps } from "@/types";
 
 function PackReadySection({ trip, formData }: PackReadySectionProps) {
-  const startDate = dayjs(trip?.startDate).format("DD.MM.YYYY");
-  const endDate = dayjs(trip?.endDate).format("DD.MM.YYYY");
+  const startDate = dayjs(trip?.startDate || formData?.startDate).format("DD.MM.YYYY");
+  const endDate = dayjs(trip?.endDate || formData?.endDate).format("DD.MM.YYYY");
 
   return (
     <div className="flex-start flex flex-col bg-gallery-50/40 p-6 shadow-xl">
