@@ -10,6 +10,9 @@ import type {
   WeatherDataTypes,
   WeatherContextType,
 } from "@/types";
+import toast from "react-hot-toast";
+import CustomToaster from "@/components/ui/CustomToaster";
+import ErrorToaster from "@/components/ui/ErrorToaster";
 
 export const defaultContextValue: WeatherContextType = {
   forecastData: undefined,
@@ -38,12 +41,15 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
     mutationFn: ({ city, country }: FetchForecastParams) =>
       fetchForecast({ city, country }),
 
-    onSuccess: (forecastData) => {
-      console.log(forecastData);
+    onSuccess: () => {
       console.log("success forecast ");
+      toast.custom(<CustomToaster message="Forecast generated" />);
     },
     onError: (error) => {
       console.log(error);
+      toast.custom(
+        <ErrorToaster message="There was an error generating the forecast" />,
+      );
     },
   });
 

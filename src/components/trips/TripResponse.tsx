@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { notFound, usePathname } from "next/navigation";
 
 import { useImage } from "@/hooks/useImage";
@@ -25,9 +25,17 @@ import GradientBg from "../ui/GradientBg";
 import Container from "../ui/Container";
 import Loader from "../ui/Loader";
 import NotFoundComponent from "../ui/NotFoundComponent";
-import { TripResponse as TripResponseType } from "@/types";
+import toast from "react-hot-toast";
+import ErrorToaster from "../ui/ErrorToaster";
+import CustomToaster from "../ui/CustomToaster";
+import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
 
 function TripResponse() {
+  const [isSaved, setIsSaved] = useState(false);
+
+  useConfirmOnPageExit({ isSaved });
+  console.log("isSaved", isSaved);
+
   useEffect(() => {
     (async () => {
       const LocomotiveScroll = (await import("locomotive-scroll" as any))
@@ -50,7 +58,6 @@ function TripResponse() {
   const { imageData } = useImage();
 
   const handleYesAnswer = () => {
-    const saved = true;
     const finalData = {
       ...trip,
       ...formData,
@@ -63,10 +70,15 @@ function TripResponse() {
       image5: imageData?.tripImage5 ?? null,
       placeholder: imageData?.placeholder ?? null,
       tripUrl,
-      saved,
+      saved: true,
     };
 
-    createTrip(finalData as Prisma.TripCreateInput);
+    createTrip(finalData as Prisma.TripCreateInput, {
+      onSuccess: () => {
+        setIsSaved(true);
+        toast.custom(<CustomToaster message="Your trip was saved" />);
+      },
+    });
   };
 
   const handleNoAnswer = () => {
@@ -83,7 +95,12 @@ function TripResponse() {
       tripUrl,
       saved: false,
     };
-    createTrip(finalData as Prisma.TripCreateInput);
+    createTrip(finalData as Prisma.TripCreateInput, {
+      onSuccess: () => {
+        setIsSaved(true);
+        toast.custom(<ErrorToaster message="Trip not saved" />);
+      },
+    });
   };
 
   const useIsomorphicLayoutEffect =
@@ -284,7 +301,7 @@ function TripResponse() {
 
       <Container overflow="overflow-x-hidden" animationClass="pack-section">
         <GradientBg from="from-neptune-200" to="to-gallery-100" />
-        {trip && <PackReadySection trip={trip} />}
+        {trip && <PackReadySection trip={trip} formData={formData} />}
       </Container>
 
       {/* Section 5 */}
@@ -333,6 +350,8 @@ function TripResponse() {
             handleNoAnswer={handleNoAnswer}
             imageData={imageData}
             trip={trip}
+            isCreatingTrip={isCreatingTrip}
+            isSaved={isSaved}
           />
         )}
       </Container>

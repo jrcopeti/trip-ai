@@ -212,11 +212,18 @@ export interface SaveSectionProps {
   handleNoAnswer: () => void;
   imageData?: ImageDataTypes | null;
   trip: Trip;
+  isCreatingTrip: boolean;
+  isSaved: boolean;
 }
 
 export interface FormDetailsSectionProps {
   trip: Trip;
   imageData?: ImageDataTypes;
+  formData?: FinalDataTypes;
+}
+
+export interface PackReadySectionProps {
+  trip: Trip;
   formData?: FinalDataTypes;
 }
 

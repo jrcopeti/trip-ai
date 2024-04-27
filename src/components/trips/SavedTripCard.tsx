@@ -4,7 +4,7 @@ import type { Trip } from "@prisma/client";
 import image1 from "@/assets/homepage/1.jpg";
 import { defaultPlaceholder } from "@/lib/utils";
 
-function SavedTripCard({ trip }: { trip: any }) {
+function SavedTripCard({ trip }: { trip: Trip }) {
   const { id, city, country, userName, image, placeholder } = trip;
 
   return (
@@ -21,7 +21,7 @@ function SavedTripCard({ trip }: { trip: any }) {
       <div>
         <p className="text-gallery-600 ">
           <small>by </small>
-          &nbsp;{userName}
+          <span className="capitalize">&nbsp;{userName}</span>
         </p>
       </div>
 

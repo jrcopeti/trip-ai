@@ -1,6 +1,9 @@
 import { createTripInDB } from "@/db/actions";
 import { Prisma } from "@prisma/client";
 import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import CustomToaster from "@/components/ui/CustomToaster";
+import ErrorToaster from "@/components/ui/ErrorToaster";
 
 export function useCreateTrip() {
   const {
@@ -11,12 +14,11 @@ export function useCreateTrip() {
     mutationKey: ["trips"],
     mutationFn: (data: Prisma.TripCreateInput) => createTripInDB(data),
 
-    onSuccess: () => {
-      console.log("success createTrip ");
-      alert("Trip created successfully");
-    },
     onError: (error) => {
       console.log(error);
+      toast.custom(
+        <ErrorToaster message="An error occured and your trip was not saved" />,
+      );
     },
   });
   return { createTrip, isCreatingTrip, createTripError };

@@ -35,6 +35,8 @@ import type {
   Inputs,
   FieldName,
 } from "@/types";
+import toast from "react-hot-toast";
+import CustomToaster from "../ui/CustomToaster";
 
 const Form = memo(function Form() {
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -152,14 +154,17 @@ const Form = memo(function Form() {
       shouldFocus: true,
     });
 
-    if (!output) return;
+    // if (!output) return;
 
-    if (currentStep === steps.length - 3) {
+    if (currentStep === steps.length - 2) {
       generateImage(cityWatch);
     }
 
-    if (isWeatherSelected && currentStep === steps.length - 2) {
-      generateForecast({ city: cityWatch, country: countryWatch });
+    if (isWeatherSelected && currentStep === steps.length - 3) {
+      generateForecast({
+        city: cityWatch,
+        country: countryWatch,
+      });
     }
 
     setPrevStep(currentStep);

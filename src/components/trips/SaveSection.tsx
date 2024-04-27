@@ -1,14 +1,17 @@
+import Link from "next/link";
 import Image from "next/image";
-import image5 from "@/assets/homepage/5.jpg";
 import { Button, ButtonGroup } from "@nextui-org/react";
-import type { SaveSectionProps } from "@/types";
+import image5 from "@/assets/homepage/5.jpg";
 import { defaultPlaceholder } from "@/lib/utils";
+import type { SaveSectionProps } from "@/types";
 
 function SaveSection({
   handleYesAnswer,
   handleNoAnswer,
   imageData,
   trip,
+  isCreatingTrip,
+  isSaved,
 }: SaveSectionProps) {
   return (
     <>
@@ -30,27 +33,37 @@ function SaveSection({
             <p className="text-lg font-semibold lg:text-xl">{trip?.tip} </p>
           </div>
 
-          <div>
-            <h2 className="mb-4 text-xl font-semibold text-tuna-900">
-              Do you want to save this trip?
-            </h2>
-            <ButtonGroup>
-              <Button
-                className="bg-neptune-500 font-semibold text-gallery-50"
-                type="button"
-                onClick={handleYesAnswer}
-              >
-                Yes
+          {!isSaved ? (
+            <div className="mt-4">
+              <h2 className="mb-4 text-xl font-semibold text-tuna-900">
+                Do you want to save this trip?
+              </h2>
+              <ButtonGroup>
+                <Button
+                  className="bg-neptune-500 font-semibold text-gallery-50"
+                  type="button"
+                  onClick={handleYesAnswer}
+                  disabled={isCreatingTrip}
+                >
+                  Yes
+                </Button>
+                <Button
+                  className="font bg-neptune-500 text-gallery-50"
+                  type="button"
+                  onClick={handleNoAnswer}
+                  disabled={isCreatingTrip}
+                >
+                  No
+                </Button>
+              </ButtonGroup>
+            </div>
+          ) : (
+            <Link href="/">
+              <Button className="mt-4 bg-neptune-500 p-6 text-xl text-gallery-50">
+                Back to Home
               </Button>
-              <Button
-                className="font bg-neptune-500 text-gallery-50"
-                type="button"
-                onClick={handleNoAnswer}
-              >
-                No
-              </Button>
-            </ButtonGroup>
-          </div>
+            </Link>
+          )}
         </div>
       </div>
     </>
