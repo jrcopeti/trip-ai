@@ -35,8 +35,7 @@ import type {
   Inputs,
   FieldName,
 } from "@/types";
-import toast from "react-hot-toast";
-import CustomToaster from "../ui/CustomToaster";
+
 
 const Form = memo(function Form() {
   const [currentStep, setCurrentStep] = useState<number>(0);

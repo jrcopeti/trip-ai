@@ -44,11 +44,11 @@ function MustHaveSection({ trip, imageData }: MustHaveSectionProps) {
               And Your Required Items
             </h2>
             <div className="mt-2 grid max-w-[30rem] grid-cols-2 lg:mt-4 lg:gap-y-4 ">
-              {(trip?.requiredItems as string[]).length > 1 ? (
+              {(trip?.requiredItems as string[]).length >= 1 ? (
                 (trip?.requiredItems as string[])?.map((item, i) => (
                   <ul className="bg-gallery-50/40 p-2" key={i}>
                     <li className="flex max-h-fit items-center gap-2 text-base font-semibold capitalize text-gallery-600 xs:text-lg lg:text-2xl 2xl:text-3xl">
-                      {item} <FaCheck color="#4e888c" />
+                      {item === "" ? "" : item} <FaCheck color="#4e888c" />
                     </li>
                   </ul>
                 ))
