@@ -58,9 +58,9 @@ function SaveSection({
               </ButtonGroup>
             </div>
           ) : (
-            <Link href="/">
+            <Link href="/form">
               <Button className="mt-4 bg-neptune-500 p-6 text-xl text-gallery-50">
-                Back to Home
+                Get another trip
               </Button>
             </Link>
           )}

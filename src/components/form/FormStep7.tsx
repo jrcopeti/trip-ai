@@ -49,7 +49,7 @@ function FormStep7({
               <Button
                 type="submit"
                 size="lg"
-                // isDisabled={!isValid}
+                isDisabled={!isValid}
                 className="text-gallery-50"
               >
                 Submit
