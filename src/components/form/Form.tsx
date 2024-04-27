@@ -36,7 +36,6 @@ import type {
   FieldName,
 } from "@/types";
 
-
 const Form = memo(function Form() {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [prevStep, setPrevStep] = useState<number>(0);
@@ -219,6 +218,7 @@ const Form = memo(function Form() {
 
     const finalData: FinalDataTypes = {
       ...data,
+      userName: formattedUserName,
       city: formattedCity,
       note: formattedNote,
       requiredItems: transformedRequiredItems,
