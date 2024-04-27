@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useEffect, useState } from "react";
-import { fetchResponseAI } from "@/app/api/openaiApi";
+import { fetchResponseAI } from "@/app/api/responseAI/openaiApi";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import type { FetchResponseAIParams, TripContextType } from "@/types";
