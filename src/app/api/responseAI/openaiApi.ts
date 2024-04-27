@@ -17,7 +17,7 @@ const functionData = {
       title: {
         type: "string",
         description:
-          "A creative title for the trip with 12 words, that includes the userName, city and country.",
+          "A creative title for the trip with 12 words, that includes the userName, city and country capitalized.",
       },
       objectsList: {
         type: "array",
@@ -116,7 +116,7 @@ export const fetchResponseAI = async (prompt: string) => {
       console.log("parsedData:", parsedData);
       return parsedData;
     }
-  } catch (error: unknown) {
+  } catch (error) {
     console.error("Error:", error);
     throw new Error("Error in generating response from AI.");
   }
