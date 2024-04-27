@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { notFound, usePathname } from "next/navigation";
 
 import { useImage } from "@/hooks/useImage";
@@ -25,8 +25,17 @@ import GradientBg from "../ui/GradientBg";
 import Container from "../ui/Container";
 import Loader from "../ui/Loader";
 import NotFoundComponent from "../ui/NotFoundComponent";
+import toast from "react-hot-toast";
+import ErrorToaster from "../ui/ErrorToaster";
+import CustomToaster from "../ui/CustomToaster";
+import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
 
 function TripResponse() {
+  const [isSaved, setIsSaved] = useState(false);
+
+  useConfirmOnPageExit({ isSaved });
+  console.log("isSaved", isSaved);
+
   useEffect(() => {
     (async () => {
       const LocomotiveScroll = (await import("locomotive-scroll" as any))
@@ -66,7 +75,8 @@ function TripResponse() {
 
     createTrip(finalData as Prisma.TripCreateInput, {
       onSuccess: () => {
-        alert("Trip saved successfully");
+        setIsSaved(true);
+        toast.custom(<CustomToaster message="Your trip was saved" />);
       },
     });
   };
@@ -87,7 +97,8 @@ function TripResponse() {
     };
     createTrip(finalData as Prisma.TripCreateInput, {
       onSuccess: () => {
-        alert("Trip was not saved");
+        setIsSaved(true);
+        toast.custom(<ErrorToaster message="Trip not saved" />);
       },
     });
   };
@@ -340,6 +351,7 @@ function TripResponse() {
             imageData={imageData}
             trip={trip}
             isCreatingTrip={isCreatingTrip}
+            isSaved={isSaved}
           />
         )}
       </Container>

@@ -14,9 +14,6 @@ export function useCreateTrip() {
     mutationKey: ["trips"],
     mutationFn: (data: Prisma.TripCreateInput) => createTripInDB(data),
 
-    onSuccess: () => {
-      toast.custom(<CustomToaster message="Your trip was saved" />);
-    },
     onError: (error) => {
       console.log(error);
       toast.custom(

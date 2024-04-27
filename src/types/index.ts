@@ -213,6 +213,7 @@ export interface SaveSectionProps {
   imageData?: ImageDataTypes | null;
   trip: Trip;
   isCreatingTrip: boolean;
+  isSaved: boolean;
 }
 
 export interface FormDetailsSectionProps {

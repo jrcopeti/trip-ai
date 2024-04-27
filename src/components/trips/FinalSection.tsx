@@ -1,11 +1,13 @@
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+
 import { Trip } from "@prisma/client";
 import { Button } from "@nextui-org/react";
-import Image from "next/image";
+import toast from "react-hot-toast";
+
 import image9 from "@/assets/homepage/9.jpg";
 import { defaultPlaceholder } from "@/lib/utils";
 import CustomToaster from "../ui/CustomToaster";
-import toast from "react-hot-toast";
 
 function FinalSection({ trip }: { trip: Trip }) {
   const router = useRouter();
@@ -35,7 +37,7 @@ function FinalSection({ trip }: { trip: Trip }) {
           >
             Back
           </Button>
-        <button onClick={() => toast(<CustomToaster message="Your trip was saved" />)}>Toast</button>
+        <button onClick={() => toast.custom(<CustomToaster message="Your trip was saved" />)}>Toast</button>
         </div>
 
       </div>

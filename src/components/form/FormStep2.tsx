@@ -1,20 +1,16 @@
+import { useEffect } from "react";
 import { useCountries } from "@/hooks/useCountries";
-import { AnimatePresence, motion } from "framer-motion";
 
+import { motion } from "framer-motion";
 import { Autocomplete, AutocompleteItem, Input } from "@nextui-org/react";
 import { Controller } from "react-hook-form";
 import { PulseLoader } from "react-spinners";
-import { MdOutlineCheckCircle } from "react-icons/md";
-import { MdOutlineErrorOutline } from "react-icons/md";
-import { BiMessageSquareCheck } from "react-icons/bi";
-import { BiMessageSquareError } from "react-icons/bi";
 
 import FormTitle from "./FormTitle";
-import type { FormStep2Props } from "@/types";
 import CustomToaster from "../ui/CustomToaster";
-import toast from "react-hot-toast";
 import ErrorToaster from "../ui/ErrorToaster";
-import { useEffect } from "react";
+import toast from "react-hot-toast";
+import type { FormStep2Props } from "@/types";
 
 function FormStep2({
   currentStep,
