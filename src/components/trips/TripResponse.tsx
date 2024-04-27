@@ -257,6 +257,7 @@ function TripResponse() {
   }
   console.log("trip", trip);
   console.log("imageData", imageData);
+  console.log("formData", formData)
   console.log("title", trip?.title);
 
   if (trip === null) {

@@ -43,17 +43,17 @@ function SaveSection({
                   className="bg-neptune-500 font-semibold text-gallery-50"
                   type="button"
                   onClick={handleYesAnswer}
-                  disabled={isCreatingTrip}
+                  isDisabled={isCreatingTrip}
                 >
-                  Yes
+                  Yes, please
                 </Button>
                 <Button
                   className="font bg-neptune-500 text-gallery-50"
                   type="button"
                   onClick={handleNoAnswer}
-                  disabled={isCreatingTrip}
+                  isDisabled={isCreatingTrip}
                 >
-                  No
+                  No, thanks 
                 </Button>
               </ButtonGroup>
             </div>

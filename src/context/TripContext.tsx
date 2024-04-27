@@ -36,7 +36,7 @@ function TripProvider({ children }: { children: React.ReactNode }) {
   } = useMutation({
     mutationFn: (prompt: string) => fetchResponseAI(prompt),
 
-    onSuccess: () => {
+    onSuccess: () => { 
       console.log("success trip em trip context");
       setIsNavigating(true);
       router.replace(path);
