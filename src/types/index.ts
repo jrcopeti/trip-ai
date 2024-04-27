@@ -143,6 +143,7 @@ export interface FormStep4Props extends FormStep3Props {
 export interface FormStep5Props extends FormStep3Props {
   isWeatherSelected: boolean;
   setIsWeatherSelected: (value: boolean) => void;
+  setValue: (name: FieldName, value: string) => void;
 }
 
 export interface FormStep7Props extends Omit<FormStep3Props, "errors"> {
