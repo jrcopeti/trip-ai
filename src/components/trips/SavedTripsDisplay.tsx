@@ -92,12 +92,6 @@ function SavedTripsDisplay() {
     }
   }, [isPendingSavedTrips, savedTrips]);
 
-
-  // const notSavedTrips = savedTrips?.find((trip) => trip.saved === false);
-  // if (notSavedTrips) {
-  //   notFound();
-  // }
-
   if (savedTripsError) {
     return (
       <ErrorComponent

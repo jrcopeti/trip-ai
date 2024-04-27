@@ -220,6 +220,11 @@ export interface FormDetailsSectionProps {
   formData?: FinalDataTypes;
 }
 
+export interface PackReadySectionProps {
+  trip: Trip;
+  formData?: FinalDataTypes;
+}
+
 export interface WeatherSectionProps {
   trip: Trip;
   formData?: FinalDataTypes;

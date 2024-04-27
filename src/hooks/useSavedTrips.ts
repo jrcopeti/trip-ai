@@ -11,7 +11,6 @@ export function useSavedTrips() {
   } = useQuery({
     queryKey: ["trips", searchTerm],
     queryFn: () => getAllTrips(searchTerm),
-
   });
 
   return {

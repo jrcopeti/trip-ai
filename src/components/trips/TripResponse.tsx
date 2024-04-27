@@ -25,7 +25,6 @@ import GradientBg from "../ui/GradientBg";
 import Container from "../ui/Container";
 import Loader from "../ui/Loader";
 import NotFoundComponent from "../ui/NotFoundComponent";
-import { TripResponse as TripResponseType } from "@/types";
 
 function TripResponse() {
   useEffect(() => {
@@ -284,7 +283,7 @@ function TripResponse() {
 
       <Container overflow="overflow-x-hidden" animationClass="pack-section">
         <GradientBg from="from-neptune-200" to="to-gallery-100" />
-        {trip && <PackReadySection trip={trip} />}
+        {trip && <PackReadySection trip={trip} formData={formData} />}
       </Container>
 
       {/* Section 5 */}
