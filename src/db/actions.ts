@@ -1,5 +1,5 @@
 "use server";
-import { Prisma } from "@prisma/client";
+import { Prisma, Trip } from "@prisma/client";
 import prisma from "@/db";
 
 export const createTripInDB = async (trip: Prisma.TripCreateInput) => {
@@ -9,11 +9,36 @@ export const createTripInDB = async (trip: Prisma.TripCreateInput) => {
   });
 };
 
-export const getAllTrips = async () => {
+export const getAllTrips = async (searchTerm: string): Promise<Trip[]> => {
+  const whereClause: Prisma.TripWhereInput = {
+    ...(searchTerm
+      ? {
+          OR: [
+            {
+              city: {
+                contains: searchTerm,
+                mode: "insensitive",
+              },
+            },
+            {
+              country: {
+                contains: searchTerm,
+                mode: "insensitive",
+              },
+            },
+            {
+              userName: {
+                contains: searchTerm,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }
+      : { saved: true }),
+  };
+
   const allTrips = await prisma.trip.findMany({
-    where: {
-      saved: true,
-    },
+    where: whereClause,
     orderBy: {
       city: "asc",
     },

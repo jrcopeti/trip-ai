@@ -14,9 +14,16 @@ import SavedTripsContainer from "./SavedTripsContainer";
 
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { notFound } from "next/navigation";
+import { Input } from "@nextui-org/react";
 
 function SavedTripsDisplay() {
-  const { savedTrips, isPendingSavedTrips, savedTripsError } = useSavedTrips();
+  const {
+    savedTrips,
+    isPendingSavedTrips,
+    savedTripsError,
+    setSearchTerm,
+    searchTerm,
+  } = useSavedTrips();
 
   const windowSize = useWindowSize();
 
@@ -83,20 +90,24 @@ function SavedTripsDisplay() {
         return () => context.revert();
       });
     }
-  }, [isPendingSavedTrips]);
+  }, [isPendingSavedTrips, savedTrips]);
+
+
+  // const notSavedTrips = savedTrips?.find((trip) => trip.saved === false);
+  // if (notSavedTrips) {
+  //   notFound();
+  // }
 
   if (savedTripsError) {
     return (
       <ErrorComponent
-        message="saved trips error in trips display component"
-        path="/saved-trips"
-        button="saved-trips"
+        message="There was an error fetching saved trips. Please try again."
+        path="/"
+        button="Back to Home"
       />
     );
   }
-  if (!savedTripDataCards) {
-    notFound();
-  }
+
   return (
     <Container height="h-full">
       <GradientBg
@@ -111,11 +122,36 @@ function SavedTripsDisplay() {
       <SavedTripsContainer>
         <div className="mt-2 flex flex-col items-center gap-10 py-2 lg:px-16 lg:py-4">
           <h1 className="text-5xl font-bold text-tuna-900">Saved Trips</h1>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 2xl:gap-8">
-            {savedTrips?.map((trip) => (
-              <SavedTripCard key={trip.id} trip={trip} />
-            ))}
-          </div>
+
+          <Input
+            type="text"
+            id="userName"
+            className="w-[70%] max-w-lg text-tuna-700 lg:text-2xl"
+            label="Search for a trip"
+            placeholder="A city, country or user name"
+            radius="sm"
+            size="lg"
+            variant="faded"
+            color="primary"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+
+          {savedTrips?.length === 0 && !isPendingSavedTrips && (
+            <h2 className="text-2xl font-semibold text-tuna-900">
+              No trips found
+            </h2>
+          )}
+
+          {isPendingSavedTrips ? (
+            <div>isLoading...</div>
+          ) : (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 2xl:gap-8">
+              {savedTrips?.map((trip) => (
+                <SavedTripCard key={trip.id} trip={trip} />
+              ))}
+            </div>
+          )}
         </div>
       </SavedTripsContainer>
     </Container>
