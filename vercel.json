@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "src/app/api/responseAI/openaiApi.ts": {
+      "maxDuration": 120
+    }
+  }
+}
