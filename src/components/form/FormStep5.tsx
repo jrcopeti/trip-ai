@@ -4,6 +4,7 @@ import { Checkbox } from "@nextui-org/react";
 import DatePicker from "./DatePicker";
 import FormTitle from "./FormTitle";
 import type { FormStep5Props } from "@/types";
+import dayjs from "dayjs";
 
 function FormStep5({
   currentStep,
@@ -12,7 +13,16 @@ function FormStep5({
   setIsWeatherSelected,
   control,
   errors,
+  setValue,
 }: FormStep5Props) {
+  const handleCheckboxChange = () => {
+    setIsWeatherSelected(!isWeatherSelected);
+    const startDate = dayjs();
+    setValue("startDate", startDate.toISOString());
+
+    const endDate = startDate.add(1, "day");
+    setValue("endDate", endDate.toISOString());
+  };
   return (
     <>
       {currentStep === 4 && (
@@ -26,13 +36,13 @@ function FormStep5({
           <div className="mt-10 flex flex-col gap-x-6 gap-y-8 ">
             <Checkbox
               isSelected={isWeatherSelected}
-              onValueChange={setIsWeatherSelected}
+              onValueChange={handleCheckboxChange}
               color="default"
               size="lg"
               title="Weather forecast"
               className="font-semibold text-gallery-50"
             >
-              <p className='text-tuna-900'>Based on the weather</p>
+              <p className="text-tuna-900">Based on the weather</p>
             </Checkbox>
             {!isWeatherSelected ? (
               <>

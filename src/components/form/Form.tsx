@@ -70,8 +70,8 @@ const Form = memo(function Form() {
       requiredItems: [{ item: "" }],
       interests: [],
       note: "",
-      startDate: new Date().toISOString(),
-      endDate: new Date().toISOString(),
+      startDate: "",
+      endDate: "",
       weatherForecast: "",
       agreement: false,
       flagUrl: "",
@@ -154,7 +154,7 @@ const Form = memo(function Form() {
       shouldFocus: true,
     });
 
-    // if (!output) return;
+    if (!output) return;
 
     if (currentStep === steps.length - 2) {
       generateImage(cityWatch);
@@ -202,7 +202,7 @@ const Form = memo(function Form() {
       requiredItems?.map((requiredItem) =>
         requiredItem.item.trim().toLowerCase(),
       ) ?? [];
-      
+
     const formattedUserName = userName.trim().toLowerCase();
     const formattedCity = city.trim().toLowerCase();
     const formattedNote = note?.trim().toLowerCase();
@@ -292,6 +292,7 @@ const Form = memo(function Form() {
             errors={errors}
             isWeatherSelected={isWeatherSelected}
             setIsWeatherSelected={setIsWeatherSelected}
+            setValue={setValue}
           />
 
           <FormStep6
