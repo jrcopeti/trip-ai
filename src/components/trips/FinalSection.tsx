@@ -1,13 +1,9 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-
-import { Trip } from "@prisma/client";
 import { Button } from "@nextui-org/react";
-import toast from "react-hot-toast";
-
 import image9 from "@/assets/homepage/9.jpg";
 import { defaultPlaceholder } from "@/lib/utils";
-import CustomToaster from "../ui/CustomToaster";
+import { Trip } from "@prisma/client";
 
 function FinalSection({ trip }: { trip: Trip }) {
   const router = useRouter();
@@ -27,19 +23,17 @@ function FinalSection({ trip }: { trip: Trip }) {
         </div>
 
         <div className="bg-gallery-50/50 p-8 sm:p-10">
-          <div className='flex flex-col gap-3'>
-            <h2 className='text-tuna-900 font-bold text-3xl'>Good to know!</h2>
-            <p className='font-semibold text-lg lg:text-xl'>{trip?.tip} </p>
+          <div className="flex flex-col gap-3">
+            <h2 className="text-3xl font-bold text-tuna-900">Good to know!</h2>
+            <p className="text-lg font-semibold lg:text-xl">{trip?.tip} </p>
           </div>
           <Button
             onClick={router.back}
-            className="bg-neptune-500 p-6 text-xl text-gallery-50 mt-10"
+            className="mt-10 bg-neptune-500 p-6 text-xl text-gallery-50"
           >
             Back
           </Button>
-        <button onClick={() => toast.custom(<CustomToaster message="Your trip was saved" />)}>Toast</button>
         </div>
-
       </div>
     </>
   );
