@@ -26,7 +26,7 @@ function FormStep6({ currentStep, control, errors, delta }: FormStep3Props) {
                   {...field}
                   name="interests"
                   className="max-w-2xl gap-4"
-                  label="Select up to 3 interest"
+                  label="Select up to 3 interests"
                   orientation="horizontal"
                   errorMessage={errors.interests?.message}
                 >

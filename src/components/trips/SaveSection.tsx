@@ -4,6 +4,7 @@ import { Button, ButtonGroup } from "@nextui-org/react";
 import image5 from "@/assets/homepage/5.jpg";
 import { defaultPlaceholder } from "@/lib/utils";
 import type { SaveSectionProps } from "@/types";
+import { PulseLoader } from "react-spinners";
 
 function SaveSection({
   handleYesAnswer,
@@ -15,7 +16,7 @@ function SaveSection({
 }: SaveSectionProps) {
   return (
     <>
-      <div className="final-card grid h-[90%] w-[90%] grid-cols-none grid-rows-2 shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-none ">
+      <div className="final-card grid h-[90%] w-[90%] grid-cols-1 grid-rows-2 shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-1">
         <div className="relative h-full w-full ">
           <Image
             src={imageData?.tripImage5 ?? image5}
@@ -27,10 +28,12 @@ function SaveSection({
             className="object-cover shadow-xl "
           />
         </div>
-        <div className="bg-gallery-50/50 p-8 sm:p-10">
+        <div className="bbg-gallery-50/70  p-8 sm:p-10">
           <div className="flex flex-col gap-3">
             <h2 className="text-3xl font-bold text-tuna-900">Good to know!</h2>
-            <p className="text-lg font-semibold lg:text-xl">{trip?.tip} </p>
+            <p className="text-lg font-semibold text-tuna-600 lg:text-xl">
+              {trip?.tip}
+            </p>
           </div>
 
           {!isSaved ? (
@@ -45,15 +48,23 @@ function SaveSection({
                   onClick={handleYesAnswer}
                   isDisabled={isCreatingTrip}
                 >
-                  Yes, please
+                  {isCreatingTrip ? (
+                    <PulseLoader color="#f8f8f8" />
+                  ) : (
+                    "Yes, please"
+                  )}
                 </Button>
                 <Button
-                  className="font bg-neptune-500 text-gallery-50"
+                  className="bg-neptune-500 text-gallery-50"
                   type="button"
                   onClick={handleNoAnswer}
                   isDisabled={isCreatingTrip}
                 >
-                  No, thanks 
+                  {isCreatingTrip ? (
+                    <PulseLoader color="#f8f8f8" />
+                  ) : (
+                    "No, thanks"
+                  )}
                 </Button>
               </ButtonGroup>
             </div>
