@@ -7,31 +7,30 @@ import {
   Link,
 } from "@nextui-org/react";
 import { PiSuitcase } from "react-icons/pi";
+import Image from "next/image";
+import logo from "@/assets/travel/logo.png";
 
 function NavbarComponent() {
   return (
     <>
       <Navbar
-        className="flex max-w-full bg-gradient-to-r from-gallery-100 to-gallery-200 z-50"
+        className="z-50 flex max-w-full bg-gradient-to-r from-gallery-100 to-gallery-200"
         maxWidth="2xl"
         height="3.5rem"
         shouldHideOnScroll
       >
         <NavbarBrand>
           <Link href="/">
-            <p className="flex items-center gap-1 text-xs xs:text-sm font-bold text-inherit text-neptune-500 sm:text-base">
-              {" "}
-              <span>
-                <PiSuitcase size={30} />
-              </span>
-              Trip AI
-            </p>
+            <div className="flex items-center gap-2 text-xs font-bold text-inherit text-neptune-500 xs:text-sm sm:text-base">
+              <Image width={35} height={35} alt="Trip AI" src={logo} />
+              <p>Trip AI</p>
+            </div>
           </Link>
         </NavbarBrand>
         <NavbarContent className="flex gap-8" justify="center">
           <NavbarItem>
             <Link
-              className="hidden text-xs xs:text-sm font-semibold text-tuna-900 sm:block sm:text-base"
+              className="hidden text-xs font-semibold text-tuna-900 xs:text-sm sm:block sm:text-base"
               href="/"
               aria-current="page"
             >
@@ -40,15 +39,15 @@ function NavbarComponent() {
           </NavbarItem>
           <NavbarItem>
             <Link
-              className="text-xs xs:text-sm font-semibold text-tuna-900 sm:text-base"
+              className="text-xs font-semibold text-tuna-900 xs:text-sm sm:text-base"
               href="/form"
             >
-             New Trip
+              New Trip
             </Link>
           </NavbarItem>
           <NavbarItem>
             <Link
-              className="text-xs xs:text-sm font-semibold text-tuna-900 sm:text-base"
+              className="text-xs font-semibold text-tuna-900 xs:text-sm sm:text-base"
               href="/saved-trips"
               aria-current="page"
             >
@@ -57,7 +56,7 @@ function NavbarComponent() {
           </NavbarItem>
           <NavbarItem>
             <Link
-              className="text-xs xs:text-sm font-semibold text-tuna-900 sm:text-base"
+              className="text-xs font-semibold text-tuna-900 xs:text-sm sm:text-base"
               href="/about"
             >
               About
