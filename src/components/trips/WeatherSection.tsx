@@ -1,16 +1,16 @@
 "use client";
-import Image from "next/image";
-import suncloudy from "@/assets/weather/suncloudy.png";
-import { useWeather } from "@/hooks/useWeather";
 import { useEffect } from "react";
+import Image from "next/image";
+import { useWeather } from "@/hooks/useWeather";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import suncloudy from "@/assets/weather/suncloudy.png";
 import { IoWaterOutline } from "react-icons/io5";
 import { LuWind } from "react-icons/lu";
 import { TbSunrise } from "react-icons/tb";
 import { BsSunsetFill } from "react-icons/bs";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import type { WeatherSectionProps } from "@/types";
 import { BiMessageSquareError } from "react-icons/bi";
+import type { WeatherSectionProps } from "@/types";
 
 dayjs.extend(utc);
 
@@ -44,10 +44,10 @@ function WeatherSection({ trip, formData }: WeatherSectionProps) {
 
   const { weatherIconSrc } = weatherData;
   const main = weatherData?.main;
-  const temperature = Math.round((main?.temp ?? 0) - 273.15);
-  const feelsLike = Math.round((main?.feels_like ?? 0) - 273.15);
-  const tempMin = Math.round((main?.temp_min ?? 0) - 273.15);
-  const tempMax = Math.round((main?.temp_max ?? 0) - 273.15);
+  const temperature = Math.round((main?.temp ?? 0) - 273.15 ?? 0);
+  const feelsLike = Math.round((main?.feels_like ?? 0) - 273.15 ?? 0);
+  const tempMin = Math.round((main?.temp_min ?? 0) - 273.15 ?? 0);
+  const tempMax = Math.round((main?.temp_max ?? 0) - 273.15 ?? 0);
   const humidity = main?.humidity ?? 0;
 
   const sys = weatherData?.sys;
@@ -74,13 +74,13 @@ function WeatherSection({ trip, formData }: WeatherSectionProps) {
 
   return (
     <>
-      <div className="weather-card relative mx-0 my-[40px] flex w-[80%] flex-col bg-gallery-50/40 pb-[60px] pl-[50px] pr-[50px] text-center text-tuna-900 shadow-xl sm:max-h-[400px] sm:w-[75vw] sm:max-w-[500px] sm:flex-row sm:items-center sm:pb-[50px] sm:pl-[20px] sm:pr-[100px] sm:pt-[60px] sm:text-start ">
+      <div className="weather-card relative mx-0 my-[40px] flex w-[80%] flex-col bg-gallery-50/70  pb-[60px] pl-[50px] pr-[50px] text-center text-tuna-900 shadow-xl sm:max-h-[400px] sm:w-[75vw] sm:max-w-[500px] sm:flex-row sm:items-center sm:pb-[50px] sm:pl-[20px] sm:pr-[100px] sm:pt-[60px] sm:text-start ">
         <Image
           height={400}
           width={400}
           alt="weather-icon"
           src={weatherIconSrc ?? suncloudy}
-          className="-mt-[86px] mb-[30px] ml-[10px] h-[45vw] w-[45vw] object-contain saturate-150 filter xs:ml-[22%] sm:-ml-[145px] sm:-mt-[0px] sm:mb-[30px] sm:h-[300px] sm:w-full md:-ml-[161px] md:-mt-[0] md:mr-[30px] md:h-[300px] md:max-w-full "
+          className="-mt-[60px] mb-[30px] ml-[10%] h-[40vw] w-[40vw] object-contain saturate-150 filter xs:-mt-[86px] xs:ml-[12%] xs:h-[45vw] xs:w-[45vw] sm:-ml-[145px] sm:-mt-[0px] sm:mb-[30px] sm:h-[300px] sm:w-full md:-ml-[161px] md:-mt-[0] md:mr-[30px] md:h-[300px] md:max-w-full "
         />
         <div className="text-tuna-900">
           <p className="mb-4 uppercase sm:mb-2">
@@ -99,7 +99,7 @@ function WeatherSection({ trip, formData }: WeatherSectionProps) {
           <p className="mb-3 ml-1 text-xs first-letter:uppercase">
             {weatherDescription}
           </p>
-          <section className="text-md mb-3 flex items-center justify-center gap-x-2 text-xl font-semibold text-tuna-400 sm:justify-start  ">
+          <section className="text-md mb-3 flex items-center justify-center gap-x-2 text-xl font-semibold text-tuna-400 sm:justify-start">
             <p>
               <small>Low</small> {tempMin}ºC
             </p>

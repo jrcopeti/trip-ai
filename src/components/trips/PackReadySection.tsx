@@ -21,7 +21,7 @@ function PackReadySection({ trip, formData }: PackReadySectionProps) {
           ? "Based on the weather"
           : `From ${startDate} to ${endDate}`}
       </h2>
-      <div className="stamps absolute -z-10 h-[350px] w-[350px] -translate-y-[87px] translate-x-[120px] md:h-[450px] md:w-[550px] md:-translate-y-[133px] md:translate-x-[400px] ">
+      <div className="stamps absolute -z-10 h-[350px] w-[350px] -translate-y-[87px] translate-x-[120px] md:h-[450px] md:w-[550px] md:-translate-y-[133px] md:translate-x-[400px]">
         <Image src={stamps2} alt="stamps" fill className="object-contain" />
       </div>
       <div className="stamps absolute -z-10 h-[300px] w-[250px] -translate-x-[80px] translate-y-[50px] md:h-[300px] md:w-[400px] md:-translate-x-[200px] md:translate-y-[20px]">

@@ -4,8 +4,8 @@ import suitcase from "@/assets/travel/suitcase.png";
 
 function ObjectsSection({ trip }: { trip: Trip }) {
   return (
-    <div className="  absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12 ">
-      <div className="grid grid-cols-2 items-center justify-items-center gap-2 rounded-md lg:grid-cols-3 lg:gap-4 lg:p-4 ">
+    <div className="  absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12">
+      <div className="grid grid-cols-2 items-center justify-items-center gap-2 rounded-md lg:grid-cols-3 lg:gap-4 lg:p-4">
         {(
           trip?.objectsList as {
             quantity: number;
@@ -19,11 +19,11 @@ function ObjectsSection({ trip }: { trip: Trip }) {
           >
             <div className=" flex items-center justify-start space-x-4 text-xs text-cabaret-800 xs:text-sm  lg:text-lg">
               <span className="font-extrabold ">{object.quantity}</span>
-              <span className="text-xs uppercase text-tuna-900 xs:text-sm lg:text-lg ">
+              <span className="text-xs uppercase text-tuna-900 xs:text-sm lg:text-lg">
                 {object.item}
               </span>
             </div>
-            <span className="text-xs text-tuna-600 xs:text-sm md:text-base ">
+            <span className="text-xs text-tuna-600 xs:text-sm md:text-base">
               {object.description}
             </span>
           </div>
