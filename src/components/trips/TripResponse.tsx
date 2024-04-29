@@ -12,6 +12,7 @@ import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
 import { Prisma } from "@prisma/client";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import toast from "react-hot-toast";
 
 import FormDetailsSection from "./FormDetailsSection";
 import TitleSection from "./TitleSection";
@@ -29,13 +30,10 @@ import NotFoundComponent from "../ui/NotFoundComponent";
 import ErrorToaster from "../ui/ErrorToaster";
 import CustomToaster from "../ui/CustomToaster";
 
-import toast from "react-hot-toast";
-
 function TripResponse() {
   const [isSaved, setIsSaved] = useState(false);
 
-  useConfirmOnPageExit({ isSaved });
-  console.log("isSaved", isSaved);
+  useConfirmOnPageExit(isSaved);
 
   useEffect(() => {
     (async () => {
@@ -257,7 +255,7 @@ function TripResponse() {
   }
   console.log("trip", trip);
   console.log("imageData", imageData);
-  console.log("formData", formData)
+  console.log("formData", formData);
   console.log("title", trip?.title);
 
   if (trip === null) {
@@ -278,7 +276,7 @@ function TripResponse() {
     <>
       {/* Section 1 */}
       <Container overflow="overflow-hidden">
-        <GradientBg from="from-gallery-100" to="to-violay-200" />
+        <GradientBg from="from-shark-100" to="to-neptune-200" />
         {trip && <TitleSection trip={trip} imageData={imageData} />}
       </Container>
 
@@ -288,41 +286,41 @@ function TripResponse() {
         overflow="overflow-hidden"
         animationClass="description-section"
       >
-        <GradientBg from="from-violay-200" to="to-gallery-100" />
+        <GradientBg from="from-neptune-200" to="to-shark-100" />
         {trip && <DescriptionSection trip={trip} imageData={imageData} />}
       </Container>
 
       {/* Section 3 */}
 
       <Container overflow="overflow-hidden" animationClass="tours-section">
-        <GradientBg from="from-gallery-100" to="to-neptune-200" />
+        <GradientBg from="from-shark-100" to="to-yellorange-100" />
         {trip && <ToursSection trip={trip} />}
       </Container>
 
       {/* Section 4 */}
 
       <Container overflow="overflow-hidden" animationClass="pack-section">
-        <GradientBg from="from-neptune-200" to="to-gallery-100" />
+        <GradientBg from="from-yellorange-100" to="to-shark-100" />
         {trip && <PackReadySection trip={trip} formData={formData} />}
       </Container>
 
       {/* Section 5 */}
 
       <Container overflow="overflow-hidden" animationClass="objects-section">
-        <GradientBg from="from-gallery-100" to="to-cabaret-100" />
+        <GradientBg from="from-shark-100" to="to-cabaret-100" />
         {trip && <ObjectsSection trip={trip} />}
       </Container>
 
       {/* Section 6 */}
 
       <Container overflow="overflow-hidden" animationClass="musthave-section">
-        <GradientBg from="from-cabaret-100" to="to-gallery-100" />
+        <GradientBg from="from-cabaret-100" to="to-shark-100" />
         {trip && <MustHaveSection trip={trip} imageData={imageData} />}
       </Container>
 
       {/* Section 7 */}
       <Container overflow="overflow-hidden" animationClass="weather-section">
-        <GradientBg from="from-gallery-100" to="to-yellorange-100" />
+        <GradientBg from="from-shark-100" to="to-violay-200" />
         {trip && <WeatherSection trip={trip} formData={formData} />}
       </Container>
 
@@ -332,7 +330,7 @@ function TripResponse() {
         overflow="overflow-hidden"
         animationClass="formdetails-section"
       >
-        <GradientBg from="from-yellorange-100" to="to-gallery-100" />
+        <GradientBg from="from-violay-200" to="to-shark-100" />
         {trip && formData && (
           <FormDetailsSection
             trip={trip}
@@ -345,7 +343,7 @@ function TripResponse() {
       {/* Section 9 */}
 
       <Container overflow="overflow-hidden" animationClass="final-section">
-        <GradientBg from="from-gallery-100" to="to-deeporange-100" />
+        <GradientBg from="from-shark-100" to="to-neptune-200" />
         {trip && (
           <SaveSection
             handleYesAnswer={handleYesAnswer}

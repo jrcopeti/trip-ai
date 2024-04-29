@@ -1,15 +1,11 @@
 import { useEffect } from "react";
 
-export function useConfirmOnPageExit({ isSaved }: { isSaved: boolean }) {
+export function useConfirmOnPageExit(isSaved: boolean | null) {
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
       if (isSaved) {
         return;
       }
-      const message =
-        "Any unsaved changes will be lost. Are you sure you want to leave?";
-      e.returnValue = message;
-      return message;
     };
 
     window.addEventListener("beforeunload", handler);

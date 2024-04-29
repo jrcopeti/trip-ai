@@ -105,15 +105,7 @@ function SavedTripsDisplay() {
 
   return (
     <Container height="h-full">
-      <GradientBg
-        position="fixed"
-        from="from-neptune-300"
-        to="to-yellorange-200"
-        blur="blur-[190px]"
-        // from="from-violay-300"
-        // to="to-neptune-300"
-        // blur="blur-[150px]"
-      />
+      <GradientBg position="fixed" />
       <SavedTripsContainer>
         <div className="mt-2 flex flex-col items-center gap-10 py-2 lg:px-16 lg:py-4">
           <h1 className="text-5xl font-bold text-tuna-900">Saved Trips</h1>

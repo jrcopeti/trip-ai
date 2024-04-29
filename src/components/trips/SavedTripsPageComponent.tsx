@@ -204,8 +204,8 @@ function SavedTripsPageComponent({
       {/* Section 1 */}
 
       <Container overflow="overflow-hidden">
-        <GradientBg from="from-gallery-100" to="to-violay-200" />
-        <ButtonBackOutlined position="absolute -top-1 -left-2 xs:top-0 xs:left-0 " />
+        <GradientBg from="from-shark-100" to="to-neptune-200" />
+        <ButtonBackOutlined position="absolute -top-1 -left-2 xs:top-0 xs:left-0 lg:top-2 lg:left-10" />
         {trip && <TitleSection trip={trip} />}
       </Container>
 
@@ -215,42 +215,42 @@ function SavedTripsPageComponent({
         overflow="overflow-hidden"
         animationClass="description-section"
       >
-        <GradientBg from="from-violay-200" to="to-gallery-100" />
+        <GradientBg from="from-neptune-200" to="to-shark-100" />
         {trip && <DescriptionSection trip={trip} />}
       </Container>
 
       {/* Section 3 */}
 
       <Container overflow="overflow-hidden" animationClass="tours-section">
-        <GradientBg from="from-gallery-100" to="to-neptune-200" />
+        <GradientBg from="from-shark-100" to="to-yellorange-100" />
         {trip && <ToursSection trip={trip} />}
       </Container>
 
       {/* Section 4 */}
 
       <Container overflow="overflow-hidden" animationClass="pack-section">
-        <GradientBg from="from-neptune-200" to="to-gallery-100" />
+        <GradientBg from="from-yellorange-100" to="to-shark-100" />
         {trip && <PackReadySection trip={trip} />}
       </Container>
 
       {/* Section 5 */}
 
       <Container overflow="overflow-hidden" animationClass="objects-section">
-        <GradientBg from="from-gallery-100" to="to-cabaret-100" />
+        <GradientBg from="from-shark-100" to="to-cabaret-100" />
         {trip && <ObjectsSection trip={trip} />}
       </Container>
 
       {/* Section 6 */}
 
       <Container overflow="overflow-hidden" animationClass="musthave-section">
-        <GradientBg from="from-cabaret-100" to="to-gallery-100" />
+        <GradientBg from="from-cabaret-100" to="to-shark-100" />
         {trip && <MustHaveSection trip={trip} />}
       </Container>
 
       {/* Section 7 */}
 
       <Container overflow="overflow-hidden" animationClass="weather-section">
-        <GradientBg from="from-gallery-100" to="to-yellorange-100" />
+        <GradientBg from="from-shark-100" to="to-violay-200" />
         {trip && <WeatherSection trip={trip} />}
       </Container>
 
@@ -260,14 +260,14 @@ function SavedTripsPageComponent({
         overflow="overflow-hidden"
         animationClass="formdetails-section"
       >
-        <GradientBg from="from-yellorange-100" to="to-gallery-100" />
+        <GradientBg from="from-violay-200" to="to-shark-100" />
         {trip && <FormDetailsSection trip={trip} />}
       </Container>
 
       {/* Section 9 */}
 
       <Container overflow="overflow-hidden" animationClass="final-section">
-        <GradientBg from="from-gallery-100" to="to-deeporange-100" />
+        <GradientBg from="from-shark-100" to="to-neptune-200" />
         {trip && <FinalSection trip={trip} />}
       </Container>
     </>

@@ -23,11 +23,7 @@ function HomepageComponent() {
 
   return (
     <Container overflow="overflow-hidden" height="h-[calc(100dvh-3.5rem)]">
-      <GradientBg
-        from="from-neptune-300"
-        to="to-yellorange-200"
-        blur="blur-[190px]"
-      />
+      <GradientBg />
       <AnimatePresence mode="wait">
         {isLoading && <Preloader />}
       </AnimatePresence>
