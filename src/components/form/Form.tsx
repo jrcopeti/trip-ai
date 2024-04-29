@@ -234,12 +234,12 @@ const Form = memo(function Form() {
         // from="from-violay-300"
         // to="to-deeporange-200"
         // blur="blur-[190px]"
-        from="from-violay-300"
-        to="to-neptune-300"
-        blur="blur-[150px]"
-        // from="from-neptune-300"
-        // to="to-yellorange-200"
-        // blur="blur-[190px]"
+        // from="from-violay-300"
+        // to="to-neptune-300"
+        // blur="blur-[150px]"
+        from="from-neptune-300"
+        to="to-yellorange-200"
+        blur="blur-[190px]"
       />
       <FormContainer>
         <ProgressBar stepValue={stepValue} />

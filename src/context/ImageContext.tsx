@@ -32,7 +32,7 @@ function ImageProvider({ children }: { children: React.ReactNode }) {
     onError: (error) => {
       console.log(error);
       toast.custom(
-        <ErrorToaster message="There was an error generating the image" />,
+        <ErrorToaster message="There was an error generating the images"/>,
       );
     },
   });

@@ -4,7 +4,7 @@ import { Button, ButtonGroup } from "@nextui-org/react";
 import image5 from "@/assets/homepage/5.jpg";
 import { defaultPlaceholder } from "@/lib/utils";
 import type { SaveSectionProps } from "@/types";
-import { PulseLoader } from "react-spinners";
+
 
 function SaveSection({
   handleYesAnswer,
@@ -48,11 +48,7 @@ function SaveSection({
                   onClick={handleYesAnswer}
                   isDisabled={isCreatingTrip}
                 >
-                  {isCreatingTrip ? (
-                    <PulseLoader color="#f8f8f8" />
-                  ) : (
-                    "Yes, please"
-                  )}
+                  Yes, please
                 </Button>
                 <Button
                   className="bg-neptune-500 text-gallery-50"
@@ -60,11 +56,7 @@ function SaveSection({
                   onClick={handleNoAnswer}
                   isDisabled={isCreatingTrip}
                 >
-                  {isCreatingTrip ? (
-                    <PulseLoader color="#f8f8f8" />
-                  ) : (
-                    "No, thanks"
-                  )}
+                  No, thanks
                 </Button>
               </ButtonGroup>
             </div>

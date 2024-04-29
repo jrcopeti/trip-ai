@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import type { FetchResponseAIParams, TripContextType } from "@/types";
 import ErrorToaster from "@/components/ui/ErrorToaster";
 import toast from "react-hot-toast";
+import CustomToaster from "@/components/ui/CustomToaster";
 
 const defaultContextValue: TripContextType = {
   tripData: null,
@@ -36,8 +37,9 @@ function TripProvider({ children }: { children: React.ReactNode }) {
   } = useMutation({
     mutationFn: (prompt: string) => fetchResponseAI(prompt),
 
-    onSuccess: () => { 
+    onSuccess: () => {
       console.log("success trip em trip context");
+      toast.custom(<CustomToaster message="Your trip has been generated!" />);
       setIsNavigating(true);
       router.replace(path);
       setTimeout(() => {

@@ -40,7 +40,7 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
         })
         .then((response) => {
           if (response.totalResultsCount === 0) {
-            throw new Error("No location was found. Please try again.");
+            throw new Error("No location has been found. Please try again.");
           }
           const validCity = response.geonames.find((geo: GeoName) => {
             const formattedCity = city.trim().toLowerCase();
@@ -59,7 +59,7 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
             setStatus({
               isLoadingCityValid: false,
               isCityValid: true,
-              message: "Location found and valid",
+              message: "Location has been found",
             });
           }
         })
@@ -71,7 +71,7 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
             message: error.message,
           });
         });
-    }, 800);
+    }, 1000);
     return () => {
       clearTimeout(debounce);
     };

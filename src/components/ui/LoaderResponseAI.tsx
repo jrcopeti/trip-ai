@@ -29,7 +29,7 @@ function LoaderResponseAI() {
   }, [index]);
 
   return (
-    <div className="fixed left-0 top-0 z-[99] flex h-screen w-screen items-center justify-center overflow-hidden bg-gradient-to-b from-violay-200 to-neptune-200">
+    <div className="fixed left-0 top-0 z-[99] flex h-screen w-screen items-center justify-center overflow-hidden bg-gradient-to-b from-neptune-100 to-yellorange-100">
       <div className="flex flex-col items-center gap-5">
         <div>
           <PuffLoader size={80} color="#4e888c" />
