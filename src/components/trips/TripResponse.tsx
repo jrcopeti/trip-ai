@@ -8,6 +8,7 @@ import { useTripResponse } from "@/hooks/useTripResponse";
 import { useWeather } from "@/hooks/useWeather";
 import { useCreateTrip } from "@/hooks/useCreateTrip";
 import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
+import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 
 import { Prisma } from "@prisma/client";
 import gsap from "gsap";
@@ -35,17 +36,7 @@ function TripResponse() {
 
   useConfirmOnPageExit(isSaved);
 
-  useEffect(() => {
-    (async () => {
-      const LocomotiveScroll = (await import("locomotive-scroll" as any))
-        .default;
-      const locomotiveScroll = new LocomotiveScroll({
-        lenisOptions: {
-          lerp: 0.15,
-        },
-      });
-    })();
-  }, []);
+  useLocomotiveScroll();
 
   const { createTrip, isCreatingTrip, createTripError } = useCreateTrip();
   const pathname = usePathname();

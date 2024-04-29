@@ -16,8 +16,16 @@ import { useWindowSize } from "@/hooks/useWindowSize";
 import { Input } from "@nextui-org/react";
 import { PuffLoader } from "react-spinners";
 import { BiMessageSquareError } from "react-icons/bi";
+import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 
 function SavedTripsDisplay() {
+  useLocomotiveScroll();
+
+  const useIsomorphicLayoutEffect =
+    typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+  const windowSize = useWindowSize();
+
   const {
     savedTrips,
     isPendingSavedTrips,
@@ -25,11 +33,6 @@ function SavedTripsDisplay() {
     setSearchTerm,
     searchTerm,
   } = useSavedTrips();
-
-  const windowSize = useWindowSize();
-
-  const useIsomorphicLayoutEffect =
-    typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
   useIsomorphicLayoutEffect(() => {
     const windowWidth = windowSize.width;

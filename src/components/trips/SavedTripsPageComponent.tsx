@@ -21,6 +21,7 @@ import Loader from "../ui/Loader";
 import ButtonBackOutlined from "../ui/ButtonBackOutlined";
 import { notFound } from "next/navigation";
 import NotFoundComponent from "../ui/NotFoundComponent";
+import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 
 function SavedTripsPageComponent({
   params,
@@ -31,17 +32,7 @@ function SavedTripsPageComponent({
 
   const { isPendingWeather, weatherData } = useWeather();
 
-  useEffect(() => {
-    (async () => {
-      const LocomotiveScroll = (await import("locomotive-scroll" as any))
-        .default;
-      const locomotiveScroll = new LocomotiveScroll({
-        lenisOptions: {
-          lerp: 0.15,
-        },
-      });
-    })();
-  }, []);
+  useLocomotiveScroll();
 
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
