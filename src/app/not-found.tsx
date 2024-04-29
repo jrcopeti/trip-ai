@@ -4,7 +4,7 @@ function NotFound() {
   return (
     <NotFoundComponent
       message="This page actually doesn't exist."
-      path="/home"
+      path="/"
       button="Back to home"
     />
   );

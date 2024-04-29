@@ -4,7 +4,7 @@ import { useCountries } from "@/hooks/useCountries";
 import { motion } from "framer-motion";
 import { Autocomplete, AutocompleteItem, Input } from "@nextui-org/react";
 import { Controller } from "react-hook-form";
-import { PulseLoader } from "react-spinners";
+import { PuffLoader, PulseLoader } from "react-spinners";
 
 import FormTitle from "./FormTitle";
 import CustomToaster from "../ui/CustomToaster";
@@ -101,7 +101,7 @@ function FormStep2({
             />
             {isLoadingCityValid && (
               <div className="text-sm text-gallery-500">
-                <PulseLoader color="#7c7c7c" />
+                <PuffLoader color="#4e888c" />
               </div>
             )}
           </div>

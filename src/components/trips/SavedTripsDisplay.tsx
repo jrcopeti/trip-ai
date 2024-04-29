@@ -16,8 +16,16 @@ import { useWindowSize } from "@/hooks/useWindowSize";
 import { Input } from "@nextui-org/react";
 import { PuffLoader } from "react-spinners";
 import { BiMessageSquareError } from "react-icons/bi";
+import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 
 function SavedTripsDisplay() {
+  useLocomotiveScroll();
+
+  const useIsomorphicLayoutEffect =
+    typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+  const windowSize = useWindowSize();
+
   const {
     savedTrips,
     isPendingSavedTrips,
@@ -25,11 +33,6 @@ function SavedTripsDisplay() {
     setSearchTerm,
     searchTerm,
   } = useSavedTrips();
-
-  const windowSize = useWindowSize();
-
-  const useIsomorphicLayoutEffect =
-    typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
   useIsomorphicLayoutEffect(() => {
     const windowWidth = windowSize.width;
@@ -105,15 +108,7 @@ function SavedTripsDisplay() {
 
   return (
     <Container height="h-full">
-      <GradientBg
-        position="fixed"
-        from="from-neptune-300"
-        to="to-yellorange-200"
-        blur="blur-[190px]"
-        // from="from-violay-300"
-        // to="to-neptune-300"
-        // blur="blur-[150px]"
-      />
+      <GradientBg position="fixed" />
       <SavedTripsContainer>
         <div className="mt-2 flex flex-col items-center gap-10 py-2 lg:px-16 lg:py-4">
           <h1 className="text-5xl font-bold text-tuna-900">Saved Trips</h1>

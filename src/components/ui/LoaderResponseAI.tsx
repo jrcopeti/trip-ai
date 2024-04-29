@@ -1,12 +1,14 @@
 import { PuffLoader } from "react-spinners";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
 
 const variants = {
   initial: { opacity: 0, y: 50 },
   animate: { opacity: 1, y: 0 },
   exit: { opacity: 0, y: -50 },
 };
+
 const messages = [
   "Planning your trip",
   "Please Wait",
@@ -19,6 +21,7 @@ const messages = [
 ];
 
 function LoaderResponseAI() {
+  useConfirmOnPageExit(null);
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -29,7 +32,7 @@ function LoaderResponseAI() {
   }, [index]);
 
   return (
-    <div className="fixed left-0 top-0 z-[99] flex h-screen w-screen items-center justify-center overflow-hidden bg-gradient-to-b from-neptune-100 to-yellorange-100">
+    <div className="fixed left-0 top-0 z-[99] flex h-screen w-screen items-center justify-center overflow-hidden bg-gradient-to-b from-shark-100 to-neptune-200 px-4">
       <div className="flex flex-col items-center gap-5">
         <div>
           <PuffLoader size={80} color="#4e888c" />

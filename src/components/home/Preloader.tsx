@@ -40,7 +40,7 @@ function Preloader() {
       variants={slideUp}
       initial="initial"
       exit="exit"
-      className="fixed left-0 top-0 z-50 flex h-dvh w-dvw cursor-wait items-center justify-center bg-gradient-to-b from-neptune-100 to-yellorange-100"
+      className="fixed left-0 top-0 z-50 flex h-dvh w-dvw cursor-wait items-center justify-center bg-gradient-to-b to-neptune-200 from-shark-100"
     >
       <motion.p
         className="text-5xl font-bold text-tuna-900 "

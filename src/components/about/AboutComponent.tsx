@@ -8,14 +8,7 @@ import GradientBg from "../ui/GradientBg";
 function AboutComponent() {
   return (
     <Container overflow="overflow-hidden" height="h-[calc(100dvh-3.5rem)]">
-      <GradientBg
-        // from="from-violay-300"
-        // to="to-neptune-300"
-        // blur="blur-[150px]"
-        from="from-neptune-300"
-        to="to-yellorange-200"
-        blur="blur-[190px]"
-      />
+      <GradientBg />
       <GridContainer bg="bg-gallery-50/70">
         <div className="p-4 xs:p-6 sm:p-8 md:p-10 lg:p-12 xl:p-16">
           <div className="flex min-w-full flex-col items-start gap-4 lg:gap-8">
