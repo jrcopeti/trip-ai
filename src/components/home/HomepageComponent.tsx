@@ -24,17 +24,17 @@ function HomepageComponent() {
   return (
     <Container overflow="overflow-hidden" height="h-[calc(100dvh-3.5rem)]">
       <GradientBg
-        from="from-violay-300"
-        to="to-neptune-300"
-        blur="blur-[150px]"
-        // from="from-neptune-300"
-        // to="to-yellorange-200"
-        // blur="blur-[190px]"
+        // from="from-violay-300"
+        // to="to-neptune-300"
+        // blur="blur-[150px]"
+        from="from-neptune-300"
+        to="to-yellorange-200"
+        blur="blur-[190px]"
       />
       <AnimatePresence mode="wait">
         {isLoading && <Preloader />}
       </AnimatePresence>
-      <GridContainer bg="bg-gallery-100/50">
+      <GridContainer bg="bg-gallery-50/50">
         <SwiperWithThumbs />
         <HomepageTitle />
       </GridContainer>

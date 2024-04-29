@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { NextUIProvider } from "@nextui-org/react";
 import { Toaster } from "react-hot-toast";
-
 import { TripProvider } from "@/context/TripContext";
 import { WeatherProvider } from "@/context/WeatherContext";
 import { FormProvider } from "@/context/FormContext";
@@ -20,7 +19,7 @@ function Providers({ children }: ProvidersProps) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 1000, // 1 minute
+            staleTime: 60 * 1000,
           },
         },
       }),
@@ -28,7 +27,7 @@ function Providers({ children }: ProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <Toaster
-        position="top-right"
+        position="top-center"
         gutter={12}
         toastOptions={{
           duration: 5000,

@@ -9,9 +9,12 @@ function AboutComponent() {
   return (
     <Container overflow="overflow-hidden" height="h-[calc(100dvh-3.5rem)]">
       <GradientBg
-        from="from-violay-300"
-        to="to-neptune-300"
-        blur="blur-[150px]"
+        // from="from-violay-300"
+        // to="to-neptune-300"
+        // blur="blur-[150px]"
+        from="from-neptune-300"
+        to="to-yellorange-200"
+        blur="blur-[190px]"
       />
       <GridContainer bg="bg-gallery-100/50">
         <div className="p-4 xs:p-6 sm:p-8 md:p-10 lg:p-12 xl:p-16 ">
@@ -19,7 +22,7 @@ function AboutComponent() {
             <h1 className="mt-0 text-3xl font-extrabold text-tuna-900 xs:text-4xl sm:mt-4 md:text-5xl lg:mt-8 lg:text-6xl 2xl:text-7xl">
               About Trip AI
             </h1>
-            <p className="text-base text-gallery-600 xs:text-lg sm:text-xl  lg:text-xl xl:text-2xl  ">
+            <p className="text-sm text-gallery-600 xs:text-lg sm:text-xl lg:text-xl xl:text-2xl  ">
               Trip AI makes travel planning fun by creating customized
               itineraries that match your personal preferences. Whether
               you&apos;re looking to explore vibrant cities or quiet natural

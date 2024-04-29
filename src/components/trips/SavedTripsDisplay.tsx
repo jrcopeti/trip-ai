@@ -13,12 +13,8 @@ import GradientBg from "../ui/GradientBg";
 import SavedTripsContainer from "./SavedTripsContainer";
 
 import { useWindowSize } from "@/hooks/useWindowSize";
-import { notFound } from "next/navigation";
 import { Input } from "@nextui-org/react";
-import toast from "react-hot-toast";
 import { PuffLoader } from "react-spinners";
-import { MdOutlineErrorOutline } from "react-icons/md";
-import CustomToaster from "../ui/CustomToaster";
 import { BiMessageSquareError } from "react-icons/bi";
 
 function SavedTripsDisplay() {
@@ -111,12 +107,12 @@ function SavedTripsDisplay() {
     <Container height="h-full">
       <GradientBg
         position="fixed"
-        // from="from-neptune-300"
-        // to="to-yellorange-200"
-        // blur="blur-[190px]"
-        from="from-violay-300"
-        to="to-neptune-300"
-        blur="blur-[150px]"
+        from="from-neptune-300"
+        to="to-yellorange-200"
+        blur="blur-[190px]"
+        // from="from-violay-300"
+        // to="to-neptune-300"
+        // blur="blur-[150px]"
       />
       <SavedTripsContainer>
         <div className="mt-2 flex flex-col items-center gap-10 py-2 lg:px-16 lg:py-4">
