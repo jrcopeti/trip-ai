@@ -41,8 +41,9 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
     mutationFn: ({ city, country }: FetchForecastParams) =>
       fetchForecast({ city, country }),
 
-    onSuccess: () => {
-      console.log("success forecast ");
+    onSuccess: (forecastData) => {
+
+      console.log("success forecast:", forecastData);
       toast.custom(<CustomToaster message="Forecast generated" />);
     },
     onError: (error) => {
