@@ -15,7 +15,12 @@ import type { WeatherSectionProps } from "@/types";
 dayjs.extend(utc);
 
 function WeatherSection({ trip, formData }: WeatherSectionProps) {
-  const { generateWeather, isPendingWeather, weatherData } = useWeather();
+  const {
+    generateWeather,
+    generateDailyForecast,
+    isPendingWeather,
+    weatherData,
+  } = useWeather();
   console.log(weatherData);
   console.log("isPending`Weather", isPendingWeather);
 
@@ -25,9 +30,15 @@ function WeatherSection({ trip, formData }: WeatherSectionProps) {
         city: trip.city || formData?.city,
         country: trip.country || formData?.country,
       });
+
+      generateDailyForecast({
+        city: trip.city || formData?.city,
+        country: trip.country || formData?.country,
+      });
     }
   }, [
     generateWeather,
+    generateDailyForecast,
     trip.city,
     trip.country,
     formData?.city,

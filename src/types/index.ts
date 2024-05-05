@@ -34,15 +34,19 @@ export interface WeatherApiResponse {
 export interface WeatherDataTypes extends WeatherApiResponse {
   weatherIconSrc?: string;
 }
+export interface DailyForecastDataTypes extends WeatherApiResponse {
+  dt: number;
+  dailyForecastIconSrc?: string;
+}
 
 export interface FetchForecastParams {
-  city: string;
-  country: string;
+  city?: string;
+  country?: string;
 }
 
 export interface FetchWeatherParams {
-  city: string | undefined;
-  country: string | undefined;
+  city?: string;
+  country?: string;
 }
 
 export interface FetchResponseAIParams {
@@ -52,27 +56,36 @@ export interface FetchResponseAIParams {
 }
 
 export interface WeatherContextType {
-  forecastData: WeatherDataTypes | undefined;
+  forecastData?: WeatherDataTypes[];
   generateForecast: ({
     city,
     country,
   }: {
-    city: string;
-    country: string;
+    city?: string;
+    country?: string;
   }) => void;
   isPendingForecast: boolean;
   errorForecast: unknown;
-  weatherData: Partial<WeatherDataTypes> | undefined;
+  weatherData?: Partial<WeatherDataTypes>;
   generateWeather: ({
     city,
     country,
   }: {
-    city: string | undefined;
-    country: string | undefined;
+    city?: string;
+    country?: string;
   }) => void;
-
   isPendingWeather: boolean;
   errorWeather: unknown;
+  dailyForecastData?: DailyForecastDataTypes[];
+  generateDailyForecast: ({
+    city,
+    country,
+  }: {
+    city?: string;
+    country?: string;
+  }) => void;
+  isPendingDailyForecast: boolean;
+  errorDailyForecast: unknown;
 }
 
 export interface FinalDataTypes extends Omit<Inputs, "requiredItems"> {
@@ -94,7 +107,7 @@ export interface ImageDataTypes {
 }
 
 export interface ImageContextType {
-  imageData: ImageDataTypes | undefined;
+  imageData?: ImageDataTypes;
   generateImage: (city: string) => void;
   isPendingImage: boolean;
   errorImage: unknown;

@@ -12,6 +12,7 @@ import mooncloudy from "@/assets/weather/mooncloudy.png";
 import snow from "@/assets/weather/snow.png";
 import sun from "@/assets/weather/sun.png";
 import suncloudy from "@/assets/weather/suncloudy.png";
+import type { DailyForecastDataTypes } from "@/types";
 
 dayjs.extend(duration);
 
@@ -83,7 +84,6 @@ const placeWeatherIcons = (condition: string, icon: string) => {
 };
 
 const durationInDays = (startDate: Dayjs | string, endDate: Dayjs | string) => {
-
   const start = dayjs(startDate);
   const end = dayjs(endDate);
   const differenceInDays = end.diff(start);
@@ -104,6 +104,47 @@ const displayDuration = (durationDays: number) => {
 const defaultPlaceholder =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVR4nGNIL6799/f/jWfflazcGYwtrP+/ffj6yVMta2cGBn5JS3d/U48gBg5RAI1ZEFzy8ZYjAAAAAElFTkSuQmCC";
 
+const findStartIndex = (data: DailyForecastDataTypes[], chosenHour: number) => {
+  let closestHourIndex = 0;
+  let minHourDiff = Math.abs(dayjs.unix(data[0].dt).hour() - chosenHour);
+  console.log("minHourDiff", minHourDiff);
+
+  for (let i = 1; i < data.length; i++) {
+    const hour = dayjs.unix(data[i].dt).hour();
+    console.log("data[i].dt", data[i].dt);
+    console.log("hour", hour);
+    const hourDiff = Math.abs(hour - chosenHour);
+    console.log("hourDiff", hourDiff);
+    if (hourDiff < minHourDiff) {
+      closestHourIndex = i;
+      minHourDiff = hourDiff;
+    } else {
+      break;
+    }
+  }
+  console.log("closestHourIndex", closestHourIndex);
+  return closestHourIndex;
+};
+
+const selectDailyForecasts = (
+  data: DailyForecastDataTypes[],
+  chosenHour: number,
+) => {
+  const startIndex = findStartIndex(data, chosenHour);
+  console.log("startIndex", startIndex);
+  const forecasts = [];
+
+  console.log("startIndex", startIndex);
+
+  for (let i = startIndex; i < data.length && forecasts.length < 7; i += 8) {
+    forecasts.push(data[i]);
+  }
+
+  console.log("forecasts", forecasts);
+
+  return forecasts;
+};
+
 export {
   cn,
   formatDate,
@@ -111,4 +152,6 @@ export {
   durationInDays,
   displayDuration,
   defaultPlaceholder,
+  findStartIndex,
+  selectDailyForecasts,
 };

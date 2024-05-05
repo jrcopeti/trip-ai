@@ -5,12 +5,13 @@ import type {
   WeatherApiResponse,
   FetchForecastParams,
   FetchWeatherParams,
+  DailyForecastDataTypes,
 } from "@/types";
 
 export const fetchForecast = async ({
   city,
   country,
-}: FetchForecastParams): Promise<WeatherDataTypes | undefined> => {
+}: FetchForecastParams): Promise<DailyForecastDataTypes[]> => {
   console.log("City:", city, "Country:", country);
   console.log(typeof city, typeof country);
   const coordinatesUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city},${country}&limit=3&appid=${process.env.OPEN_WEATHER_KEY}`;
