@@ -1,13 +1,14 @@
 import Image from "next/image";
 import image3 from "@/assets/homepage/3.jpg";
+import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/utils";
-import type { MustHaveSectionProps } from "@/types";
 import { FaCheck } from "react-icons/fa6";
+import type { MustHaveSectionProps } from "@/types";
 
 function MustHaveSection({ trip, imageData }: MustHaveSectionProps) {
   return (
     <>
-      <div className="must-have grid h-[90%] w-[90%] grid-cols-1 grid-rows-2 overflow-auto shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-1">
+        <GridContainer bg="bg-gallery-50/70" animationClass="must-have">
         <div className="relative h-full w-full ">
           <Image
             src={(trip?.image3 || imageData?.tripImage3) ?? image3}
@@ -64,7 +65,7 @@ function MustHaveSection({ trip, imageData }: MustHaveSectionProps) {
             </div>
           </div>
         </div>
-      </div>
+      </GridContainer>
     </>
   );
 }

@@ -209,6 +209,7 @@ export interface GradientConicProps {
 export interface GridContainerProps {
   children: React.ReactNode;
   bg?: string;
+  animationClass?: string;
 }
 
 export interface MustHaveSectionProps {

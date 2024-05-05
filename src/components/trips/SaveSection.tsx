@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button, ButtonGroup } from "@nextui-org/react";
 import image5 from "@/assets/homepage/5.jpg";
+import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/utils";
 import type { SaveSectionProps } from "@/types";
 
@@ -15,7 +16,7 @@ function SaveSection({
 }: SaveSectionProps) {
   return (
     <>
-      <div className="final-card grid h-[90%] w-[90%] grid-cols-1 grid-rows-2 overflow-auto shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-1">
+      <GridContainer bg="bg-gallery-50/70" animationClass="final-card">
         <div className="relative h-full w-full ">
           <Image
             src={imageData?.tripImage5 ?? image5}
@@ -67,7 +68,7 @@ function SaveSection({
             </Link>
           )}
         </div>
-      </div>
+      </GridContainer>
     </>
   );
 }
