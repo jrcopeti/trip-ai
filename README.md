@@ -1,14 +1,18 @@
-Trip-Ai is a experimental project where you plan your next trip with the help of AI. Based on your destination, preferences and weather forecast, it plans a tour and what to pack.
+Trip-Ai is a AI powered travel guide. 
+Combining travel details, user preferences and weather forecast, giving the user a travel itinerary and packing list for the vacation. 
 
 It still on development and the first version will be released soon! 🚀
 
-## Stack
+## Tech Stack
 - TypeScript
 - React
 - Next.js
-- TailwindCSS
-- Next ui
 - React Query
+- Context API
+- Tailwind CSS
+- Next UI
 - Axios
 - OpenAI API
-- GSAP Animation
+- GSAP Animation and Framer Motion
+
+
