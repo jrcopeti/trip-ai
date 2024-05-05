@@ -6,7 +6,7 @@ import type { TitleSectionProps } from "@/types";
 function TitleSection({ trip, imageData }: TitleSectionProps) {
   return (
     <>
-      <div className="grid h-[90%] w-[90%] grid-cols-1 grid-rows-2 shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-1">
+      <div className="grid h-[90%] w-[90%] grid-cols-1 grid-rows-2 overflow-auto shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-1">
         <div className="relative h-full w-full ">
           <Image
             src={(trip?.image || imageData?.tripImage) ?? image1.src}

@@ -7,7 +7,7 @@ import { FaCheck } from "react-icons/fa6";
 function MustHaveSection({ trip, imageData }: MustHaveSectionProps) {
   return (
     <>
-      <div className="must-have grid h-[90%] w-[90%] grid-cols-1 grid-rows-2 shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-1">
+      <div className="must-have grid h-[90%] w-[90%] grid-cols-1 grid-rows-2 overflow-auto shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-1">
         <div className="relative h-full w-full ">
           <Image
             src={(trip?.image3 || imageData?.tripImage3) ?? image3}
@@ -31,7 +31,7 @@ function MustHaveSection({ trip, imageData }: MustHaveSectionProps) {
             <div className="grid max-w-[30rem] grid-cols-2 rounded-md xs:mt-2 lg:mt-4 lg:gap-y-4 ">
               {(trip?.mustHave as string[])?.map((item, i) => (
                 <ul className=" bg-gallery-50/40 p-2 " key={i}>
-                  <li className=" flex max-h-fit items-center gap-2 text-base font-semibold text-tuna-600  first-letter:uppercase xs:text-lg lg:text-2xl 2xl:text-3xl">
+                  <li className=" flex max-h-fit items-center gap-2 text-base font-semibold text-tuna-600 first-letter:uppercase xs:text-lg lg:text-2xl 2xl:text-3xl">
                     {item} <FaCheck color="#4e888c" />
                   </li>
                 </ul>
