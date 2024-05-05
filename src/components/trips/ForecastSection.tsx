@@ -44,8 +44,8 @@ function ForecastSection({ trip, formData }: ForecastSectionProps) {
         5 days forecast
       </h2>
       <div className="grid grid-cols-2 gap-x-8 gap-y-12 p-5 lg:grid-cols-5 lg:gap-8 ">
-        <div className="relative flex h-[20vh] min-h-[20vh] w-[20vh] max-w-[20vh] flex-col justify-center bg-gallery-50/70 px-[50px] text-center text-tuna-900 shadow-xl lg:hidden lg:h-[23vh] lg:min-h-[23vh] lg:w-[23vh] lg:max-w-[23vh] xl:h-[30vh] xl:min-h-[30vh] xl:w-[30vh] xl:max-w-[30vh] 2xl:h-[35vh] 2xl:min-h-[35vh] 2xl:w-[35vh] 2xl:max-w-[35vh]">
-          <h2 className="-ml-[50%] text-lg font-semibold capitalize text-tuna-800 xs:-ml-[15%] xs:text-2xl">
+        <div className="relative flex h-[20vh] min-h-[20vh] w-[20vh] max-w-[20vh] flex-col items-center justify-center  bg-gallery-50/70 text-center text-tuna-900 shadow-xl lg:hidden lg:h-[23vh] lg:min-h-[23vh] lg:w-[23vh] lg:max-w-[23vh] xl:h-[30vh] xl:min-h-[30vh] xl:w-[30vh] xl:max-w-[30vh] 2xl:h-[35vh] 2xl:min-h-[35vh] 2xl:w-[35vh] 2xl:max-w-[35vh]">
+          <h2 className=" w-[100px] text-lg font-semibold capitalize text-tuna-800 xs:text-2xl">
             5 days forecast
           </h2>
         </div>

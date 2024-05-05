@@ -45,7 +45,12 @@ function TripResponse() {
 
   const { tripData: trip, isPendingResponseAI } = useTripResponse();
   const { formData } = useFormData();
-  const { isPendingWeather, weatherData } = useWeather();
+  const {
+    isPendingWeather,
+    weatherData,
+    isPendingDailyForecast,
+    dailyForecastData,
+  } = useWeather();
   const { imageData } = useImage();
 
   const handleYesAnswer = () => {
@@ -241,6 +246,26 @@ function TripResponse() {
       return () => context.revert();
     }
   }, [isPendingResponseAI, isPendingWeather, weatherData]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (!isPendingResponseAI && !isPendingDailyForecast && dailyForecastData) {
+      gsap.registerPlugin(ScrollTrigger);
+      const context = gsap.context(() => {
+        gsap.from(".forecast-card", {
+          autoAlpha: 0,
+          y: 300,
+          duration: 1,
+          scrollTrigger: {
+            trigger: ".forecast-section",
+            start: "-150px center",
+            end: "center 300px",
+            toggleActions: "restart none play none",
+          },
+        });
+      });
+      return () => context.revert();
+    }
+  }, [isPendingResponseAI, isPendingDailyForecast, dailyForecastData]);
 
   if (isPendingResponseAI) {
     return <Loader />;

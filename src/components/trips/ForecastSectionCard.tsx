@@ -22,7 +22,7 @@ function ForecastSectionCard({ forecast }: ForecastSectionCardProps) {
 
   const dailyForecastIconSrc = forecast?.dailyForecastIconSrc;
   return (
-    <div className="relative flex h-[20vh] min-h-[20vh] w-[20vh] max-w-[20vh] flex-col justify-center bg-gallery-50/70 px-[35px] text-center text-tuna-900 shadow-xl xs:px-[45px] lg:h-[23vh] lg:min-h-[23vh] lg:w-[23vh] lg:max-w-[23vh] lg:px-[50px] xl:h-[30vh] xl:min-h-[30vh] xl:w-[30vh] xl:max-w-[30vh] 2xl:h-[35vh] 2xl:min-h-[35vh] 2xl:w-[35vh] 2xl:max-w-[35vh]">
+    <div className="forecast-card relative flex h-[20vh] min-h-[20vh] w-[20vh] max-w-[20vh] flex-col justify-center bg-gallery-50/70 px-[35px] text-center text-tuna-900 shadow-xl xs:px-[45px] lg:h-[23vh] lg:min-h-[23vh] lg:w-[23vh] lg:max-w-[23vh] lg:px-[50px] xl:h-[30vh] xl:min-h-[30vh] xl:w-[30vh] xl:max-w-[30vh] 2xl:h-[35vh] 2xl:min-h-[35vh] 2xl:w-[35vh] 2xl:max-w-[35vh]">
       <Image
         height={400}
         width={400}
