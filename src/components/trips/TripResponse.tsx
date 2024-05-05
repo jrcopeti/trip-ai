@@ -30,6 +30,7 @@ import Loader from "../ui/Loader";
 import NotFoundComponent from "../ui/NotFoundComponent";
 import ErrorToaster from "../ui/ErrorToaster";
 import CustomToaster from "../ui/CustomToaster";
+import ForecastSection from "./ForecastSection";
 
 function TripResponse() {
   const [isSaved, setIsSaved] = useState(false);
@@ -310,12 +311,20 @@ function TripResponse() {
       </Container>
 
       {/* Section 7 */}
+
       <Container overflow="overflow-hidden" animationClass="weather-section">
         <GradientBg from="from-shark-100" to="to-violay-200" />
         {trip && <WeatherSection trip={trip} formData={formData} />}
       </Container>
 
       {/* Section 8 */}
+
+      <Container overflow="overflow-hidden" animationClass="forecast-section">
+        <GradientBg from="from-shark-100" to="to-violay-200" />
+        {trip && <ForecastSection trip={trip} formData={formData} />}
+      </Container>
+
+      {/* Section 9 */}
 
       <Container
         overflow="overflow-hidden"
@@ -331,7 +340,7 @@ function TripResponse() {
         )}
       </Container>
 
-      {/* Section 9 */}
+      {/* Section 10 */}
 
       <Container overflow="overflow-hidden" animationClass="final-section">
         <GradientBg from="from-shark-100" to="to-neptune-200" />

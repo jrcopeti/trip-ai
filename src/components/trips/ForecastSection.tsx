@@ -1,21 +1,15 @@
 "use client";
 import { useEffect } from "react";
-import Image from "next/image";
 import { useWeather } from "@/hooks/useWeather";
+import ForecastSectionCard from "./ForecastSectionCard";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import suncloudy from "@/assets/weather/suncloudy.png";
-import { IoWaterOutline } from "react-icons/io5";
-import { LuWind } from "react-icons/lu";
-import { TbSunrise } from "react-icons/tb";
-import { BsSunsetFill } from "react-icons/bs";
 import { BiMessageSquareError } from "react-icons/bi";
-import type { WeatherSectionProps } from "@/types";
-import ForecastSectionCard from "./ForecastSectionCard";
+import type { ForecastSectionProps } from "@/types";
 
 dayjs.extend(utc);
 
-function ForecastSection({ trip, formData }: WeatherSectionProps) {
+function ForecastSection({ trip, formData }: ForecastSectionProps) {
   const { generateDailyForecast, isPendingDailyForecast, dailyForecastData } =
     useWeather();
   console.log(dailyForecastData);

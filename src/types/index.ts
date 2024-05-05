@@ -247,6 +247,8 @@ export interface WeatherSectionProps {
   formData?: FinalDataTypes;
 }
 
+export interface ForecastSectionProps extends WeatherSectionProps {}
+
 export interface TitleSectionProps {
   trip: Trip;
   imageData?: ImageDataTypes;
