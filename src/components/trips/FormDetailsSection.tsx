@@ -7,6 +7,7 @@ import {
 } from "@/lib/utils";
 import image4 from "@/assets/homepage/4.jpg";
 import { FormDetailsSectionProps } from "@/types";
+import GridContainer from "../ui/GridContainer";
 
 function FormDetailsSection({
   trip,
@@ -21,7 +22,7 @@ function FormDetailsSection({
 
   return (
     <>
-      <div className="form-details grid h-[90%] w-[90%] grid-cols-1 grid-rows-2  shadow-xl lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-1">
+        <GridContainer bg="bg-gallery-50/70" animationClass="form-details">
         <div className="bg-gallery-50/70 p-2 sm:p-2 lg:px-4 lg:py-5">
           <div className="-mb-4 h-[40px] w-[60px] text-tuna-900 xs:h-[60px] xs:w-[80px] lg:h-[80px] lg:w-[100px]">
             <Image
@@ -164,7 +165,7 @@ function FormDetailsSection({
             className="object-cover"
           />
         </div>
-      </div>
+      </GridContainer>
     </>
   );
 }

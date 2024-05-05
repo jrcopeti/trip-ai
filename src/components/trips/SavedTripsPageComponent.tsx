@@ -22,6 +22,7 @@ import ButtonBackOutlined from "../ui/ButtonBackOutlined";
 import { notFound } from "next/navigation";
 import NotFoundComponent from "../ui/NotFoundComponent";
 import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
+import ForecastSection from "./ForecastSection";
 
 function SavedTripsPageComponent({
   params,
@@ -30,7 +31,12 @@ function SavedTripsPageComponent({
 }) {
   const { trip, isPendingSingleSavedTrip } = useSingleSavedTrip({ params });
 
-  const { isPendingWeather, weatherData } = useWeather();
+  const {
+    isPendingWeather,
+    weatherData,
+    isPendingDailyForecast,
+    dailyForecastData,
+  } = useWeather();
 
   useLocomotiveScroll();
 
@@ -182,6 +188,30 @@ function SavedTripsPageComponent({
     }
   }, [isPendingSingleSavedTrip, isPendingWeather, weatherData]);
 
+  useIsomorphicLayoutEffect(() => {
+    if (
+      !isPendingSingleSavedTrip &&
+      !isPendingDailyForecast &&
+      dailyForecastData
+    ) {
+      gsap.registerPlugin(ScrollTrigger);
+      const context = gsap.context(() => {
+        gsap.from(".forecast-card", {
+          autoAlpha: 0,
+          y: 300,
+          duration: 1,
+          scrollTrigger: {
+            trigger: ".forecast-section",
+            start: "-150px center",
+            end: "center 300px",
+            toggleActions: "restart none play none",
+          },
+        });
+      });
+      return () => context.revert();
+    }
+  }, [isPendingSingleSavedTrip, isPendingDailyForecast, dailyForecastData]);
+
   if (isPendingSingleSavedTrip) {
     return <Loader />;
   }
@@ -247,18 +277,25 @@ function SavedTripsPageComponent({
 
       {/* Section 8 */}
 
-      <Container
-        overflow="overflow-hidden"
-        animationClass="formdetails-section"
-      >
+      <Container overflow="overflow-hidden" animationClass="forecast-section">
         <GradientBg from="from-violay-200" to="to-shark-100" />
-        {trip && <FormDetailsSection trip={trip} />}
+        {trip && <ForecastSection trip={trip} />}
       </Container>
 
       {/* Section 9 */}
 
-      <Container overflow="overflow-hidden" animationClass="final-section">
+      <Container
+        overflow="overflow-hidden"
+        animationClass="formdetails-section"
+      >
         <GradientBg from="from-shark-100" to="to-neptune-200" />
+        {trip && <FormDetailsSection trip={trip} />}
+      </Container>
+
+      {/* Section 10 */}
+
+      <Container overflow="overflow-hidden" animationClass="final-section">
+        <GradientBg from="from-neptune-200" to="to-shark-100" />
         {trip && <FinalSection trip={trip} />}
       </Container>
     </>

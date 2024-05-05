@@ -1,14 +1,15 @@
 import Image from "next/image";
 import image2 from "@/assets/homepage/2.jpg";
+import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/utils";
 import type { DescriptionSectionProps } from "@/types";
 
 function DescriptionSection({ trip, imageData }: DescriptionSectionProps) {
   return (
     <>
-      <div className="trip-description grid h-[90%] w-[90%] grid-cols-1 grid-rows-2 shadow-sm lg:h-[80%] lg:w-[80%] lg:grid-cols-2 lg:grid-rows-1 ">
-        <div className="bg-gallery-50/70  p-6 xs:p-8 sm:p-8 md:p-10 lg:p-12 xl:p-14 ">
-          <p className="text-sm font-semibold text-tuna-600 sm:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl ">
+      <GridContainer bg="bg-gallery-50/70" animationClass="trip-description">
+        <div className="bg-gallery-50/70 p-6 xs:p-8 sm:p-8 md:p-10 lg:p-12 xl:p-14">
+          <p className="text-sm font-semibold text-tuna-600 sm:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl">
             {trip?.description}
           </p>
         </div>
@@ -26,7 +27,7 @@ function DescriptionSection({ trip, imageData }: DescriptionSectionProps) {
             className="object-cover"
           />
         </div>
-      </div>
+      </GridContainer>
     </>
   );
 }

@@ -30,6 +30,7 @@ import Loader from "../ui/Loader";
 import NotFoundComponent from "../ui/NotFoundComponent";
 import ErrorToaster from "../ui/ErrorToaster";
 import CustomToaster from "../ui/CustomToaster";
+import ForecastSection from "./ForecastSection";
 
 function TripResponse() {
   const [isSaved, setIsSaved] = useState(false);
@@ -44,7 +45,12 @@ function TripResponse() {
 
   const { tripData: trip, isPendingResponseAI } = useTripResponse();
   const { formData } = useFormData();
-  const { isPendingWeather, weatherData } = useWeather();
+  const {
+    isPendingWeather,
+    weatherData,
+    isPendingDailyForecast,
+    dailyForecastData,
+  } = useWeather();
   const { imageData } = useImage();
 
   const handleYesAnswer = () => {
@@ -241,6 +247,26 @@ function TripResponse() {
     }
   }, [isPendingResponseAI, isPendingWeather, weatherData]);
 
+  useIsomorphicLayoutEffect(() => {
+    if (!isPendingResponseAI && !isPendingDailyForecast && dailyForecastData) {
+      gsap.registerPlugin(ScrollTrigger);
+      const context = gsap.context(() => {
+        gsap.from(".forecast-card", {
+          autoAlpha: 0,
+          y: 300,
+          duration: 1,
+          scrollTrigger: {
+            trigger: ".forecast-section",
+            start: "-150px center",
+            end: "center 300px",
+            toggleActions: "restart none play none",
+          },
+        });
+      });
+      return () => context.revert();
+    }
+  }, [isPendingResponseAI, isPendingDailyForecast, dailyForecastData]);
+
   if (isPendingResponseAI) {
     return <Loader />;
   }
@@ -310,12 +336,20 @@ function TripResponse() {
       </Container>
 
       {/* Section 7 */}
+
       <Container overflow="overflow-hidden" animationClass="weather-section">
         <GradientBg from="from-shark-100" to="to-violay-200" />
         {trip && <WeatherSection trip={trip} formData={formData} />}
       </Container>
 
       {/* Section 8 */}
+
+      <Container overflow="overflow-hidden" animationClass="forecast-section">
+        <GradientBg from="from-shark-100" to="to-violay-200" />
+        {trip && <ForecastSection trip={trip} formData={formData} />}
+      </Container>
+
+      {/* Section 9 */}
 
       <Container
         overflow="overflow-hidden"
@@ -331,7 +365,7 @@ function TripResponse() {
         )}
       </Container>
 
-      {/* Section 9 */}
+      {/* Section 10 */}
 
       <Container overflow="overflow-hidden" animationClass="final-section">
         <GradientBg from="from-shark-100" to="to-neptune-200" />
