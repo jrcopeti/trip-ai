@@ -104,26 +104,44 @@ const displayDuration = (durationDays: number) => {
 const defaultPlaceholder =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVR4nGNIL6799/f/jWfflazcGYwtrP+/ffj6yVMta2cGBn5JS3d/U48gBg5RAI1ZEFzy8ZYjAAAAAElFTkSuQmCC";
 
-const findStartIndex = (data: DailyForecastDataTypes[], chosenHour: number) => {
-  let closestHourIndex = 0;
-  let minHourDiff = Math.abs(dayjs.unix(data[0].dt).hour() - chosenHour);
-  console.log("minHourDiff", minHourDiff);
+// const findStartIndex = (data: DailyForecastDataTypes[], chosenHour: number) => {
+//   let closestHourIndex = 0;
+//   let minHourDiff = Math.abs(dayjs.unix(data[0].dt).hour() - chosenHour);
+//   console.log("minHourDiff", minHourDiff);
 
-  for (let i = 1; i < data.length; i++) {
-    const hour = dayjs.unix(data[i].dt).hour();
-    console.log("data[i].dt", data[i].dt);
-    console.log("hour", hour);
-    const hourDiff = Math.abs(hour - chosenHour);
-    console.log("hourDiff", hourDiff);
-    if (hourDiff < minHourDiff) {
-      closestHourIndex = i;
-      minHourDiff = hourDiff;
-    } else {
+//   for (let i = 1; i < data.length; i++) {
+//     const hour = dayjs.unix(data[i].dt).hour();
+//     console.log("data[i].dt", data[i].dt);
+//     console.log("hour", hour);
+//     const hourDiff = Math.abs(hour - chosenHour);
+//     console.log("hourDiff", hourDiff);
+//     if (hourDiff < minHourDiff) {
+//       closestHourIndex = i;
+//       minHourDiff = hourDiff;
+//     } else {
+//       break;
+//     }
+//   }
+//   console.log("closestHourIndex", closestHourIndex);
+//   return closestHourIndex;
+// };
+
+const findStartIndex = (data: DailyForecastDataTypes[], chosenHour: number) => {
+  const chosenTime = dayjs().startOf("day").add(chosenHour, "hour");
+  console.log("chosenTime", chosenTime);
+  let startIndex = 0;
+
+  for (let i = 0; i < data.length; i++) {
+    const currentTime = dayjs.unix(data[i].dt);
+    console.log("currentTime", currentTime);
+    if (currentTime.isAfter(chosenTime)) {
+      startIndex = i;
       break;
     }
   }
-  console.log("closestHourIndex", closestHourIndex);
-  return closestHourIndex;
+  console.log("startIndex", startIndex);
+
+  return startIndex;
 };
 
 const selectDailyForecasts = (
@@ -134,9 +152,7 @@ const selectDailyForecasts = (
   console.log("startIndex", startIndex);
   const forecasts = [];
 
-  console.log("startIndex", startIndex);
-
-  for (let i = startIndex; i < data.length && forecasts.length < 7; i += 8) {
+  for (let i = startIndex; i < data.length; i += 8) {
     forecasts.push(data[i]);
   }
 

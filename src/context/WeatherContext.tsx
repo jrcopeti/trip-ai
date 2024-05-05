@@ -4,16 +4,16 @@ import { createContext, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { fetchForecast, fetchWeather } from "@/app/api/openWeatherApi";
 import { placeWeatherIcons, selectDailyForecasts } from "@/lib/utils";
-import {
-  type FetchForecastParams,
-  type FetchWeatherParams,
-  type WeatherDataTypes,
-  type WeatherContextType,
-  DailyForecastDataTypes,
-} from "@/types";
 import toast from "react-hot-toast";
 import CustomToaster from "@/components/ui/CustomToaster";
 import ErrorToaster from "@/components/ui/ErrorToaster";
+import type {
+  FetchForecastParams,
+  FetchWeatherParams,
+  WeatherDataTypes,
+  WeatherContextType,
+  DailyForecastDataTypes,
+} from "@/types";
 
 export const defaultContextValue: WeatherContextType = {
   forecastData: undefined,

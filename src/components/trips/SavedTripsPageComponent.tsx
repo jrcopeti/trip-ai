@@ -22,6 +22,7 @@ import ButtonBackOutlined from "../ui/ButtonBackOutlined";
 import { notFound } from "next/navigation";
 import NotFoundComponent from "../ui/NotFoundComponent";
 import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
+import ForecastSection from "./ForecastSection";
 
 function SavedTripsPageComponent({
   params,
@@ -247,6 +248,13 @@ function SavedTripsPageComponent({
 
       {/* Section 8 */}
 
+      <Container overflow="overflow-hidden" animationClass="forecast-section">
+        <GradientBg from="from-shark-100" to="to-violay-200" />
+        {trip && <ForecastSection trip={trip} />}
+      </Container>
+
+      {/* Section 9 */}
+
       <Container
         overflow="overflow-hidden"
         animationClass="formdetails-section"
@@ -255,7 +263,7 @@ function SavedTripsPageComponent({
         {trip && <FormDetailsSection trip={trip} />}
       </Container>
 
-      {/* Section 9 */}
+      {/* Section 10 */}
 
       <Container overflow="overflow-hidden" animationClass="final-section">
         <GradientBg from="from-shark-100" to="to-neptune-200" />
