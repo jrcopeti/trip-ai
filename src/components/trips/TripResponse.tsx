@@ -8,8 +8,8 @@ import { useFormData } from "@/hooks/useFormData";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { useWeather } from "@/hooks/useWeather";
 import { useCreateTrip } from "@/hooks/useCreateTrip";
-import { useConfirmOnPageExit } from "@/hooks/useConfirmOnPageExit";
 import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
+import { useConfirmOnPageExit } from "@/hooks/useConfirmOnPageExit";
 
 import FormDetailsSection from "./FormDetailsSection";
 import TitleSection from "./TitleSection";
