@@ -15,7 +15,6 @@ import image14 from "@/assets/homepage/14.jpg";
 import image15 from "@/assets/homepage/15.jpg";
 import image16 from "@/assets/homepage/16.jpg";
 
-
 const types = [
   { value: "family", label: "Family" },
   { value: "adventure", label: "Adventure" },
@@ -27,6 +26,8 @@ const types = [
   { value: "gastronomy", label: "Gastronomy" },
   { value: "nature", label: "Nature" },
   { value: "urban", label: "Urban" },
+  { value: "party", label: "Party" },
+  { value: "road trip", label: "Road Trip" },
 ];
 const sortedTypes = [...types.sort((a, b) => a.label.localeCompare(b.label))];
 
@@ -69,7 +70,8 @@ const interests = [
   { value: "shopping", label: "Shopping" },
   { value: "art", label: "Art" },
   { value: "wildlife", label: "Wildlife" },
-  { value: "nightlife", label: "Beach" },
+  { value: "beach", label: "Beach" },
+  { value: "nightlife", label: "Nighlife" },
   { value: "photography", label: "Photography" },
   { value: "museums", label: "Museums" },
   { value: "wine", label: "Wine" },
@@ -86,6 +88,21 @@ const interests = [
   { value: "politics", label: "Politics" },
   { value: "architecture", label: "Architecture" },
   { value: "games", label: "Games" },
+  { value: "cycling", label: "Cycling" },
+  { value: "off road", label: "Off Road" },
+  { value: "yoga", label: "Yoga" },
+  { value: "spa", label: "Spa" },
+  { value: "relax", label: "Relax" },
+  { value: "sightseeing", label: "Sightseeing" },
+  { value: "fishing", label: "Fishing" },
+  { value: "diving", label: "Diving" },
+  { value: "skiing", label: "Skiing" },
+  { value: "camping", label: "Camping" },
+  { value: "backpacking", label: "Backpacking" },
+  { value: "LGBT", label: "LGBT" },
+  { value: "beer", label: "Beer" },
+  { value: "languages", label: "languages" },
+  { value: "volunteering", label: "Volunteering" },
 ];
 const sortedInterest = [
   ...interests.sort((a, b) => a.label.localeCompare(b.label)),

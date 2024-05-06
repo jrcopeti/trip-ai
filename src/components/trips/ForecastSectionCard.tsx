@@ -14,7 +14,7 @@ function ForecastSectionCard({ forecast }: ForecastSectionCardProps) {
   const main = forecast?.main;
   const temperature = Math.round((main?.temp ?? 0) - 273.15 ?? 0);
 
-  const weather = forecast?.weather?.[0];
+  const weather = forecast?.weather[0];
   const condition = weather?.main;
   const description = weather?.description;
 

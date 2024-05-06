@@ -10,7 +10,6 @@ import { Radio, RadioGroup } from "@nextui-org/react";
 import { Controller } from "react-hook-form";
 import { motion } from "framer-motion";
 import type { FormStep3Props } from "@/types";
-import { steps } from "@/data";
 
 function FormStep3({ currentStep, control, errors, delta }: FormStep3Props) {
   return (
@@ -23,7 +22,7 @@ function FormStep3({ currentStep, control, errors, delta }: FormStep3Props) {
         >
           <FormTitle currentStep={currentStep} />
 
-          <div className="mt-6 grid max-w-[80%] grid-cols-1 gap-x-4 gap-y-8  text-sm md:mt-[60px] lg:grid-cols-2 xl:grid-cols-3 ">
+          <div className="mt-6 grid max-w-[80%] grid-cols-1 gap-x-4 gap-y-8 text-sm md:mt-[60px] lg:grid-cols-2 xl:grid-cols-3 ">
             <Controller
               name="type"
               control={control}
@@ -32,7 +31,6 @@ function FormStep3({ currentStep, control, errors, delta }: FormStep3Props) {
                   {...field}
                   id="type"
                   label="How do you describe your trip?"
-                  orientation="horizontal"
                   color="success"
                   className="max-w-[300px]"
                   errorMessage={errors.type?.message}
@@ -60,7 +58,6 @@ function FormStep3({ currentStep, control, errors, delta }: FormStep3Props) {
                   {...field}
                   id="accommodation"
                   label="Where are you staying?"
-                  orientation="horizontal"
                   color="success"
                   className="max-w-[300px]"
                   errorMessage={errors.accommodation?.message}
@@ -88,7 +85,6 @@ function FormStep3({ currentStep, control, errors, delta }: FormStep3Props) {
                   {...field}
                   id="luggageSize"
                   label="What's the size of your luggage?"
-                  orientation="horizontal"
                   color="success"
                   className="max-w-[300px]"
                   errorMessage={errors.luggageSize?.message}
@@ -116,7 +112,6 @@ function FormStep3({ currentStep, control, errors, delta }: FormStep3Props) {
                   {...field}
                   id="transport"
                   label="How are you traveling?"
-                  orientation="horizontal"
                   color="success"
                   className="max-w-[300px]"
                   errorMessage={errors.transport?.message}
@@ -144,7 +139,6 @@ function FormStep3({ currentStep, control, errors, delta }: FormStep3Props) {
                   {...field}
                   id="budget"
                   label="What's your budget?"
-                  orientation="horizontal"
                   color="success"
                   className="max-w-[300px]"
                   errorMessage={errors.budget?.message}
