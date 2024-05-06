@@ -28,17 +28,17 @@ function SaveSection({
             className="object-cover shadow-xl "
           />
         </div>
-        <div className="bg-gallery-50/70 p-8 sm:p-10">
+        <div className="bg-gallery-50/70 p-4 sm:p-10">
           <div className="flex flex-col gap-3">
             <h2 className="text-3xl font-bold text-tuna-900">Good to know!</h2>
-            <p className="text-lg font-semibold text-tuna-600 lg:text-xl">
+            <p className="text-base font-semibold text-tuna-600 sm:text-lg lg:text-xl">
               {trip?.tip}
             </p>
           </div>
 
           {!isSaved ? (
-            <div className="mt-4">
-              <h2 className="mb-4 text-xl font-semibold text-tuna-900">
+            <div className="mt-2 sm:mt-4">
+              <h2 className="mb-2 text-lg font-semibold text-tuna-900">
                 Do you want to save this trip?
               </h2>
               <ButtonGroup>
@@ -62,7 +62,7 @@ function SaveSection({
             </div>
           ) : (
             <Link href="/form">
-              <Button className="mt-4 bg-neptune-500 p-6 text-xl text-gallery-50">
+              <Button className="mt-4 bg-neptune-500 p-6 text-base text-gallery-50 xs:text-xl">
                 Get another trip
               </Button>
             </Link>

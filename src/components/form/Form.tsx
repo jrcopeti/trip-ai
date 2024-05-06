@@ -28,7 +28,6 @@ import Container from "../ui/Container";
 import GradientBg from "../ui/GradientBg";
 import LoaderResponseAI from "../ui/LoaderResponseAI";
 import { steps } from "@/data";
-
 import type {
   FinalDataTypes,
   ProcessFormType,
@@ -142,8 +141,8 @@ const Form = memo(function Form() {
       }
     }
   };
-
   const forecastDataString = JSON.stringify(forecastData);
+  console.log("forecastDataString", forecastDataString);
   const stepValue = steps[currentStep].stepValue;
 
   const next = async () => {

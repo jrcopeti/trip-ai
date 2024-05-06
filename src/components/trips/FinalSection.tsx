@@ -26,13 +26,13 @@ function FinalSection({ trip }: { trip: Trip }) {
         <div className="bg-gallery-50/70 p-8 sm:p-10">
           <div className="flex flex-col gap-3">
             <h2 className="text-3xl font-bold text-tuna-900">Good to know!</h2>
-            <p className="text-lg font-semibold text-tuna-600 lg:text-xl">
+            <p className="text-base sm:text-lg font-semibold text-tuna-600 lg:text-xl">
               {trip?.tip}{" "}
             </p>
           </div>
           <Button
             onClick={router.back}
-            className="mt-10 bg-neptune-500 p-6 text-xl text-gallery-50"
+            className="mt-2 xs:mt-10 bg-neptune-500 xs:p-6 text-base xs:text-xl text-gallery-50"
           >
             Back
           </Button>

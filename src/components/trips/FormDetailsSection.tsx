@@ -22,7 +22,7 @@ function FormDetailsSection({
 
   return (
     <>
-        <GridContainer bg="bg-gallery-50/70" animationClass="form-details">
+      <GridContainer bg="bg-gallery-50/70" animationClass="form-details">
         <div className="bg-gallery-50/70 p-2 sm:p-2 lg:px-4 lg:py-5">
           <div className="-mb-4 h-[40px] w-[60px] text-tuna-900 xs:h-[60px] xs:w-[80px] lg:h-[80px] lg:w-[100px]">
             <Image

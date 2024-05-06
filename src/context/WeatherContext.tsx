@@ -7,12 +7,15 @@ import { placeWeatherIcons, selectDailyForecasts } from "@/lib/utils";
 import toast from "react-hot-toast";
 import CustomToaster from "@/components/ui/CustomToaster";
 import ErrorToaster from "@/components/ui/ErrorToaster";
+import { CHOSEN_HOUR } from "@/lib/utils";
 import type {
   FetchForecastParams,
   FetchWeatherParams,
   WeatherDataTypes,
   WeatherContextType,
   DailyForecastDataTypes,
+  ForecastDataTypes,
+  SelectedForecastDataTypes,
 } from "@/types";
 
 export const defaultContextValue: WeatherContextType = {
@@ -32,9 +35,10 @@ export const defaultContextValue: WeatherContextType = {
 
 const WeatherContext = createContext<WeatherContextType>(defaultContextValue);
 
-const CHOSEN_HOUR = new Date().getHours();
-
 function WeatherProvider({ children }: { children: React.ReactNode }) {
+  const [forecastData, setForecastData] = useState<
+    SelectedForecastDataTypes[] | undefined
+  >(undefined);
   const [weatherData, setWeatherData] = useState<
     Partial<WeatherDataTypes> | undefined
   >(undefined);
@@ -44,15 +48,28 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
 
   const {
     mutate: generateForecast,
-    data: forecastData,
+    data: initialForecastData,
     isPending: isPendingForecast,
     error: errorForecast,
   } = useMutation({
     mutationFn: ({ city, country }: FetchForecastParams) =>
       fetchForecast({ city, country }),
 
-    onSuccess: (forecastData: WeatherDataTypes[]) => {
-      console.log("success forecast:", forecastData);
+    onSuccess: (initialForecastData: ForecastDataTypes[]) => {
+      console.log("success forecast:", initialForecastData);
+      const selectedForecasts = selectDailyForecasts(
+        initialForecastData,
+        CHOSEN_HOUR,
+      );
+      const selectedProperties = selectedForecasts.map((forecast) => {
+        const { dt_txt, main, weather } = forecast;
+        const { temp } = main;
+        const formattedTemp = `${Math.round(temp - 273.15)}°C`;
+        const { main: condition, description } = weather[0];
+        return { dt_txt, formattedTemp, condition, description };
+      });
+      console.log("selectedProperties:", selectedProperties);
+      setForecastData(selectedProperties);
       toast.custom(<CustomToaster message="Forecast generated" />);
     },
     onError: (error) => {
