@@ -9,7 +9,7 @@ import { useTripResponse } from "@/hooks/useTripResponse";
 import { useWeather } from "@/hooks/useWeather";
 import { useCreateTrip } from "@/hooks/useCreateTrip";
 import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
-import { useConfirmOnPageExit } from "@/hooks/useConfirmOnPageExit";
+import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
 
 import FormDetailsSection from "./FormDetailsSection";
 import TitleSection from "./TitleSection";
