@@ -223,7 +223,7 @@ function SavedTripsPageComponent({
     <>
       {/* Section 1 */}
 
-      <Container overflow="overflow-auto">
+      <Container overflow="overflow-hidden">
         <GradientBg from="from-shark-100" to="to-neptune-200" />
         <ButtonBackOutlined position="absolute -top-1 -left-2 xs:top-0 xs:left-0 lg:top-2 lg:left-10" />
         {trip && <TitleSection trip={trip} />}
@@ -231,7 +231,10 @@ function SavedTripsPageComponent({
 
       {/* Section 2 */}
 
-      <Container overflow="overflow-auto" animationClass="description-section">
+      <Container
+        overflow="overflow-hidden"
+        animationClass="description-section"
+      >
         <GradientBg from="from-neptune-200" to="to-shark-100" />
         {trip && <DescriptionSection trip={trip} />}
       </Container>
