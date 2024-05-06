@@ -36,7 +36,13 @@ export interface WeatherDataTypes extends WeatherApiResponse {
 }
 export interface DailyForecastDataTypes extends WeatherApiResponse {
   dt: number;
+  dt_txt: string;
   dailyForecastIconSrc?: string;
+}
+
+export interface ForecastDataTypes extends WeatherApiResponse {
+  dt: number;
+  dt_txt: string;
 }
 
 export interface FetchForecastParams {

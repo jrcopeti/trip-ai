@@ -161,6 +161,8 @@ const selectDailyForecasts = (
   return forecasts;
 };
 
+const CHOSEN_HOUR = new Date().getHours();
+
 export {
   cn,
   formatDate,
@@ -170,4 +172,5 @@ export {
   defaultPlaceholder,
   findStartIndex,
   selectDailyForecasts,
+  CHOSEN_HOUR,
 };

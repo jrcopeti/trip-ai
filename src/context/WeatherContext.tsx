@@ -7,12 +7,14 @@ import { placeWeatherIcons, selectDailyForecasts } from "@/lib/utils";
 import toast from "react-hot-toast";
 import CustomToaster from "@/components/ui/CustomToaster";
 import ErrorToaster from "@/components/ui/ErrorToaster";
+import { CHOSEN_HOUR } from "@/lib/utils";
 import type {
   FetchForecastParams,
   FetchWeatherParams,
   WeatherDataTypes,
   WeatherContextType,
   DailyForecastDataTypes,
+  ForecastDataTypes,
 } from "@/types";
 
 export const defaultContextValue: WeatherContextType = {
@@ -32,8 +34,6 @@ export const defaultContextValue: WeatherContextType = {
 
 const WeatherContext = createContext<WeatherContextType>(defaultContextValue);
 
-const CHOSEN_HOUR = new Date().getHours();
-
 function WeatherProvider({ children }: { children: React.ReactNode }) {
   const [weatherData, setWeatherData] = useState<
     Partial<WeatherDataTypes> | undefined
@@ -51,7 +51,7 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
     mutationFn: ({ city, country }: FetchForecastParams) =>
       fetchForecast({ city, country }),
 
-    onSuccess: (forecastData: WeatherDataTypes[]) => {
+    onSuccess: (forecastData: ForecastDataTypes[]) => {
       console.log("success forecast:", forecastData);
       toast.custom(<CustomToaster message="Forecast generated" />);
     },

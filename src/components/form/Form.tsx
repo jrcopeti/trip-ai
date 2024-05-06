@@ -28,12 +28,13 @@ import Container from "../ui/Container";
 import GradientBg from "../ui/GradientBg";
 import LoaderResponseAI from "../ui/LoaderResponseAI";
 import { steps } from "@/data";
-
+import { CHOSEN_HOUR, selectDailyForecasts } from "@/lib/utils";
 import type {
   FinalDataTypes,
   ProcessFormType,
   Inputs,
   FieldName,
+  ForecastDataTypes,
 } from "@/types";
 
 const Form = memo(function Form() {
@@ -144,6 +145,7 @@ const Form = memo(function Form() {
   };
 
   const forecastDataString = JSON.stringify(forecastData);
+
   const stepValue = steps[currentStep].stepValue;
 
   const next = async () => {
