@@ -45,6 +45,14 @@ export interface ForecastDataTypes extends WeatherApiResponse {
   dt_txt: string;
 }
 
+export interface SelectedForecastDataTypes {
+  dt_txt: string;
+  temp?: number;
+  formattedTemp: string;
+  condition: string;
+  description: string;
+}
+
 export interface FetchForecastParams {
   city?: string;
   country?: string;
@@ -62,7 +70,7 @@ export interface FetchResponseAIParams {
 }
 
 export interface WeatherContextType {
-  forecastData?: WeatherDataTypes[];
+  forecastData?: SelectedForecastDataTypes[];
   generateForecast: ({
     city,
     country,
