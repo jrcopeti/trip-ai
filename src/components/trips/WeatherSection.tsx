@@ -16,9 +16,6 @@ dayjs.extend(utc);
 
 function WeatherSection({ trip, formData }: WeatherSectionProps) {
   const { generateWeather, isPendingWeather, weatherData } = useWeather();
-  console.log(weatherData);
-  console.log("isPending`Weather", isPendingWeather);
-
   useEffect(() => {
     if ((trip.city && trip.country) || (formData?.city && formData?.country)) {
       generateWeather({
@@ -36,7 +33,7 @@ function WeatherSection({ trip, formData }: WeatherSectionProps) {
 
   if (!weatherData) {
     return (
-      <p className="text-xl font-semibold text-tuna-900">
+      <p className="flex items-center gap-2 text-xl font-semibold text-tuna-900">
         <BiMessageSquareError color="#c2150c" /> Weather data is not available
       </p>
     );

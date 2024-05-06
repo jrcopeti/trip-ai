@@ -27,8 +27,8 @@ export function useCountries() {
           }),
         );
         setCountries(countryOptions);
-      } catch (error) {
-        console.error("Error fetching country flags:", error);
+      } catch (error: unknown) {
+        console.error(error);
       } finally {
         setIsLoading(false);
       }

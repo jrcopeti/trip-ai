@@ -17,7 +17,7 @@ function ObjectsSection({ trip }: { trip: Trip }) {
             className=" objects-list flex h-full w-full flex-col items-stretch justify-start gap-y-1 bg-gallery-50/40 p-3 font-semibold leading-loose text-tuna-900 shadow-md lg:p-6"
             key={i}
           >
-            <div className=" flex items-center justify-start space-x-4 text-xs text-cabaret-800 xs:text-sm  lg:text-lg">
+            <div className=" flex items-center justify-start space-x-4 text-xs text-cabaret-800 xs:text-sm lg:text-lg">
               <span className="font-extrabold ">{object.quantity}</span>
               <span className="text-xs uppercase text-tuna-900 xs:text-sm lg:text-lg">
                 {object.item}

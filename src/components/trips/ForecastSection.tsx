@@ -10,11 +10,8 @@ import type { ForecastSectionProps } from "@/types";
 dayjs.extend(utc);
 
 function ForecastSection({ trip, formData }: ForecastSectionProps) {
-  const { generateDailyForecast, isPendingDailyForecast, dailyForecastData } =
+  const { generateDailyForecast, dailyForecastData } =
     useWeather();
-  console.log(dailyForecastData);
-  console.log("isPending`Weather", isPendingDailyForecast);
-
   useEffect(() => {
     if ((trip.city && trip.country) || (formData?.city && formData?.country)) {
       generateDailyForecast({
@@ -32,7 +29,7 @@ function ForecastSection({ trip, formData }: ForecastSectionProps) {
 
   if (dailyForecastData?.length === 0) {
     return (
-      <p className="text-xl font-semibold text-tuna-900">
+      <p className="text-xl font-semibold text-tuna-900 flex items-center gap-2">
         <BiMessageSquareError color="#c2150c" /> Forecast data is not available
       </p>
     );
@@ -42,7 +39,7 @@ function ForecastSection({ trip, formData }: ForecastSectionProps) {
     <div className="flex flex-col items-center gap-16 2xl:gap-[5rem]">
       <div className="hidden text-3xl font-semibold text-tuna-900 lg:flex lg:items-center lg:gap-2 2xl:text-4xl">
         <h2>5 days forecast -</h2>
-        <h3 className="uppercase font-normal">
+        <h3 className="font-normal uppercase">
           {trip.city || formData?.city}, {trip.country || formData?.country}
         </h3>
       </div>
@@ -51,7 +48,7 @@ function ForecastSection({ trip, formData }: ForecastSectionProps) {
           <div className="w-[100px] text-sm font-semibold capitalize text-tuna-800 xs:text-base">
             <h2>5 days forecast</h2>
 
-            <h3 className="mt-2 text-xs uppercase font-normal">
+            <h3 className="mt-2 text-xs font-normal uppercase">
               {trip.city || formData?.city}, {trip.country || formData?.country}
             </h3>
           </div>

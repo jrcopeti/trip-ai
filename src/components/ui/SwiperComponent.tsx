@@ -1,12 +1,11 @@
 "use client";
-
+import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
-import { homepageImages } from "@/data";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import Image from "next/image";
+import { homepageImages } from "@/data";
 
 function SwiperComponent() {
   return (

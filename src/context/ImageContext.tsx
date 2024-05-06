@@ -1,12 +1,10 @@
 "use client";
-
-import { fetchTripImage } from "@/app/api/unsplashApi";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { createContext } from "react";
-import type { ImageContextType } from "@/types";
+import { useMutation } from "@tanstack/react-query";
+import { fetchTripImage } from "@/app/api/unsplashApi";
 import toast from "react-hot-toast";
 import ErrorToaster from "@/components/ui/ErrorToaster";
+import type { ImageContextType } from "@/types";
 
 const defaultContextValue: ImageContextType = {
   imageData: undefined,
@@ -27,12 +25,12 @@ function ImageProvider({ children }: { children: React.ReactNode }) {
     mutationFn: (city: string) => fetchTripImage(city),
 
     onSuccess: () => {
-      console.log("success Image Context ");
+      console.log("Images generated successfully");
     },
     onError: (error) => {
-      console.log(error);
+      console.error(error);
       toast.custom(
-        <ErrorToaster message="There was an error generating the images"/>,
+        <ErrorToaster message="There was an error generating the images" />,
       );
     },
   });

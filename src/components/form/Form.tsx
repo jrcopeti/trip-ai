@@ -86,7 +86,6 @@ const Form = memo(function Form() {
     isNavigating,
     errorResponseAI,
   } = useTripResponse();
-
   const { countries, isLoading: isLoadingCountries } = useCountries();
   const { generateForecast, forecastData } = useWeather();
   const { setFormData } = useFormData();
@@ -95,14 +94,12 @@ const Form = memo(function Form() {
   const cityWatch = watch("city");
   const countryWatch = watch("country");
   const reviewFormData = getValues();
-  console.log("reviewFormData", reviewFormData);
 
   const findCountry = countries.find(
     (country) => country.value === countryWatch,
   );
   const countryCode = findCountry?.code.toUpperCase();
 
-  console.log(countryCode);
   const { isCityValid, isLoadingCityValid, message } = useGeoNames({
     city: cityWatch,
     countryCode,
@@ -142,7 +139,6 @@ const Form = memo(function Form() {
     }
   };
   const forecastDataString = JSON.stringify(forecastData);
-  console.log("forecastDataString", forecastDataString);
   const stepValue = steps[currentStep].stepValue;
 
   const next = async () => {
@@ -151,11 +147,7 @@ const Form = memo(function Form() {
       shouldFocus: true,
     });
 
-    // if (!output) return;
-
-    if (currentStep === steps.length - 2) {
-      generateImage(cityWatch);
-    }
+    if (!output) return;
 
     if (isWeatherSelected && currentStep === steps.length - 3) {
       generateForecast({
@@ -164,6 +156,9 @@ const Form = memo(function Form() {
       });
     }
 
+    if (currentStep === steps.length - 2) {
+      generateImage(cityWatch);
+    }
     setPrevStep(currentStep);
     setCurrentStep((step) => step + 1);
   };

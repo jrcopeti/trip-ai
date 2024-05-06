@@ -1,10 +1,10 @@
 import { Controller } from "react-hook-form";
-import { motion } from "framer-motion";
 import { Checkbox } from "@nextui-org/react";
+import { motion } from "framer-motion";
 import DatePicker from "./DatePicker";
 import FormTitle from "./FormTitle";
-import type { FormStep5Props } from "@/types";
 import dayjs from "dayjs";
+import type { FormStep5Props } from "@/types";
 
 function FormStep5({
   currentStep,

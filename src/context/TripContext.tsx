@@ -1,13 +1,13 @@
 "use client";
 
 import { createContext, useEffect, useState } from "react";
-import { fetchResponseAI } from "@/app/api/responseAI/openaiApi";
+import { fetchResponseAI } from "@/app/api/openaiApi";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import type { FetchResponseAIParams, TripContextType } from "@/types";
-import ErrorToaster from "@/components/ui/ErrorToaster";
 import toast from "react-hot-toast";
+import ErrorToaster from "@/components/ui/ErrorToaster";
 import CustomToaster from "@/components/ui/CustomToaster";
+import type { TripContextType } from "@/types";
 
 const defaultContextValue: TripContextType = {
   tripData: null,
@@ -38,7 +38,6 @@ function TripProvider({ children }: { children: React.ReactNode }) {
     mutationFn: (prompt: string) => fetchResponseAI(prompt),
 
     onSuccess: () => {
-      console.log("success trip em trip context");
       toast.custom(<CustomToaster message="Your trip has been generated!" />);
       setIsNavigating(true);
       router.replace(path);
@@ -46,9 +45,12 @@ function TripProvider({ children }: { children: React.ReactNode }) {
         setIsNavigating(false);
       }, 2000);
     },
+
     onError: (error) => {
-      console.log("error trip em trip context", error);
-      toast.custom(<ErrorToaster message="There was an error generating your trip. Please try again." />);
+      console.error(error);
+      toast.custom(
+        <ErrorToaster message="There was an error generating your trip. Please try again." />,
+      );
     },
   });
 

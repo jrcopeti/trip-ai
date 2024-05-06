@@ -1,7 +1,7 @@
 import Image from "next/image";
 import image3 from "@/assets/homepage/3.jpg";
 import GridContainer from "../ui/GridContainer";
-import { defaultPlaceholder } from "@/lib/utils";
+import { defaultPlaceholder } from "@/lib/constants";
 import { FaCheck } from "react-icons/fa6";
 import type { MustHaveSectionProps } from "@/types";
 

@@ -23,7 +23,7 @@ function ErrorToaster({ message }: { message: string }) {
       className="inset-0 z-50 flex items-center justify-center"
     >
       <div className="rounded-md bg-gallery-100 p-4 shadow-lg">
-        <h2 className=" flex items-center gap-2 text-base font-semibold text-tuna-900">
+        <h2 className="flex items-center gap-2 text-base font-semibold text-tuna-900">
           <BiMessageSquareX color="#c2150c" size={22} /> {message}
         </h2>
       </div>

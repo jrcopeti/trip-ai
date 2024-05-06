@@ -1,9 +1,5 @@
 import { useState } from "react";
-
-interface ToggleActions {
-  setVisible: (visible: boolean) => void;
-  onHidden: () => void;
-}
+import type { ToggleActions } from "@/types";
 
 export function useToggle(initialValue = false): [boolean, ToggleActions] {
   const [isOpen, setIsOpen] = useState(initialValue);
@@ -19,5 +15,3 @@ export function useToggle(initialValue = false): [boolean, ToggleActions] {
 
   return [isOpen, actions];
 }
-
-

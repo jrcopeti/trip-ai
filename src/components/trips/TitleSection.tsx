@@ -1,7 +1,7 @@
 import Image from "next/image";
 import image1 from "@/assets/homepage/1.jpg";
 import GridContainer from "../ui/GridContainer";
-import { defaultPlaceholder } from "@/lib/utils";
+import { defaultPlaceholder } from "@/lib/constants";
 import type { TitleSectionProps } from "@/types";
 
 function TitleSection({ trip, imageData }: TitleSectionProps) {

@@ -3,7 +3,6 @@ import { Prisma, Trip } from "@prisma/client";
 import prisma from "@/db";
 
 export const createTripInDB = async (trip: Prisma.TripCreateInput) => {
-  console.log("trip is being created");
   return prisma.trip.create({
     data: trip,
   });

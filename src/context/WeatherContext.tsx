@@ -7,7 +7,7 @@ import { placeWeatherIcons, selectDailyForecasts } from "@/lib/utils";
 import toast from "react-hot-toast";
 import CustomToaster from "@/components/ui/CustomToaster";
 import ErrorToaster from "@/components/ui/ErrorToaster";
-import { CHOSEN_HOUR } from "@/lib/utils";
+import { CHOSEN_HOUR } from "@/lib/constants";
 import type {
   FetchForecastParams,
   FetchWeatherParams,
@@ -18,7 +18,7 @@ import type {
   SelectedForecastDataTypes,
 } from "@/types";
 
-export const defaultContextValue: WeatherContextType = {
+const defaultContextValue: WeatherContextType = {
   forecastData: undefined,
   generateForecast: async () => {},
   isPendingForecast: false,
@@ -56,7 +56,6 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
       fetchForecast({ city, country }),
 
     onSuccess: (initialForecastData: ForecastDataTypes[]) => {
-      console.log("success forecast:", initialForecastData);
       const selectedForecasts = selectDailyForecasts(
         initialForecastData,
         CHOSEN_HOUR,
@@ -68,12 +67,12 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
         const { main: condition, description } = weather[0];
         return { dt_txt, formattedTemp, condition, description };
       });
-      console.log("selectedProperties:", selectedProperties);
       setForecastData(selectedProperties);
-      toast.custom(<CustomToaster message="Forecast generated" />);
+      toast.custom(<CustomToaster message="Forecast was generated" />);
     },
+
     onError: (error) => {
-      console.log(error);
+      console.error(error);
       toast.custom(
         <ErrorToaster message="There was an error generating the forecast" />,
       );
@@ -95,8 +94,9 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
       const weatherIconSrc = placeWeatherIcons(condition, iconCode);
       setWeatherData({ ...initialWeatherData, weatherIconSrc });
     },
+
     onError: (error) => {
-      console.log(error);
+      console.error(error);
     },
   });
 
@@ -110,27 +110,23 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
       fetchForecast({ city, country }),
 
     onSuccess: (initialDailyForecast: DailyForecastDataTypes[]) => {
-      console.log("success forecast:", initialDailyForecast);
       const selectedForecasts = selectDailyForecasts(
         initialDailyForecast,
         CHOSEN_HOUR,
       );
-      console.log("selectedForecasts:", selectedForecasts);
       const forecastsWithIcons = selectedForecasts.map((forecast) => {
         const condition = forecast?.weather[0]?.main;
         const iconCode = forecast?.weather[0]?.icon;
         const dailyForecastIconSrc = placeWeatherIcons(condition, iconCode);
         return { ...forecast, dailyForecastIconSrc };
       });
-      console.log("forecastsWithIcons", forecastsWithIcons);
       setDailyForecast(forecastsWithIcons);
-
-      toast.custom(<CustomToaster message="Daily Forecast generated" />);
     },
+
     onError: (error) => {
-      console.log(error);
+      console.error(error);
       toast.custom(
-        <ErrorToaster message="There was an error generating the forecast" />,
+        <ErrorToaster message="There was an error generating 5 days forecast" />,
       );
     },
   });

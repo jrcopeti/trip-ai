@@ -1,3 +1,5 @@
+import { forwardRef, useEffect, useState } from "react";
+import { useToggle } from "@/hooks/useToggle";
 import {
   Popover,
   PopoverContent,
@@ -5,17 +7,12 @@ import {
   Input,
   InputProps,
 } from "@nextui-org/react";
-import dayjs from "dayjs";
 import { MdOutlineCalendarToday } from "react-icons/md";
 import { FaXmark } from "react-icons/fa6";
-
-import { forwardRef, useEffect, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-
+import dayjs from "dayjs";
 import { cn, formatDate } from "@/lib/utils";
-
-import { useToggle } from "@/hooks/useToggle";
 
 const DatePicker = forwardRef(
   (

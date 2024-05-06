@@ -1,8 +1,7 @@
 import { Button } from "@nextui-org/react";
 import Link from "next/link";
-import type { NotFoundComponentProps } from "@/types";
-import { MdOutlineErrorOutline } from "react-icons/md";
 import { BiMessageSquareError } from "react-icons/bi";
+import type { NotFoundComponentProps } from "@/types";
 
 function NotFoundComponent({ message, path, button }: NotFoundComponentProps) {
   return (
