@@ -11,6 +11,7 @@ function ButtonBackOutlined({ position }: { position: string }) {
         className={`bg-transparent  p-1 text-xl font-semibold text-neptune-500 xs:text-3xl ${position} z-40 md:text-4xl xl:text-4xl`}
       >
         <span>
+
           <IoArrowBack />
         </span>
       </Button>
