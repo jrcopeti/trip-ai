@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 import { nextui } from "@nextui-org/react";
-const defaultTheme = require("tailwindcss/defaultTheme");
+// const defaultTheme = require("tailwindcss/defaultTheme");
+import defaultTheme from "tailwindcss/defaultTheme";
 
 const config: Config = {
   content: [
@@ -143,12 +144,6 @@ const config: Config = {
             warning: "#ff9520",
             danger: "#c2150c",
             foreground: "#3c4350",
-          },
-        },
-        dark: {
-          // ...
-          colors: {
-            primary: "#323c48",
           },
         },
       },

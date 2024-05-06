@@ -1,9 +1,7 @@
 "use client";
 import Loader from "@/components/ui/Loader";
 import { useEffect, useState } from "react";
-
 import dynamic from "next/dynamic";
-
 
 const DynamicForm = dynamic(() => import("@/components/form/Form"), {
   ssr: false,

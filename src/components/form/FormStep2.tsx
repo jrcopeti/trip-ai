@@ -4,7 +4,7 @@ import { useCountries } from "@/hooks/useCountries";
 import { motion } from "framer-motion";
 import { Autocomplete, AutocompleteItem, Input } from "@nextui-org/react";
 import { Controller } from "react-hook-form";
-import { PuffLoader, PulseLoader } from "react-spinners";
+import { PuffLoader } from "react-spinners";
 
 import FormTitle from "./FormTitle";
 import CustomToaster from "../ui/CustomToaster";
@@ -23,8 +23,6 @@ function FormStep2({
   message,
 }: FormStep2Props) {
   const { countries } = useCountries();
-
-  console.log(isCityValid, isLoadingCityValid, message);
 
   useEffect(() => {
     if (isCityValid && !isLoadingCityValid) {

@@ -44,7 +44,7 @@ function SwiperWithThumbs() {
           className=" h-[70%] xs:h-[77%] w-full"
           style={
             {
-              "--swiper-pagination-color": "#4e888c",
+              "--swiper-pagination-color": "#f8f8f8",
               "--swiper-pagination-bullet-inactive-color": "#f8f8f8",
             } as React.CSSProperties
           }

@@ -92,7 +92,6 @@ const functionData = {
 };
 
 export const fetchResponseAI = async (prompt: string) => {
-  console.log("Generating response");
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-4",
@@ -104,20 +103,17 @@ export const fetchResponseAI = async (prompt: string) => {
       tool_choice: { type: "function", function: { name: "displayData" } },
       temperature: 0,
     });
-    console.log("responding");
     const data =
       response.choices?.[0].message.tool_calls?.[0]?.function.arguments ?? null;
-    console.log("Data:", data);
     const parsedData = JSON.parse(data ?? "");
 
     if (parsedData.trip === null) {
       return null;
     } else {
-      console.log("parsedData:", parsedData);
       return parsedData;
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error:", error);
-    throw new Error("Error in generating response from AI.");
+    throw new Error("Error in generating response from AI");
   }
 };

@@ -1,13 +1,13 @@
 import Image from "next/image";
 import suncloudy from "@/assets/weather/suncloudy.png";
-import { DailyForecastDataTypes } from "@/types";
 import dayjs from "dayjs";
+import { DailyForecastDataTypes } from "@/types";
 
-export interface ForecastSectionCardProps {
+function ForecastSectionCard({
+  forecast,
+}: {
   forecast: DailyForecastDataTypes;
-}
-
-function ForecastSectionCard({ forecast }: ForecastSectionCardProps) {
+}) {
   const dt = forecast?.dt;
   const date = dayjs.unix(dt).format("dddd");
 

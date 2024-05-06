@@ -1,7 +1,7 @@
-import { motion } from "framer-motion";
-import FormTitle from "./FormTitle";
-import { Controller } from "react-hook-form";
 import { Button, Input } from "@nextui-org/react";
+import { Controller } from "react-hook-form";
+import FormTitle from "./FormTitle";
+import { motion } from "framer-motion";
 import type { FormStep4Props } from "@/types";
 
 function FormStep4({

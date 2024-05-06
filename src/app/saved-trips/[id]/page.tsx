@@ -1,13 +1,4 @@
-// import dynamic from "next/dynamic";
-
-// const DynamicSavedTripsPageComponent = dynamic(
-//   () => import("@/components/SavedTripsPageComponent"),
-//   {
-//     ssr: false,
-//   },
-// );
 import SavedTripsPageComponent from "@/components/trips/SavedTripsPageComponent";
-
 import {
   HydrationBoundary,
   QueryClient,

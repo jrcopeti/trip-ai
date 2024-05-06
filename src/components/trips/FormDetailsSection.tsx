@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import Image from "next/image";
+import { defaultPlaceholder } from "@/lib/constants";
 import {
-  defaultPlaceholder,
   displayDuration,
   durationInDays,
 } from "@/lib/utils";

@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Button, ButtonGroup } from "@nextui-org/react";
 import image5 from "@/assets/homepage/5.jpg";
 import GridContainer from "../ui/GridContainer";
-import { defaultPlaceholder } from "@/lib/utils";
+import { defaultPlaceholder } from "@/lib/constants";
 import type { SaveSectionProps } from "@/types";
 
 function SaveSection({

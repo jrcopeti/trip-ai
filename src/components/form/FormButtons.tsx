@@ -1,7 +1,7 @@
-import { FormButtonsProps } from "@/types";
 import { Button } from "@nextui-org/react";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { steps } from "@/data";
+import type { FormButtonsProps } from "@/types";
 
 function FormButtons({
   currentStep,
@@ -9,8 +9,6 @@ function FormButtons({
   prev,
   isCityValid,
 }: FormButtonsProps) {
-  console.log("currentStep", currentStep);
-  console.log("isCityValid", isCityValid);
   return (
     <>
       <div className="absolute left-16 top-[95%] z-50 -translate-y-1/2 transform lg:top-1/2">

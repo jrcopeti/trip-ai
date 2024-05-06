@@ -8,12 +8,11 @@ function ButtonBackOutlined({ position }: { position: string }) {
     <div>
       <Button
         onClick={router.back}
-        className={`p-1  text-xl xs:text-3xl font-semibold text-neptune-500 bg-transparent ${position} md:text-4xl xl:text-4xl z-40`}
+        className={`bg-transparent  p-1 text-xl font-semibold text-neptune-500 xs:text-3xl ${position} z-40 md:text-4xl xl:text-4xl`}
       >
         <span>
-          {" "}
-          <IoArrowBack />{" "}
-        </span>{" "}
+          <IoArrowBack />
+        </span>
       </Button>
     </div>
   );

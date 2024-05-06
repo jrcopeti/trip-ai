@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Button } from "@nextui-org/react";
 import image9 from "@/assets/homepage/9.jpg";
 import GridContainer from "../ui/GridContainer";
-import { defaultPlaceholder } from "@/lib/utils";
+import { defaultPlaceholder } from "@/lib/constants";
 import { Trip } from "@prisma/client";
 
 function FinalSection({ trip }: { trip: Trip }) {

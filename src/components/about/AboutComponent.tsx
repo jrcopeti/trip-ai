@@ -1,9 +1,9 @@
-import { defaultPlaceholder } from "@/lib/utils";
-import GridContainer from "../ui/GridContainer";
-import image16 from "@/assets/homepage/16.jpg";
 import Image from "next/image";
+import image16 from "@/assets/homepage/16.jpg";
+import GridContainer from "../ui/GridContainer";
 import Container from "../ui/Container";
 import GradientBg from "../ui/GradientBg";
+import { defaultPlaceholder } from "@/lib/constants";
 
 function AboutComponent() {
   return (

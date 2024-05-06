@@ -1,8 +1,8 @@
-import { motion } from "framer-motion";
+import { CheckboxGroup, Textarea } from "@nextui-org/react";
 import { Controller } from "react-hook-form";
+import { motion } from "framer-motion";
 import FormTitle from "./FormTitle";
 import CustomCheckbox from "./CustomCheckbox";
-import { CheckboxGroup, Textarea } from "@nextui-org/react";
 import { sortedInterest } from "@/data";
 import type { FormStep3Props } from "@/types";
 

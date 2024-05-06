@@ -6,7 +6,6 @@ import {
   NavbarItem,
   Link,
 } from "@nextui-org/react";
-import { PiSuitcase } from "react-icons/pi";
 import Image from "next/image";
 import logo from "@/assets/travel/logo.png";
 

@@ -47,15 +47,10 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
             const formattedGeoName = geo.name.trim().toLowerCase();
             return formattedGeoName === formattedCity && geo.population > 1;
           });
-          console.log("Valid City", validCity);
+
           if (!validCity) {
             throw new Error("Location is not valid. Please try again.");
           } else {
-            console.log(
-              "City and countryCode match found",
-              response,
-              response.geonames[0],
-            );
             setStatus({
               isLoadingCityValid: false,
               isCityValid: true,
@@ -64,7 +59,7 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
           }
         })
         .catch((error) => {
-          console.error("Error Validating City", error);
+          console.error(error);
           setStatus({
             isLoadingCityValid: false,
             isCityValid: false,

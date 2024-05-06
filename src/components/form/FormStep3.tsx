@@ -1,3 +1,7 @@
+import { Radio, RadioGroup } from "@nextui-org/react";
+import { Controller } from "react-hook-form";
+import FormTitle from "./FormTitle";
+import { motion } from "framer-motion";
 import {
   sortedAccommodations,
   luggageSizes,
@@ -5,10 +9,6 @@ import {
   budgets,
   sortedTypes,
 } from "@/data";
-import FormTitle from "./FormTitle";
-import { Radio, RadioGroup } from "@nextui-org/react";
-import { Controller } from "react-hook-form";
-import { motion } from "framer-motion";
 import type { FormStep3Props } from "@/types";
 
 function FormStep3({ currentStep, control, errors, delta }: FormStep3Props) {

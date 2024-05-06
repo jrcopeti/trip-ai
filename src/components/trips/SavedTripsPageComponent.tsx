@@ -1,10 +1,9 @@
 "use client";
 import { useEffect, useLayoutEffect } from "react";
+import { notFound } from "next/navigation";
 import { useWeather } from "@/hooks/useWeather";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
-
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 
 import WeatherSection from "./WeatherSection";
 import ObjectsSection from "./ObjectsSection";
@@ -13,16 +12,16 @@ import DescriptionSection from "./DescriptionSection";
 import TitleSection from "./TitleSection";
 import PackReadySection from "./PackReadySection";
 import MustHaveSection from "./MustHaveSection";
+import ForecastSection from "./ForecastSection";
 import FormDetailsSection from "./FormDetailsSection";
 import FinalSection from "./FinalSection";
 import GradientBg from "../ui/GradientBg";
 import Container from "../ui/Container";
 import Loader from "../ui/Loader";
 import ButtonBackOutlined from "../ui/ButtonBackOutlined";
-import { notFound } from "next/navigation";
-import NotFoundComponent from "../ui/NotFoundComponent";
-import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
-import ForecastSection from "./ForecastSection";
+
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 function SavedTripsPageComponent({
   params,
@@ -232,10 +231,7 @@ function SavedTripsPageComponent({
 
       {/* Section 2 */}
 
-      <Container
-        overflow="overflow-auto"
-        animationClass="description-section"
-      >
+      <Container overflow="overflow-auto" animationClass="description-section">
         <GradientBg from="from-neptune-200" to="to-shark-100" />
         {trip && <DescriptionSection trip={trip} />}
       </Container>

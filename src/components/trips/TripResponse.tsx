@@ -1,19 +1,15 @@
 "use client";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { notFound, usePathname } from "next/navigation";
+import { Prisma } from "@prisma/client";
 
 import { useImage } from "@/hooks/useImage";
 import { useFormData } from "@/hooks/useFormData";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { useWeather } from "@/hooks/useWeather";
 import { useCreateTrip } from "@/hooks/useCreateTrip";
-import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
+import { useConfirmOnPageExit } from "@/hooks/useConfirmOnPageExit";
 import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
-
-import { Prisma } from "@prisma/client";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import toast from "react-hot-toast";
 
 import FormDetailsSection from "./FormDetailsSection";
 import TitleSection from "./TitleSection";
@@ -23,6 +19,7 @@ import PackReadySection from "./PackReadySection";
 import ObjectsSection from "./ObjectsSection";
 import MustHaveSection from "./MustHaveSection";
 import WeatherSection from "./WeatherSection";
+import ForecastSection from "./ForecastSection";
 import SaveSection from "./SaveSection";
 import GradientBg from "../ui/GradientBg";
 import Container from "../ui/Container";
@@ -30,7 +27,10 @@ import Loader from "../ui/Loader";
 import NotFoundComponent from "../ui/NotFoundComponent";
 import ErrorToaster from "../ui/ErrorToaster";
 import CustomToaster from "../ui/CustomToaster";
-import ForecastSection from "./ForecastSection";
+
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import toast from "react-hot-toast";
 
 function TripResponse() {
   const [isSaved, setIsSaved] = useState(false);
@@ -94,7 +94,7 @@ function TripResponse() {
     createTrip(finalData as Prisma.TripCreateInput, {
       onSuccess: () => {
         setIsSaved(true);
-        toast.custom(<ErrorToaster message="Trip not saved" />);
+        toast.custom(<ErrorToaster message="Trip was not saved" />);
       },
     });
   };
@@ -270,10 +270,6 @@ function TripResponse() {
   if (isPendingResponseAI) {
     return <Loader />;
   }
-  console.log("trip", trip);
-  console.log("imageData", imageData);
-  console.log("formData", formData);
-  console.log("title", trip?.title);
 
   if (trip === null) {
     return (

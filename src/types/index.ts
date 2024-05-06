@@ -299,3 +299,7 @@ export interface GeoName {
   name: string;
   population: number;
 }
+export interface ToggleActions {
+  setVisible: (visible: boolean) => void;
+  onHidden: () => void;
+}

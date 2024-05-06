@@ -1,11 +1,8 @@
 import { useCountries } from "@/hooks/useCountries";
-
 import { Autocomplete, AutocompleteItem, Input } from "@nextui-org/react";
 import { Controller } from "react-hook-form";
 import { motion } from "framer-motion";
-
 import FormTitle from "./FormTitle";
-
 import type { FormStepProps } from "@/types";
 
 function FormStep1({
@@ -15,7 +12,7 @@ function FormStep1({
   handleSelectionAutocomplete,
   delta,
 }: FormStepProps) {
-  const { countries, isLoading: isLoadingCountries } = useCountries();
+  const { countries } = useCountries();
 
   return (
     <>

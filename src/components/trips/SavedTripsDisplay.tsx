@@ -1,22 +1,20 @@
 "use client";
 import { useEffect, useLayoutEffect } from "react";
+import { Input } from "@nextui-org/react";
 import { useSavedTrips } from "@/hooks/useSavedTrips";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useWindowSize } from "@/hooks/useWindowSize";
+import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 
 import SavedTripCard from "./SavedTripCard";
-import Loader from "../ui/Loader";
-import { savedTripDataCards } from "@/data";
 import ErrorComponent from "../ui/NotFoundComponent";
 import Container from "../ui/Container";
 import GradientBg from "../ui/GradientBg";
 import SavedTripsContainer from "./SavedTripsContainer";
 
-import { useWindowSize } from "@/hooks/useWindowSize";
-import { Input } from "@nextui-org/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { PuffLoader } from "react-spinners";
 import { BiMessageSquareError } from "react-icons/bi";
-import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 
 function SavedTripsDisplay() {
   useLocomotiveScroll();

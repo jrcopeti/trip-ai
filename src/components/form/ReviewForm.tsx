@@ -19,12 +19,9 @@ function ReviewForm({ reviewFormData, weather }: ReviewFormProps) {
     startDate,
     endDate,
   } = reviewFormData;
-  console.log(startDate, endDate);
 
   const durationDays = durationInDays(startDate, endDate);
-  console.log("durationDays", durationDays);
   const duration = displayDuration(durationDays);
-
   const transformedRequiredItems =
     requiredItems?.map((requiredItem) => requiredItem.item) ?? [];
 
@@ -103,18 +100,14 @@ function ReviewForm({ reviewFormData, weather }: ReviewFormProps) {
           ))}
         </div>
 
-          <div>
-            <small className="text-tuna-600">Required Items</small>
-            {transformedRequiredItems.map((item, index) => (
-              <p
-                className="sm:text-md text-xs uppercase lg:text-lg"
-                key={index}
-              >
-                {!item  ? "--" : item}
-              </p>
-            ))}
-          </div>
-
+        <div>
+          <small className="text-tuna-600">Required Items</small>
+          {transformedRequiredItems.map((item, index) => (
+            <p className="sm:text-md text-xs uppercase lg:text-lg" key={index}>
+              {!item ? "--" : item}
+            </p>
+          ))}
+        </div>
 
         <div className="text-tuna-600">
           <small>Notes</small>
