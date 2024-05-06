@@ -1,8 +1,7 @@
 import { PuffLoader } from "react-spinners";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { useConfirmOnPageExit } from "@/hooks/useConfirmOnPageExit";
-
+import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
 
 const variants = {
   initial: { opacity: 0, y: 50 },
