@@ -107,12 +107,12 @@ const findStartIndex = (data: DailyForecastDataTypes[], chosenHour: number) => {
 
   for (let i = 0; i < data.length; i++) {
     const currentTime = dayjs.unix(data[i].dt);
-    console.log("currentTime", currentTime);
     if (currentTime.isAfter(chosenTime)) {
       startIndex = i;
       break;
     }
   }
+  console.log("startIndex", startIndex);
   return startIndex;
 };
 
@@ -120,8 +120,8 @@ const selectDailyForecasts = (
   data: DailyForecastDataTypes[],
   chosenHour: number,
 ) => {
+  if (!data) return [];
   const startIndex = findStartIndex(data, chosenHour);
-  console.log("startIndex", startIndex);
   const forecasts = [];
 
   for (let i = startIndex; i < data.length; i += 8) {

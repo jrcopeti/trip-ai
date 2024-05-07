@@ -2,3 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
+[data-overlay-container] {
+  height: 100%;
+}

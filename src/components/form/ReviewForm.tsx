@@ -84,7 +84,7 @@ function ReviewForm({ reviewFormData, weather }: ReviewFormProps) {
         <div>
           <small className="text-tuna-600">Duration</small>
           <p className="sm:text-md text-xs uppercase lg:text-lg">
-            {weather ? `7 days based on weather` : duration}
+            {weather ? `5 days based on weather` : duration}
           </p>
         </div>
 
@@ -102,11 +102,14 @@ function ReviewForm({ reviewFormData, weather }: ReviewFormProps) {
 
         <div>
           <small className="text-tuna-600">Required Items</small>
-          {transformedRequiredItems.map((item, index) => (
-            <p className="sm:text-md text-xs uppercase lg:text-lg" key={index}>
-              {!item ? "--" : item}
+          {transformedRequiredItems.map((item, i) => (
+            <p className="sm:text-md text-xs uppercase lg:text-lg" key={i}>
+              {item === "" ? "--" : item}
             </p>
           ))}
+          {transformedRequiredItems.length === 0 && (
+            <p className="sm:text-md text-xs uppercase lg:text-lg">--</p>
+          )}
         </div>
 
         <div className="text-tuna-600">

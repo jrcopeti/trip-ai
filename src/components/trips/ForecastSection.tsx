@@ -10,8 +10,7 @@ import type { ForecastSectionProps } from "@/types";
 dayjs.extend(utc);
 
 function ForecastSection({ trip, formData }: ForecastSectionProps) {
-  const { generateDailyForecast, dailyForecastData } =
-    useWeather();
+  const { generateDailyForecast, dailyForecastData } = useWeather();
   useEffect(() => {
     if ((trip.city && trip.country) || (formData?.city && formData?.country)) {
       generateDailyForecast({
@@ -29,11 +28,13 @@ function ForecastSection({ trip, formData }: ForecastSectionProps) {
 
   if (dailyForecastData?.length === 0) {
     return (
-      <p className="text-xl font-semibold text-tuna-900 flex items-center gap-2">
+      <p className="flex items-center gap-2 text-xl font-semibold text-tuna-900">
         <BiMessageSquareError color="#c2150c" /> Forecast data is not available
       </p>
     );
   }
+
+  console.log("dailyForecastData", dailyForecastData);
 
   return (
     <div className="flex flex-col items-center gap-16 2xl:gap-[5rem]">
@@ -44,7 +45,7 @@ function ForecastSection({ trip, formData }: ForecastSectionProps) {
         </h3>
       </div>
       <div className="grid grid-cols-2 gap-x-8 gap-y-12 p-5 lg:grid-cols-5 lg:gap-8 ">
-        <div className="forecast-card relative flex h-[20vh] min-h-[20vh] w-[20vh] max-w-[20vh] flex-col items-center justify-center bg-gallery-50/70 text-center text-tuna-900 shadow-xl  sm:h-[23vh] sm:min-h-[23vh] sm:w-[23vh] sm:max-w-[23vh] md:h-[25vh] md:min-h-[25vh] md:w-[25vh] md:max-w-[25vh] lg:hidden lg:h-[28vh] lg:min-h-[28vh] lg:w-[28vh] lg:max-w-[28vh] xl:h-[30vh] xl:min-h-[30vh] xl:w-[30vh] xl:max-w-[30vh] 2xl:h-[35vh] 2xl:min-h-[35vh] 2xl:w-[35vh] 2xl:max-w-[35vh]">
+        <div className="forecast-card relative flex h-[140px] min-h-[140px] w-[140px] max-w-[140px] flex-col items-center justify-center bg-gallery-50/70 text-center text-tuna-900 shadow-xl  sm:h-[150px] sm:min-h-[150px] sm:w-[150px] sm:max-w-[150px] md:h-[170px] md:min-h-[170px] md:w-[170px] md:max-w-[170px] lg:hidden ">
           <div className="w-[100px] text-sm font-semibold capitalize text-tuna-800 xs:text-base">
             <h2>5 days forecast</h2>
 

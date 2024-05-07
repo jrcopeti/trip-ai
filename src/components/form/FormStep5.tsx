@@ -19,7 +19,7 @@ function FormStep5({
     setIsWeatherSelected(!isWeatherSelected);
     const startDate = dayjs();
     setValue("startDate", startDate.toISOString());
-    const endDate = startDate.add(1, "day");
+    const endDate = startDate.add(5, "day");
     setValue("endDate", endDate.toISOString());
   };
   return (
@@ -85,7 +85,7 @@ function FormStep5({
             ) : (
               <p className="text-tuna-900">
                 Your trip plans will be based on the weather forecast for the
-                next 7 days.
+                next 5 days.
               </p>
             )}
           </div>

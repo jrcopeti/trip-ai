@@ -1,3 +1,4 @@
+"use client";
 import type { GridContainerProps } from "@/types";
 
 function GridContainer({

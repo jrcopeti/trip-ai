@@ -112,7 +112,7 @@ function FormDetailsSection({
               </small>
               <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
                 {trip?.weatherForecast || formData?.weatherForecast
-                  ? `7 days based on weather`
+                  ? `5 days based on weather`
                   : duration}
               </p>
             </div>
