@@ -10,7 +10,7 @@ function SavedTripCard({ trip }: { trip: Trip }) {
   return (
     <Link
       href={`/saved-trips/${id}`}
-      className="trip-card relative flex h-[300px] min-h-[300px] w-[300px] max-w-[300px] flex-col rounded-sm bg-gallery-100 px-4 py-3 opacity-0 shadow-md transition duration-300 ease-in-out"
+      className="trip-card relative flex h-[350px] min-h-[350px] w-[350px] max-w-[350px] flex-col rounded-sm bg-gallery-100 px-4 py-3 opacity-0 shadow-md transition duration-300 ease-in-out"
     >
       <div>
         <h2 className="font-semibold capitalize text-tuna-900 md:text-lg 2xl:text-xl">

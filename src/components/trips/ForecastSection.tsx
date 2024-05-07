@@ -45,7 +45,7 @@ function ForecastSection({ trip, formData }: ForecastSectionProps) {
         </h3>
       </div>
       <div className="grid grid-cols-2 gap-x-8 gap-y-12 p-5 lg:grid-cols-5 lg:gap-8 ">
-        <div className="forecast-card relative flex h-[140px] min-h-[140px] w-[140px] max-w-[140px] flex-col items-center justify-center bg-gallery-50/70 text-center text-tuna-900 shadow-xl  sm:h-[150px] sm:min-h-[150px] sm:w-[150px] sm:max-w-[150px] md:h-[170px] md:min-h-[170px] md:w-[170px] md:max-w-[170px] lg:hidden ">
+        <div className="forecast-card relative flex h-[180px] min-h-[180px] w-[180px] max-w-[180px] flex-col items-center justify-center bg-gallery-50/70 text-center text-tuna-900 shadow-xl sm:h-[190px] sm:min-h-[190px] sm:w-[190px] sm:max-w-[190px] md:h-[200px] md:min-h-[200px] md:w-[200px] md:max-w-[200px] lg:hidden ">
           <div className="w-[100px] text-sm font-semibold capitalize text-tuna-800 xs:text-base">
             <h2>5 days forecast</h2>
 
