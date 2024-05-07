@@ -67,6 +67,12 @@ function MustHaveSection({ trip, imageData }: MustHaveSectionProps) {
                     </li>
                   </ul>
                 ))}
+              {!trip?.requiredItems ||
+                ((trip.requiredItems as string[]).length === 0 && (
+                  <p className="text-base font-semibold capitalize text-tuna-600 lg:text-xl 2xl:text-2xl">
+                    --
+                  </p>
+                ))}
             </div>
           </div>
         </div>

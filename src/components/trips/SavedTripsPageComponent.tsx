@@ -37,7 +37,7 @@ function SavedTripsPageComponent({
     dailyForecastData,
   } = useWeather();
 
-  useLocomotiveScroll();
+  // useLocomotiveScroll();
 
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;

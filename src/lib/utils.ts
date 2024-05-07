@@ -104,6 +104,7 @@ const displayDuration = (durationDays: number) => {
 const findStartIndex = (data: DailyForecastDataTypes[], chosenHour: number) => {
   const chosenTime = dayjs().startOf("day").add(chosenHour, "hour");
   let startIndex = 0;
+  if (!data) return startIndex;
 
   for (let i = 0; i < data.length; i++) {
     const currentTime = dayjs.unix(data[i].dt);
