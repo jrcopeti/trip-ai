@@ -35,6 +35,8 @@ function ForecastSection({ trip, formData }: ForecastSectionProps) {
     );
   }
 
+  console.log ("dailyForecastData", dailyForecastData);
+
   return (
     <div className="flex flex-col items-center gap-16 2xl:gap-[5rem]">
       <div className="hidden text-3xl font-semibold text-tuna-900 lg:flex lg:items-center lg:gap-2 2xl:text-4xl">

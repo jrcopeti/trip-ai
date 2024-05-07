@@ -114,6 +114,7 @@ const findStartIndex = (data: DailyForecastDataTypes[], chosenHour: number) => {
       break;
     }
   }
+  console.log("startIndex", startIndex);
   return startIndex;
 };
 
@@ -121,6 +122,7 @@ const selectDailyForecasts = (
   data: DailyForecastDataTypes[],
   chosenHour: number,
 ) => {
+  if (!data) return [];
   const startIndex = findStartIndex(data, chosenHour);
   console.log("startIndex", startIndex);
   const forecasts = [];
