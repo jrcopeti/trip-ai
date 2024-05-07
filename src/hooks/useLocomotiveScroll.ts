@@ -8,7 +8,7 @@ export function useLocomotiveScroll() {
       const locomotiveScroll = new LocomotiveScroll({
         allowNestedScrolling: true,
         lenisOptions: {
-          lerp: 0.15,
+          lerp: 0.1,
         },
       });
     })();

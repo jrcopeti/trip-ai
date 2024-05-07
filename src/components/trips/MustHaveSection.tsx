@@ -24,17 +24,17 @@ function MustHaveSection({ trip, imageData }: MustHaveSectionProps) {
           />
         </div>
 
-        <div className="bg-gallery-50/70 px-4 py-2 sm:px-8 sm:py-4">
-          <div className="ml-2 lg:ml-4">
-            <h2 className="text-2xl font-bold text-tuna-900 xs:text-3xl sm:mt-3 sm:text-4xl">
+        <div className="bg-gallery-50/70 px-4 py-2 sm:px-6 sm:py-4">
+          <div className="ml-2">
+            <h2 className="text-xl font-bold text-tuna-900 xs:text-2xl sm:mt-3 lg:text-3xl">
               Your Must Have items
             </h2>
-            <div className="grid max-w-[33rem] grid-cols-2 xs:mt-2 lg:mt-4 lg:gap-y-4">
+            <div className="grid grid-cols-2 xs:mt-2 lg:mt-4 lg:gap-y-1">
               {(trip?.mustHave as string[])?.map((item, i) => (
-                <ul className=" bg-gallery-50/40 p-2" key={i}>
-                  <li className="flex max-h-fit items-center gap-2 text-base font-semibold text-tuna-600 first-letter:uppercase lg:text-xl 2xl:text-2xl">
-                    {item}
-                    <span>
+                <ul className=" bg-gallery-50/40 py-1" key={i}>
+                  <li className=" flex items-center gap-1 text-sm font-semibold capitalize text-tuna-600 lg:text-xl 2xl:text-2xl">
+                    <p className="">{item}</p>
+                    <span className="">
                       <FaCheck color="#4e888c" />
                     </span>
                   </li>
@@ -43,15 +43,15 @@ function MustHaveSection({ trip, imageData }: MustHaveSectionProps) {
             </div>
           </div>
 
-          <div className="ml-4 xs:mt-4 lg:mt-8">
-            <h2 className="text-xl font-bold text-tuna-900 sm:mt-3 sm:text-3xl md:text-3xl">
+          <div className="ml-2 xs:mt-4 lg:mt-6">
+            <h2 className="text-xl font-bold text-tuna-900 sm:mt-3 sm:text-2xl lg:text-3xl">
               And Your Required Items
             </h2>
-            <div className="mt-2 grid max-w-[30rem] grid-cols-2 lg:mt-4 lg:gap-y-4">
+            <div className="mt-2 grid max-w-[30rem] grid-cols-2 lg:mt-4 lg:gap-y-1">
               {(trip?.requiredItems as string[]).length >= 1 &&
                 (trip?.requiredItems as string[])?.map((item, i) => (
-                  <ul className="bg-gallery-50/40 p-2" key={i}>
-                    <li className="flex max-h-fit items-center gap-2 text-base font-semibold capitalize text-tuna-600 lg:text-xl 2xl:text-2xl">
+                  <ul className="bg-gallery-50/40 py-1" key={i}>
+                    <li className="flex items-center gap-1 text-sm font-semibold capitalize text-tuna-600 lg:text-xl 2xl:text-2xl">
                       {item !== "" ? (
                         <>
                           {item}

@@ -21,7 +21,7 @@ function ForecastSectionCard({
   const dailyForecastIconSrc = forecast?.dailyForecastIconSrc;
 
   return (
-    <div className="forecast-card relative flex h-[20vh] min-h-[20vh] w-[20vh] max-w-[20vh] flex-col justify-center rounded-sm bg-gallery-50/70 px-[35px] text-center text-tuna-900 shadow-xl xs:px-[45px] sm:h-[23vh] sm:min-h-[23vh] sm:w-[23vh] sm:max-w-[23vh] md:h-[25vh] md:min-h-[25vh] md:w-[25vh] md:max-w-[25vh] lg:h-[28vh] lg:min-h-[28vh] lg:w-[28vh] lg:max-w-[28vh] lg:px-[50px] xl:h-[30vh] xl:min-h-[30vh] xl:w-[30vh] xl:max-w-[30vh] 2xl:h-[35vh] 2xl:min-h-[35vh] 2xl:w-[35vh] 2xl:max-w-[35vh] ">
+    <div className="forecast-card relative flex h-[140px] min-h-[140px] w-[140px] max-w-[140px] flex-col justify-center rounded-sm bg-gallery-50/70 px-[35px] text-center text-tuna-900 shadow-xl xs:px-[45px] sm:h-[150px] sm:min-h-[150px] sm:w-[150px] sm:max-w-[150px] md:h-[170px] md:min-h-[170px] md:w-[170px] md:max-w-[170px] lg:h-[200px] lg:min-h-[200px] lg:w-[200px] lg:max-w-[200px] lg:px-[50px] xl:h-[220px] xl:min-h-[220px] xl:w-[220px] xl:max-w-[220px] 2xl:h-[250px] 2xl:min-h-[250px] 2xl:w-[250px] 2xl:max-w-[250px]">
       <Image
         height={400}
         width={400}

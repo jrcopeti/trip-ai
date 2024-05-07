@@ -37,7 +37,7 @@ function SavedTripsPageComponent({
     dailyForecastData,
   } = useWeather();
 
-  // useLocomotiveScroll();
+  useLocomotiveScroll();
 
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -168,7 +168,13 @@ function SavedTripsPageComponent({
   }, [isPendingSingleSavedTrip]);
 
   useIsomorphicLayoutEffect(() => {
-    if (!isPendingSingleSavedTrip && !isPendingWeather && weatherData) {
+    if (
+      !isPendingSingleSavedTrip &&
+      !isPendingWeather &&
+      !isPendingDailyForecast &&
+      weatherData &&
+      dailyForecastData
+    ) {
       gsap.registerPlugin(ScrollTrigger);
       const context = gsap.context(() => {
         gsap.from(".weather-card", {
@@ -181,35 +187,29 @@ function SavedTripsPageComponent({
             end: "center 300px",
             toggleActions: "restart none play none",
           },
-        });
+        }),
+          gsap.from(".forecast-card", {
+            autoAlpha: 0,
+            y: 300,
+            duration: 1,
+            scrollTrigger: {
+              trigger: ".forecast-section",
+              start: "-150px center",
+              end: "center 300px",
+              toggleActions: "restart none play none",
+            },
+          });
       });
       return () => context.revert();
     }
-  }, [isPendingSingleSavedTrip, isPendingWeather, weatherData]);
+  }, [
+    isPendingSingleSavedTrip,
+    isPendingWeather,
+    isPendingDailyForecast,
+    weatherData,
+    dailyForecastData,
+  ]);
 
-  useIsomorphicLayoutEffect(() => {
-    if (
-      !isPendingSingleSavedTrip &&
-      !isPendingDailyForecast &&
-      dailyForecastData
-    ) {
-      gsap.registerPlugin(ScrollTrigger);
-      const context = gsap.context(() => {
-        gsap.from(".forecast-card", {
-          autoAlpha: 0,
-          y: 300,
-          duration: 1,
-          scrollTrigger: {
-            trigger: ".forecast-section",
-            start: "-150px center",
-            end: "center 300px",
-            toggleActions: "restart none play none",
-          },
-        });
-      });
-      return () => context.revert();
-    }
-  }, [isPendingSingleSavedTrip, isPendingDailyForecast, dailyForecastData]);
 
   if (isPendingSingleSavedTrip) {
     return <Loader />;
@@ -226,7 +226,7 @@ function SavedTripsPageComponent({
       <Container overflow="overflow-hidden">
         <GradientBg from="from-shark-100" to="to-neptune-200" />
         <ButtonBackOutlined position="absolute -top-1 -left-2 xs:top-0 xs:left-0 lg:top-2 lg:left-10" />
-        {trip && <TitleSection trip={trip} />}
+        {trip && <TitleSection trip={trip}  />}
       </Container>
 
       {/* Section 2 */}

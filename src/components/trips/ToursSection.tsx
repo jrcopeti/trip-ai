@@ -13,7 +13,7 @@ function ToursSection({ trip }: { trip: Trip }) {
           <div className="grid max-w-full grid-cols-1 gap-3 lg:gap-4 xl:gap-6">
             {(trip?.tours as string[])?.map((tour, i) => (
               <ul
-                className="tour-item rounded-sm bg-gallery-50/40 p-2 shadow-md sm:p-3 lg:p-5 "
+                className="tour-item rounded-sm bg-gallery-50/40 p-2 shadow-md sm:p-3 lg:p-5"
                 key={i}
               >
                 <li className="max-h-fit text-xs font-semibold text-tuna-600 xs:text-sm md:text-lg lg:text-lg 2xl:text-xl">
