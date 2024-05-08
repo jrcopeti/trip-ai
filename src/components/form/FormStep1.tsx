@@ -1,9 +1,9 @@
+import { useFormData } from "@/hooks/useFormData";
 import { useCountries } from "@/hooks/useCountries";
 import { Autocomplete, AutocompleteItem, Input } from "@nextui-org/react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { motion } from "framer-motion";
 import FormTitle from "./FormTitle";
-import { useFormData } from "@/hooks/useFormData";
 
 function FormStep1() {
   const { countries } = useCountries();
