@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useLayoutEffect } from "react";
-import { notFound, useParams, usePathname } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import { useWeather } from "@/hooks/useWeather";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
@@ -22,13 +22,9 @@ import ButtonBackOutlined from "../ui/ButtonBackOutlined";
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useRouter } from "next/navigation";
 
-function SavedTripsPageComponent({
-  params,
-}: {
-  params: { id: number | string };
-}) {
+function SavedTripsPageComponent() {
+  const params = useParams();
   const { trip, isPendingSingleSavedTrip } = useSingleSavedTrip({ params });
 
   const {

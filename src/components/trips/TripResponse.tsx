@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useLayoutEffect, useState } from "react";
-import { notFound, usePathname } from "next/navigation";
+import { notFound, useParams, usePathname } from "next/navigation";
 import { Prisma } from "@prisma/client";
 
 import { useImage } from "@/hooks/useImage";
@@ -25,79 +25,23 @@ import GradientBg from "../ui/GradientBg";
 import Container from "../ui/Container";
 import Loader from "../ui/Loader";
 import NotFoundComponent from "../ui/NotFoundComponent";
-import ErrorToaster from "../ui/ErrorToaster";
-import CustomToaster from "../ui/CustomToaster";
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import toast from "react-hot-toast";
 
 function TripResponse() {
-  const [isSaved, setIsSaved] = useState(false);
-
-  useConfirmOnPageExit(isSaved);
-
-  useLocomotiveScroll();
-
-  const { createTrip, isCreatingTrip, createTripError } = useCreateTrip();
-  const pathname = usePathname();
-  const tripUrl = pathname.replace("/trips/", "");
-
+  const params = useParams();
   const { tripData: trip, isPendingResponseAI } = useTripResponse();
-  const { formData } = useFormData();
   const {
     isPendingWeather,
     weatherData,
     isPendingDailyForecast,
     dailyForecastData,
   } = useWeather();
-  const { imageData } = useImage();
+  const { isSaved } = useCreateTrip(params);
 
-  const handleYesAnswer = () => {
-    const finalData = {
-      ...trip,
-      ...formData,
-      startDate: new Date(formData.startDate),
-      endDate: new Date(formData.endDate),
-      image: imageData?.tripImage ?? null,
-      image2: imageData?.tripImage2 ?? null,
-      image3: imageData?.tripImage3 ?? null,
-      image4: imageData?.tripImage4 ?? null,
-      image5: imageData?.tripImage5 ?? null,
-      placeholder: imageData?.placeholder ?? null,
-      tripUrl,
-      saved: true,
-    };
-
-    createTrip(finalData as Prisma.TripCreateInput, {
-      onSuccess: () => {
-        setIsSaved(true);
-        toast.custom(<CustomToaster message="Your trip was saved" />);
-      },
-    });
-  };
-
-  const handleNoAnswer = () => {
-    const finalData = {
-      ...trip,
-      ...formData,
-      startDate: new Date(formData.startDate),
-      endDate: new Date(formData.endDate),
-      image: imageData?.tripImage ?? null,
-      image2: imageData?.tripImage2 ?? null,
-      image3: imageData?.tripImage3 ?? null,
-      image4: imageData?.tripImage4 ?? null,
-      image5: imageData?.tripImage5 ?? null,
-      tripUrl,
-      saved: false,
-    };
-    createTrip(finalData as Prisma.TripCreateInput, {
-      onSuccess: () => {
-        setIsSaved(true);
-        toast.custom(<ErrorToaster message="Trip was not saved" />);
-      },
-    });
-  };
+  useLocomotiveScroll();
+  useConfirmOnPageExit(isSaved);
 
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -293,7 +237,7 @@ function TripResponse() {
       {/* Section 1 */}
       <Container overflow="overflow-hidden">
         <GradientBg from="from-shark-100" to="to-neptune-200" />
-        {trip && <TitleSection trip={trip} imageData={imageData} />}
+        <TitleSection />
       </Container>
 
       {/* Section 2 */}
@@ -303,49 +247,49 @@ function TripResponse() {
         animationClass="description-section"
       >
         <GradientBg from="from-neptune-200" to="to-shark-100" />
-        {trip && <DescriptionSection trip={trip} imageData={imageData} />}
+        <DescriptionSection />
       </Container>
 
       {/* Section 3 */}
 
       <Container overflow="overflow-hidden" animationClass="tours-section">
         <GradientBg from="from-shark-100" to="to-yellorange-100" />
-        {trip && <ToursSection trip={trip} />}
+        <ToursSection />
       </Container>
 
       {/* Section 4 */}
 
       <Container overflow="overflow-hidden" animationClass="pack-section">
         <GradientBg from="from-yellorange-100" to="to-shark-100" />
-        {trip && <PackReadySection trip={trip} formData={formData} />}
+        <PackReadySection />
       </Container>
 
       {/* Section 5 */}
 
       <Container overflow="overflow-hidden" animationClass="objects-section">
         <GradientBg from="from-shark-100" to="to-cabaret-100" />
-        {trip && <ObjectsSection trip={trip} />}
+        <ObjectsSection />
       </Container>
 
       {/* Section 6 */}
 
       <Container overflow="overflow-hidden" animationClass="musthave-section">
         <GradientBg from="from-cabaret-100" to="to-shark-100" />
-        {trip && <MustHaveSection trip={trip} imageData={imageData} />}
+        <MustHaveSection />
       </Container>
 
       {/* Section 7 */}
 
       <Container overflow="overflow-hidden" animationClass="weather-section">
         <GradientBg from="from-shark-100" to="to-violay-200" />
-        {trip && <WeatherSection trip={trip} formData={formData} />}
+        <WeatherSection />
       </Container>
 
       {/* Section 8 */}
 
       <Container overflow="overflow-hidden" animationClass="forecast-section">
         <GradientBg from="from-shark-100" to="to-violay-200" />
-        {trip && <ForecastSection trip={trip} formData={formData} />}
+        <ForecastSection />
       </Container>
 
       {/* Section 9 */}
@@ -355,29 +299,14 @@ function TripResponse() {
         animationClass="formdetails-section"
       >
         <GradientBg from="from-violay-200" to="to-shark-100" />
-        {trip && formData && (
-          <FormDetailsSection
-            trip={trip}
-            imageData={imageData}
-            formData={formData}
-          />
-        )}
+        <FormDetailsSection />
       </Container>
 
       {/* Section 10 */}
 
       <Container overflow="overflow-hidden" animationClass="final-section">
         <GradientBg from="from-shark-100" to="to-neptune-200" />
-        {trip && (
-          <SaveSection
-            handleYesAnswer={handleYesAnswer}
-            handleNoAnswer={handleNoAnswer}
-            imageData={imageData}
-            trip={trip}
-            isCreatingTrip={isCreatingTrip}
-            isSaved={isSaved}
-          />
-        )}
+        <SaveSection />
       </Container>
     </>
   );

@@ -5,12 +5,12 @@ import {
   dehydrate,
 } from "@tanstack/react-query";
 
-function SavedTripsPageId({ params }: { params: { id: number | string } }) {
+function SavedTripsPageId() {
   const queryClient = new QueryClient();
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <SavedTripsPageComponent params={params} />
+      <SavedTripsPageComponent />
     </HydrationBoundary>
   );
 }

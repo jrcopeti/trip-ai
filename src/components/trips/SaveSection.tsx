@@ -1,19 +1,21 @@
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Button, ButtonGroup } from "@nextui-org/react";
+import { useTripResponse } from "@/hooks/useTripResponse";
+import { useImage } from "@/hooks/useImage";
+import { useCreateTrip } from "@/hooks/useCreateTrip";
 import image5 from "@/assets/homepage/5.jpg";
+import { Button, ButtonGroup } from "@nextui-org/react";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
-import type { SaveSectionProps } from "@/types";
 
-function SaveSection({
-  handleYesAnswer,
-  handleNoAnswer,
-  imageData,
-  trip,
-  isCreatingTrip,
-  isSaved,
-}: SaveSectionProps) {
+function SaveSection() {
+  const params = useParams();
+  const { tripData: trip } = useTripResponse();
+  const { handleYesAnswer, handleNoAnswer, isCreatingTrip, isSaved } =
+    useCreateTrip(params);
+  const { imageData } = useImage();
+
   return (
     <>
       <GridContainer animationClass="final-card">
