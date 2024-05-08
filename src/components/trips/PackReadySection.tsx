@@ -20,11 +20,20 @@ function PackReadySection({ trip, formData }: PackReadySectionProps) {
       <h1 className=" pack-ready text-center text-2xl font-extrabold capitalize text-tuna-900 xs:text-3xl sm:text-4xl md:text-6xl">
         We have your pack ready
       </h1>
-      <h2 className="mt-1 p-4 text-xl font-semibold text-tuna-600 xs:text-2xl sm:text-3xl">
-        {trip?.weatherForecast || formData?.weatherForecast
-          ? "Based on the weather"
-          : `From ${startDate} to ${endDate}`}
-      </h2>
+      <div className="mt-1 p-4 text-xl font-semibold text-tuna-600 xs:text-2xl sm:text-3xl">
+        {trip?.weatherForecast || formData?.weatherForecast ? (
+          <h2 className='flex flex-col'>
+            Based on the weather
+            <small className='font-normal'>
+              From {startDate} to {endDate}
+            </small>
+          </h2>
+        ) : (
+          <h2>
+            From ${startDate} to ${endDate}
+          </h2>
+        )}
+      </div>
       <div className="stamps absolute -z-10 h-[350px] w-[350px] -translate-y-[87px] translate-x-[120px] md:h-[450px] md:w-[550px] md:-translate-y-[133px] md:translate-x-[400px]">
         <Image src={stamps2} alt="stamps" fill className="object-contain" />
       </div>

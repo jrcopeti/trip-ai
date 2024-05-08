@@ -248,24 +248,47 @@ function TripResponse() {
   }, [isPendingResponseAI, isPendingWeather, weatherData]);
 
   useIsomorphicLayoutEffect(() => {
-    if (!isPendingResponseAI && !isPendingDailyForecast && dailyForecastData) {
+    if (
+      !isPendingResponseAI &&
+      !isPendingWeather &&
+      !isPendingDailyForecast &&
+      weatherData &&
+      dailyForecastData
+    ) {
       gsap.registerPlugin(ScrollTrigger);
       const context = gsap.context(() => {
-        gsap.from(".forecast-card", {
+        gsap.from(".weather-card", {
           autoAlpha: 0,
           y: 300,
           duration: 1,
           scrollTrigger: {
-            trigger: ".forecast-section",
+            trigger: ".weather-section",
             start: "-150px center",
             end: "center 300px",
             toggleActions: "restart none play none",
           },
-        });
+        }),
+          gsap.from(".forecast-card", {
+            autoAlpha: 0,
+            y: 300,
+            duration: 1,
+            scrollTrigger: {
+              trigger: ".forecast-section",
+              start: "-150px center",
+              end: "center 300px",
+              toggleActions: "restart none play none",
+            },
+          });
       });
       return () => context.revert();
     }
-  }, [isPendingResponseAI, isPendingDailyForecast, dailyForecastData]);
+  }, [
+    isPendingResponseAI,
+    isPendingWeather,
+    isPendingDailyForecast,
+    weatherData,
+    dailyForecastData,
+  ]);
 
   if (isPendingResponseAI) {
     return <Loader />;
