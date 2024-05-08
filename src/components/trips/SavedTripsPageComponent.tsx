@@ -210,7 +210,6 @@ function SavedTripsPageComponent({
     dailyForecastData,
   ]);
 
-
   if (isPendingSingleSavedTrip) {
     return <Loader />;
   }
@@ -226,7 +225,7 @@ function SavedTripsPageComponent({
       <Container overflow="overflow-hidden">
         <GradientBg from="from-shark-100" to="to-neptune-200" />
         <ButtonBackOutlined position="absolute -top-1 -left-2 xs:top-0 xs:left-0 lg:top-2 lg:left-10" />
-        {trip && <TitleSection trip={trip}  />}
+        {trip && <TitleSection trip={trip} />}
       </Container>
 
       {/* Section 2 */}
