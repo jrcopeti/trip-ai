@@ -104,13 +104,52 @@ export interface WeatherContextType {
   errorDailyForecast: unknown;
 }
 
+export interface FormContextType {
+  formData: FinalDataTypes;
+  setFormData: (data: FinalDataTypes) => void;
+  currentStep: number;
+  delta: number;
+  control: Control<Inputs> | undefined;
+  errors: FieldErrors<Inputs>;
+  handleSelectionAutocomplete: (
+    selectedKey: string | number,
+    fieldName: FieldName,
+  ) => void;
+  handleSubmit: (fn: SubmitHandler<Inputs>) => (e: React.FormEvent) => void;
+  processForm: SubmitHandler<Inputs>;
+  stepValue: number;
+  cityWatch: string;
+  countryCode?: string;
+  fields: { id: string }[];
+  append: (data: { item: string }) => void;
+  remove: (index: number) => void;
+  setValue: (name: FieldName, value: string) => void;
+  isWeatherSelected: boolean;
+  setIsWeatherSelected: (value: boolean) => void;
+  isValid: boolean;
+  reviewFormData: Inputs;
+  next: () => void;
+  prev: () => void;
+}
+
+export interface TripContextType {
+  tripData: Trip | null;
+  generateResponseAI: (prompt: string) => void;
+  isPendingResponseAI: boolean;
+  errorResponseAI: unknown;
+  isNavigating: boolean;
+}
+
+export interface ImageContextType {
+  imageData?: ImageDataTypes;
+  generateImage: (city: string) => void;
+  isPendingImage: boolean;
+  errorImage: unknown;
+}
+
 export interface FinalDataTypes extends Omit<Inputs, "requiredItems"> {
   requiredItems: string[];
   weatherForecast: string;
-}
-
-export interface ProcessFormType {
-  (data: Inputs): void;
 }
 
 export interface ImageDataTypes {
@@ -120,13 +159,6 @@ export interface ImageDataTypes {
   tripImage4: string | null;
   tripImage5: string | null;
   placeholder: string | null;
-}
-
-export interface ImageContextType {
-  imageData?: ImageDataTypes;
-  generateImage: (city: string) => void;
-  isPendingImage: boolean;
-  errorImage: unknown;
 }
 
 export interface Step {
@@ -143,50 +175,6 @@ export interface Country {
   code: string;
   flagUrl: string;
 }
-
-// export interface FormStepProps {
-//   currentStep: number;
-//   control: Control<Inputs>;
-//   errors: FieldErrors<Inputs>;
-//   handleSelectionAutocomplete: (
-//     selectedKey: string | number,
-//     fieldName: FieldName,
-//   ) => void;
-//   delta: number;
-// }
-
-// export interface FormStep2Props extends FormStepProps {
-//   isCityValid: boolean;
-//   isLoadingCityValid: boolean;
-//   message: string;
-// }
-
-// export interface FormStep3Props
-//   extends Omit<FormStepProps, "handleSelectionAutocomplete"> {}
-
-// export interface FormStep4Props extends FormStep3Props {
-//   append: (data: { item: string }) => void;
-//   remove: (index: number) => void;
-//   fields: { id: string }[];
-// }
-// export interface FormStep5Props extends FormStep3Props {
-//   isWeatherSelected: boolean;
-//   setIsWeatherSelected: (value: boolean) => void;
-//   setValue: (name: FieldName, value: string) => void;
-// }
-
-// export interface FormStep7Props extends Omit<FormStep3Props, "errors"> {
-//   isWeatherSelected: boolean;
-//   isValid: boolean;
-//   reviewFormData: Inputs;
-// }
-
-// export interface FormButtonsProps {
-//   currentStep: number;
-//   next: () => void;
-//   prev: () => void;
-//   isCityValid: boolean;
-// }
 
 export interface ContainerProps {
   children: React.ReactNode;
@@ -265,47 +253,10 @@ export interface WeatherSectionProps {
 
 export interface ForecastSectionProps extends WeatherSectionProps {}
 
-export interface TitleSectionProps {
-  trip: Trip;
-  imageData?: ImageDataTypes;
-}
-
-export interface FormContextType {
-  formData: FinalDataTypes;
-  setFormData: (data: FinalDataTypes) => void;
-  currentStep: number;
-  delta: number;
-  control: Control<Inputs> | null;
-  errors: FieldErrors<Inputs>;
-  handleSelectionAutocomplete: (
-    selectedKey: string | number,
-    fieldName: FieldName,
-  ) => void;
-  handleSubmit: (fn: SubmitHandler<Inputs>) => (e: React.FormEvent) => void;
-  processForm: SubmitHandler<Inputs>;
-  stepValue: number;
-  cityWatch: string;
-  countryCode?: string;
-  fields: { id: string }[];
-  append: (data: { item: string }) => void;
-  remove: (index: number) => void;
-  setValue: (name: FieldName, value: string) => void;
-  isWeatherSelected: boolean;
-  setIsWeatherSelected: (value: boolean) => void;
-  isValid: boolean;
-  reviewFormData: Inputs;
-  next: () => void;
-  prev: () => void;
-}
-
-
-export interface TripContextType {
-  tripData: Trip | null;
-  generateResponseAI: (prompt: string) => void;
-  isPendingResponseAI: boolean;
-  errorResponseAI: unknown;
-  isNavigating: boolean;
-}
+// export interface TitleSectionProps {
+//   trip: Trip;
+//   imageData?: ImageDataTypes;
+// }
 
 export interface SavedTripsContainerProps {
   children: React.ReactNode;
@@ -327,4 +278,8 @@ export interface GeoName {
 export interface ToggleActions {
   setVisible: (visible: boolean) => void;
   onHidden: () => void;
+}
+
+export interface Params {
+  id?: string | number;
 }

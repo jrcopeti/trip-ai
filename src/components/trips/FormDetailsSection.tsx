@@ -1,22 +1,22 @@
-import dayjs from "dayjs";
 import Image from "next/image";
-import { defaultPlaceholder } from "@/lib/constants";
-import {
-  displayDuration,
-  durationInDays,
-} from "@/lib/utils";
+import { useParams } from "next/navigation";
+import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
+import { useImage } from "@/hooks/useImage";
+import { useFormData } from "@/hooks/useFormData";
+import dayjs from "dayjs";
 import image4 from "@/assets/homepage/4.jpg";
-import { FormDetailsSectionProps } from "@/types";
 import GridContainer from "../ui/GridContainer";
+import { defaultPlaceholder } from "@/lib/constants";
+import { displayDuration, durationInDays } from "@/lib/utils";
 
-function FormDetailsSection({
-  trip,
-  imageData,
-  formData,
-}: FormDetailsSectionProps) {
+function FormDetailsSection() {
+  const params = useParams();
+  const { trip } = useSingleSavedTrip({ params });
+  const { imageData } = useImage();
+  const { formData } = useFormData();
+
   const startDate = dayjs(trip?.startDate || formData?.startDate);
   const endDate = dayjs(trip?.endDate || formData?.endDate);
-
   const durationDays = durationInDays(startDate, endDate);
   const duration = displayDuration(durationDays);
 

@@ -1,27 +1,36 @@
 "use client";
 import { useEffect } from "react";
+import { useParams } from "next/navigation";
+import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
+import { useFormData } from "@/hooks/useFormData";
 import { useWeather } from "@/hooks/useWeather";
 import ForecastSectionCard from "./ForecastSectionCard";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { BiMessageSquareError } from "react-icons/bi";
-import type { ForecastSectionProps } from "@/types";
 
 dayjs.extend(utc);
 
-function ForecastSection({ trip, formData }: ForecastSectionProps) {
+function ForecastSection() {
+  const params = useParams();
+  const { trip } = useSingleSavedTrip({ params });
+  const { formData } = useFormData();
   const { generateDailyForecast, dailyForecastData } = useWeather();
+
   useEffect(() => {
-    if ((trip.city && trip.country) || (formData?.city && formData?.country)) {
+    if (
+      (trip?.city && trip?.country) ||
+      (formData?.city && formData?.country)
+    ) {
       generateDailyForecast({
-        city: trip.city || formData?.city,
-        country: trip.country || formData?.country,
+        city: trip?.city || formData?.city,
+        country: trip?.country || formData?.country,
       });
     }
   }, [
     generateDailyForecast,
-    trip.city,
-    trip.country,
+    trip?.city,
+    trip?.country,
     formData?.city,
     formData?.country,
   ]);
@@ -41,7 +50,7 @@ function ForecastSection({ trip, formData }: ForecastSectionProps) {
       <div className="hidden text-3xl font-semibold text-tuna-900 lg:flex lg:items-center lg:gap-2 2xl:text-4xl">
         <h2>5 days forecast -</h2>
         <h3 className="font-normal uppercase">
-          {trip.city || formData?.city}, {trip.country || formData?.country}
+          {trip?.city || formData?.city}, {trip?.country || formData?.country}
         </h3>
       </div>
       <div className="grid grid-cols-2 justify-items-center gap-x-8 gap-y-12 p-5 lg:grid-cols-5 lg:gap-8">
@@ -50,7 +59,8 @@ function ForecastSection({ trip, formData }: ForecastSectionProps) {
             <h2>5 days forecast</h2>
 
             <h3 className="mt-2 text-xs font-normal uppercase">
-              {trip.city || formData?.city}, {trip.country || formData?.country}
+              {trip?.city || formData?.city},{" "}
+              {trip?.country || formData?.country}
             </h3>
           </div>
         </div>

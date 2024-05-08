@@ -1,10 +1,15 @@
+import { useParams } from "next/navigation";
+import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
+import { useImage } from "@/hooks/useImage";
 import Image from "next/image";
 import image2 from "@/assets/homepage/2.jpg";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
-import type { DescriptionSectionProps } from "@/types";
 
-function DescriptionSection({ trip, imageData }: DescriptionSectionProps) {
+function DescriptionSection() {
+  const params = useParams();
+  const { trip } = useSingleSavedTrip({ params });
+  const { imageData } = useImage();
   return (
     <>
       <GridContainer animationClass="trip-description">

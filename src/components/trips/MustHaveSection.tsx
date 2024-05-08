@@ -1,11 +1,16 @@
 import Image from "next/image";
 import image3 from "@/assets/homepage/3.jpg";
+import { useParams } from "next/navigation";
+import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
+import { useImage } from "@/hooks/useImage";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
 import { FaCheck } from "react-icons/fa6";
-import type { MustHaveSectionProps } from "@/types";
 
-function MustHaveSection({ trip, imageData }: MustHaveSectionProps) {
+function MustHaveSection() {
+  const params = useParams();
+  const { trip } = useSingleSavedTrip({ params });
+  const { imageData } = useImage();
   return (
     <>
       <GridContainer animationClass="must-have">

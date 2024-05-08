@@ -1,8 +1,12 @@
+import { useParams } from "next/navigation";
+import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import Image from "next/image";
 import plane from "@/assets/travel/plane.png";
-import type { Trip } from "@prisma/client";
 
-function ToursSection({ trip }: { trip: Trip }) {
+function ToursSection() {
+  const params = useParams();
+  const { trip } = useSingleSavedTrip({ params });
+
   return (
     <>
       <div className="absolute h-[90%] w-[90%] lg:h-[80%] lg:w-[80%]">

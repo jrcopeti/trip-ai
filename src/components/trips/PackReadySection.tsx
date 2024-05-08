@@ -1,13 +1,16 @@
-import { Trip } from "@prisma/client";
-
-import dayjs from "dayjs";
+import { useParams } from "next/navigation";
+import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
+import { useFormData } from "@/hooks/useFormData";
 import Image from "next/image";
-import stamps from "@/assets/travel/stamps.png";
+import dayjs from "dayjs";
 import stamps2 from "@/assets/travel/stamps2.png";
 import stamps3 from "@/assets/travel/stamps3.png";
-import type { PackReadySectionProps } from "@/types";
 
-function PackReadySection({ trip, formData }: PackReadySectionProps) {
+function PackReadySection() {
+  const params = useParams();
+  const { trip } = useSingleSavedTrip({ params });
+  const { formData } = useFormData();
+
   const startDate = dayjs(trip?.startDate || formData?.startDate).format(
     "DD.MM.YYYY",
   );
@@ -22,9 +25,9 @@ function PackReadySection({ trip, formData }: PackReadySectionProps) {
       </h1>
       <div className="mt-1 p-4 text-xl font-semibold text-tuna-600 xs:text-2xl sm:text-3xl">
         {trip?.weatherForecast || formData?.weatherForecast ? (
-          <h2 className='flex flex-col'>
+          <h2 className="flex flex-col">
             Based on the weather
-            <small className='font-normal'>
+            <small className="font-normal">
               From {startDate} to {endDate}
             </small>
           </h2>

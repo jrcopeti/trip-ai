@@ -1,6 +1,9 @@
 "use client";
 import { useEffect } from "react";
+import { useParams } from "next/navigation";
 import Image from "next/image";
+import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
+import { useFormData } from "@/hooks/useFormData";
 import { useWeather } from "@/hooks/useWeather";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -10,24 +13,25 @@ import { LuWind } from "react-icons/lu";
 import { TbSunrise } from "react-icons/tb";
 import { BsSunsetFill } from "react-icons/bs";
 import { BiMessageSquareError } from "react-icons/bi";
-import type { WeatherSectionProps } from "@/types";
-
 dayjs.extend(utc);
 
-function WeatherSection({ trip, formData }: WeatherSectionProps) {
-  const { generateWeather, isPendingWeather, weatherData } = useWeather();
-  console.log(weatherData);
+function WeatherSection() {
+  const params = useParams();
+  const { trip } = useSingleSavedTrip({ params });
+  const { formData } = useFormData();
+  const { generateWeather, weatherData } = useWeather();
+
   useEffect(() => {
-    if ((trip.city && trip.country) || (formData?.city && formData?.country)) {
+    if ((trip?.city && trip?.country) || (formData?.city && formData?.country)) {
       generateWeather({
-        city: trip.city || formData?.city,
-        country: trip.country || formData?.country,
+        city: trip?.city || formData?.city,
+        country: trip?.country || formData?.country,
       });
     }
   }, [
     generateWeather,
-    trip.city,
-    trip.country,
+    trip?.city,
+    trip?.country,
     formData?.city,
     formData?.country,
   ]);

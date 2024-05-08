@@ -1,8 +1,11 @@
-import type { Trip } from "@prisma/client";
+import { useParams } from "next/navigation";
+import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import Image from "next/image";
 import suitcase from "@/assets/travel/suitcase.png";
 
-function ObjectsSection({ trip }: { trip: Trip }) {
+function ObjectsSection() {
+  const params = useParams();
+  const { trip } = useSingleSavedTrip({ params });
   return (
     <div className="absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12">
       <div className="grid grid-cols-2 items-center justify-items-center gap-2 rounded-sm lg:grid-cols-3 lg:gap-4 lg:p-4">

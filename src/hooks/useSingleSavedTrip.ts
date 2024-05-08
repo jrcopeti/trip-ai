@@ -1,7 +1,8 @@
 import { getSingleSavedTrip } from "@/db/actions";
+import { Params } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 
-export function useSingleSavedTrip({ params }: { params: { id: number | string }}) {
+export function useSingleSavedTrip({ params }: { params: Params }) {
   const {
     data: trip,
     isPending: isPendingSingleSavedTrip,
