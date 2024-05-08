@@ -10,16 +10,16 @@ function SavedTripCard({ trip }: { trip: Trip }) {
   return (
     <Link
       href={`/saved-trips/${id}`}
-      className="trip-card relative flex h-[350px] min-h-[350px] w-[350px] max-w-[350px] flex-col rounded-sm bg-gallery-100 px-4 py-3 opacity-0 shadow-md transition duration-300 ease-in-out"
+      className="trip-card relative flex h-[40vh] min-h-[40vh] w-[40vh] max-w-[40vh] flex-col rounded-sm bg-gallery-100 px-4 py-3 opacity-0 shadow-md transition duration-300 ease-in-out sm:h-[350px] sm:min-h-[350px] sm:w-[350px] sm:max-w-[350px]"
     >
       <div>
-        <h2 className="font-semibold capitalize text-tuna-900 md:text-lg 2xl:text-xl">
+        <h2 className="font-semibold capitalize text-tuna-900 text-lg xs:text-xl sm:text-2xl">
           {city.trim()}, {country}
         </h2>
       </div>
 
       <div>
-        <p className="text-gallery-600">
+        <p className="text-gallery-600 text-base xs:text-lg sm:text-xl">
           <small>by </small>
           <span className="capitalize">&nbsp;{userName}</span>
         </p>

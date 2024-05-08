@@ -3,7 +3,7 @@ import type { GridContainerProps } from "@/types";
 
 function GridContainer({
   children,
-  bg,
+  bg = "",
   animationClass = "",
 }: GridContainerProps) {
   return (
