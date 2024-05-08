@@ -7,14 +7,8 @@ import ReviewForm from "./ReviewForm";
 import { steps } from "@/data";
 
 function FormStep7() {
-  const {
-    currentStep,
-    delta,
-    isWeatherSelected,
-    control,
-    isValid,
-    reviewFormData,
-  } = useFormData();
+  const { currentStep, delta, isWeatherSelected, control, isValid } =
+    useFormData();
   return (
     <>
       {currentStep === 6 && (
@@ -24,10 +18,7 @@ function FormStep7() {
           transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
         >
           <FormTitle currentStep={currentStep} />
-          <ReviewForm
-            weather={isWeatherSelected}
-            reviewFormData={reviewFormData}
-          />
+          <ReviewForm />
           <div className="mt-4 flex max-w-md flex-col gap-4">
             <Controller
               name="agreement"
