@@ -9,15 +9,15 @@ import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import ErrorToaster from "@/components/ui/ErrorToaster";
 import CustomToaster from "@/components/ui/CustomToaster";
-import { Params } from "@/types";
+import { TripUrlParamsType } from "@/types";
 
-export function useCreateTrip(params: Params) {
+export function useCreateTrip(tripUrlParams: TripUrlParamsType) {
   const [isSaved, setIsSaved] = useState(false);
 
   const { formData } = useFormData();
   const { tripData: trip } = useTripResponse();
   const { imageData } = useImage();
-  const tripUrl = params.id;
+  const tripUrl = tripUrlParams.tripUrl;
 
   const {
     mutate: createTrip,

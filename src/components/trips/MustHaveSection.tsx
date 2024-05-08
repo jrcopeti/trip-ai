@@ -10,6 +10,7 @@ import { FaCheck } from "react-icons/fa6";
 
 function MustHaveSection() {
   const params = useParams();
+
   const { trip } = useSingleSavedTrip({ params });
   const { tripData: response } = useTripResponse();
   const { imageData } = useImage();

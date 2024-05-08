@@ -22,10 +22,10 @@ import Loader from "../ui/Loader";
 import NotFoundComponent from "../ui/NotFoundComponent";
 
 function TripResponse() {
-  const params = useParams();
+  const tripUrlParams = useParams();
   const { tripData: trip, isPendingResponseAI } = useTripResponse();
 
-  const { isSaved } = useCreateTrip(params);
+  const { isSaved } = useCreateTrip(tripUrlParams);
 
   useLocomotiveScroll();
   useScrollTrigger();

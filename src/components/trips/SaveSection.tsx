@@ -10,10 +10,10 @@ import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
 
 function SaveSection() {
-  const params = useParams();
+  const tripUrlParams = useParams();
   const { tripData: reponse } = useTripResponse();
   const { handleYesAnswer, handleNoAnswer, isCreatingTrip, isSaved } =
-    useCreateTrip(params);
+    useCreateTrip(tripUrlParams);
   const { imageData } = useImage();
 
   return (

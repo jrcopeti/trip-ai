@@ -135,6 +135,10 @@ export interface FormContextType {
   next: () => void;
   prev: () => void;
 }
+export interface FinalDataTypes extends Omit<Inputs, "requiredItems"> {
+  requiredItems: string[];
+  weatherForecast: string;
+}
 
 export interface TripContextType {
   tripData: Trip | null;
@@ -149,11 +153,6 @@ export interface ImageContextType {
   generateImage: (city: string) => void;
   isPendingImage: boolean;
   errorImage: unknown;
-}
-
-export interface FinalDataTypes extends Omit<Inputs, "requiredItems"> {
-  requiredItems: string[];
-  weatherForecast: string;
 }
 
 export interface ImageDataTypes {
@@ -187,11 +186,6 @@ export interface ContainerProps {
   animationClass?: string;
 }
 
-export interface DescriptionSectionProps {
-  trip: Trip;
-  imageData?: ImageDataTypes;
-}
-
 export interface Gradient1Props {
   left: string;
   top: string;
@@ -220,48 +214,6 @@ export interface GridContainerProps {
   animationClass?: string;
 }
 
-export interface MustHaveSectionProps {
-  trip: Trip;
-  imageData?: ImageDataTypes;
-}
-
-export interface ReviewFormProps {
-  reviewFormData: Inputs;
-  weather: boolean;
-}
-
-export interface SaveSectionProps {
-  handleYesAnswer: () => void;
-  handleNoAnswer: () => void;
-  imageData?: ImageDataTypes | null;
-  trip: Trip;
-  isCreatingTrip: boolean;
-  isSaved: boolean;
-}
-
-export interface FormDetailsSectionProps {
-  trip: Trip;
-  imageData?: ImageDataTypes;
-  formData?: FinalDataTypes;
-}
-
-export interface PackReadySectionProps {
-  trip: Trip;
-  formData?: FinalDataTypes;
-}
-
-export interface WeatherSectionProps {
-  trip: Trip;
-  formData?: FinalDataTypes;
-}
-
-export interface ForecastSectionProps extends WeatherSectionProps {}
-
-// export interface TitleSectionProps {
-//   trip: Trip;
-//   imageData?: ImageDataTypes;
-// }
-
 export interface SavedTripsContainerProps {
   children: React.ReactNode;
   bg?: string;
@@ -286,4 +238,7 @@ export interface ToggleActions {
 
 export interface Params {
   id?: string | number;
+}
+export interface TripUrlParamsType {
+  tripUrl?: string;
 }
