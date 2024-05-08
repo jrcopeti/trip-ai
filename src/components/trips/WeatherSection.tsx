@@ -80,7 +80,7 @@ function WeatherSection({ trip, formData }: WeatherSectionProps) {
           className="-mt-[60px] mb-[30px] ml-[10%] h-[40vw] w-[40vw] object-contain saturate-150 filter xs:-mt-[86px] xs:ml-[12%] xs:h-[45vw] xs:w-[45vw] sm:-ml-[145px] sm:-mt-[0px] sm:mb-[30px] sm:h-[300px] sm:w-full md:-ml-[161px] md:-mt-[0] md:mr-[30px] md:h-[300px] md:max-w-full "
         />
         <div className="text-tuna-900">
-          <p className="mb-4 uppercase sm:mb-2">
+          <p className="mb-4 whitespace-nowrap text-sm uppercase sm:mb-2 sm:text-base">
             {trip?.city || formData?.city}, {trip?.country || formData?.country}
           </p>
           <section>

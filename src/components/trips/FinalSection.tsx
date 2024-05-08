@@ -10,7 +10,7 @@ function FinalSection({ trip }: { trip: Trip }) {
   const router = useRouter();
   return (
     <>
-      <GridContainer bg="bg-gallery-50/70" animationClass="final-card">
+      <GridContainer animationClass="final-card">
         <div className="relative h-full w-full ">
           <Image
             src={trip?.image5 ?? image9}
@@ -23,16 +23,18 @@ function FinalSection({ trip }: { trip: Trip }) {
           />
         </div>
 
-        <div className="bg-gallery-50/70 p-8 sm:p-10">
+        <div className="bg-gallery-50/70 p-6 lg:p-8">
           <div className="flex flex-col gap-3">
-            <h2 className="text-3xl font-bold text-tuna-900">Good to know!</h2>
-            <p className="text-base sm:text-lg font-semibold text-tuna-600 lg:text-xl">
+            <h2 className="text-2xl font-bold text-tuna-900 lg:text-3xl">
+              Good to know!
+            </h2>
+            <p className="text-sm font-semibold text-tuna-600 xs:text-base sm:text-lg lg:text-xl">
               {trip?.tip}{" "}
             </p>
           </div>
           <Button
             onClick={router.back}
-            className="mt-2 xs:mt-10 bg-neptune-500 xs:p-6 text-base xs:text-xl text-gallery-50"
+            className="mt-2 bg-neptune-500 text-base text-gallery-50 xs:mt-10 xs:p-6 xs:text-xl"
           >
             Back
           </Button>
