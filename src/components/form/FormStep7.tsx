@@ -5,15 +5,17 @@ import FormTitle from "./FormTitle";
 import ReviewForm from "./ReviewForm";
 import { steps } from "@/data";
 import type { FormStep7Props } from "@/types";
+import { useFormData } from "@/hooks/useFormData";
 
-function FormStep7({
-  currentStep,
-  delta,
-  isWeatherSelected,
-  control,
-  isValid,
-  reviewFormData,
-}: FormStep7Props) {
+function FormStep7() {
+  const {
+    currentStep,
+    delta,
+    isWeatherSelected,
+    control,
+    isValid,
+    reviewFormData,
+  } = useFormData();
   return (
     <>
       {currentStep === 6 && (

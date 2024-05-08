@@ -16,6 +16,7 @@ dayjs.extend(utc);
 
 function WeatherSection({ trip, formData }: WeatherSectionProps) {
   const { generateWeather, isPendingWeather, weatherData } = useWeather();
+  console.log(weatherData);
   useEffect(() => {
     if ((trip.city && trip.country) || (formData?.city && formData?.country)) {
       generateWeather({

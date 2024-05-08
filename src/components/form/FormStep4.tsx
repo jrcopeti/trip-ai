@@ -2,16 +2,10 @@ import { Button, Input } from "@nextui-org/react";
 import { Controller } from "react-hook-form";
 import FormTitle from "./FormTitle";
 import { motion } from "framer-motion";
-import type { FormStep4Props } from "@/types";
+import { useFormData } from "@/hooks/useFormData";
 
-function FormStep4({
-  currentStep,
-  fields,
-  control,
-  append,
-  remove,
-  delta,
-}: FormStep4Props) {
+function FormStep4() {
+  const { currentStep, fields, control, append, remove, delta } = useFormData();
   return (
     <>
       {currentStep === 3 && (

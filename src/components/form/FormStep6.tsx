@@ -4,9 +4,10 @@ import { motion } from "framer-motion";
 import FormTitle from "./FormTitle";
 import CustomCheckbox from "./CustomCheckbox";
 import { sortedInterest } from "@/data";
-import type { FormStep3Props } from "@/types";
+import { useFormData } from "@/hooks/useFormData";
 
-function FormStep6({ currentStep, control, errors, delta }: FormStep3Props) {
+function FormStep6() {
+  const { currentStep, control, errors, delta } = useFormData();
   return (
     <>
       {currentStep === 5 && (

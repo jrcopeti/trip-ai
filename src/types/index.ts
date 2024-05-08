@@ -1,10 +1,12 @@
 import z from "zod";
 import { FormDataSchema } from "@/lib/schema";
-import { Control, FieldErrors } from "react-hook-form";
+import { Control, FieldErrors, SubmitHandler } from "react-hook-form";
 import { Trip } from "@prisma/client";
 
 export type Inputs = z.infer<typeof FormDataSchema>;
 export type FieldName = keyof Inputs;
+export type TripResponse = { trip: Trip | null } | Trip;
+
 export interface WeatherApiResponse {
   main: {
     temp: number;
@@ -142,49 +144,49 @@ export interface Country {
   flagUrl: string;
 }
 
-export interface FormStepProps {
-  currentStep: number;
-  control: Control<Inputs>;
-  errors: FieldErrors<Inputs>;
-  handleSelectionAutocomplete: (
-    selectedKey: string | number,
-    fieldName: FieldName,
-  ) => void;
-  delta: number;
-}
+// export interface FormStepProps {
+//   currentStep: number;
+//   control: Control<Inputs>;
+//   errors: FieldErrors<Inputs>;
+//   handleSelectionAutocomplete: (
+//     selectedKey: string | number,
+//     fieldName: FieldName,
+//   ) => void;
+//   delta: number;
+// }
 
-export interface FormStep2Props extends FormStepProps {
-  isCityValid: boolean;
-  isLoadingCityValid: boolean;
-  message: string;
-}
+// export interface FormStep2Props extends FormStepProps {
+//   isCityValid: boolean;
+//   isLoadingCityValid: boolean;
+//   message: string;
+// }
 
-export interface FormStep3Props
-  extends Omit<FormStepProps, "handleSelectionAutocomplete"> {}
+// export interface FormStep3Props
+//   extends Omit<FormStepProps, "handleSelectionAutocomplete"> {}
 
-export interface FormStep4Props extends FormStep3Props {
-  append: (data: { item: string }) => void;
-  remove: (index: number) => void;
-  fields: { id: string }[];
-}
-export interface FormStep5Props extends FormStep3Props {
-  isWeatherSelected: boolean;
-  setIsWeatherSelected: (value: boolean) => void;
-  setValue: (name: FieldName, value: string) => void;
-}
+// export interface FormStep4Props extends FormStep3Props {
+//   append: (data: { item: string }) => void;
+//   remove: (index: number) => void;
+//   fields: { id: string }[];
+// }
+// export interface FormStep5Props extends FormStep3Props {
+//   isWeatherSelected: boolean;
+//   setIsWeatherSelected: (value: boolean) => void;
+//   setValue: (name: FieldName, value: string) => void;
+// }
 
-export interface FormStep7Props extends Omit<FormStep3Props, "errors"> {
-  isWeatherSelected: boolean;
-  isValid: boolean;
-  reviewFormData: Inputs;
-}
+// export interface FormStep7Props extends Omit<FormStep3Props, "errors"> {
+//   isWeatherSelected: boolean;
+//   isValid: boolean;
+//   reviewFormData: Inputs;
+// }
 
-export interface FormButtonsProps {
-  currentStep: number;
-  next: () => void;
-  prev: () => void;
-  isCityValid: boolean;
-}
+// export interface FormButtonsProps {
+//   currentStep: number;
+//   next: () => void;
+//   prev: () => void;
+//   isCityValid: boolean;
+// }
 
 export interface ContainerProps {
   children: React.ReactNode;
@@ -271,8 +273,31 @@ export interface TitleSectionProps {
 export interface FormContextType {
   formData: FinalDataTypes;
   setFormData: (data: FinalDataTypes) => void;
+  currentStep: number;
+  delta: number;
+  control: Control<Inputs> | null;
+  errors: FieldErrors<Inputs>;
+  handleSelectionAutocomplete: (
+    selectedKey: string | number,
+    fieldName: FieldName,
+  ) => void;
+  handleSubmit: (fn: SubmitHandler<Inputs>) => (e: React.FormEvent) => void;
+  processForm: SubmitHandler<Inputs>;
+  stepValue: number;
+  cityWatch: string;
+  countryCode?: string;
+  fields: { id: string }[];
+  append: (data: { item: string }) => void;
+  remove: (index: number) => void;
+  setValue: (name: FieldName, value: string) => void;
+  isWeatherSelected: boolean;
+  setIsWeatherSelected: (value: boolean) => void;
+  isValid: boolean;
+  reviewFormData: Inputs;
+  next: () => void;
+  prev: () => void;
 }
-export type TripResponse = { trip: Trip | null } | Trip;
+
 
 export interface TripContextType {
   tripData: Trip | null;

@@ -33,16 +33,16 @@ function Providers({ children }: ProvidersProps) {
           duration: 5000,
         }}
       />
-      <FormProvider>
-        <ImageProvider>
-          <WeatherProvider>
-            <TripProvider>
+      <ImageProvider>
+        <WeatherProvider>
+          <TripProvider>
+            <FormProvider>
               <NextUIProvider>{children}</NextUIProvider>
               {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-            </TripProvider>
-          </WeatherProvider>
-        </ImageProvider>
-      </FormProvider>
+            </FormProvider>
+          </TripProvider>
+        </WeatherProvider>
+      </ImageProvider>
     </QueryClientProvider>
   );
 }

@@ -10,19 +10,25 @@ import FormTitle from "./FormTitle";
 import CustomToaster from "../ui/CustomToaster";
 import ErrorToaster from "../ui/ErrorToaster";
 import toast from "react-hot-toast";
-import type { FormStep2Props } from "@/types";
 
-function FormStep2({
-  currentStep,
-  control,
-  errors,
-  handleSelectionAutocomplete,
-  delta,
-  isCityValid,
-  isLoadingCityValid,
-  message,
-}: FormStep2Props) {
+import { useFormData } from "@/hooks/useFormData";
+import { useGeoNames } from "@/hooks/useGeoNames";
+
+function FormStep2() {
   const { countries } = useCountries();
+  const {
+    currentStep,
+    control,
+    errors,
+    handleSelectionAutocomplete,
+    delta,
+    cityWatch,
+    countryCode,
+  } = useFormData();
+  const { isCityValid, isLoadingCityValid, message } = useGeoNames({
+    city: cityWatch,
+    countryCode: countryCode,
+  });
 
   useEffect(() => {
     if (isCityValid && !isLoadingCityValid) {

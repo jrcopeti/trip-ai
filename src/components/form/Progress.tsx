@@ -1,6 +1,8 @@
+import { useFormData } from "@/hooks/useFormData";
 import { Progress } from "@nextui-org/react";
 
-function ProgressBar({ stepValue }: { stepValue: number }) {
+function ProgressBar() {
+  const {stepValue} = useFormData()
   return (
     <section className="max-w-full ">
       <Progress

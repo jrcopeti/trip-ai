@@ -1,14 +1,15 @@
 import { Button } from "@nextui-org/react";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { steps } from "@/data";
-import type { FormButtonsProps } from "@/types";
+import { useFormData } from "@/hooks/useFormData";
+import { useGeoNames } from "@/hooks/useGeoNames";
 
-function FormButtons({
-  currentStep,
-  next,
-  prev,
-  isCityValid,
-}: FormButtonsProps) {
+function FormButtons() {
+  const { currentStep, next, prev, cityWatch, countryCode } = useFormData();
+  const { isCityValid } = useGeoNames({
+    city: cityWatch,
+    countryCode: countryCode,
+  });
   return (
     <>
       <div className="absolute left-16 top-[95%] z-50 -translate-y-1/2 transform lg:top-1/2">
