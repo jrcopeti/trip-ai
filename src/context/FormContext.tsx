@@ -160,8 +160,7 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     const output = await trigger(fields as FieldName[], {
       shouldFocus: true,
     });
-
-    // if (!output) return;
+    if (!output) return;
 
     if (isWeatherSelected && currentStep === steps.length - 3) {
       generateForecast({
