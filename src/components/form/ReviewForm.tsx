@@ -1,7 +1,9 @@
+import { useFormData } from "@/hooks/useFormData";
 import { durationInDays, displayDuration } from "@/lib/utils";
-import type { ReviewFormProps } from "@/types";
 
-function ReviewForm({ reviewFormData, weather }: ReviewFormProps) {
+function ReviewForm() {
+  const { reviewFormData, isWeatherSelected: weather } = useFormData();
+
   const {
     userName,
     city,
@@ -23,7 +25,8 @@ function ReviewForm({ reviewFormData, weather }: ReviewFormProps) {
   const durationDays = durationInDays(startDate, endDate);
   const duration = displayDuration(durationDays);
   const transformedRequiredItems =
-    requiredItems?.map((requiredItem) => requiredItem.item) ?? [];
+    requiredItems?.map((requiredItem: { item: string }) => requiredItem.item) ??
+    [];
 
   return (
     <>
