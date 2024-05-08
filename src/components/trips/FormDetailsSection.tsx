@@ -1,24 +1,42 @@
-import dayjs from "dayjs";
 import Image from "next/image";
-import { defaultPlaceholder } from "@/lib/constants";
-import {
-  displayDuration,
-  durationInDays,
-} from "@/lib/utils";
-import image4 from "@/assets/homepage/4.jpg";
-import { FormDetailsSectionProps } from "@/types";
+import { useParams } from "next/navigation";
+import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
+import { useImage } from "@/hooks/useImage";
+import { useFormData } from "@/hooks/useFormData";
+import dayjs from "dayjs";
+import defaultImage4 from "@/assets/homepage/4.jpg";
 import GridContainer from "../ui/GridContainer";
+import { defaultPlaceholder } from "@/lib/constants";
+import { displayDuration, durationInDays } from "@/lib/utils";
 
-function FormDetailsSection({
-  trip,
-  imageData,
-  formData,
-}: FormDetailsSectionProps) {
+function FormDetailsSection() {
+  const params = useParams();
+  const { trip } = useSingleSavedTrip({ params });
+  const { imageData } = useImage();
+  const { formData } = useFormData();
+
+  const flag = trip?.flagUrl || formData?.flagUrl;
+  const city = trip?.city || formData?.city;
+  const country = trip?.country || formData?.country;
+  const nationality = trip?.nationality || formData?.nationality;
+  const userName = trip?.userName || formData?.userName;
+  const tripType = trip?.type || formData?.type;
+  const age = trip?.age || formData?.age;
+  const budget = trip?.budget || formData?.budget;
+  const transport = trip?.transport || formData?.transport;
+  const lugaggeSize = trip?.luggageSize || formData?.luggageSize;
+  const weatherForecast = trip?.weatherForecast || formData?.weatherForecast;
+  const accommodation = trip?.accommodation || formData?.accommodation;
+  const note = trip?.note || formData?.note;
+  const interests = trip?.interests || formData?.interests;
+
   const startDate = dayjs(trip?.startDate || formData?.startDate);
   const endDate = dayjs(trip?.endDate || formData?.endDate);
-
   const durationDays = durationInDays(startDate, endDate);
   const duration = displayDuration(durationDays);
+
+  const image4 = trip?.image4 || imageData?.tripImage4;
+  const placeholder = trip?.placeholder || imageData?.placeholder;
 
   return (
     <>
@@ -26,7 +44,7 @@ function FormDetailsSection({
         <div className="bg-gallery-50/70 p-2 lg:px-4 lg:py-5">
           <div className="-mb-4 h-[40px] w-[60px] text-tuna-900 xs:h-[60px] xs:w-[80px] lg:h-[80px] lg:w-[100px]">
             <Image
-              src={(trip?.flagUrl || formData?.flagUrl) ?? ""}
+              src={flag ?? ""}
               alt="country flag"
               height={200}
               width={200}
@@ -39,8 +57,7 @@ function FormDetailsSection({
                 Destination
               </small>
               <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
-                {trip?.city || formData?.city},{" "}
-                {trip?.country || formData?.country}
+                {city}, {country}
               </p>
             </div>
 
@@ -49,7 +66,7 @@ function FormDetailsSection({
                 Nationality
               </small>
               <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
-                {trip?.nationality || formData?.nationality}
+                {nationality}
               </p>
             </div>
             <div className="mt-2">
@@ -57,7 +74,7 @@ function FormDetailsSection({
                 Name
               </small>
               <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
-                {trip?.userName || formData?.userName}
+                {userName}
               </p>
             </div>
 
@@ -66,7 +83,7 @@ function FormDetailsSection({
                 Trip Type
               </small>
               <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
-                {trip?.type || formData?.type}
+                {tripType}
               </p>
             </div>
 
@@ -75,7 +92,7 @@ function FormDetailsSection({
                 Age
               </small>
               <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
-                {trip?.age || formData?.age}
+                {age}
               </p>
             </div>
 
@@ -84,7 +101,7 @@ function FormDetailsSection({
                 Budget
               </small>
               <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
-                {trip?.budget || formData?.budget}
+                {budget}
               </p>
             </div>
 
@@ -93,7 +110,7 @@ function FormDetailsSection({
                 Transport
               </small>
               <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
-                {trip?.transport || formData?.transport}
+                {transport}
               </p>
             </div>
 
@@ -102,7 +119,7 @@ function FormDetailsSection({
                 LugaggeSize
               </small>
               <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
-                {trip?.luggageSize || formData?.luggageSize}
+                {lugaggeSize}
               </p>
             </div>
 
@@ -111,9 +128,7 @@ function FormDetailsSection({
                 Duration
               </small>
               <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
-                {trip?.weatherForecast || formData?.weatherForecast
-                  ? `5 days based on weather`
-                  : duration}
+                {weatherForecast ? `5 days based on weather` : duration}
               </p>
             </div>
 
@@ -122,7 +137,7 @@ function FormDetailsSection({
                 Accommodation
               </small>
               <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
-                {trip?.accommodation || formData?.accommodation}
+                {accommodation}
               </p>
             </div>
 
@@ -131,7 +146,7 @@ function FormDetailsSection({
                 Notes
               </small>
               <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
-                {trip?.note || formData?.note || "--"}
+                {note || "--"}
               </p>
             </div>
 
@@ -139,7 +154,7 @@ function FormDetailsSection({
               <small className="text-[0.5rem] text-tuna-900 xs:text-xs">
                 Interests
               </small>
-              {(trip?.interests || formData?.interests).map((interest) => (
+              {interests.map((interest) => (
                 <p
                   className=" sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg"
                   key={interest}
@@ -153,12 +168,9 @@ function FormDetailsSection({
 
         <div className="relative h-full w-full">
           <Image
-            src={(trip?.image4 || imageData?.tripImage4) ?? image4}
+            src={image4 ?? defaultImage4}
             alt="city"
-            blurDataURL={
-              (trip?.placeholder || imageData?.placeholder) ??
-              defaultPlaceholder
-            }
+            blurDataURL={placeholder ?? defaultPlaceholder}
             placeholder="blur"
             priority
             fill

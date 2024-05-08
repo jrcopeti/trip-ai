@@ -5,19 +5,15 @@ import type {
   FinalDataTypes,
   FormContextType,
   Inputs,
-  ProcessFormType,
 } from "@/types";
 import { useCountries } from "@/hooks/useCountries";
 import { useWeather } from "@/hooks/useWeather";
-import { useFormData } from "@/hooks/useFormData";
 import { useImage } from "@/hooks/useImage";
-import { useGeoNames } from "@/hooks/useGeoNames";
-import { steps } from "@/data";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { steps } from "@/data";
 import { FormDataSchema } from "@/lib/schema";
-import { Control, FieldErrors } from "react-hook-form";
 
 const defaultFormData: Inputs = {
   userName: "",
@@ -57,7 +53,7 @@ const defaultContextValue: FormContextType = {
   setFormData: () => {},
   currentStep: 0,
   delta: 0,
-  control: null,
+  control: undefined,
   errors: {},
   handleSelectionAutocomplete: () => {},
   handleSubmit: () => () => {},

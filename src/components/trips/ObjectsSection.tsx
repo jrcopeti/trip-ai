@@ -1,18 +1,23 @@
-import type { Trip } from "@prisma/client";
+import { useParams } from "next/navigation";
+import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
+import { useTripResponse } from "@/hooks/useTripResponse";
 import Image from "next/image";
 import suitcase from "@/assets/travel/suitcase.png";
+import type { ObjectsListType } from "@/types";
 
-function ObjectsSection({ trip }: { trip: Trip }) {
+function ObjectsSection() {
+  const params = useParams();
+  const { trip } = useSingleSavedTrip({ params });
+  const { tripData: response } = useTripResponse();
+
+  const objectsList =
+    (trip?.objectsList as ObjectsListType[]) ||
+    (response?.objectsList as ObjectsListType[]);
+
   return (
     <div className="absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12">
       <div className="grid grid-cols-2 items-center justify-items-center gap-2 rounded-sm lg:grid-cols-3 lg:gap-4 lg:p-4">
-        {(
-          trip?.objectsList as {
-            quantity: number;
-            item: string;
-            description: string;
-          }[]
-        )?.map((object, i) => (
+        {objectsList?.map((object, i) => (
           <div
             className="objects-list flex h-full w-full flex-col items-stretch justify-start gap-y-1 bg-gallery-50/40 p-3 font-semibold leading-loose text-tuna-900 shadow-md lg:p-6"
             key={i}

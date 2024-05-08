@@ -9,7 +9,6 @@ import {
   budgets,
   sortedTypes,
 } from "@/data";
-import type { FormStep3Props } from "@/types";
 import { useFormData } from "@/hooks/useFormData";
 
 function FormStep3() {

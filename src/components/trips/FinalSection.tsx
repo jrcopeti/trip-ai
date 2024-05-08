@@ -1,13 +1,16 @@
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { Button } from "@nextui-org/react";
 import image9 from "@/assets/homepage/9.jpg";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
-import { Trip } from "@prisma/client";
 
-function FinalSection({ trip }: { trip: Trip }) {
+function FinalSection() {
+  const params = useParams();
+  const { trip } = useSingleSavedTrip({ params });
   const router = useRouter();
+
   return (
     <>
       <GridContainer animationClass="final-card">

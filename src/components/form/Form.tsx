@@ -1,16 +1,9 @@
 "use client";
 
-import { memo, useState } from "react";
+import { memo } from "react";
 import { useCountries } from "@/hooks/useCountries";
 import { useTripResponse } from "@/hooks/useTripResponse";
-import { useImage } from "@/hooks/useImage";
-import { useWeather } from "@/hooks/useWeather";
 import { useFormData } from "@/hooks/useFormData";
-import { useGeoNames } from "@/hooks/useGeoNames";
-
-import { FormDataSchema } from "@/lib/schema";
-import { useForm, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 import ProgressBar from "./Progress";
 import FormStep1 from "./FormStep1";
@@ -27,14 +20,6 @@ import NotFoundComponent from "../ui/NotFoundComponent";
 import Container from "../ui/Container";
 import GradientBg from "../ui/GradientBg";
 import LoaderResponseAI from "../ui/LoaderResponseAI";
-import { steps } from "@/data";
-import type {
-  FinalDataTypes,
-  ProcessFormType,
-  Inputs,
-  FieldName,
-} from "@/types";
-import { selectDailyForecasts } from "@/lib/utils";
 
 const Form = memo(function Form() {
   const { isPendingResponseAI, isNavigating, errorResponseAI } =
@@ -59,7 +44,6 @@ const Form = memo(function Form() {
       />
     );
   }
-  
 
   return (
     <Container overflow="overflow-hidden" height="h-[calc(100dvh-3.5rem)]">

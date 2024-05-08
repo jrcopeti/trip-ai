@@ -1,6 +1,9 @@
 "use client";
 import { useEffect } from "react";
+import { useParams } from "next/navigation";
 import Image from "next/image";
+import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
+import { useFormData } from "@/hooks/useFormData";
 import { useWeather } from "@/hooks/useWeather";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -10,24 +13,33 @@ import { LuWind } from "react-icons/lu";
 import { TbSunrise } from "react-icons/tb";
 import { BsSunsetFill } from "react-icons/bs";
 import { BiMessageSquareError } from "react-icons/bi";
-import type { WeatherSectionProps } from "@/types";
-
 dayjs.extend(utc);
 
-function WeatherSection({ trip, formData }: WeatherSectionProps) {
-  const { generateWeather, isPendingWeather, weatherData } = useWeather();
-  console.log(weatherData);
+function WeatherSection() {
+  const params = useParams();
+  const { trip } = useSingleSavedTrip({ params });
+  const { formData } = useFormData();
+  const { generateWeather, weatherData } = useWeather();
+
+  const city = trip?.city || formData?.city;
+  const country = trip?.country || formData?.country;
+
   useEffect(() => {
-    if ((trip.city && trip.country) || (formData?.city && formData?.country)) {
+    if (
+      (trip?.city && trip?.country) ||
+      (formData?.city && formData?.country)
+    ) {
       generateWeather({
-        city: trip.city || formData?.city,
-        country: trip.country || formData?.country,
+        city: city,
+        country: country,
       });
     }
   }, [
     generateWeather,
-    trip.city,
-    trip.country,
+    city,
+    country,
+    trip?.city,
+    trip?.country,
     formData?.city,
     formData?.country,
   ]);
@@ -82,7 +94,7 @@ function WeatherSection({ trip, formData }: WeatherSectionProps) {
         />
         <div className="text-tuna-900">
           <p className="mb-4 whitespace-nowrap text-sm uppercase sm:mb-2 sm:text-base">
-            {trip?.city || formData?.city}, {trip?.country || formData?.country}
+            {city}, {country}
           </p>
           <section>
             <h2 className=" mt-0 text-7xl font-semibold sm:mr-0 sm:text-[6rem]">
