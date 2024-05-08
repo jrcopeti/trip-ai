@@ -46,8 +46,7 @@ const functionData = {
       },
       mustHave: {
         type: "array",
-        description:
-          "A list of four must-have items for the trip.",
+        description: "A list of four must-have items for the trip.",
         items: {
           type: "string",
         },
@@ -94,9 +93,9 @@ const functionData = {
 
 export const fetchResponseAI = async (prompt: string) => {
   try {
-    console.log("initiating AI request")
+    console.log("initiating AI request");
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4",
       messages: [
         { role: "system", content: systemInstructions },
         { role: "user", content: prompt },
@@ -105,7 +104,7 @@ export const fetchResponseAI = async (prompt: string) => {
       tool_choice: { type: "function", function: { name: "tripData" } },
       temperature: 0,
     });
-    console.log("responding")
+    console.log("responding");
     const data =
       response.choices?.[0].message.tool_calls?.[0]?.function.arguments ?? null;
     const parsedData = JSON.parse(data ?? "");
