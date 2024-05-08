@@ -17,18 +17,22 @@ function ForecastSection() {
   const { formData } = useFormData();
   const { generateDailyForecast, dailyForecastData } = useWeather();
 
+  const city = trip?.city || formData?.city;
+  const country = trip?.country || formData?.country;
   useEffect(() => {
     if (
       (trip?.city && trip?.country) ||
       (formData?.city && formData?.country)
     ) {
       generateDailyForecast({
-        city: trip?.city || formData?.city,
-        country: trip?.country || formData?.country,
+        city: city,
+        country: country,
       });
     }
   }, [
     generateDailyForecast,
+    city,
+    country,
     trip?.city,
     trip?.country,
     formData?.city,
@@ -50,7 +54,7 @@ function ForecastSection() {
       <div className="hidden text-3xl font-semibold text-tuna-900 lg:flex lg:items-center lg:gap-2 2xl:text-4xl">
         <h2>5 days forecast -</h2>
         <h3 className="font-normal uppercase">
-          {trip?.city || formData?.city}, {trip?.country || formData?.country}
+          {city}, {country}
         </h3>
       </div>
       <div className="grid grid-cols-2 justify-items-center gap-x-8 gap-y-12 p-5 lg:grid-cols-5 lg:gap-8">
@@ -59,8 +63,7 @@ function ForecastSection() {
             <h2>5 days forecast</h2>
 
             <h3 className="mt-2 text-xs font-normal uppercase">
-              {trip?.city || formData?.city},{" "}
-              {trip?.country || formData?.country}
+              {city}, {country}
             </h3>
           </div>
         </div>

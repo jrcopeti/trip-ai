@@ -6,7 +6,11 @@ import { Trip } from "@prisma/client";
 export type Inputs = z.infer<typeof FormDataSchema>;
 export type FieldName = keyof Inputs;
 export type TripResponse = { trip: Trip | null } | Trip;
-
+export type ObjectsListType = {
+  quantity: number;
+  item: string;
+  description: string;
+};
 export interface WeatherApiResponse {
   main: {
     temp: number;

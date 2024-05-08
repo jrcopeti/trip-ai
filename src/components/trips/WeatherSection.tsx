@@ -21,15 +21,23 @@ function WeatherSection() {
   const { formData } = useFormData();
   const { generateWeather, weatherData } = useWeather();
 
+  const city = trip?.city || formData?.city;
+  const country = trip?.country || formData?.country;
+
   useEffect(() => {
-    if ((trip?.city && trip?.country) || (formData?.city && formData?.country)) {
+    if (
+      (trip?.city && trip?.country) ||
+      (formData?.city && formData?.country)
+    ) {
       generateWeather({
-        city: trip?.city || formData?.city,
-        country: trip?.country || formData?.country,
+        city: city,
+        country: country,
       });
     }
   }, [
     generateWeather,
+    city,
+    country,
     trip?.city,
     trip?.country,
     formData?.city,
@@ -86,7 +94,7 @@ function WeatherSection() {
         />
         <div className="text-tuna-900">
           <p className="mb-4 whitespace-nowrap text-sm uppercase sm:mb-2 sm:text-base">
-            {trip?.city || formData?.city}, {trip?.country || formData?.country}
+            {city}, {country}
           </p>
           <section>
             <h2 className=" mt-0 text-7xl font-semibold sm:mr-0 sm:text-[6rem]">

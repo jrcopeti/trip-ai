@@ -2,10 +2,14 @@ import { useParams } from "next/navigation";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import Image from "next/image";
 import plane from "@/assets/travel/plane.png";
+import { useTripResponse } from "@/hooks/useTripResponse";
 
 function ToursSection() {
   const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
+  const { tripData: response } = useTripResponse();
+
+  const tours = (trip?.tours as string[]) || (response?.tours as string[]);
 
   return (
     <>
@@ -15,7 +19,7 @@ function ToursSection() {
             Your suggested tours
           </h1>
           <div className="grid max-w-full grid-cols-1 gap-3 lg:gap-4 xl:gap-6">
-            {(trip?.tours as string[])?.map((tour, i) => (
+            {tours?.map((tour, i) => (
               <ul
                 className="tour-item rounded-sm bg-gallery-50/40 p-2 shadow-md sm:p-3 lg:p-5"
                 key={i}

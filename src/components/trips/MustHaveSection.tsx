@@ -1,7 +1,8 @@
 import Image from "next/image";
-import image3 from "@/assets/homepage/3.jpg";
+import defaultImage3 from "@/assets/homepage/3.jpg";
 import { useParams } from "next/navigation";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
+import { useTripResponse } from "@/hooks/useTripResponse";
 import { useImage } from "@/hooks/useImage";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
@@ -10,18 +11,23 @@ import { FaCheck } from "react-icons/fa6";
 function MustHaveSection() {
   const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
+  const { tripData: response } = useTripResponse();
   const { imageData } = useImage();
+
+  const image3 = trip?.image3 || imageData?.tripImage3;
+  const placeholder = trip?.placeholder || imageData?.placeholder;
+  const mustHave = trip?.mustHave || response?.mustHave;
+  const requiredItems =
+    (trip?.requiredItems as string[]) || (response?.requiredItems as string[]);
+
   return (
     <>
       <GridContainer animationClass="must-have">
         <div className="relative h-full w-full ">
           <Image
-            src={(trip?.image3 || imageData?.tripImage3) ?? image3}
+            src={image3 ?? defaultImage3}
             alt="city"
-            blurDataURL={
-              (trip?.placeholder || imageData?.placeholder) ??
-              defaultPlaceholder
-            }
+            blurDataURL={placeholder ?? defaultPlaceholder}
             placeholder="blur"
             priority
             fill
@@ -35,7 +41,7 @@ function MustHaveSection() {
               Your Must Have items
             </h2>
             <div className="grid grid-cols-2 gap-x-5 xs:mt-2 sm:grid-cols-3 lg:mt-4 lg:grid-cols-2 lg:gap-y-1">
-              {(trip?.mustHave as string[])?.map((item, i) => (
+              {mustHave?.map((item, i) => (
                 <ul className="py-1" key={i}>
                   <li className="inline-flex items-center gap-2 text-sm font-semibold capitalize text-tuna-600 xs:text-base md:text-lg lg:text-xl 2xl:text-2xl">
                     <span>
@@ -53,8 +59,8 @@ function MustHaveSection() {
               And Your Required Items
             </h2>
             <div className="mt-2 grid grid-cols-2 gap-x-5 xs:mt-2 sm:grid-cols-3 lg:mt-4 lg:grid-cols-2 lg:gap-y-1">
-              {(trip?.requiredItems as string[]).length >= 1 &&
-                (trip?.requiredItems as string[])?.map((item, i) => (
+              {requiredItems.length >= 1 &&
+                requiredItems?.map((item, i) => (
                   <ul className="py-1" key={i}>
                     <li className="inline-flex items-center gap-1 text-sm font-semibold capitalize text-tuna-600 xs:text-base md:text-lg lg:text-xl 2xl:text-2xl">
                       {item !== "" ? (
@@ -72,8 +78,8 @@ function MustHaveSection() {
                     </li>
                   </ul>
                 ))}
-              {!trip?.requiredItems ||
-                ((trip.requiredItems as string[]).length === 0 && (
+              {!requiredItems ||
+                (requiredItems.length === 0 && (
                   <p className="text-base font-semibold capitalize text-tuna-600 lg:text-xl 2xl:text-2xl">
                     --
                   </p>

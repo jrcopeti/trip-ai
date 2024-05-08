@@ -11,7 +11,7 @@ import { defaultPlaceholder } from "@/lib/constants";
 
 function SaveSection() {
   const params = useParams();
-  const { tripData: trip } = useTripResponse();
+  const { tripData: reponse } = useTripResponse();
   const { handleYesAnswer, handleNoAnswer, isCreatingTrip, isSaved } =
     useCreateTrip(params);
   const { imageData } = useImage();
@@ -36,7 +36,7 @@ function SaveSection() {
               Good to know!
             </h2>
             <p className="text-sm font-semibold text-tuna-600 xs:text-base sm:text-lg lg:text-xl">
-              {trip?.tip}
+              {reponse?.tip}
             </p>
           </div>
 

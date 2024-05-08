@@ -1,19 +1,19 @@
 "use client";
+import { useState } from "react";
+import { useFormData } from "./useFormData";
+import { useTripResponse } from "./useTripResponse";
+import { useImage } from "./useImage";
 import { createTripInDB } from "@/db/actions";
 import { Prisma } from "@prisma/client";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import ErrorToaster from "@/components/ui/ErrorToaster";
-import { useFormData } from "./useFormData";
-import { useTripResponse } from "./useTripResponse";
-import { useImage } from "./useImage";
-import { Params } from "@/types";
-import { useState } from "react";
 import CustomToaster from "@/components/ui/CustomToaster";
+import { Params } from "@/types";
 
 export function useCreateTrip(params: Params) {
   const [isSaved, setIsSaved] = useState(false);
-  
+
   const { formData } = useFormData();
   const { tripData: trip } = useTripResponse();
   const { imageData } = useImage();

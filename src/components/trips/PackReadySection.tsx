@@ -18,13 +18,15 @@ function PackReadySection() {
     "DD.MM.YYYY",
   );
 
+  const weatherForecast = trip?.weatherForecast || formData?.weatherForecast;
+
   return (
     <div className="flex-start flex flex-col rounded-sm bg-gallery-50/40 p-6 shadow-xl">
       <h1 className=" pack-ready text-center text-2xl font-extrabold capitalize text-tuna-900 xs:text-3xl sm:text-4xl md:text-6xl">
         We have your pack ready
       </h1>
       <div className="mt-1 p-4 text-xl font-semibold text-tuna-600 xs:text-2xl sm:text-3xl">
-        {trip?.weatherForecast || formData?.weatherForecast ? (
+        {weatherForecast ? (
           <h2 className="flex flex-col">
             Based on the weather
             <small className="font-normal">
