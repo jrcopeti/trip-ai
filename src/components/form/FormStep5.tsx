@@ -1,14 +1,22 @@
+import { useFormData } from "@/hooks/useFormData";
 import { Controller } from "react-hook-form";
 import { Checkbox } from "@nextui-org/react";
 import { motion } from "framer-motion";
 import DatePicker from "./DatePicker";
 import FormTitle from "./FormTitle";
 import dayjs from "dayjs";
-import type { FormStep5Props } from "@/types";
-import { useFormData } from "@/hooks/useFormData";
 
 function FormStep5() {
-  const {currentStep, delta, isWeatherSelected, setIsWeatherSelected, control, errors, setValue} = useFormData();
+  const {
+    currentStep,
+    delta,
+    isWeatherSelected,
+    setIsWeatherSelected,
+    control,
+    errors,
+    setValue,
+  } = useFormData();
+
   const handleCheckboxChange = () => {
     setIsWeatherSelected(!isWeatherSelected);
     const startDate = dayjs();

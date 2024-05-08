@@ -1,4 +1,6 @@
 import { useEffect } from "react";
+import { useFormData } from "@/hooks/useFormData";
+import { useGeoNames } from "@/hooks/useGeoNames";
 import { useCountries } from "@/hooks/useCountries";
 
 import { motion } from "framer-motion";
@@ -10,9 +12,6 @@ import FormTitle from "./FormTitle";
 import CustomToaster from "../ui/CustomToaster";
 import ErrorToaster from "../ui/ErrorToaster";
 import toast from "react-hot-toast";
-
-import { useFormData } from "@/hooks/useFormData";
-import { useGeoNames } from "@/hooks/useGeoNames";
 
 function FormStep2() {
   const { countries } = useCountries();

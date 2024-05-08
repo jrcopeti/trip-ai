@@ -1,7 +1,8 @@
-import { Radio, RadioGroup } from "@nextui-org/react";
+import { useFormData } from "@/hooks/useFormData";
 import { Controller } from "react-hook-form";
-import FormTitle from "./FormTitle";
+import { Radio, RadioGroup } from "@nextui-org/react";
 import { motion } from "framer-motion";
+import FormTitle from "./FormTitle";
 import {
   sortedAccommodations,
   luggageSizes,
@@ -9,7 +10,6 @@ import {
   budgets,
   sortedTypes,
 } from "@/data";
-import { useFormData } from "@/hooks/useFormData";
 
 function FormStep3() {
   const { currentStep, control, errors, delta } = useFormData();

@@ -1,10 +1,10 @@
+import { useFormData } from "@/hooks/useFormData";
 import { CheckboxGroup, Textarea } from "@nextui-org/react";
 import { Controller } from "react-hook-form";
 import { motion } from "framer-motion";
 import FormTitle from "./FormTitle";
 import CustomCheckbox from "./CustomCheckbox";
 import { sortedInterest } from "@/data";
-import { useFormData } from "@/hooks/useFormData";
 
 function FormStep6() {
   const { currentStep, control, errors, delta } = useFormData();
