@@ -37,74 +37,10 @@ import type {
 import { selectDailyForecasts } from "@/lib/utils";
 
 const Form = memo(function Form() {
-  const [currentStep, setCurrentStep] = useState<number>(0);
-  const [prevStep, setPrevStep] = useState<number>(0);
-  const delta = currentStep - prevStep;
-
-  const [isWeatherSelected, setIsWeatherSelected] = useState<boolean>(false);
-
-  const {
-    handleSubmit,
-    control,
-    watch,
-    reset,
-    trigger,
-    getValues,
-    setValue,
-    formState: { errors, isValid },
-  } = useForm<Inputs>({
-    resolver: zodResolver(FormDataSchema),
-    defaultValues: {
-      userName: "",
-      age: "",
-      nationality: "",
-      type: "",
-      city: "",
-      country: "",
-      luggageSize: "",
-      accommodation: "",
-      budget: "",
-      transport: "",
-      requiredItems: [{ item: "" }],
-      interests: [],
-      note: "",
-      startDate: "",
-      endDate: "",
-      weatherForecast: "",
-      agreement: false,
-      flagUrl: "",
-    },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "requiredItems",
-  });
-
-  const {
-    generateResponseAI,
-    isPendingResponseAI,
-    isNavigating,
-    errorResponseAI,
-  } = useTripResponse();
-  const { countries, isLoading: isLoadingCountries } = useCountries();
-  const { generateForecast, forecastData } = useWeather();
-  const { setFormData } = useFormData();
-  const { generateImage } = useImage();
-
-  const cityWatch = watch("city");
-  const countryWatch = watch("country");
-  const reviewFormData = getValues();
-
-  const findCountry = countries.find(
-    (country) => country.value === countryWatch,
-  );
-  const countryCode = findCountry?.code.toUpperCase();
-
-  const { isCityValid, isLoadingCityValid, message } = useGeoNames({
-    city: cityWatch,
-    countryCode,
-  });
+  const { isPendingResponseAI, isNavigating, errorResponseAI } =
+    useTripResponse();
+  const { isLoading: isLoadingCountries } = useCountries();
+  const { handleSubmit, processForm } = useFormData();
 
   if (isLoadingCountries) {
     return <Loader />;
@@ -123,186 +59,27 @@ const Form = memo(function Form() {
       />
     );
   }
-
-  // workaround to get the right value from the autocomplete
-  const handleSelectionAutocomplete = (
-    selectedKey: string | number,
-    fieldName: FieldName,
-  ) => {
-    const selectedCountry = countries.find(
-      (country) => country.code === selectedKey,
-    );
-    if (selectedCountry) {
-      setValue(fieldName, selectedCountry.value);
-      if (fieldName === "country") {
-        setValue("flagUrl", selectedCountry.flagUrl);
-      }
-    }
-  };
-
-  const stepValue = steps[currentStep].stepValue;
-
-  const next = async () => {
-    const fields = steps[currentStep].fields;
-    const output = await trigger(fields as FieldName[], {
-      shouldFocus: true,
-    });
-
-    // if (!output) return;
-
-    if (isWeatherSelected && currentStep === steps.length - 3) {
-      generateForecast({
-        city: cityWatch,
-        country: countryWatch,
-      });
-    }
-
-    if (currentStep === steps.length - 2) {
-      generateImage(cityWatch);
-    }
-    setPrevStep(currentStep);
-    setCurrentStep((step) => step + 1);
-  };
-
-  const prev = () => {
-    if (currentStep > 0) {
-      setPrevStep(currentStep);
-      setCurrentStep((step) => step - 1);
-    }
-  };
-
-  const processForm: ProcessFormType = (data: Inputs) => {
-    const {
-      userName,
-      age,
-      nationality,
-      city,
-      country,
-      type,
-      startDate,
-      endDate,
-      requiredItems,
-      accommodation,
-      interests,
-      note,
-      transport,
-      luggageSize,
-      budget,
-    } = data;
-
-    const transformedRequiredItems =
-      requiredItems?.map((requiredItem) =>
-        requiredItem.item.trim().toLowerCase(),
-      ) ?? [];
-
-    const formattedUserName = userName.trim().toLowerCase();
-    const formattedCity = city.trim().toLowerCase();
-    const formattedNote = note?.trim().toLowerCase();
-    const forecastDataString = JSON.stringify(forecastData);
-
-    const promptModel = `${formattedUserName}, a ${age}-year-old traveler from ${nationality}, is planning a ${type} trip to ${formattedCity}, ${country} with a ${budget} budget. The trip is scheduled from ${startDate} to ${endDate}. ${formattedUserName} prefers to travel by ${transport}, with a ${luggageSize} lugagge size and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. (If there is no required items, return an empty array). Staying in a ${accommodation}, he/she is interested in ${interests}. Additionally, he/she has noted he/she would specifically like to have: ${formattedNote} (If there is no note, skip this part). Based on ${formattedUserName}'s preferences and trip details, plus the average weather for ${formattedCity}, ${country} during the trip, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${formattedUserName}, ${formattedCity}, and ${country}, a brief description highlighting the essence of their journey, and three must-do activities with maximum three paragraphs each. Finally, especify a tip taking in consideration the transport, luggage size, weather and notes.`;
-
-    const promptModelWeather = `${formattedUserName}, a ${age}-year-old traveler from ${nationality}, is planning a ${type} trip to ${formattedCity}, ${country} with a ${budget} budget. ${userName} prefers to travel by ${transport}, with a ${luggageSize} luggage size and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. (If there is no required items, return an empty array). Staying in a ${accommodation}, he/she is interested in ${interests}. Additionally, he/she has noted he/she would specifically like to have: ${formattedNote} (If there is no note, skip this part). Based on ${userName}'s preferences and trip details, plus the weather forecast that is in the end of the prompt, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${userName}, ${formattedCity}, and ${country}, a brief description highlighting the essence of their journey, and three must-do activities with maximum three paragraphs each. Finally, especify a tip taking in consideration the transport, luggage size, weather and notes. Weather forecast for ${formattedCity}, ${country}: ${forecastDataString}.`;
-
-    if (isWeatherSelected) {
-      setValue("weatherForecast", forecastDataString);
-      generateResponseAI(promptModelWeather);
-    } else {
-      generateResponseAI(promptModel);
-    }
-
-    const finalData: FinalDataTypes = {
-      ...data,
-      userName: formattedUserName,
-      city: formattedCity,
-      note: formattedNote,
-      requiredItems: transformedRequiredItems,
-      weatherForecast: forecastDataString,
-    };
-    setFormData(finalData);
-    reset();
-  };
+  
 
   return (
     <Container overflow="overflow-hidden" height="h-[calc(100dvh-3.5rem)]">
       <GradientBg />
       <FormContainer>
-        <ProgressBar stepValue={stepValue} />
-
+        <ProgressBar />
         <form
           onSubmit={handleSubmit(processForm)}
           className="z-30 px-4 py-4 lg:p-8"
         >
-          <FormStep1
-            currentStep={currentStep}
-            delta={delta}
-            control={control}
-            errors={errors}
-            handleSelectionAutocomplete={handleSelectionAutocomplete}
-          />
-
-          <FormStep2
-            currentStep={currentStep}
-            delta={delta}
-            control={control}
-            errors={errors}
-            handleSelectionAutocomplete={handleSelectionAutocomplete}
-            isCityValid={isCityValid}
-            isLoadingCityValid={isLoadingCityValid}
-            message={message}
-          />
-
-          <FormStep3
-            currentStep={currentStep}
-            delta={delta}
-            control={control}
-            errors={errors}
-          />
-
-          <FormStep4
-            currentStep={currentStep}
-            delta={delta}
-            control={control}
-            errors={errors}
-            fields={fields}
-            append={append}
-            remove={remove}
-          />
-
-          <FormStep5
-            currentStep={currentStep}
-            delta={delta}
-            control={control}
-            errors={errors}
-            isWeatherSelected={isWeatherSelected}
-            setIsWeatherSelected={setIsWeatherSelected}
-            setValue={setValue}
-          />
-
-          <FormStep6
-            currentStep={currentStep}
-            control={control}
-            errors={errors}
-            delta={delta}
-          />
-
-          <FormStep7
-            currentStep={currentStep}
-            control={control}
-            delta={delta}
-            isWeatherSelected={isWeatherSelected}
-            isValid={isValid}
-            reviewFormData={reviewFormData}
-          />
+          <FormStep1 />
+          <FormStep2 />
+          <FormStep3 />
+          <FormStep4 />
+          <FormStep5 />
+          <FormStep6 />
+          <FormStep7 />
         </form>
       </FormContainer>
-
-      <FormButtons
-        currentStep={currentStep}
-        next={next}
-        prev={prev}
-        isCityValid={isCityValid}
-      />
+      <FormButtons />
     </Container>
   );
 });

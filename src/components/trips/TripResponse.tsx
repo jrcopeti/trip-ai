@@ -228,26 +228,6 @@ function TripResponse() {
   }, [isPendingResponseAI]);
 
   useIsomorphicLayoutEffect(() => {
-    if (!isPendingResponseAI && !isPendingWeather && weatherData) {
-      gsap.registerPlugin(ScrollTrigger);
-      const context = gsap.context(() => {
-        gsap.from(".weather-card", {
-          autoAlpha: 0,
-          y: 200,
-          duration: 1,
-          scrollTrigger: {
-            trigger: ".weather-section",
-            start: "-150px center",
-            end: "center 300px",
-            toggleActions: "restart none play none",
-          },
-        });
-      });
-      return () => context.revert();
-    }
-  }, [isPendingResponseAI, isPendingWeather, weatherData]);
-
-  useIsomorphicLayoutEffect(() => {
     if (
       !isPendingResponseAI &&
       !isPendingWeather &&

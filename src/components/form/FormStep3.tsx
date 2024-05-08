@@ -10,8 +10,10 @@ import {
   sortedTypes,
 } from "@/data";
 import type { FormStep3Props } from "@/types";
+import { useFormData } from "@/hooks/useFormData";
 
-function FormStep3({ currentStep, control, errors, delta }: FormStep3Props) {
+function FormStep3() {
+  const { currentStep, control, errors, delta } = useFormData();
   return (
     <>
       {currentStep === 2 && (
