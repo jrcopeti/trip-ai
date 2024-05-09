@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export function useScrollingSavedTrips() {
   const { savedTrips, isPendingSavedTrips } = useSavedTrips();
-  const windowSize = useWindowSize();
+  // const windowSize = useWindowSize();
 
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -28,19 +28,20 @@ export function useScrollingSavedTrips() {
   }, []);
 
   useIsomorphicLayoutEffect(() => {
-    const windowWidth = windowSize.width;
-    if (!isPendingSavedTrips) {
+    // const windowWidth = windowSize.width;
+    if (!isPendingSavedTrips ) {
       gsap.registerPlugin(ScrollTrigger);
-      let batchMax;
-      if (windowWidth >= 1536) {
-        batchMax = 4;
-      } else if (windowWidth >= 1280) {
-        batchMax = 3;
-      } else if (windowWidth >= 768) {
-        batchMax = 2;
-      } else {
-        batchMax = 1;
-      }
+      // let batchMax;
+      // if (windowWidth >= 1536) {
+      //   batchMax = 4;
+      // } else if (windowWidth >= 1280) {
+      //   batchMax = 3;
+      // } else if (windowWidth >= 768) {
+      //   batchMax = 2;
+      // } else {
+      //   batchMax = 1;
+      // }
+      const batchMax = 4
       const context = gsap.context(() => {
         ScrollTrigger.batch(".trip-card", {
           interval: 0.5,
