@@ -16,7 +16,7 @@ function FormStep6() {
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
         >
-          <FormTitle currentStep={currentStep} />
+          <FormTitle />
 
           <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8  ">
             <Controller

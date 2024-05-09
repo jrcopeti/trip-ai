@@ -14,9 +14,9 @@ function FormStep4() {
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
         >
-          <FormTitle currentStep={currentStep} />
+          <FormTitle />
 
-          <div className="mt-10 flex max-h-fit max-w-[600px] flex-col gap-8 lg:mt-[100px]  ">
+          <div className="mt-10 flex max-h-fit max-w-[600px] flex-col gap-8 lg:mt-[100px]">
             {fields.map((field, index) => (
               <div className="flex items-center gap-2" key={field.id}>
                 <Controller
@@ -50,7 +50,7 @@ function FormStep4() {
               type="button"
               onClick={() => append({ item: "" })}
             >
-              Add Item
+              Add another item
             </Button>
           </div>
         </motion.div>

@@ -67,7 +67,22 @@ function MustHaveSection() {
               And Your Required Items
             </h2>
             <div className="mt-2 grid grid-cols-2 gap-x-5 xs:mt-2 sm:grid-cols-3 lg:mt-4 lg:grid-cols-2 lg:gap-y-1">
-              {requiredItems.length >= 1 &&
+              {requiredItems.length > 1 &&
+                requiredItems?.map((item, i) => (
+                  <ul className="py-1" key={i}>
+                    <li className="inline-flex items-center gap-1 text-base font-semibold capitalize text-tuna-600 xs:text-lg lg:text-2xl 2xl:text-3xl">
+                      {item !== "" && (
+                        <>
+                          <span>
+                            <FaCheck color="#4e888c" />
+                          </span>
+                          <p>{item}</p>
+                        </>
+                      )}
+                    </li>
+                  </ul>
+                ))}
+              {requiredItems.length === 1 &&
                 requiredItems?.map((item, i) => (
                   <ul className="py-1" key={i}>
                     <li className="inline-flex items-center gap-1 text-base font-semibold capitalize text-tuna-600 xs:text-lg lg:text-2xl 2xl:text-3xl">

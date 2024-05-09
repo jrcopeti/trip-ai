@@ -101,7 +101,7 @@ const interests = [
   { value: "backpacking", label: "Backpacking" },
   { value: "LGBT", label: "LGBT" },
   { value: "beer", label: "Beer" },
-  { value: "languages", label: "languages" },
+  { value: "languages", label: "Languages" },
   { value: "volunteering", label: "Volunteering" },
 ];
 const sortedInterest = [
