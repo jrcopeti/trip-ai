@@ -20,7 +20,7 @@ function DescriptionSection() {
   return (
     <>
       <GridContainer animationClass="trip-description">
-        <div className="bg-gallery-50/70 p-4 xs:p-6 sm:p-8 xl:p-10">
+        <div className="bg-gallery-50/70 p-4 xs:p-6 sm:p-8 xl:p-10 min-h-full overflow-auto">
           <p className="text-sm font-semibold text-tuna-600 xs:text-base sm:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl">
             {description}
           </p>

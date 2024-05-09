@@ -24,7 +24,7 @@ function ToursSection() {
                 className="tour-item rounded-sm bg-gallery-50/40 p-2 shadow-md sm:p-3 lg:p-5"
                 key={i}
               >
-                <li className="max-h-fit text-xs font-semibold text-tuna-600 xs:text-base md:text-lg lg:text-lg 2xl:text-xl">
+                <li className="text-xs font-semibold text-tuna-600 xs:text-sm sm:text-base md:text-lg lg:text-lg 2xl:text-xl">
                   <span className="font-bold text-neptune-600">{i + 1}.</span>
                   &nbsp;{tour}
                 </li>
