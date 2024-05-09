@@ -1,44 +1,4 @@
-// import { useEffect } from "react";
-
 import { useEffect } from "react";
-
-// export function useLocomotiveScroll() {
-//   useEffect(() => {
-//     (async () => {
-//       const LocomotiveScroll = (await import("locomotive-scroll" as any))
-//         .default;
-//       const locomotiveScroll = new LocomotiveScroll({
-//         allowNestedScrolling: true,
-//         lenisOptions: {
-//           lerp: 0.1,
-//         },
-//       });
-//     })();
-//   }, []);
-// }
-
-// import { useEffect } from "react";
-
-// export function useLocomotiveScroll(scrollRef) {
-//   useEffect(() => {
-//     (async () => {
-//       const LocomotiveScroll = (await import("locomotive-scroll" as any))
-//         .default;
-//       const locomotiveScroll = new LocomotiveScroll({
-//         el: document.querySelector("#grid-container"), // Replace #myContainer with your container's id
-//         smooth: true,
-//         smoothMobile: true,
-//         lerp: 0.1,
-//       });
-//       const innerContainer = scrollRef.current;
-//       if (innerContainer) {
-//         innerContainer.addEventListener('wheel', (e) => {
-//           e.stopPropagation();
-//         }, { passive: true });
-//       }
-//     })();
-//   }, [scrollRef]);
-// }
 
 export function useLocomotiveScroll(scrollRef: React.RefObject<HTMLElement>) {
   useEffect(() => {
@@ -64,7 +24,6 @@ export function useLocomotiveScroll(scrollRef: React.RefObject<HTMLElement>) {
       }
     })();
 
-    // Cleanup function
     return () => {
       if (locomotiveScroll) {
         locomotiveScroll.destroy();

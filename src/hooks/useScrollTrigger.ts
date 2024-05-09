@@ -171,17 +171,6 @@ export function useScrollTrigger() {
             toggleActions: "restart none play none",
           },
         }),
-          // gsap.from(".forecast-card", {
-          //   autoAlpha: 0,
-          //   y: 300,
-          //   duration: 1,
-          //   scrollTrigger: {
-          //     trigger: ".forecast-section",
-          //     start: "-150px center",
-          //     end: "center 300px",
-          //     toggleActions: "restart none play none",
-          //   },
-          // });
           ScrollTrigger.batch(".forecast-card", {
             start: "top bottom",
             end: "center center",

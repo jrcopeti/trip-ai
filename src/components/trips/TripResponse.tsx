@@ -27,7 +27,6 @@ function TripResponse() {
 
   const { isSaved } = useCreateTrip(tripUrlParams);
 
-  useLocomotiveScroll();
   useScrollTrigger();
   useConfirmOnPageExit(isSaved);
 
