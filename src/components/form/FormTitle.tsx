@@ -1,6 +1,8 @@
+import { useFormData } from "@/hooks/useFormData";
 import { steps } from "@/data";
 
-function FormTitle({ currentStep }: { currentStep: number }) {
+function FormTitle() {
+  const { currentStep } = useFormData();
   return (
     <>
       <h2 className="text-3xl font-extrabold text-tuna-800 lg:text-5xl ">

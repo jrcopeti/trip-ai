@@ -18,8 +18,7 @@ function FormStep1() {
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
         >
-          <FormTitle currentStep={currentStep} />
-
+          <FormTitle />
           <div className="mt-10 flex flex-col justify-between gap-x-6 gap-y-12 md:mt-[100px] md:flex-row lg:gap-y-20 ">
             <Controller
               name="userName"

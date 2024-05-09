@@ -31,7 +31,7 @@ export const FormDataSchema = z
     }),
     flagUrl: z.string(),
   })
-  .refine((data) => dayjs(data.endDate).isAfter(dayjs(data.startDate)), {
+  .refine((data) => !dayjs(data.endDate).isBefore(dayjs(data.startDate)), {
     message: "End date must be after start date",
     path: ["endDate"],
   });

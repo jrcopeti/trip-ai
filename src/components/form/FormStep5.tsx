@@ -32,7 +32,7 @@ function FormStep5() {
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
         >
-          <FormTitle currentStep={currentStep} />
+          <FormTitle />
 
           <div className="mt-10 flex flex-col gap-x-6 gap-y-8 ">
             <Checkbox

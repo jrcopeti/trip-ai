@@ -17,7 +17,7 @@ function FormStep7() {
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
         >
-          <FormTitle currentStep={currentStep} />
+          <FormTitle />
           <ReviewForm />
           <div className="mt-4 flex max-w-md flex-col gap-4">
             <Controller

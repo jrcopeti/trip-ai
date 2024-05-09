@@ -46,8 +46,7 @@ function FormStep2() {
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
         >
-          <FormTitle currentStep={currentStep} />
-
+          <FormTitle />
           <div className="mt-10 grid grid-cols-1 justify-between gap-x-6 gap-y-[5rem] sm:grid-cols-2 md:mt-[75px] ">
             <Controller
               name="city"
