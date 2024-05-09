@@ -1,6 +1,8 @@
+import { useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { useImage } from "@/hooks/useImage";
 import { useCreateTrip } from "@/hooks/useCreateTrip";
@@ -10,8 +12,11 @@ import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
 
 function SaveSection() {
+  const scrollRef = useRef(null);
+  useLocomotiveScroll(scrollRef);
+
   const tripUrlParams = useParams();
-  const { tripData: reponse } = useTripResponse();
+  const { tripData: response } = useTripResponse();
   const { handleYesAnswer, handleNoAnswer, isCreatingTrip, isSaved } =
     useCreateTrip(tripUrlParams);
   const { imageData } = useImage();
@@ -30,13 +35,16 @@ function SaveSection() {
             className="object-cover shadow-xl "
           />
         </div>
-        <div className="bg-gallery-50/70 p-6 lg:p-8">
+        <div
+          ref={scrollRef}
+          className="min-h-full overflow-auto bg-gallery-50/70 p-6 lg:p-8"
+        >
           <div className="flex flex-col gap-3">
             <h2 className="text-2xl font-bold text-tuna-900 lg:text-3xl">
               Good to know!
             </h2>
             <p className="text-sm font-semibold text-tuna-600 xs:text-base sm:text-lg lg:text-xl">
-              {reponse?.tip}
+              {response?.tip}
             </p>
           </div>
 

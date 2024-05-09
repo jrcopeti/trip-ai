@@ -1,6 +1,8 @@
+import { useRef } from "react";
+import { useParams } from "next/navigation";
 import Image from "next/image";
 import defaultImage3 from "@/assets/homepage/3.jpg";
-import { useParams } from "next/navigation";
+import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { useImage } from "@/hooks/useImage";
@@ -9,8 +11,10 @@ import { defaultPlaceholder } from "@/lib/constants";
 import { FaCheck } from "react-icons/fa6";
 
 function MustHaveSection() {
-  const params = useParams();
+  const scrollRef = useRef(null);
+  useLocomotiveScroll(scrollRef);
 
+  const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
   const { tripData: response } = useTripResponse();
   const { imageData } = useImage();
@@ -36,15 +40,18 @@ function MustHaveSection() {
           />
         </div>
 
-        <div className="bg-gallery-50/70 px-4 py-3 lg:px-6 lg:py-5">
+        <div
+          ref={scrollRef}
+          className="min-h-full overflow-auto bg-gallery-50/70 px-4 py-3 lg:px-6 lg:py-5"
+        >
           <div className="ml-2">
-            <h2 className="text-xl font-bold text-tuna-900 xs:text-2xl sm:mt-3 lg:text-3xl">
+            <h2 className="text-2xl font-bold text-tuna-900 xs:text-3xl sm:mt-3 lg:text-4xl">
               Your Must Have items
             </h2>
             <div className="grid grid-cols-2 gap-x-5 xs:mt-2 sm:grid-cols-3 lg:mt-4 lg:grid-cols-2 lg:gap-y-1">
               {mustHave?.map((item, i) => (
                 <ul className="py-1" key={i}>
-                  <li className="inline-flex items-center gap-2 text-sm font-semibold capitalize text-tuna-600 xs:text-base md:text-lg lg:text-xl 2xl:text-2xl">
+                  <li className="inline-flex items-center gap-2 text-base font-semibold capitalize text-tuna-600 xs:text-lg lg:text-2xl 2xl:text-3xl">
                     <span>
                       <FaCheck color="#4e888c" />
                     </span>
@@ -56,14 +63,14 @@ function MustHaveSection() {
           </div>
 
           <div className="ml-2 xs:mt-4 lg:mt-6">
-            <h2 className="text-xl font-bold text-tuna-900 sm:mt-3 sm:text-2xl lg:text-3xl">
+            <h2 className="text-2xl font-bold text-tuna-900 sm:mt-3 sm:text-3xl lg:text-4xl">
               And Your Required Items
             </h2>
             <div className="mt-2 grid grid-cols-2 gap-x-5 xs:mt-2 sm:grid-cols-3 lg:mt-4 lg:grid-cols-2 lg:gap-y-1">
               {requiredItems.length >= 1 &&
                 requiredItems?.map((item, i) => (
                   <ul className="py-1" key={i}>
-                    <li className="inline-flex items-center gap-1 text-sm font-semibold capitalize text-tuna-600 xs:text-base md:text-lg lg:text-xl 2xl:text-2xl">
+                    <li className="inline-flex items-center gap-1 text-base font-semibold capitalize text-tuna-600 xs:text-lg lg:text-2xl 2xl:text-3xl">
                       {item !== "" ? (
                         <>
                           <span>

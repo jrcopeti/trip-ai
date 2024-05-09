@@ -23,7 +23,7 @@ function SavedTripsPageComponent() {
   const params = useParams();
   const { trip, isPendingSingleSavedTrip } = useSingleSavedTrip({ params });
 
-  useLocomotiveScroll();
+  // useLocomotiveScroll();
   useScrollTrigger();
 
   if (isPendingSingleSavedTrip) {

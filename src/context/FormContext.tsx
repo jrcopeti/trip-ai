@@ -125,7 +125,6 @@ function FormProvider({ children }: { children: React.ReactNode }) {
 
   const { countries } = useCountries();
   const { generateForecast, forecastData } = useWeather();
-  console.log("forecastData", forecastData);
   const { generateImage } = useImage();
 
   const cityWatch = watch("city");
@@ -184,7 +183,6 @@ function FormProvider({ children }: { children: React.ReactNode }) {
   };
 
   const processForm: SubmitHandler<Inputs> = (data) => {
-    console.log("data", data);
     const {
       userName,
       age,
@@ -218,11 +216,9 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     const promptModelWeather = `${formattedUserName}, a ${age}-year-old traveler from ${nationality}, is planning a ${type} trip to ${formattedCity}, ${country} with a ${budget} budget. ${userName} prefers to travel by ${transport}, with a ${luggageSize} luggage size and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. (If there is no required items, return an empty array). Staying in a ${accommodation}, he/she is interested in ${interests}. Additionally, he/she has noted he/she would specifically like to have: ${formattedNote} (If there is no note, skip this part). Based on ${userName}'s preferences and trip details, plus the weather forecast that is in the end of the prompt, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${userName}, ${formattedCity}, and ${country}, a brief description highlighting the essence of their journey, and three must-do activities with maximum three paragraphs each. Finally, especify a tip taking in consideration the transport, luggage size, weather and notes. Weather forecast for ${formattedCity}, ${country}: ${forecastDataString}.`;
 
     if (isWeatherSelected) {
-      console.log("weathersubmitted");
       setValue("weatherForecast", forecastDataString);
       generateResponseAI(promptModelWeather);
     } else {
-      console.log("submitted");
       generateResponseAI(promptModel);
     }
 
