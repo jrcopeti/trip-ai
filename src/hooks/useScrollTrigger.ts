@@ -49,6 +49,10 @@ export function useScrollTrigger() {
           },
         });
 
+        gsap.set(".plane", {
+          x: 0,
+        });
+
         gsap.from(".title-tours", {
           autoAlpha: 0,
           y: 150,
