@@ -1,5 +1,7 @@
+import { useRef } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
+import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useImage } from "@/hooks/useImage";
 import { useFormData } from "@/hooks/useFormData";
@@ -10,6 +12,9 @@ import { defaultPlaceholder } from "@/lib/constants";
 import { displayDuration, durationInDays } from "@/lib/utils";
 
 function FormDetailsSection() {
+  const scrollRef = useRef(null);
+  useLocomotiveScroll(scrollRef);
+
   const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
   const { imageData } = useImage();
@@ -41,7 +46,10 @@ function FormDetailsSection() {
   return (
     <>
       <GridContainer animationClass="form-details">
-        <div className="bg-gallery-50/70 p-2 lg:px-4 lg:py-5">
+        <div
+          ref={scrollRef}
+          className=" min-h-full overflow-auto bg-gallery-50/70 p-2 lg:px-4 lg:py-5"
+        >
           <div className="-mb-4 h-[40px] w-[60px] text-tuna-900 xs:h-[60px] xs:w-[80px] lg:h-[80px] lg:w-[100px]">
             <Image
               src={flag ?? ""}
@@ -56,7 +64,7 @@ function FormDetailsSection() {
               <small className="text-[0.5rem] text-tuna-900 xs:text-xs">
                 Destination
               </small>
-              <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
+              <p className="text-[0.5rem] text-xs uppercase text-tuna-600 xs:text-sm sm:text-base lg:text-lg">
                 {city}, {country}
               </p>
             </div>
@@ -65,7 +73,7 @@ function FormDetailsSection() {
               <small className="text-[0.5rem] text-tuna-900 xs:text-xs">
                 Nationality
               </small>
-              <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
+              <p className="text-[0.5rem] text-xs uppercase text-tuna-600 xs:text-sm sm:text-base lg:text-lg">
                 {nationality}
               </p>
             </div>
@@ -73,7 +81,7 @@ function FormDetailsSection() {
               <small className="text-[0.5rem] text-tuna-900 xs:text-xs">
                 Name
               </small>
-              <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
+              <p className="text-[0.5rem] text-xs uppercase text-tuna-600 xs:text-sm sm:text-base lg:text-lg">
                 {userName}
               </p>
             </div>
@@ -82,7 +90,7 @@ function FormDetailsSection() {
               <small className="text-[0.5rem] text-tuna-900 xs:text-xs">
                 Trip Type
               </small>
-              <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
+              <p className="text-[0.5rem] text-xs uppercase text-tuna-600 xs:text-sm sm:text-base lg:text-lg">
                 {tripType}
               </p>
             </div>
@@ -91,7 +99,7 @@ function FormDetailsSection() {
               <small className="text-[0.5rem] text-tuna-900 xs:text-xs">
                 Age
               </small>
-              <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
+              <p className="text-[0.5rem] text-xs uppercase text-tuna-600 xs:text-sm sm:text-base lg:text-lg">
                 {age}
               </p>
             </div>
@@ -100,7 +108,7 @@ function FormDetailsSection() {
               <small className="text-[0.5rem] text-tuna-900 xs:text-xs">
                 Budget
               </small>
-              <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
+              <p className="text-[0.5rem] text-xs uppercase text-tuna-600 xs:text-sm sm:text-base lg:text-lg">
                 {budget}
               </p>
             </div>
@@ -109,7 +117,7 @@ function FormDetailsSection() {
               <small className="text-[0.5rem] text-tuna-900 xs:text-xs">
                 Transport
               </small>
-              <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
+              <p className="text-[0.5rem] text-xs uppercase text-tuna-600 xs:text-sm sm:text-base lg:text-lg">
                 {transport}
               </p>
             </div>
@@ -118,7 +126,7 @@ function FormDetailsSection() {
               <small className="text-[0.5rem] text-tuna-900 xs:text-xs">
                 LugaggeSize
               </small>
-              <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
+              <p className="text-[0.5rem] text-xs uppercase text-tuna-600 xs:text-sm sm:text-base lg:text-lg">
                 {lugaggeSize}
               </p>
             </div>
@@ -127,7 +135,7 @@ function FormDetailsSection() {
               <small className="text-[0.5rem] text-tuna-900 xs:text-xs">
                 Duration
               </small>
-              <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
+              <p className="text-[0.5rem] text-xs uppercase text-tuna-600 xs:text-sm sm:text-base lg:text-lg">
                 {weatherForecast ? `5 days based on weather` : duration}
               </p>
             </div>
@@ -136,7 +144,7 @@ function FormDetailsSection() {
               <small className="text-[0.5rem] text-tuna-900 xs:text-xs">
                 Accommodation
               </small>
-              <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
+              <p className="text-[0.5rem] text-xs uppercase text-tuna-600 xs:text-sm sm:text-base lg:text-lg">
                 {accommodation}
               </p>
             </div>
@@ -145,7 +153,7 @@ function FormDetailsSection() {
               <small className="text-[0.5rem] text-tuna-900 xs:text-xs">
                 Notes
               </small>
-              <p className="sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg">
+              <p className="text-[0.5rem] text-xs uppercase text-tuna-600 xs:text-sm sm:text-base lg:text-lg">
                 {note || "--"}
               </p>
             </div>
@@ -156,7 +164,7 @@ function FormDetailsSection() {
               </small>
               {interests.map((interest) => (
                 <p
-                  className=" sm:text-md text-[0.5rem] uppercase text-tuna-600 xs:text-xs lg:text-lg"
+                  className=" text-[0.5rem] text-xs uppercase text-tuna-600 xs:text-sm sm:text-base lg:text-lg"
                   key={interest}
                 >
                   <span>{interest}</span>

@@ -1,6 +1,7 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
+import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useFormData } from "@/hooks/useFormData";
 import { useWeather } from "@/hooks/useWeather";
@@ -12,6 +13,9 @@ import { BiMessageSquareError } from "react-icons/bi";
 dayjs.extend(utc);
 
 function ForecastSection() {
+  const scrollRef = useRef(null);
+  useLocomotiveScroll(scrollRef);
+
   const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
   const { formData } = useFormData();
@@ -47,30 +51,33 @@ function ForecastSection() {
     );
   }
 
-  console.log("dailyForecastData", dailyForecastData);
-
   return (
-    <div className="flex flex-col items-center gap-16 2xl:gap-[5rem]">
-      <div className="hidden text-3xl font-semibold text-tuna-900 lg:flex lg:items-center lg:gap-2 2xl:text-4xl">
-        <h2>5 days forecast -</h2>
-        <h3 className="font-normal uppercase">
-          {city}, {country}
-        </h3>
-      </div>
-      <div className="grid grid-cols-2 justify-items-center gap-x-8 gap-y-12 p-5 lg:grid-cols-5 lg:gap-8">
-        <div className="forecast-card relative flex h-[21vh] min-h-[21vh] w-[21vh] max-w-[21vh] flex-col items-center justify-center bg-gallery-50/70 text-center text-tuna-900 shadow-xl sm:h-[190px] sm:min-h-[190px] sm:w-[190px] sm:max-w-[190px] md:h-[200px] md:min-h-[200px] md:w-[200px] md:max-w-[200px] lg:hidden ">
-          <div className="w-[100px] text-sm font-semibold capitalize text-tuna-800 xs:text-base">
-            <h2>5 days forecast</h2>
-
-            <h3 className="mt-2 text-xs font-normal uppercase">
-              {city}, {country}
-            </h3>
-          </div>
+    <div className=" absolute h-full w-full overflow-y-auto overflow-x-hidden">
+      <div
+        ref={scrollRef}
+        className="mt-8 flex flex-col items-center gap-16 lg:mt-0 2xl:gap-[5rem]"
+      >
+        <div className="hidden text-3xl font-semibold text-tuna-900 lg:flex lg:items-center lg:gap-2 2xl:text-4xl">
+          <h2>5 days forecast -</h2>
+          <h3 className="font-normal uppercase">
+            {city}, {country}
+          </h3>
         </div>
+        <div className="grid grid-cols-2 justify-items-center gap-x-8 gap-y-12 p-5 lg:grid-cols-5 lg:gap-8">
+          <div className="forecast-card relative flex h-[21vh] min-h-[21vh] w-[21vh] max-w-[21vh] flex-col items-center justify-center bg-gallery-50/70 text-center text-tuna-900 shadow-xl sm:h-[190px] sm:min-h-[190px] sm:w-[190px] sm:max-w-[190px] md:h-[200px] md:min-h-[200px] md:w-[200px] md:max-w-[200px] lg:hidden ">
+            <div className="w-[100px] text-sm font-semibold capitalize text-tuna-800 xs:text-base">
+              <h2>5 days forecast</h2>
 
-        {dailyForecastData?.map((forecast, i) => (
-          <ForecastSectionCard key={i} forecast={forecast} />
-        ))}
+              <h3 className="mt-2 text-xs font-normal uppercase">
+                {city}, {country}
+              </h3>
+            </div>
+          </div>
+
+          {dailyForecastData?.map((forecast, i) => (
+            <ForecastSectionCard key={i} forecast={forecast} />
+          ))}
+        </div>
       </div>
     </div>
   );

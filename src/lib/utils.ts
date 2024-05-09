@@ -79,7 +79,7 @@ const placeWeatherIcons = (condition: string, icon: string) => {
     }
   }
 
-  console.log("No condition matched, returning default icon.");
+  console.log("Using default icon.");
   return suncloudy.src;
 };
 
@@ -112,7 +112,6 @@ const findStartIndex = (data: DailyForecastDataTypes[], chosenHour: number) => {
       break;
     }
   }
-  console.log("startIndex", startIndex);
   return startIndex;
 };
 

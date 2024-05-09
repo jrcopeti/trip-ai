@@ -15,7 +15,7 @@ function ObjectsSection() {
     (response?.objectsList as ObjectsListType[]);
 
   return (
-    <div className="absolute h-[90%] w-[90%] p-4 lg:h-[80%] lg:w-[80%] lg:p-12">
+    <div className="absolute h-[90%] w-[90%] p-4 lg:p-12">
       <div className="grid grid-cols-2 items-center justify-items-center gap-2 rounded-sm lg:grid-cols-3 lg:gap-4 lg:p-4">
         {objectsList?.map((object, i) => (
           <div

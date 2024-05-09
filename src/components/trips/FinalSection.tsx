@@ -1,12 +1,17 @@
+import { useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
+import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 import { Button } from "@nextui-org/react";
 import image9 from "@/assets/homepage/9.jpg";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
 
 function FinalSection() {
+  const scrollRef = useRef(null);
+  useLocomotiveScroll(scrollRef);
+
   const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
   const router = useRouter();
@@ -26,7 +31,10 @@ function FinalSection() {
           />
         </div>
 
-        <div className="bg-gallery-50/70 p-6 lg:p-8">
+        <div
+          ref={scrollRef}
+          className="min-h-full overflow-auto bg-gallery-50/70 p-6 lg:p-8"
+        >
           <div className="flex flex-col gap-3">
             <h2 className="text-2xl font-bold text-tuna-900 lg:text-3xl">
               Good to know!
