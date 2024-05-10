@@ -1,27 +1,21 @@
-import { useParams } from "next/navigation";
 import { useEffect, useLayoutEffect } from "react";
-import { useSingleSavedTrip } from "./useSingleSavedTrip";
 import { useWeather } from "./useWeather";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useTripResponse } from "./useTripResponse";
 
-export function useScrollTrigger() {
-  const params = useParams();
-  const { isPendingSingleSavedTrip } = useSingleSavedTrip({ params });
-  const { isPendingResponseAI } = useTripResponse();
+export function useScrollTrigger(isPending: boolean) {
   const {
     isPendingWeather,
     weatherData,
     isPendingDailyForecast,
     dailyForecastData,
   } = useWeather();
-
+  console.log(isPending)
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
   useIsomorphicLayoutEffect(() => {
-    if (!isPendingSingleSavedTrip && !isPendingResponseAI) {
+    if (!isPending) {
       gsap.registerPlugin(ScrollTrigger);
       const context = gsap.context(() => {
         gsap.from(".trip-description", {
@@ -147,12 +141,11 @@ export function useScrollTrigger() {
       });
       return () => context.revert();
     }
-  }, [isPendingSingleSavedTrip, isPendingResponseAI]);
+  }, [isPending]);
 
   useIsomorphicLayoutEffect(() => {
     if (
-      !isPendingSingleSavedTrip &&
-      !isPendingResponseAI &&
+      !isPending &&
       !isPendingWeather &&
       !isPendingDailyForecast &&
       weatherData &&
@@ -187,8 +180,7 @@ export function useScrollTrigger() {
       return () => context.revert();
     }
   }, [
-    isPendingSingleSavedTrip,
-    isPendingResponseAI,
+    isPending,
     isPendingWeather,
     isPendingDailyForecast,
     weatherData,

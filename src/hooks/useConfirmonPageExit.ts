@@ -1,11 +1,12 @@
 import { useEffect } from "react";
 
-
 export function useConfirmOnPageExit(isSaved: boolean | null) {
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
-      if (isSaved) {
-        return;
+      if (!isSaved) {
+        e.preventDefault();
+        e.returnValue =
+          "You have unsaved changes. Are you sure you want to leave?";
       }
     };
 

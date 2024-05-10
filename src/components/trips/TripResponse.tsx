@@ -2,7 +2,6 @@
 import { notFound, useParams, usePathname } from "next/navigation";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { useCreateTrip } from "@/hooks/useCreateTrip";
-import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
 import { useScrollTrigger } from "@/hooks/useScrollTrigger";
 
@@ -27,7 +26,7 @@ function TripResponse() {
 
   const { isSaved } = useCreateTrip(tripUrlParams);
 
-  useScrollTrigger();
+  useScrollTrigger(isPendingResponseAI);
   useConfirmOnPageExit(isSaved);
 
   if (isPendingResponseAI) {
@@ -104,7 +103,7 @@ function TripResponse() {
       {/* Section 8 */}
 
       <Container overflow="overflow-hidden" animationClass="forecast-section">
-        <GradientBg from="from-shark-100" to="to-violay-200" />
+        <GradientBg from="from-violay-200" to="to-shark-100" />
         <ForecastSection />
       </Container>
 
@@ -114,14 +113,14 @@ function TripResponse() {
         overflow="overflow-hidden"
         animationClass="formdetails-section"
       >
-        <GradientBg from="from-violay-200" to="to-shark-100" />
+        <GradientBg from="from-shark-100" to="to-neptune-200" />
         <FormDetailsSection />
       </Container>
 
       {/* Section 10 */}
 
       <Container overflow="overflow-hidden" animationClass="final-section">
-        <GradientBg from="from-shark-100" to="to-neptune-200" />
+        <GradientBg from="from-neptune-200" to="to-shark-100" />
         <SaveSection />
       </Container>
     </>

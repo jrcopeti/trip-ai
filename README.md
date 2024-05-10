@@ -1,5 +1,6 @@
 # Trip-Ai
 
+https://trip-ai-weld.vercel.app/
 
 Trip AI makes travel planning fun by creating customized itineraries
 that match your personal preferences. Whether you're looking to
@@ -16,20 +17,15 @@ suggestions, a list of things to pack, all adapted to the weather.
 
 ## Tech Stack
 
-- **Next.js** -
-
-- TypeScript
-
-- TypeScript
-- React
-- Next.js
-- React Query
-- Context API
-- Tailwind CSS
-- Next UI
-- Axios
-- zod
-- prisma
-- postgres
-- OpenAI API
-- GSAP Animation and Framer Motion
+- **Next.js** - Next.js was chosen to allow to build a full-stack application with React.
+- **TypeScript** - to improve code quality by adding static types.
+- **React Query** - to manage server state, in the database and API requests, and to cache data.
+- **Context API** - to make state available throughout the application without prop drilling.
+- **Tailwind CSS** - to style the application quickly and responsively.
+- **Next UI** - to create a consistent design system and reusable components.
+- **Axios** - to make API requests with ease.
+- **Zod** - to validate data and ensure data integrity.
+- **Prisma** - to interact with the database.
+- **Postgres** - as database choice.
+- **OpenAI API** - to generate personalized travel itineraries.
+- **GSAP Animation and Framer Motion** - to create scroll animations and transitions.

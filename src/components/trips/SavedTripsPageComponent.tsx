@@ -1,7 +1,6 @@
 "use client";
 import { notFound, useParams } from "next/navigation";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
-import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 import { useScrollTrigger } from "@/hooks/useScrollTrigger";
 
 import WeatherSection from "./WeatherSection";
@@ -23,7 +22,7 @@ function SavedTripsPageComponent() {
   const params = useParams();
   const { trip, isPendingSingleSavedTrip } = useSingleSavedTrip({ params });
 
-  useScrollTrigger();
+  useScrollTrigger(isPendingSingleSavedTrip);
 
   if (isPendingSingleSavedTrip) {
     return <Loader />;
