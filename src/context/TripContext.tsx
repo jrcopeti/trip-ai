@@ -15,15 +15,18 @@ const defaultContextValue: TripContextType = {
   isPendingResponseAI: false,
   errorResponseAI: null,
   isNavigating: false,
+  isTripSaved: false,
+  setIsTripSaved: () => {},
 };
 
 const TripContext = createContext<TripContextType>(defaultContextValue);
 
 function TripProvider({ children }: { children: React.ReactNode }) {
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [isTripSaved, setIsTripSaved] = useState(false);
   const router = useRouter();
   const tripId = crypto.randomUUID().slice(0, 5);
   const path = `/trips/${tripId}`;
-  const [isNavigating, setIsNavigating] = useState(false);
 
   useEffect(() => {
     router.prefetch(path);
@@ -62,6 +65,8 @@ function TripProvider({ children }: { children: React.ReactNode }) {
         isPendingResponseAI,
         errorResponseAI,
         isNavigating,
+        isTripSaved,
+        setIsTripSaved,
       }}
     >
       {children}

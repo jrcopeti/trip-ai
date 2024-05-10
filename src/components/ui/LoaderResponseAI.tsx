@@ -1,7 +1,7 @@
-import { PuffLoader } from "react-spinners";
-import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
+import { PuffLoader } from "react-spinners";
+import { AnimatePresence, motion } from "framer-motion";
 
 const variants = {
   initial: { opacity: 0, y: 50 },
@@ -21,8 +21,8 @@ const messages = [
 ];
 
 function LoaderResponseAI() {
-  useConfirmOnPageExit(null);
   const [index, setIndex] = useState(0);
+  useConfirmOnPageExit();
 
   useEffect(() => {
     const timer = setTimeout(() => {
