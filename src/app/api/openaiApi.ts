@@ -93,7 +93,6 @@ const functionData = {
 
 export const fetchResponseAI = async (prompt: string) => {
   try {
-    console.log("initiating AI request");
     const response = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [
@@ -104,11 +103,9 @@ export const fetchResponseAI = async (prompt: string) => {
       tool_choice: { type: "function", function: { name: "tripData" } },
       temperature: 0,
     });
-    console.log("responding");
     const data =
       response.choices?.[0].message.tool_calls?.[0]?.function.arguments ?? null;
     const parsedData = JSON.parse(data ?? "");
-    console.log("parsedData", parsedData);
 
     if (parsedData.trip === null) {
       return null;
