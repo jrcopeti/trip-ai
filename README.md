@@ -2,7 +2,7 @@
 
 https://trip-ai-weld.vercel.app/
 
-![Screnshot](public/screenshot.png)
+![Desktop View](public/screenshots/screenshot.png)
 
 Trip AI makes travel planning fun by creating customized itineraries that match your preferences.
 Whether you're looking to explore vibrant cities or quiet natural retreats, Trip AI make travel plans simple and personal. It offers detailed tours suggestions, a list of things to pack, all adapted to the weather.
@@ -22,9 +22,35 @@ Whether you're looking to explore vibrant cities or quiet natural retreats, Trip
 - **Context API** - to make state available throughout the application without prop drilling.
 - **Tailwind CSS** - to style the application quickly and responsively.
 - **Next UI** - to create a consistent design system and reusable components.
+- **React Hook Form** - to manage form state.
 - **Axios** - to make API requests with ease.
 - **Zod** - to validate data and ensure data integrity.
 - **Prisma** - to interact with the database.
 - **Postgres** - as database choice.
 - **OpenAI API** - to generate personalized travel itineraries.
 - **GSAP Animation and Framer Motion** - to create scroll animations and transitions.
+
+## Desktop View
+
+![Desktop View](public/screenshots/desktop/1.png)
+![Desktop View](public/screenshots/desktop/2.png)
+![Desktop View](public/screenshots/desktop/3.png)
+![Desktop View](public/screenshots/desktop/4.png)
+![Desktop View](public/screenshots/desktop/5.png)
+![Desktop View](public/screenshots/desktop/6.png)
+![Desktop View](public/screenshots/desktop/7.png)
+![Desktop View](public/screenshots/desktop/8.png)
+![Desktop View](public/screenshots/desktop/9.png)
+![Desktop View](public/screenshots/desktop/10.png)
+
+## Mobile View
+![Mobile View](public/screenshots/mobile/1.png)
+![Mobile View](public/screenshots/mobile/2.png)
+![Mobile View](public/screenshots/mobile/3.png)
+![Mobile View](public/screenshots/mobile/4.png)
+![Mobile View](public/screenshots/mobile/5.png)
+![Mobile View](public/screenshots/mobile/6.png)
+![Mobile View](public/screenshots/mobile/7.png)
+![Mobile View](public/screenshots/mobile/8.png)
+![Mobile View](public/screenshots/mobile/9.png)
+![Mobile View](public/screenshots/mobile/10.png)
