@@ -1,12 +1,14 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { useWindowSize } from "./useWindowSize";
-import { useSavedTrips } from "./useSavedTrips";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Trip } from "@prisma/client";
 
-export function useScrollingSavedTrips() {
+export function useScrollingSavedTrips(
+  savedTrips: Trip[] | undefined,
+  isPendingSavedTrips: boolean,
+) {
   const [breakpoint, setBreakpoint] = useState<number>(0);
-  const { savedTrips, isPendingSavedTrips } = useSavedTrips();
   const windowSize = useWindowSize();
   const windowWidth = windowSize.width;
 
