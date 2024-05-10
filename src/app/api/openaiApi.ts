@@ -94,7 +94,7 @@ const functionData = {
 export const fetchResponseAI = async (prompt: string) => {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4",
       messages: [
         { role: "system", content: systemInstructions },
         { role: "user", content: prompt },
