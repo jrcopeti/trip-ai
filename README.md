@@ -2,11 +2,8 @@
 
 https://trip-ai-weld.vercel.app/
 
-Trip AI makes travel planning fun by creating customized itineraries
-that match your personal preferences. Whether you're looking to
-explore vibrant cities or quiet natural retreats, Trip AI makes
-planning your travels simple and personal. It offers detailed tours
-suggestions, a list of things to pack, all adapted to the weather.
+Trip AI makes travel planning fun by creating customized itineraries that match your preferences.
+Whether you're looking to explore vibrant cities or quiet natural retreats, Trip AI make travel plans simple and personal. It offers detailed tours suggestions, a list of things to pack, all adapted to the weather.
 
 ## Features
 
@@ -29,3 +26,4 @@ suggestions, a list of things to pack, all adapted to the weather.
 - **Postgres** - as database choice.
 - **OpenAI API** - to generate personalized travel itineraries.
 - **GSAP Animation and Framer Motion** - to create scroll animations and transitions.
+
