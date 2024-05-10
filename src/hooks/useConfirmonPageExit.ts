@@ -1,12 +1,14 @@
+"use client";
 import { useEffect } from "react";
+import { useTripResponse } from "./useTripResponse";
 
-export function useConfirmOnPageExit(isSaved: boolean | null) {
+export function useConfirmOnPageExit() {
+  const { isTripSaved } = useTripResponse();
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
-      if (!isSaved) {
+      if (!isTripSaved) {
         e.preventDefault();
-        e.returnValue =
-          "You have unsaved changes. Are you sure you want to leave?";
+        e.returnValue = "";
       }
     };
 
@@ -15,5 +17,5 @@ export function useConfirmOnPageExit(isSaved: boolean | null) {
     return () => {
       window.removeEventListener("beforeunload", handler);
     };
-  }, [isSaved]);
+  }, [isTripSaved]);
 }

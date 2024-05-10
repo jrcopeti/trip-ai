@@ -21,13 +21,9 @@ import Loader from "../ui/Loader";
 import NotFoundComponent from "../ui/NotFoundComponent";
 
 function TripResponse() {
-  const tripUrlParams = useParams();
   const { tripData: trip, isPendingResponseAI } = useTripResponse();
-
-  const { isSaved } = useCreateTrip(tripUrlParams);
-
   useScrollTrigger(isPendingResponseAI);
-  useConfirmOnPageExit(isSaved);
+  useConfirmOnPageExit();
 
   if (isPendingResponseAI) {
     return <Loader />;

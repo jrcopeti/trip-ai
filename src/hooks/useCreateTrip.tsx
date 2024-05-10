@@ -12,10 +12,8 @@ import CustomToaster from "@/components/ui/CustomToaster";
 import { TripUrlParamsType } from "@/types";
 
 export function useCreateTrip(tripUrlParams: TripUrlParamsType) {
-  const [isSaved, setIsSaved] = useState(false);
-
   const { formData } = useFormData();
-  const { tripData: trip } = useTripResponse();
+  const { tripData: trip, setIsTripSaved } = useTripResponse();
   const { imageData } = useImage();
   const tripUrl = tripUrlParams.tripUrl;
 
@@ -28,7 +26,7 @@ export function useCreateTrip(tripUrlParams: TripUrlParamsType) {
     mutationFn: (data: Prisma.TripCreateInput) => createTripInDB(data),
 
     onError: (error) => {
-      console.log(error);
+      console.error(error);
       toast.custom(
         <ErrorToaster message="An error occured and your trip was not saved" />,
       );
@@ -53,7 +51,7 @@ export function useCreateTrip(tripUrlParams: TripUrlParamsType) {
 
     createTrip(finalData as Prisma.TripCreateInput, {
       onSuccess: () => {
-        setIsSaved(true);
+        setIsTripSaved(true);
         toast.custom(<CustomToaster message="Your trip was saved" />);
       },
     });
@@ -75,7 +73,7 @@ export function useCreateTrip(tripUrlParams: TripUrlParamsType) {
     };
     createTrip(finalData as Prisma.TripCreateInput, {
       onSuccess: () => {
-        setIsSaved(true);
+        setIsTripSaved(true);
         toast.custom(<ErrorToaster message="Trip was not saved" />);
       },
     });
@@ -86,6 +84,5 @@ export function useCreateTrip(tripUrlParams: TripUrlParamsType) {
     createTripError,
     handleYesAnswer,
     handleNoAnswer,
-    isSaved,
   };
 }

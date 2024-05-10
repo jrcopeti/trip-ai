@@ -10,14 +10,15 @@ import image5 from "@/assets/homepage/5.jpg";
 import { Button, ButtonGroup } from "@nextui-org/react";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
+import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
 
 function SaveSection() {
   const scrollRef = useRef(null);
   useLocomotiveScroll(scrollRef);
 
   const tripUrlParams = useParams();
-  const { tripData: response } = useTripResponse();
-  const { handleYesAnswer, handleNoAnswer, isCreatingTrip, isSaved } =
+  const { tripData: response, isTripSaved } = useTripResponse();
+  const { handleYesAnswer, handleNoAnswer, isCreatingTrip } =
     useCreateTrip(tripUrlParams);
   const { imageData } = useImage();
 
@@ -48,7 +49,7 @@ function SaveSection() {
             </p>
           </div>
 
-          {!isSaved ? (
+          {!isTripSaved ? (
             <div className="mt-2 sm:mt-4">
               <h2 className="mb-2 text-lg font-semibold text-tuna-900 lg:text-xl">
                 Do you want to save this trip?

@@ -146,6 +146,8 @@ export interface TripContextType {
   isPendingResponseAI: boolean;
   errorResponseAI: unknown;
   isNavigating: boolean;
+  isTripSaved: boolean;
+  setIsTripSaved: (value: boolean) => void;
 }
 
 export interface ImageContextType {
