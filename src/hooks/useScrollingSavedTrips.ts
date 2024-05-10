@@ -1,12 +1,14 @@
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useWindowSize } from "./useWindowSize";
 import { useSavedTrips } from "./useSavedTrips";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export function useScrollingSavedTrips() {
+  const [breakpoint, setBreakpoint] = useState<number>(0);
   const { savedTrips, isPendingSavedTrips } = useSavedTrips();
-  // const windowSize = useWindowSize();
+  const windowSize = useWindowSize();
+  const windowWidth = windowSize.width;
 
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -27,21 +29,40 @@ export function useScrollingSavedTrips() {
     };
   }, []);
 
+  useEffect(() => {
+    let newBreakpoint;
+    if (typeof windowWidth === "undefined" || windowWidth >= 1536) {
+      newBreakpoint = 1536;
+    } else if (windowWidth >= 1280) {
+      newBreakpoint = 1280;
+    } else if (windowWidth >= 768) {
+      newBreakpoint = 768;
+    } else {
+      newBreakpoint = 0;
+    }
+    if (newBreakpoint !== breakpoint) {
+      setBreakpoint(newBreakpoint);
+    }
+  }, [windowWidth, breakpoint]);
+
+  console.log("breakpoint", breakpoint);
+
   useIsomorphicLayoutEffect(() => {
-    // const windowWidth = windowSize.width;
-    if (!isPendingSavedTrips ) {
+    if (!isPendingSavedTrips) {
       gsap.registerPlugin(ScrollTrigger);
-      // let batchMax;
-      // if (windowWidth >= 1536) {
-      //   batchMax = 4;
-      // } else if (windowWidth >= 1280) {
-      //   batchMax = 3;
-      // } else if (windowWidth >= 768) {
-      //   batchMax = 2;
-      // } else {
-      //   batchMax = 1;
-      // }
-      const batchMax = 4
+      let batchMax;
+      if (typeof windowWidth === "undefined" || windowWidth >= 1536) {
+        batchMax = 4;
+      } else if (windowWidth >= 1280) {
+        batchMax = 3;
+      } else if (windowWidth >= 768) {
+        batchMax = 2;
+      } else {
+        batchMax = 1;
+      }
+
+      console.log("batchMax", batchMax);
+
       const context = gsap.context(() => {
         ScrollTrigger.batch(".trip-card", {
           interval: 0.5,
@@ -88,5 +109,5 @@ export function useScrollingSavedTrips() {
         return () => context.revert();
       });
     }
-  }, [isPendingSavedTrips, savedTrips]);
+  }, [isPendingSavedTrips, savedTrips, breakpoint]);
 }
