@@ -37,7 +37,7 @@ function TripResponse() {
   if (trip === null) {
     return (
       <NotFoundComponent
-        message="There was an error generating the trip. Please try again."
+        message="Seems that there's something wrong with the destination provided. Please try again."
         path="/form"
         button="Back to New Trip"
       />
