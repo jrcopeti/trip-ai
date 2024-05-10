@@ -13,7 +13,6 @@ import { PuffLoader } from "react-spinners";
 import { BiMessageSquareError } from "react-icons/bi";
 
 function SavedTripsDisplay() {
-  useScrollingSavedTrips();
 
   const {
     savedTrips,
@@ -22,6 +21,7 @@ function SavedTripsDisplay() {
     setSearchTerm,
     searchTerm,
   } = useSavedTrips();
+  useScrollingSavedTrips(savedTrips, isPendingSavedTrips);
 
   if (savedTripsError) {
     return (
