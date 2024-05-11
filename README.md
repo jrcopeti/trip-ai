@@ -47,7 +47,6 @@ Whether you're looking to explore vibrant cities or quiet natural retreats, Trip
 ## Mobile View
 
 ![Mobile View](public/screenshots/mobile/9.png)
-![Mobile View](public/screenshots/mobile/10.png)
 ![Mobile View](public/screenshots/mobile/1.png)
 ![Mobile View](public/screenshots/mobile/2.png)
 ![Mobile View](public/screenshots/mobile/3.png)
