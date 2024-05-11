@@ -18,7 +18,7 @@ function AboutComponent() {
             Trip AI makes travel planning fun by creating customized itineraries
             that match your preferences. Whether you&apos;re looking to explore
             vibrant cities or quiet natural retreats, Trip AI make travel plans
-            simple and personal. It offers detailed tours suggestions, a list of
+            simple and personal. It offers detailed tours suggestions and a list of
             things to pack, all adapted to the weather.
           </p>
         </div>
