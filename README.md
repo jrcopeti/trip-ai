@@ -5,7 +5,7 @@ https://trip-ai-weld.vercel.app/
 ![Desktop View](public/screenshots/screenshot.png)
 
 Trip AI makes travel planning fun by creating customized itineraries that match your preferences.
-Whether you're looking to explore vibrant cities or quiet natural retreats, Trip AI make travel plans simple and personal. It offers detailed tours suggestions, a list of things to pack, all adapted to the weather.
+Whether you're looking to explore vibrant cities or quiet natural retreats, Trip AI make travel plans simple and personal. It offers detailed tours suggestions and a list of things to pack, all adapted to the weather.
 
 ## Features
 
@@ -17,17 +17,18 @@ Whether you're looking to explore vibrant cities or quiet natural retreats, Trip
 ## Tech Stack
 
 - **Next.js** - Next.js was chosen to allow to build a full-stack application with React.
-- **TypeScript** - to improve code quality by adding static types.
-- **React Query** - to manage server state, in the database and API requests, and to cache data.
-- **Context API** - to make state available throughout the application without prop drilling.
+- **TypeScript** - for improving code quality by adding static types.
+- **TanStack Query** - to manage server state, in the database and API requests, and to cache data.
+- **Context API** - for making state available throughout the application without prop drilling.
 - **Tailwind CSS** - to style the application quickly and responsively.
 - **Next UI** - to create a consistent design system and reusable components.
-- **React Hook Form** - to manage form state.
-- **Axios** - to make API requests with ease.
+- **React Hook Form** - for managing form state.
+- **Axios** - for making REST APIs requests with ease.
 - **Zod** - to validate data and ensure data integrity.
 - **Prisma** - to interact with the database.
 - **Postgres** - as database choice.
 - **OpenAI API** - to generate personalized travel itineraries.
+- **OpenWeather API** - to get weather data.
 - **GSAP Animation and Framer Motion** - to create scroll animations and transitions.
 
 ## Desktop View
@@ -44,7 +45,9 @@ Whether you're looking to explore vibrant cities or quiet natural retreats, Trip
 ![Desktop View](public/screenshots/desktop/10.png)
 
 ## Mobile View
+
 ![Mobile View](public/screenshots/mobile/9.png)
+![Mobile View](public/screenshots/mobile/10.png)
 ![Mobile View](public/screenshots/mobile/1.png)
 ![Mobile View](public/screenshots/mobile/2.png)
 ![Mobile View](public/screenshots/mobile/3.png)
