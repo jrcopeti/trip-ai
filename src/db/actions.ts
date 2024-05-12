@@ -10,30 +10,29 @@ export const createTripInDB = async (trip: Prisma.TripCreateInput) => {
 
 export const getAllTrips = async (searchTerm: string): Promise<Trip[]> => {
   const whereClause: Prisma.TripWhereInput = {
-    ...(searchTerm
-      ? {
-          OR: [
-            {
-              city: {
-                contains: searchTerm,
-                mode: "insensitive",
-              },
-            },
-            {
-              country: {
-                contains: searchTerm,
-                mode: "insensitive",
-              },
-            },
-            {
-              userName: {
-                contains: searchTerm,
-                mode: "insensitive",
-              },
-            },
-          ],
-        }
-      : { saved: true }),
+    saved: true,
+    ...(searchTerm && {
+      OR: [
+        {
+          city: {
+            contains: searchTerm,
+            mode: "insensitive",
+          },
+        },
+        {
+          country: {
+            contains: searchTerm,
+            mode: "insensitive",
+          },
+        },
+        {
+          userName: {
+            contains: searchTerm,
+            mode: "insensitive",
+          },
+        },
+      ],
+    }),
   };
 
   const allTrips = await prisma.trip.findMany({

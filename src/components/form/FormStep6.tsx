@@ -18,7 +18,7 @@ function FormStep6() {
         >
           <FormTitle />
 
-          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8  ">
+          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8">
             <Controller
               name="interests"
               control={control}
