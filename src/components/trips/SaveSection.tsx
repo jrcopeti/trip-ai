@@ -1,6 +1,5 @@
 import { useRef } from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 import { useTripResponse } from "@/hooks/useTripResponse";
@@ -20,6 +19,7 @@ function SaveSection() {
   const { handleYesAnswer, handleNoAnswer, isCreatingTrip } =
     useCreateTrip(tripUrlParams);
   const { imageData } = useImage();
+  const router = useRouter();
 
   return (
     <>
@@ -73,11 +73,20 @@ function SaveSection() {
               </ButtonGroup>
             </div>
           ) : (
-            <Link href="/form">
-              <Button className="mt-4 bg-neptune-500 p-6 text-base text-gallery-50 xs:text-lg lg:text-xl">
+            <ButtonGroup>
+              <Button
+                onClick={() => router.push("/saved-trips")}
+                className="mt-4 bg-neptune-500 p-6 text-base font-semibold text-gallery-50 xs:text-lg lg:text-xl"
+              >
+                View saved trips
+              </Button>
+              <Button
+                onClick={() => router.push("/form")}
+                className="mt-4 bg-neptune-500 p-6 text-base text-gallery-50 xs:text-lg lg:text-xl"
+              >
                 Get another trip
               </Button>
-            </Link>
+            </ButtonGroup>
           )}
         </div>
       </GridContainer>
