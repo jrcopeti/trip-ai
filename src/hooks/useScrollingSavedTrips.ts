@@ -47,8 +47,6 @@ export function useScrollingSavedTrips(
     }
   }, [windowWidth, breakpoint]);
 
-  console.log("breakpoint", breakpoint);
-
   useIsomorphicLayoutEffect(() => {
     if (!isPendingSavedTrips) {
       gsap.registerPlugin(ScrollTrigger);
@@ -62,8 +60,6 @@ export function useScrollingSavedTrips(
       } else {
         batchMax = 1;
       }
-
-      console.log("batchMax", batchMax);
 
       const context = gsap.context(() => {
         ScrollTrigger.batch(".trip-card", {

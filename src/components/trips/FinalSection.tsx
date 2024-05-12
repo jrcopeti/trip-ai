@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 import { Button } from "@nextui-org/react";
-import image9 from "@/assets/homepage/9.jpg";
+import defaultImage5 from "@/assets/homepage/9.jpg";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
 
@@ -21,7 +21,7 @@ function FinalSection() {
       <GridContainer animationClass="final-card">
         <div className="relative h-full w-full ">
           <Image
-            src={trip?.image5 ?? image9}
+            src={trip?.image5 ?? defaultImage5}
             alt="city"
             blurDataURL={trip?.placeholder ?? defaultPlaceholder}
             placeholder="blur"

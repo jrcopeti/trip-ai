@@ -6,11 +6,10 @@ import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { useImage } from "@/hooks/useImage";
 import { useCreateTrip } from "@/hooks/useCreateTrip";
-import image5 from "@/assets/homepage/5.jpg";
+import defaultImage5 from "@/assets/homepage/9.jpg";
 import { Button, ButtonGroup } from "@nextui-org/react";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
-import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
 
 function SaveSection() {
   const scrollRef = useRef(null);
@@ -27,7 +26,7 @@ function SaveSection() {
       <GridContainer animationClass="final-card">
         <div className="relative h-full w-full ">
           <Image
-            src={imageData?.tripImage5 ?? image5}
+            src={imageData?.tripImage5 ?? defaultImage5}
             alt="city"
             blurDataURL={imageData?.placeholder ?? defaultPlaceholder}
             placeholder="blur"
