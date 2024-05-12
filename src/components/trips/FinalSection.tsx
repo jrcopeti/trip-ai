@@ -3,10 +3,11 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
-import { Button } from "@nextui-org/react";
+import { Button, ButtonGroup } from "@nextui-org/react";
 import defaultImage5 from "@/assets/homepage/9.jpg";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
+
 
 function FinalSection() {
   const scrollRef = useRef(null);
@@ -43,12 +44,20 @@ function FinalSection() {
               {trip?.tip}{" "}
             </p>
           </div>
-          <Button
-            onClick={router.back}
-            className="mt-2 bg-neptune-500 text-base text-gallery-50 xs:mt-10 xs:p-6 xs:text-xl"
-          >
-            Back
-          </Button>
+          <ButtonGroup>
+            <Button
+              onClick={router.back}
+              className="mt-2 bg-neptune-500 text-base font-semibold text-gallery-50 xs:mt-10 xs:p-6 xs:text-xl"
+            >
+              Back
+            </Button>
+            <Button
+              onClick={() => router.push("/form")}
+              className="mt-2 bg-neptune-500 text-base text-gallery-50 xs:mt-10 xs:p-6 xs:text-xl"
+            >
+              Get another trip
+            </Button>
+          </ButtonGroup>
         </div>
       </GridContainer>
     </>
