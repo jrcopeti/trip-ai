@@ -36,7 +36,7 @@ Whether you're looking to explore vibrant cities or quiet natural retreats, Trip
 ![Desktop View](public/screenshots/desktop/1.png)
 ![Desktop View](public/screenshots/desktop/2.png)
 ![Desktop View](public/screenshots/desktop/3.png)
-![Desktop View](public/screenshots/desktop/4.png)
+![Desktop View](public/screenshots/desktop/4a.png)
 ![Desktop View](public/screenshots/desktop/5.png)
 ![Desktop View](public/screenshots/desktop/6.png)
 ![Desktop View](public/screenshots/desktop/7.png)
@@ -46,12 +46,14 @@ Whether you're looking to explore vibrant cities or quiet natural retreats, Trip
 
 ## Mobile View
 
-![Mobile View](public/screenshots/mobile/9.png)
-![Mobile View](public/screenshots/mobile/1.png)
-![Mobile View](public/screenshots/mobile/2.png)
-![Mobile View](public/screenshots/mobile/3.png)
-![Mobile View](public/screenshots/mobile/4.png)
-![Mobile View](public/screenshots/mobile/5.png)
-![Mobile View](public/screenshots/mobile/6.png)
-![Mobile View](public/screenshots/mobile/7.png)
-![Mobile View](public/screenshots/mobile/8.png)
+
+![Mobile View](public/screenshots/mobile/1a.png)
+![Mobile View](public/screenshots/mobile/2a.png)
+![Mobile View](public/screenshots/mobile/3a.png)
+![Mobile View](public/screenshots/mobile/4a.png)
+![Mobile View](public/screenshots/mobile/5a.png)
+![Mobile View](public/screenshots/mobile/6a.png)
+![Mobile View](public/screenshots/mobile/7a.png)
+![Mobile View](public/screenshots/mobile/8a.png)
+![Mobile View](public/screenshots/mobile/9a.png)
+![Mobile View](public/screenshots/mobile/10a.png)
