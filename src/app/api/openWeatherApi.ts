@@ -40,8 +40,8 @@ export const fetchWeather = async ({
     const getWeather = await axios.get(weatherUrl);
     weather = getWeather.data;
     return weather;
-  } catch (err: unknown) {
-    console.log("error", err);
+  } catch (error: unknown) {
+    console.error(error);
     throw new Error("Error fetching weather data");
   }
 };

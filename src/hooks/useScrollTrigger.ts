@@ -10,7 +10,7 @@ export function useScrollTrigger(isPending: boolean) {
     isPendingDailyForecast,
     dailyForecastData,
   } = useWeather();
-  console.log(isPending)
+
   const useIsomorphicLayoutEffect =
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
