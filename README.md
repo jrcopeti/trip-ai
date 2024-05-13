@@ -29,6 +29,7 @@ Whether you're looking to explore vibrant cities or quiet natural retreats, Trip
 - **Postgres** - as database choice.
 - **OpenAI API** - to generate personalized travel itineraries.
 - **OpenWeather API** - to get weather data.
+- **Swiperjs** - to create nice sliding pictures.
 - **GSAP Animation and Framer Motion** - to create scroll animations and transitions.
 
 ## Desktop View
