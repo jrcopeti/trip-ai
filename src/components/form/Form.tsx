@@ -24,12 +24,7 @@ import LoaderResponseAI from "../ui/LoaderResponseAI";
 const Form = memo(function Form() {
   const { isPendingResponseAI, isNavigating, errorResponseAI } =
     useTripResponse();
-  const { isLoading: isLoadingCountries } = useCountries();
   const { handleSubmit, processForm } = useFormData();
-
-  // if (isLoadingCountries) {
-  //   return <Loader />;
-  // }
 
   if (isPendingResponseAI || isNavigating) {
     return <LoaderResponseAI />;

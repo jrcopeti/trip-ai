@@ -1,4 +1,3 @@
-
 import SavedTripsDisplay from "@/components/trips/SavedTripsDisplay";
 import {
   HydrationBoundary,
