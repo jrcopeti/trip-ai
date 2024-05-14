@@ -12,7 +12,7 @@ const DynamicTripResponse = dynamic(
 function TripPage() {
   return (
     <>
-      <DynamicTripResponse />
+      <TripResponse />
     </>
   );
 }
