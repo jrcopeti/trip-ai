@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import FormTitle from "./FormTitle";
 
 function FormStep1() {
-  const { countries } = useCountries();
+  const { countries, isLoading: isLoadingCountries } = useCountries();
   const { currentStep, control, errors, handleSelectionAutocomplete, delta } =
     useFormData();
 
@@ -84,6 +84,7 @@ function FormStep1() {
                   }
                   isInvalid={!!errors.nationality}
                   isRequired
+                  isDisabled={isLoadingCountries}
                   errorMessage={errors.nationality?.message}
                   popoverProps={{ placement: "top" }}
                 >
