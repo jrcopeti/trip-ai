@@ -27,9 +27,9 @@ const Form = memo(function Form() {
   const { isLoading: isLoadingCountries } = useCountries();
   const { handleSubmit, processForm } = useFormData();
 
-  if (isLoadingCountries) {
-    return <Loader />;
-  }
+  // if (isLoadingCountries) {
+  //   return <Loader />;
+  // }
 
   if (isPendingResponseAI || isNavigating) {
     return <LoaderResponseAI />;
