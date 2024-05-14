@@ -30,7 +30,7 @@ function ImageProvider({ children }: { children: React.ReactNode }) {
     onError: (error) => {
       console.error(error);
       toast.custom(
-        <ErrorToaster message="There was an error generating the images" />,
+        <ErrorToaster message="Images not found for the location provided" />,
       );
     },
   });

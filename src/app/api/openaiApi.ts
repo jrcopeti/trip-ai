@@ -46,7 +46,7 @@ const functionData = {
       },
       mustHave: {
         type: "array",
-        description: "A list of four must-have items for the trip.",
+        description: "A list of four must-have items for the trip. Do not repeat the required items.",
         items: {
           type: "string",
         },
@@ -76,7 +76,7 @@ const functionData = {
       tip: {
         type: "string",
         description:
-          "A brief tip of 20 (twenty) words, taking in consideration the transport luggage size from the user's prompt and the weather from forecast data or the average for the time of the year.",
+          "A brief tip of maximum 2 paragraphs, taking in consideration the transport and luggage size from the user's prompt, and the weather from forecast data or the average for the time of the year.",
       },
     },
     required: [
