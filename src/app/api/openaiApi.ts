@@ -22,7 +22,7 @@ const functionData = {
       objectsList: {
         type: "array",
         description:
-          "A detailed list of items to pack, specifying the quantity, the item, and a brief description for each.",
+          "A detailed list of items to pack, specifying the quantity, the item, and a brief description for each. Do not repeat the required items.",
         items: {
           type: "object",
           properties: {
@@ -76,7 +76,7 @@ const functionData = {
       tip: {
         type: "string",
         description:
-          "A brief tip of maximum 2 paragraphs, taking in consideration the transport and luggage size from the user's prompt, and the weather from forecast data or the average for the time of the year.",
+          "A brief tip of maximum 2 paragraphs, taking in consideration the transport, accomodation and luggage size from the user's prompt, and also the weather from forecast data or the average for the time of the year.",
       },
     },
     required: [
