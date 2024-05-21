@@ -45,7 +45,7 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
           const validCity = response.geonames.find((geo: GeoName) => {
             const formattedCity = city.trim().toLowerCase();
             const formattedGeoName = geo.name.trim().toLowerCase();
-            return formattedGeoName === formattedCity && geo.population > 1;
+            return formattedGeoName === formattedCity;
           });
 
           if (!validCity) {
