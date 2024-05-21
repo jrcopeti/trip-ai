@@ -46,7 +46,8 @@ const functionData = {
       },
       mustHave: {
         type: "array",
-        description: "A list of four must-have items for the trip. Do not repeat the required items.",
+        description:
+          "A list of four must-have items for the trip. Do not repeat the required items.",
         items: {
           type: "string",
         },
