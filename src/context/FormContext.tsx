@@ -232,6 +232,7 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     };
     setFormData(finalData);
     reset();
+    setCurrentStep(0);
   };
 
   return (
