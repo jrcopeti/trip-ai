@@ -145,7 +145,6 @@ export interface TripContextType {
   generateResponseAI: (prompt: string) => void;
   isPendingResponseAI: boolean;
   errorResponseAI: unknown;
-
   isTripSaved: boolean;
   setIsTripSaved: (value: boolean) => void;
 }
@@ -231,6 +230,7 @@ export interface useGeoNamesProps {
 }
 export interface GeoName {
   name: string;
+  toponymName: string;
   population: number;
 }
 export interface ToggleActions {
