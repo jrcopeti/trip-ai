@@ -40,7 +40,6 @@ function TripProvider({ children }: { children: React.ReactNode }) {
 
     onSuccess: () => {
       toast.custom(<CustomToaster message="Your trip has been generated!" />);
-
       router.replace(path);
     },
 
@@ -59,7 +58,6 @@ function TripProvider({ children }: { children: React.ReactNode }) {
         generateResponseAI,
         isPendingResponseAI,
         errorResponseAI,
-
         isTripSaved,
         setIsTripSaved,
       }}
