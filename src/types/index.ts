@@ -145,7 +145,7 @@ export interface TripContextType {
   generateResponseAI: (prompt: string) => void;
   isPendingResponseAI: boolean;
   errorResponseAI: unknown;
-  isNavigating: boolean;
+
   isTripSaved: boolean;
   setIsTripSaved: (value: boolean) => void;
 }

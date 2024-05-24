@@ -1,4 +1,3 @@
-"use client";
 import { useEffect, useState } from "react";
 import Geonames from "geonames.js";
 import type { useGeoNamesProps, GeoName } from "@/types";

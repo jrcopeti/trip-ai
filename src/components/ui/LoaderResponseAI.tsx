@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
 import { PuffLoader } from "react-spinners";
@@ -32,7 +33,13 @@ function LoaderResponseAI() {
   }, [index]);
 
   return (
-    <div className="fixed left-0 top-0 z-[99] flex h-screen w-screen items-center justify-center overflow-hidden bg-gradient-to-b from-shark-100 to-neptune-200 px-4">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5, ease: "easeInOut" }}
+      className="fixed left-0 top-0 z-[99] flex h-screen w-screen items-center justify-center overflow-hidden bg-gradient-to-b from-shark-100 to-neptune-200 px-4"
+    >
       <div className="flex flex-col items-center gap-5">
         <div>
           <PuffLoader size={80} color="#4e888c" />
@@ -51,7 +58,7 @@ function LoaderResponseAI() {
           </motion.div>
         </AnimatePresence>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

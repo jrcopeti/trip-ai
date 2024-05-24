@@ -14,7 +14,6 @@ const defaultContextValue: TripContextType = {
   generateResponseAI: async () => {},
   isPendingResponseAI: false,
   errorResponseAI: null,
-  isNavigating: false,
   isTripSaved: false,
   setIsTripSaved: () => {},
 };
@@ -22,7 +21,6 @@ const defaultContextValue: TripContextType = {
 const TripContext = createContext<TripContextType>(defaultContextValue);
 
 function TripProvider({ children }: { children: React.ReactNode }) {
-  const [isNavigating, setIsNavigating] = useState(false);
   const [isTripSaved, setIsTripSaved] = useState(false);
   const router = useRouter();
   const tripId = crypto.randomUUID().slice(0, 5);
@@ -42,11 +40,8 @@ function TripProvider({ children }: { children: React.ReactNode }) {
 
     onSuccess: () => {
       toast.custom(<CustomToaster message="Your trip has been generated!" />);
-      setIsNavigating(true);
+
       router.replace(path);
-      setTimeout(() => {
-        setIsNavigating(false);
-      }, 2000);
     },
 
     onError: (error) => {
@@ -64,7 +59,7 @@ function TripProvider({ children }: { children: React.ReactNode }) {
         generateResponseAI,
         isPendingResponseAI,
         errorResponseAI,
-        isNavigating,
+
         isTripSaved,
         setIsTripSaved,
       }}

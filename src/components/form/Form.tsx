@@ -17,11 +17,10 @@ import NotFoundComponent from "../ui/NotFoundComponent";
 import LoaderResponseAI from "../ui/LoaderResponseAI";
 
 function Form() {
-  const { isPendingResponseAI, isNavigating, errorResponseAI } =
-    useTripResponse();
+  const { isPendingResponseAI, errorResponseAI } = useTripResponse();
   const { handleSubmit, processForm } = useFormData();
 
-  if (isPendingResponseAI || isNavigating) {
+  if (isPendingResponseAI) {
     return <LoaderResponseAI />;
   }
 
