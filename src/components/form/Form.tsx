@@ -1,7 +1,5 @@
 "use client";
 
-import { memo } from "react";
-import { useCountries } from "@/hooks/useCountries";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { useFormData } from "@/hooks/useFormData";
 
@@ -13,20 +11,16 @@ import FormStep4 from "./FormStep4";
 import FormStep5 from "./FormStep5";
 import FormStep6 from "./FormStep6";
 import FormStep7 from "./FormStep7";
-import Loader from "../ui/Loader";
 import FormButtons from "./FormButtons";
 import FormContainer from "./FormContainer";
 import NotFoundComponent from "../ui/NotFoundComponent";
-import Container from "../ui/Container";
-import GradientBg from "../ui/GradientBg";
 import LoaderResponseAI from "../ui/LoaderResponseAI";
 
-const Form = memo(function Form() {
-  const { isPendingResponseAI, isNavigating, errorResponseAI } =
-    useTripResponse();
+function Form() {
+  const { isPendingResponseAI, errorResponseAI } = useTripResponse();
   const { handleSubmit, processForm } = useFormData();
 
-  if (isPendingResponseAI || isNavigating) {
+  if (isPendingResponseAI) {
     return <LoaderResponseAI />;
   }
 
@@ -41,8 +35,7 @@ const Form = memo(function Form() {
   }
 
   return (
-    <Container overflow="overflow-hidden" height="h-[calc(100dvh-3.5rem)]">
-      <GradientBg />
+    <>
       <FormContainer>
         <ProgressBar />
         <form
@@ -59,8 +52,8 @@ const Form = memo(function Form() {
         </form>
       </FormContainer>
       <FormButtons />
-    </Container>
+    </>
   );
-});
+}
 
 export default Form;

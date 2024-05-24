@@ -1,7 +1,6 @@
 "use client";
-import { notFound, useParams, usePathname } from "next/navigation";
+import { notFound } from "next/navigation";
 import { useTripResponse } from "@/hooks/useTripResponse";
-import { useCreateTrip } from "@/hooks/useCreateTrip";
 import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
 import { useScrollTrigger } from "@/hooks/useScrollTrigger";
 

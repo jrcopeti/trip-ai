@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useFormData } from "@/hooks/useFormData";
 import { useCountries } from "@/hooks/useCountries";
 import { Autocomplete, AutocompleteItem, Input } from "@nextui-org/react";
