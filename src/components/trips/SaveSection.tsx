@@ -15,11 +15,21 @@ function SaveSection() {
   useLocomotiveScroll(scrollRef);
 
   const tripUrlParams = useParams();
-  const { tripData: response, isTripSaved } = useTripResponse();
+  const { tripData: response, isTripSaved, setIsTripSaved } = useTripResponse();
   const { handleYesAnswer, handleNoAnswer, isCreatingTrip } =
     useCreateTrip(tripUrlParams);
   const { imageData } = useImage();
   const router = useRouter();
+
+  const handleViewSavedTrips = () => {
+    router.push("/saved-trips");
+    setIsTripSaved(false);
+  };
+
+  const handleGetAnotherTrip = () => {
+    router.push("/form");
+    setIsTripSaved(false);
+  };
 
   return (
     <>
@@ -75,13 +85,13 @@ function SaveSection() {
           ) : (
             <ButtonGroup>
               <Button
-                onClick={() => router.push("/saved-trips")}
+                onClick={handleViewSavedTrips}
                 className="mt-4 bg-neptune-500 p-6 text-base font-semibold text-gallery-50 xs:text-lg lg:text-xl"
               >
                 View saved trips
               </Button>
               <Button
-                onClick={() => router.push("/form")}
+                onClick={handleGetAnotherTrip}
                 className="mt-4 bg-neptune-500 p-6 text-base text-gallery-50 xs:text-lg lg:text-xl"
               >
                 Get another trip
