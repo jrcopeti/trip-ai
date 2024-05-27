@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Image from "next/image";
 import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 import { useTripResponse } from "@/hooks/useTripResponse";
@@ -9,6 +9,7 @@ import defaultImage5 from "@/assets/homepage/9.jpg";
 import { Button, ButtonGroup } from "@nextui-org/react";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
+import Link from "next/link";
 
 function SaveSection() {
   const scrollRef = useRef(null);
@@ -19,17 +20,6 @@ function SaveSection() {
   const { handleYesAnswer, handleNoAnswer, isCreatingTrip } =
     useCreateTrip(tripUrlParams);
   const { imageData } = useImage();
-  const router = useRouter();
-
-  const handleViewSavedTrips = () => {
-    router.push("/saved-trips");
-    setIsTripSaved(false);
-  };
-
-  const handleGetAnotherTrip = () => {
-    router.push("/form");
-    setIsTripSaved(false);
-  };
 
   return (
     <>
@@ -73,7 +63,7 @@ function SaveSection() {
                   Yes, please
                 </Button>
                 <Button
-                  className="bg-neptune-500 text-gallery-50 lg:text-lg"
+                  className="bg-neptune-600 text-gallery-50 lg:text-lg"
                   type="button"
                   onClick={handleNoAnswer}
                   isDisabled={isCreatingTrip}
@@ -83,20 +73,18 @@ function SaveSection() {
               </ButtonGroup>
             </div>
           ) : (
-            <ButtonGroup>
-              <Button
-                onClick={handleViewSavedTrips}
-                className="mt-4 bg-neptune-500 p-6 text-base font-semibold text-gallery-50 xs:text-lg lg:text-xl"
-              >
-                View saved trips
-              </Button>
-              <Button
-                onClick={handleGetAnotherTrip}
-                className="mt-4 bg-neptune-500 p-6 text-base text-gallery-50 xs:text-lg lg:text-xl"
-              >
-                Get another trip
-              </Button>
-            </ButtonGroup>
+            <div className="flex gap-1">
+              <Link href="/saved-trips">
+                <Button className="mt-4 bg-neptune-500 p-6 text-base font-semibold  text-gallery-50 xs:text-lg lg:text-xl">
+                  View Saved Trips
+                </Button>
+              </Link>
+              <Link href="/form">
+                <Button className="mt-4 bg-neptune-600 p-6 text-base text-gallery-50 xs:text-lg lg:text-xl">
+                  Get Another Trip
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
       </GridContainer>

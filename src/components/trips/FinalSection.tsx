@@ -8,7 +8,6 @@ import defaultImage5 from "@/assets/homepage/9.jpg";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
 
-
 function FinalSection() {
   const scrollRef = useRef(null);
   useLocomotiveScroll(scrollRef);
@@ -53,7 +52,7 @@ function FinalSection() {
             </Button>
             <Button
               onClick={() => router.push("/form")}
-              className="mt-2 bg-neptune-500 text-base text-gallery-50 xs:mt-10 xs:p-6 xs:text-xl"
+              className="mt-2 bg-neptune-600 text-base text-gallery-50 xs:mt-10 xs:p-6 xs:text-xl"
             >
               Get another trip
             </Button>

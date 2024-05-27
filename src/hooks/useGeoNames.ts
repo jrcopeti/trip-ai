@@ -38,7 +38,6 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
           featureClass: "P",
         })
         .then((response) => {
-          console.log("RESPONSE GEONAMES", response);
           if (response.totalResultsCount === 0) {
             throw new Error("No location has been found. Please try again.");
           }
