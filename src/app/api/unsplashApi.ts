@@ -12,8 +12,10 @@ export const fetchTripImage = async (city: string) => {
   let tripImage5 = "";
   let placeholder = "";
 
+  const encodedCity = encodeURIComponent(city);
+
   try {
-    const { data } = await axios.get(`${url}${city}`);
+    const { data } = await axios.get(`${url}${encodedCity}`);
     if (data.length === 0) {
       throw new Error("No data image found");
     }

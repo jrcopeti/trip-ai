@@ -38,6 +38,7 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
           featureClass: "P",
         })
         .then((response) => {
+          console.log("RESPONSE GEONAMES", response);
           if (response.totalResultsCount === 0) {
             throw new Error("No location has been found. Please try again.");
           }
@@ -46,8 +47,9 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
             const nameMatches = geo.name.trim().toLowerCase() === formattedCity;
             const toponymNameMatches =
               geo.toponymName.trim().toLowerCase() === formattedCity;
+            const populationMatches = geo.population && geo.population > 0;
 
-            return nameMatches || toponymNameMatches;
+            return (nameMatches || toponymNameMatches) && populationMatches;
           });
 
           if (!validCity) {
