@@ -46,8 +46,9 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
             const nameMatches = geo.name.trim().toLowerCase() === formattedCity;
             const toponymNameMatches =
               geo.toponymName.trim().toLowerCase() === formattedCity;
+            const populationMatches = geo.population && geo.population > 0;
 
-            return nameMatches || toponymNameMatches;
+            return (nameMatches || toponymNameMatches) && populationMatches;
           });
 
           if (!validCity) {
