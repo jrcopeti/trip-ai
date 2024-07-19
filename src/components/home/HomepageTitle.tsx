@@ -3,7 +3,7 @@ import Link from "next/link";
 
 function HomepageTitle() {
   return (
-    <div className="-mt-4 flex flex-col gap-4 p-4 xs:-mt-8 xs:gap-2 xs:p-8 md:p-10 lg:p-12 xl:px-14 xl:py-4">
+    <div className="-mt-4 flex flex-col gap-4 p-4 xs:-mt-8 xs:gap-2 xs:p-8 md:p-10 lg:p-12 xl:px-14 xl:py-4 ">
       <div className="mt-8 max-w-3xl xs:mt-6 sm:mt-8 lg:mt-12">
         <h1 className="text-xl xs:text-2xl font-bold text-tuna-900 sm:text-3xl md:text-4xl xl:text-6xl 2xl:text-7xl">
           Embark with Trip AI: Your Personalized Journey Planner

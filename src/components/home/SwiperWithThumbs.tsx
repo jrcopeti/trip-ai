@@ -41,7 +41,7 @@ function SwiperWithThumbs() {
               thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
           }}
           onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-          className=" h-[70%] xs:h-[77%] w-full"
+          className=" min-h-[65%] max-h-[70%] xs:max-h-[77%] xs:h-[480px] 2xl:h-[480px] w-full"
           style={
             {
               "--swiper-pagination-color": "#f8f8f8",
