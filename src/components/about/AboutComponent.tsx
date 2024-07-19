@@ -1,11 +1,30 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+//UI
 import Image from "next/image";
 import image16 from "@/assets/homepage/16.jpg";
 import GridContainer from "../ui/GridContainer";
 import Container from "../ui/Container";
 import GradientBg from "../ui/GradientBg";
+
+//Data
 import { defaultPlaceholder } from "@/lib/constants";
+import { homepageImages } from "@/data";
 
 function AboutComponent() {
+  const [randomIndex, setRandomIndex] = useState(0);
+
+  const generateRandomIndex = () => {
+    const index = Math.floor(Math.random() * homepageImages.length);
+    setRandomIndex(index);
+  };
+
+  useEffect(() => {
+    generateRandomIndex();
+  }, []);
+
   return (
     <Container overflow="overflow-hidden" height="h-[calc(100dvh-3.5rem)]">
       <GradientBg />
@@ -18,16 +37,18 @@ function AboutComponent() {
             Trip AI makes travel planning fun by creating customized itineraries
             that match your preferences. Whether you&apos;re looking to explore
             vibrant cities or quiet natural retreats, Trip AI make travel plans
-            simple and personal. It offers detailed tours suggestions and a list of
-            things to pack, all adapted to the weather.
+            simple and personal. It offers detailed tours suggestions and a list
+            of things to pack, all adapted to the weather.
           </p>
         </div>
 
         <div className="relative h-full w-full ">
           <Image
-            src={image16}
+            src={homepageImages[randomIndex].src ?? image16}
             alt="city"
-            blurDataURL={defaultPlaceholder}
+            blurDataURL={
+              homepageImages[randomIndex].placeholder ?? defaultPlaceholder
+            }
             placeholder="blur"
             priority
             fill

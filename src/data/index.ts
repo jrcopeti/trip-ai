@@ -254,7 +254,7 @@ const homepageImages = [
   },
 ];
 
-const steps = [
+const formSteps = [
   {
     id: "step 1",
     title: "Personal Information",
@@ -498,6 +498,6 @@ export {
   sortedInterest,
   sortedTransports,
   homepageImages,
-  steps,
+  formSteps as steps,
   savedTripDataCards,
 };
