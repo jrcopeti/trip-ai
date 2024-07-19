@@ -14,16 +14,9 @@ import { defaultPlaceholder } from "@/lib/constants";
 import { homepageImages } from "@/data";
 
 function AboutComponent() {
-  const [randomIndex, setRandomIndex] = useState(0);
-
-  const generateRandomIndex = () => {
-    const index = Math.floor(Math.random() * homepageImages.length);
-    setRandomIndex(index);
-  };
-
-  useEffect(() => {
-    generateRandomIndex();
-  }, []);
+  const [randomIndex] = useState(() =>
+    Math.floor(Math.random() * homepageImages.length),
+  );
 
   return (
     <Container overflow="overflow-hidden" height="h-[calc(100dvh-3.5rem)]">
