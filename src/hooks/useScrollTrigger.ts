@@ -34,12 +34,15 @@ export function useScrollTrigger(isPending: boolean) {
         gsap.from(".plane", {
           autoAlpha: 0,
           x: -200,
+          duration: 1.5,
+          ease: "power1.inOut",
 
           scrollTrigger: {
             trigger: ".tours-section",
             start: "300px bottom",
             end: "center -300px",
-            scrub: true,
+            toggleActions: "restart none play none",
+
           },
         });
 
