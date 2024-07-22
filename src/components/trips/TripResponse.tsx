@@ -39,6 +39,7 @@ function TripResponse() {
   }
 
   if (trip === undefined) {
+    console.log("trip === undefined");
     notFound();
   }
 

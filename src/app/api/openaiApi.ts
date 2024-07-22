@@ -104,9 +104,12 @@ export const fetchResponseAI = async (prompt: string) => {
       tool_choice: { type: "function", function: { name: "tripData" } },
       temperature: 0,
     });
+    console.log("response:---", response);
     const data =
       response.choices?.[0].message.tool_calls?.[0]?.function.arguments ?? null;
+    console.log("data:---", data);
     const parsedData = JSON.parse(data ?? "");
+    console.log("parsed data:----", parsedData);
 
     if (parsedData.trip === null) {
       return null;
