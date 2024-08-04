@@ -21,7 +21,7 @@ export const fetchTripImage = async (city: string) => {
     }
 
     tripImage = data?.results[0]?.urls.regular;
-    tripImage2 = data?.results[1]?.urls?.regular;
+    tripImage2 = data?.results[5]?.urls?.regular;
     tripImage3 = data?.results[2]?.urls?.regular;
     tripImage4 = data?.results[3]?.urls?.regular;
     tripImage5 = data?.results[4]?.urls?.regular;
