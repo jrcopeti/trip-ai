@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+//React
+import { useState } from "react";
 
 //UI
 import Image from "next/image";
@@ -26,12 +27,22 @@ function AboutComponent() {
           <h1 className="text-3xl font-extrabold text-tuna-900 xs:text-4xl md:text-5xl lg:text-6xl 2xl:text-7xl">
             About Trip AI
           </h1>
-          <p className="text-base text-gallery-600 sm:text-xl xl:text-2xl  ">
+          <p className=" text-sm text-gallery-700 xs:text-base sm:text-xl xl:text-2xl  ">
             Trip AI makes travel planning fun by creating customized itineraries
             that match your preferences. Whether you&apos;re looking to explore
             vibrant cities or quiet natural retreats, Trip AI make travel plans
             simple and personal. It offers detailed tours suggestions and a list
             of things to pack, all adapted to the weather.
+          </p>
+          <p className="text-sm text-gallery-600 xl:text-base ">
+            Created by{" "}
+            <a
+              className="font-semibold text-gallery-600 hover:text-gallery-900 hover:opacity-65"
+              target="_blank"
+              href="https://github.com/jrcopeti"
+            >
+              José Copeti
+            </a>
           </p>
         </div>
 
