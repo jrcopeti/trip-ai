@@ -1,7 +1,7 @@
 "use client";
 
 //React
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 //UI
 import Image from "next/image";
@@ -13,11 +13,21 @@ import GradientBg from "../ui/GradientBg";
 //Data
 import { defaultPlaceholder } from "@/lib/constants";
 import { homepageImages } from "@/data";
+import Loader from "../ui/Loader";
 
 function AboutComponent() {
-  const [randomIndex] = useState(() =>
-    Math.floor(Math.random() * homepageImages.length),
-  );
+  const randomImage = Math.floor(Math.random() * homepageImages.length);
+  const [randomIndex, setRandomIndex] = useState(randomImage);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setRandomIndex(randomImage);
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <Loader />;
+  }
 
   return (
     <Container overflow="overflow-hidden" height="h-[calc(100dvh-3.5rem)]">
@@ -47,17 +57,19 @@ function AboutComponent() {
         </div>
 
         <div className="relative h-full w-full ">
-          <Image
-            src={homepageImages[randomIndex].src ?? image16}
-            alt="city"
-            blurDataURL={
-              homepageImages[randomIndex].placeholder ?? defaultPlaceholder
-            }
-            placeholder="blur"
-            priority
-            fill
-            className="object-cover shadow-xl"
-          />
+          {randomIndex !== null && (
+            <Image
+              src={homepageImages[randomIndex].src ?? image16}
+              alt="city"
+              blurDataURL={
+                homepageImages[randomIndex].placeholder ?? defaultPlaceholder
+              }
+              placeholder="blur"
+              priority
+              fill
+              className="object-cover shadow-xl"
+            />
+          )}
         </div>
       </GridContainer>
     </Container>
