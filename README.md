@@ -8,6 +8,8 @@ https://github.com/user-attachments/assets/a8ef7ef4-228e-4e64-990d-29c618da79e5
 Trip AI makes travel planning fun by creating customized itineraries that match your preferences.
 Whether you're looking to explore vibrant cities or quiet natural retreats, Trip AI make travel plans simple and personal. It offers detailed tours suggestions and a list of things to pack, all adapted to the weather.
 
+This full-stack application, built with TypeScript and Next.js, highlights the capabilities of modern web development. By using multiple APIs, Trip AI combines many features to provide a engaging user experience. 
+
 ## Features
 
 - **AI Powered Travel Guide** - Trip AI uses OpenAI's GPT-4o to generate personalized travel itineraries based on your preferences.
