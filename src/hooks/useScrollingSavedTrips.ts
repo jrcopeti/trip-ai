@@ -3,6 +3,7 @@ import { useWindowSize } from "./useWindowSize";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Trip } from "@prisma/client";
+import type LocomotiveScrollType from "locomotive-scroll";
 
 export function useScrollingSavedTrips(
   savedTrips: Trip[] | undefined,
@@ -16,12 +17,11 @@ export function useScrollingSavedTrips(
     typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
   useEffect(() => {
-    let locomotiveScroll: import("locomotive-scroll");
+    let locomotiveScroll: LocomotiveScrollType | undefined;
     (async () => {
       const LocomotiveScroll = (await import("locomotive-scroll")).default;
       locomotiveScroll = new LocomotiveScroll({
-        smooth: true,
-        lerp: 0.1,
+        lenisOptions: { lerp: 0.1 },
       });
     })();
     return () => {

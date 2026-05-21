@@ -1,8 +1,9 @@
 import { useEffect } from "react";
+import type LocomotiveScrollType from "locomotive-scroll";
 
 export function useLocomotiveScroll(scrollRef: React.RefObject<HTMLElement>) {
   useEffect(() => {
-    let locomotiveScroll: import("locomotive-scroll");
+    let locomotiveScroll: LocomotiveScrollType | undefined;
     let innerContainer: HTMLElement;
     const handleScroll = (e: WheelEvent) => {
       e.stopPropagation();
@@ -12,9 +13,10 @@ export function useLocomotiveScroll(scrollRef: React.RefObject<HTMLElement>) {
       if (scrollRef && scrollRef.current) {
         const LocomotiveScroll = (await import("locomotive-scroll")).default;
         locomotiveScroll = new LocomotiveScroll({
-          el: scrollRef.current,
-          smooth: true,
-          lerp: 0.15,
+          lenisOptions: {
+            wrapper: scrollRef.current,
+            lerp: 0.15,
+          },
         });
 
         innerContainer = scrollRef.current;
