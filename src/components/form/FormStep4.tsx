@@ -1,3 +1,4 @@
+"use client";
 import { useFormData } from "@/hooks/useFormData";
 import { Controller } from "react-hook-form";
 import { Button, Input } from "@nextui-org/react";

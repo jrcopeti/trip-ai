@@ -1,3 +1,4 @@
+"use client";
 import { useFormData } from "@/hooks/useFormData";
 import { CheckboxGroup, Textarea } from "@nextui-org/react";
 import { Controller } from "react-hook-form";

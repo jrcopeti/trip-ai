@@ -1,3 +1,4 @@
+"use client";
 import { useFormData } from "@/hooks/useFormData";
 import { Progress } from "@nextui-org/react";
 

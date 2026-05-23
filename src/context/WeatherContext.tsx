@@ -7,7 +7,7 @@ import { placeWeatherIcons, selectDailyForecasts } from "@/lib/utils";
 import toast from "react-hot-toast";
 import CustomToaster from "@/components/ui/CustomToaster";
 import ErrorToaster from "@/components/ui/ErrorToaster";
-import { CHOSEN_HOUR } from "@/lib/constants";
+import { getChosenHour } from "@/lib/constants";
 import type {
   FetchForecastParams,
   FetchWeatherParams,
@@ -58,7 +58,7 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
     onSuccess: (initialForecastData: ForecastDataTypes[]) => {
       const selectedForecasts = selectDailyForecasts(
         initialForecastData,
-        CHOSEN_HOUR,
+        getChosenHour(),
       );
       const selectedProperties = selectedForecasts.map((forecast) => {
         const { dt_txt, main, weather } = forecast;
@@ -112,7 +112,7 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
     onSuccess: (initialDailyForecast: DailyForecastDataTypes[]) => {
       const selectedForecasts = selectDailyForecasts(
         initialDailyForecast,
-        CHOSEN_HOUR,
+        getChosenHour(),
       );
       const forecastsWithIcons = selectedForecasts.map((forecast) => {
         const condition = forecast?.weather[0]?.main;

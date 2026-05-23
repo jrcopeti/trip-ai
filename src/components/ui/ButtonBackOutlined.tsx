@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { IoArrowBack } from "react-icons/io5";

@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@nextui-org/react";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { steps } from "@/data";

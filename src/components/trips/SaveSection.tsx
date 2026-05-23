@@ -1,3 +1,4 @@
+"use client";
 import { useRef } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
@@ -12,7 +13,7 @@ import { defaultPlaceholder } from "@/lib/constants";
 import Link from "next/link";
 
 function SaveSection() {
-  const scrollRef = useRef(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   useLocomotiveScroll(scrollRef);
 
   const tripUrlParams = useParams();

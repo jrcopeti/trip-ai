@@ -1,3 +1,4 @@
+"use client";
 import { useEffect } from "react";
 import { useFormData } from "@/hooks/useFormData";
 import { useGeoNames } from "@/hooks/useGeoNames";

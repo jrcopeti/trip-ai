@@ -1,3 +1,4 @@
+"use client";
 import { useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
@@ -9,7 +10,7 @@ import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
 
 function FinalSection() {
-  const scrollRef = useRef(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   useLocomotiveScroll(scrollRef);
 
   const params = useParams();

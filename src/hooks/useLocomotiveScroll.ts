@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import type LocomotiveScrollType from "locomotive-scroll";
 
-export function useLocomotiveScroll(scrollRef: React.RefObject<HTMLElement>) {
+export function useLocomotiveScroll<T extends HTMLElement>(scrollRef: React.RefObject<T | null>) {
   useEffect(() => {
     let locomotiveScroll: LocomotiveScrollType | undefined;
     let innerContainer: HTMLElement;

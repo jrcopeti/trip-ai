@@ -10,7 +10,7 @@ import { useRef } from "react";
 import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 
 function DescriptionSection() {
-  const scrollRef = useRef(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   useLocomotiveScroll(scrollRef);
 
   const params = useParams();

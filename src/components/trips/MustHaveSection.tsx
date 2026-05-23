@@ -11,7 +11,7 @@ import { defaultPlaceholder } from "@/lib/constants";
 import { FaCheck } from "react-icons/fa6";
 
 function MustHaveSection() {
-  const scrollRef = useRef(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   useLocomotiveScroll(scrollRef);
 
   const params = useParams();
