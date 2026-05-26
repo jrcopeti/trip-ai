@@ -1,7 +1,160 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "../../node_modules/tw-animate-css/dist/tw-animate.css";
+@import "../../node_modules/@heroui/styles/dist/themes/default/variables.css" layer(theme);
+@import "../../node_modules/@heroui/styles/dist/themes/shared/theme.css";
+@import "../../node_modules/@heroui/styles/dist/base/base.css" layer(base);
+@import "../../node_modules/@heroui/styles/dist/components/index.css" layer(components);
+@import "../../node_modules/@heroui/styles/dist/utilities/index.css";
+@import "../../node_modules/@heroui/styles/dist/variants/index.css";
+
+@variant dark (&:is(.dark *));
+
+@theme {
+  /* Custom breakpoint (added before sm) */
+  --breakpoint-xs: 390px;
+
+  /* gallery */
+  --color-gallery-50: #f8f8f8;
+  --color-gallery-100: #eeeeee;
+  --color-gallery-200: #dcdcdc;
+  --color-gallery-300: #bdbdbd;
+  --color-gallery-400: #989898;
+  --color-gallery-500: #7c7c7c;
+  --color-gallery-600: #656565;
+  --color-gallery-700: #525252;
+  --color-gallery-800: #464646;
+  --color-gallery-900: #3d3d3d;
+  --color-gallery-950: #292929;
+
+  /* neptune */
+  --color-neptune-50: #f3f8f8;
+  --color-neptune-100: #dfedee;
+  --color-neptune-200: #c3ddde;
+  --color-neptune-300: #9ac4c6;
+  --color-neptune-400: #76abae;
+  --color-neptune-500: #4e888c;
+  --color-neptune-600: #447176;
+  --color-neptune-700: #3c5d62;
+  --color-neptune-800: #374e53;
+  --color-neptune-900: #314448;
+  --color-neptune-950: #1d2b2f;
+
+  /* tuna */
+  --color-tuna-50: #f6f7f9;
+  --color-tuna-100: #edeef1;
+  --color-tuna-200: #d6dae1;
+  --color-tuna-300: #b3bbc6;
+  --color-tuna-400: #8996a7;
+  --color-tuna-500: #6a788d;
+  --color-tuna-600: #556074;
+  --color-tuna-700: #464f5e;
+  --color-tuna-800: #3c4350;
+  --color-tuna-900: #31363f;
+  --color-tuna-950: #23272e;
+
+  /* shark */
+  --color-shark-50: #f6f7f9;
+  --color-shark-100: #eceff2;
+  --color-shark-200: #d4dbe3;
+  --color-shark-300: #aebccb;
+  --color-shark-400: #8297ae;
+  --color-shark-500: #637b94;
+  --color-shark-600: #4e637b;
+  --color-shark-700: #405064;
+  --color-shark-800: #384454;
+  --color-shark-900: #323c48;
+  --color-shark-950: #222831;
+
+  /* yellorange */
+  --color-yellorange-50: #fff7eb;
+  --color-yellorange-100: #ffe9c6;
+  --color-yellorange-200: #ffd088;
+  --color-yellorange-300: #ffaf45;
+  --color-yellorange-400: #ff9520;
+  --color-yellorange-500: #f97007;
+  --color-yellorange-600: #dd4c02;
+  --color-yellorange-700: #b73006;
+  --color-yellorange-800: #94240c;
+  --color-yellorange-900: #7a200d;
+  --color-yellorange-950: #460d02;
+
+  /* deeporange */
+  --color-deeporange-50: #fff3ed;
+  --color-deeporange-100: #ffe3d5;
+  --color-deeporange-200: #fec3aa;
+  --color-deeporange-300: #fd9974;
+  --color-deeporange-400: #fb6d48;
+  --color-deeporange-500: #f93c16;
+  --color-deeporange-600: #ea220c;
+  --color-deeporange-700: #c2150c;
+  --color-deeporange-800: #9a1312;
+  --color-deeporange-900: #7c1312;
+  --color-deeporange-950: #430709;
+
+  /* cabaret */
+  --color-cabaret-50: #fcf3f6;
+  --color-cabaret-100: #fae9f0;
+  --color-cabaret-200: #f6d4e1;
+  --color-cabaret-300: #f0b1c7;
+  --color-cabaret-400: #e680a2;
+  --color-cabaret-500: #d74b76;
+  --color-cabaret-600: #c83a5e;
+  --color-cabaret-700: #ac2a48;
+  --color-cabaret-800: #8f253c;
+  --color-cabaret-900: #772435;
+  --color-cabaret-950: #480f1b;
+
+  /* violay */
+  --color-violay-50: #fbf8fb;
+  --color-violay-100: #f6eff8;
+  --color-violay-200: #ecdfef;
+  --color-violay-300: #dfc5e2;
+  --color-violay-400: #cba2d0;
+  --color-violay-500: #b37cb9;
+  --color-violay-600: #975e9b;
+  --color-violay-700: #7d4b80;
+  --color-violay-800: #673f69;
+  --color-violay-900: #573758;
+  --color-violay-950: #361c36;
+
+  /* background images */
+  --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
+  --background-image-gradient-conic: conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops));
+}
+
+/* HeroUI v3 semantic color overrides */
+:root {
+  /* Primary interactive color → neptune */
+  --accent: #4e888c;
+  --accent-foreground: #f8f8f8;
+
+  /* Default/neutral → tuna */
+  --default: #edeef1;
+  --default-foreground: #31363f;
+  --muted: #6a788d;
+
+  /* Status colors */
+  --success: #447176;
+  --success-foreground: #f8f8f8;
+  --warning: #ff9520;
+  --warning-foreground: #23272e;
+  --danger: #c2150c;
+  --danger-foreground: #f8f8f8;
+
+  /* Form fields */
+  --field-border: #d4dbe3;
+  --foreground: #464f5e;
+}
+
+body {
+  color: #464f5e;
+}
+
+.label {
+  color: #556074;
+}
 
 [data-overlay-container] {
   height: 100%;
 }
+

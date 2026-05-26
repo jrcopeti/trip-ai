@@ -5,7 +5,16 @@ import { useGeoNames } from "@/hooks/useGeoNames";
 import { useCountries } from "@/hooks/useCountries";
 
 import { motion } from "framer-motion";
-import { Autocomplete, AutocompleteItem, Input } from "@nextui-org/react";
+import {
+  TextField,
+  Label,
+  Input,
+  FieldError,
+  ComboBox,
+  ListBox,
+  ListBoxItem,
+  IconChevronDown,
+} from "@heroui/react";
 import { Controller } from "react-hook-form";
 import { PuffLoader } from "react-spinners";
 
@@ -39,6 +48,7 @@ function FormStep2() {
       toast.custom(<ErrorToaster message={message} />);
     }
   }, [isCityValid, isLoadingCityValid, message]);
+
   return (
     <>
       {currentStep === 1 && (
@@ -48,60 +58,72 @@ function FormStep2() {
           transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
         >
           <FormTitle />
-          <div className="mt-10 grid grid-cols-1 justify-between gap-x-6 gap-y-[5rem] sm:grid-cols-2 md:mt-[75px] ">
+          <div className="mt-10 grid grid-cols-1 justify-between gap-x-6 gap-y-[5rem] sm:grid-cols-2 md:mt-[75px]">
             <Controller
               name="city"
               control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  label="Location"
-                  id="city"
-                  type="text"
-                  placeholder="Where are you going?"
-                  className="max-w-lg"
-                  radius="sm"
-                  variant="faded"
-                  color="primary"
-                  size="lg"
-                  errorMessage={errors.city?.message}
+              render={({ field: { ref, ...fieldProps } }) => (
+                <TextField
+                  {...fieldProps}
                   isInvalid={!!errors.city}
                   isRequired
-                />
+                  className="max-w-lg"
+                >
+                  <Label className="text-tuna-700">Location</Label>
+                  <Input
+                    ref={ref}
+                    type="text"
+                    placeholder="Where are you going?"
+                  />
+                  <FieldError>{errors.city?.message}</FieldError>
+                </TextField>
               )}
             />
 
             <Controller
               name="country"
               control={control}
-              render={({ field }) => (
-                <Autocomplete
-                  {...field}
-                  id="country"
-                  defaultItems={countries}
-                  label="Country"
-                  placeholder="Select a country"
-                  className="max-w-lg"
-                  radius="sm"
-                  variant="faded"
-                  color="primary"
-                  size="lg"
-                  onSelectionChange={(selectedKey) =>
-                    handleSelectionAutocomplete(selectedKey, "country")
-                  }
-                  popoverProps={{ placement: "top" }}
-                  errorMessage={errors.country?.message}
-                  isInvalid={!!errors.country}
-                  isRequired
-                >
-                  {(country) => (
-                    <AutocompleteItem key={country.code}>
-                      {country.label}
-                    </AutocompleteItem>
-                  )}
-                </Autocomplete>
-              )}
+              render={({ field }) => {
+                const selectedCountry = countries.find(
+                  (c) => c.value === field.value,
+                );
+                const defaultCode = selectedCountry?.code ?? undefined;
+                const defaultLabel = selectedCountry?.label ?? undefined;
+                return (
+                  <ComboBox<{ code: string; label: string }>
+                    key={defaultCode}
+                    items={countries}
+                    defaultValue={defaultCode}
+                    defaultInputValue={defaultLabel}
+                    onChange={(key) =>
+                      handleSelectionAutocomplete(key, "country")
+                    }
+                    isInvalid={!!errors.country}
+                    isRequired
+                    className="max-w-lg"
+                  >
+                    <Label>Country</Label>
+                    <ComboBox.InputGroup>
+                      <Input placeholder="Select a country" />
+                      <ComboBox.Trigger>
+                        <IconChevronDown />
+                      </ComboBox.Trigger>
+                    </ComboBox.InputGroup>
+                    <FieldError>{errors.country?.message}</FieldError>
+                    <ComboBox.Popover placement="top">
+                      <ListBox<{ code: string; label: string }>>
+                        {(country) => (
+                          <ListBoxItem id={country.code}>
+                            {country.label}
+                          </ListBoxItem>
+                        )}
+                      </ListBox>
+                    </ComboBox.Popover>
+                  </ComboBox>
+                );
+              }}
             />
+
             {isLoadingCityValid && (
               <div className="text-sm text-gallery-500">
                 <PuffLoader color="#4e888c" />

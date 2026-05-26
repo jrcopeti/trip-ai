@@ -1,7 +1,7 @@
 "use client";
 import { useFormData } from "@/hooks/useFormData";
 import { Controller } from "react-hook-form";
-import { Checkbox } from "@nextui-org/react";
+import { Checkbox } from "@heroui/react";
 import { motion } from "framer-motion";
 import DatePicker from "./DatePicker";
 import FormTitle from "./FormTitle";
@@ -25,6 +25,7 @@ function FormStep5() {
     const endDate = startDate.add(5, "day");
     setValue("endDate", endDate.toISOString());
   };
+
   return (
     <>
       {currentStep === 4 && (
@@ -35,16 +36,18 @@ function FormStep5() {
         >
           <FormTitle />
 
-          <div className="mt-10 flex flex-col gap-x-6 gap-y-8 ">
+          <div className="mt-10 flex flex-col gap-x-6 gap-y-8">
             <Checkbox
               isSelected={isWeatherSelected}
-              onValueChange={handleCheckboxChange}
-              color="default"
-              size="lg"
-              title="Weather forecast"
-              className="font-semibold text-gallery-50"
+              onChange={handleCheckboxChange}
+              className="font-semibold"
             >
-              <p className="text-tuna-900">Based on the weather</p>
+              <Checkbox.Control>
+                <Checkbox.Indicator />
+              </Checkbox.Control>
+              <Checkbox.Content>
+                <p className="text-tuna-900">Based on the weather</p>
+              </Checkbox.Content>
             </Checkbox>
             {!isWeatherSelected ? (
               <>

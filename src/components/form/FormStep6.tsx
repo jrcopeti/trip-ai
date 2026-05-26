@@ -1,6 +1,6 @@
 "use client";
 import { useFormData } from "@/hooks/useFormData";
-import { CheckboxGroup, Textarea } from "@nextui-org/react";
+import { CheckboxGroup, Label, FieldError, TextField, TextArea } from "@heroui/react";
 import { Controller } from "react-hook-form";
 import { motion } from "framer-motion";
 import FormTitle from "./FormTitle";
@@ -25,26 +25,26 @@ function FormStep6() {
               control={control}
               render={({ field }) => (
                 <CheckboxGroup
-                  {...field}
-                  name="interests"
-                  className="max-w-2xl gap-4"
-                  label="Select up to 3 interests"
-                  orientation="horizontal"
-                  errorMessage={errors.interests?.message}
+                  value={field.value}
+                  onChange={field.onChange}
+                  className="max-w-2xl"
                 >
-                  {sortedInterest.map((interest) => (
-                    <CustomCheckbox
-                      color="primary"
-                      key={interest.value}
-                      value={interest.value}
-                      isDisabled={
-                        field.value.length >= 3 &&
-                        !field.value.includes(interest.value)
-                      }
-                    >
-                      {interest.label}
-                    </CustomCheckbox>
-                  ))}
+                  <Label>Select up to 3 interests</Label>
+                  <div className="flex flex-wrap gap-4">
+                    {sortedInterest.map((interest) => (
+                      <CustomCheckbox
+                        key={interest.value}
+                        value={interest.value}
+                        isDisabled={
+                          field.value.length >= 3 &&
+                          !field.value.includes(interest.value)
+                        }
+                      >
+                        {interest.label}
+                      </CustomCheckbox>
+                    ))}
+                  </div>
+                  <FieldError>{errors.interests?.message}</FieldError>
                 </CheckboxGroup>
               )}
             />
@@ -52,18 +52,18 @@ function FormStep6() {
             <Controller
               name="note"
               control={control}
-              render={({ field }) => (
-                <Textarea
-                  {...field}
-                  label="Notes"
-                  id="notes"
-                  placeholder="Anything you want to add?"
+              render={({ field: { ref, ...fieldProps } }) => (
+                <TextField
+                  {...fieldProps}
                   className="max-w-lg"
-                  radius="none"
-                  size="lg"
-                  variant="faded"
-                  color="primary"
-                />
+                >
+                  <Label>Notes</Label>
+                  <TextArea
+                    ref={ref}
+                    placeholder="Anything you want to add?"
+                    className="min-h-[100px]"
+                  />
+                </TextField>
               )}
             />
           </div>

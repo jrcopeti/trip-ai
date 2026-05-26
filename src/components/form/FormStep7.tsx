@@ -1,6 +1,6 @@
 "use client";
 import { useFormData } from "@/hooks/useFormData";
-import { Checkbox, Button } from "@nextui-org/react";
+import { Checkbox, Button } from "@heroui/react";
 import { Controller } from "react-hook-form";
 import { motion } from "framer-motion";
 import FormTitle from "./FormTitle";
@@ -27,21 +27,24 @@ function FormStep7() {
               render={({ field }) => (
                 <Checkbox
                   isSelected={field.value}
-                  onValueChange={field.onChange}
-                  className="font-semibold text-gallery-50"
+                  onChange={field.onChange}
                 >
-                  <small className="text-tuna-900">
-                    By agreeing, you consent to share your information with
-                    OpenAI. Please note, this application is designed only for
-                    entertainment purposes{" "}
-                  </small>
+                  <Checkbox.Control>
+                    <Checkbox.Indicator />
+                  </Checkbox.Control>
+                  <Checkbox.Content>
+                    <small className="text-tuna-900">
+                      By agreeing, you consent to share your information with
+                      OpenAI. Please note, this application is designed only for
+                      entertainment purposes{" "}
+                    </small>
+                  </Checkbox.Content>
                 </Checkbox>
               )}
             />
             {currentStep === steps.length - 1 && (
               <Button
                 type="submit"
-                size="lg"
                 isDisabled={!isValid}
                 className="text-gallery-50"
               >

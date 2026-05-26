@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { NextUIProvider } from "@nextui-org/react";
 import { Toaster } from "react-hot-toast";
 import { TripProvider } from "@/context/TripContext";
 import { WeatherProvider } from "@/context/WeatherContext";
@@ -37,7 +36,7 @@ function Providers({ children }: ProvidersProps) {
         <WeatherProvider>
           <TripProvider>
             <FormProvider>
-              <NextUIProvider>{children}</NextUIProvider>
+              {children}
               {/* <ReactQueryDevtools initialIsOpen={false} /> */}
             </FormProvider>
           </TripProvider>
