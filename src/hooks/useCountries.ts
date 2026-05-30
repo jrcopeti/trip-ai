@@ -26,7 +26,9 @@ export function useCountries() {
             flagUrl: `https://flagcdn.com/${code}.svg`,
           }),
         );
-        setCountries(countryOptions);
+        setCountries(
+          countryOptions.sort((a, b) => a.value.localeCompare(b.value)),
+        );
       } catch (error: unknown) {
         console.error(error);
       } finally {

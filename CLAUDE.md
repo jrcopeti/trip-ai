@@ -18,7 +18,7 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
 
 Required in `.env.local`:
 - `DATABASE_URL` — PostgreSQL connection string
-- `OPENAI_API_KEY` — used in `src/app/api/openaiApi.ts`
+- `ANTHROPIC_API_KEY` — used in `src/app/api/openaiApi.ts`
 - `UNSPLASH_API_KEY` — used in `src/app/api/unsplashApi.ts`
 - `NEXT_PUBLIC_OPENWEATHER_API_KEY` — used in weather hooks
 - `NEXT_PUBLIC_GEONAMES_USERNAME` — used in `useGeoNames`
@@ -27,18 +27,18 @@ Required in `.env.local`:
 
 ### User flow
 1. `/form` — multi-step form (7 steps, managed by `FormContext`)
-2. On submit: OpenAI call → redirect to `/trips/[tripUrl]` (random 5-char UUID)
+2. On submit: Anthropic API call → redirect to `/trips/[tripUrl]` (random 5-char UUID)
 3. On the trip page: user chooses to save or discard → Prisma writes to DB
 4. `/saved-trips` — lists all saved trips; `/saved-trips/[id]` — single saved trip
 
 ### State management: four Context providers (nested in `src/app/providers.tsx`)
 - **`FormContext`** (`src/context/FormContext.tsx`) — owns the entire multi-step form: RHF instance, Zod validation (`FormDataSchema`), step navigation (`next`/`prev`), and triggers weather/image fetches on the appropriate steps.
-- **`TripContext`** (`src/context/TripContext.tsx`) — holds the OpenAI response (`tripData`) and the TanStack Query mutation that calls `fetchResponseAI`. Redirects to `/trips/[tripUrl]` on success.
+- **`TripContext`** (`src/context/TripContext.tsx`) — holds the Anthropic API response (`tripData`) and the TanStack Query mutation that calls `fetchResponseAI`. Redirects to `/trips/[tripUrl]` on success.
 - **`WeatherContext`** (`src/context/WeatherContext.tsx`) — three separate TanStack Query mutations: current weather, 5-day forecast, and daily forecast.
 - **`ImageContext`** (`src/context/ImageContext.tsx`) — TanStack Query mutation calling `fetchTripImage` (Unsplash).
 
 ### Server-side modules (all marked `"use server"`)
-- `src/app/api/openaiApi.ts` — calls GPT-4o with a strict function-calling schema (`tripData` function); returns structured JSON (title, objectsList, mustHave, requiredItems, description, tours, tip).
+- `src/app/api/openaiApi.ts` — calls Claude (claude-sonnet-4-6) via tool use with a `tripData` tool schema; returns structured JSON (title, objectsList, mustHave, requiredItems, description, tours, tip).
 - `src/app/api/unsplashApi.ts` — fetches 5 city photos + generates a base64 plaiceholder blur for the first image.
 - `src/app/api/openWeatherApi.ts` — fetches current weather and forecast from OpenWeather.
 - `src/db/actions.ts` — Prisma server actions: `createTripInDB`, `getAllTrips`, `getSingleSavedTrip`.
