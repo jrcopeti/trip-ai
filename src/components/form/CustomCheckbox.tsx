@@ -1,83 +1,50 @@
-import {
-  useCheckbox,
-  Chip,
-  ChipProps,
-  VisuallyHidden,
-  tv,
-} from "@nextui-org/react";
+"use client";
+import { Checkbox } from "@heroui/react";
+import { tv } from "tailwind-variants";
 import { BsCheck } from "react-icons/bs";
 
 interface CustomCheckboxProps {
   children?: React.ReactNode;
   value: string;
-  isSelected?: boolean;
-  onChange?: () => void;
   isDisabled?: boolean;
-  color:
-    | "primary"
-    | "secondary"
-    | "success"
-    | "warning"
-    | "warning"
-    | "default"
-    | undefined;
 }
 
-const checkbox = tv({
-  slots: {
-    base: "border-shark-800 hover:bg-neptune-300 ",
-    content: "text-shark-800 font-semibold duration-300 ease-in-out",
-  },
+const chip = tv({
+  base: "inline-flex cursor-pointer select-none items-center gap-1 rounded-full border px-3 py-1 text-sm font-semibold transition-colors duration-200 border-shark-800",
   variants: {
     isSelected: {
-      true: {
-        base: "border-shark-800 font-semibold bg-neptune-600 hover:bg-neptune-500 hover:border-shark-500 ",
-        content: "text-gallery-50 pl-1 duration-300 ease-in-out",
-      },
+      true: "bg-neptune-600 text-gallery-50 hover:bg-neptune-500",
+      false: "bg-transparent text-shark-800 hover:bg-neptune-300",
     },
     isFocusVisible: {
-      true: {
-        base: "outline-none ring-2 ring-focus ring-offset-2 ring-offset-background",
-      },
+      true: "outline-none ring-2 ring-offset-2",
     },
+    isDisabled: {
+      true: "cursor-not-allowed opacity-50",
+    },
+  },
+  defaultVariants: {
+    isSelected: false,
   },
 });
 
-const CustomCheckbox: React.FC<CustomCheckboxProps> = (props) => {
-  const {
-    children,
-    isSelected,
-    isFocusVisible,
-    getBaseProps,
-    getLabelProps,
-    getInputProps,
-  } = useCheckbox({
-    ...props,
-  });
-
-  const styles = checkbox({ isSelected, isFocusVisible });
-
+function CustomCheckbox({ children, value, isDisabled }: CustomCheckboxProps) {
   return (
-    <label {...getBaseProps()}>
-      <VisuallyHidden>
-        <input {...getInputProps()} />
-      </VisuallyHidden>
-      <Chip
-        classNames={{
-          base: styles.base(),
-          content: styles.content(),
-        }}
-        color="primary"
-        startContent={
-          isSelected ? <BsCheck className="ml-1 text-gallery-50" /> : null
-        }
-        variant="faded"
-        {...(getLabelProps() as any)}
-      >
-        {children ? children : isSelected ? "Enabled" : "Disabled"}
-      </Chip>
-    </label>
+    <Checkbox value={value} isDisabled={isDisabled} className="m-0 p-0">
+      {({ isSelected, isFocusVisible }) => (
+        <div
+          className={chip({
+            isSelected,
+            isFocusVisible,
+            isDisabled: isDisabled ?? false,
+          })}
+        >
+          {isSelected && <BsCheck className="text-gallery-50" />}
+          {children || (isSelected ? "Enabled" : "Disabled")}
+        </div>
+      )}
+    </Checkbox>
   );
-};
+}
 
 export default CustomCheckbox;

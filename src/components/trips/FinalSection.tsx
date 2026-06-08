@@ -1,15 +1,16 @@
+"use client";
 import { useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
-import { Button, ButtonGroup } from "@nextui-org/react";
+import { Button, ButtonGroup } from "@heroui/react";
 import defaultImage5 from "@/assets/homepage/9.jpg";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
 
 function FinalSection() {
-  const scrollRef = useRef(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   useLocomotiveScroll(scrollRef);
 
   const params = useParams();
@@ -19,7 +20,7 @@ function FinalSection() {
   return (
     <>
       <GridContainer animationClass="final-card">
-        <div className="relative h-full w-full ">
+        <div className="relative h-full w-full">
           <Image
             src={trip?.image5 ?? defaultImage5}
             alt="city"
@@ -45,13 +46,13 @@ function FinalSection() {
           </div>
           <ButtonGroup>
             <Button
-              onClick={router.back}
+              onPress={router.back}
               className="mt-2 bg-neptune-500 text-base font-semibold text-gallery-50 xs:mt-10 xs:p-6 xs:text-xl"
             >
               Back
             </Button>
             <Button
-              onClick={() => router.push("/form")}
+              onPress={() => router.push("/form")}
               className="mt-2 bg-neptune-600 text-base text-gallery-50 xs:mt-10 xs:p-6 xs:text-xl"
             >
               Get another trip

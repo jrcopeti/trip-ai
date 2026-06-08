@@ -16,12 +16,11 @@ import { homepageImages } from "@/data";
 import Loader from "../ui/Loader";
 
 function AboutComponent() {
-  const randomImage = Math.floor(Math.random() * homepageImages.length);
-  const [randomIndex, setRandomIndex] = useState(randomImage);
+  const [randomIndex, setRandomIndex] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setRandomIndex(randomImage);
+    setRandomIndex(Math.floor(Math.random() * homepageImages.length));
     setIsMounted(true);
   }, []);
 

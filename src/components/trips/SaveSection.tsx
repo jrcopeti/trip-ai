@@ -1,3 +1,4 @@
+"use client";
 import { useRef } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
@@ -6,13 +7,13 @@ import { useTripResponse } from "@/hooks/useTripResponse";
 import { useImage } from "@/hooks/useImage";
 import { useCreateTrip } from "@/hooks/useCreateTrip";
 import defaultImage5 from "@/assets/homepage/9.jpg";
-import { Button, ButtonGroup } from "@nextui-org/react";
+import { Button, ButtonGroup } from "@heroui/react";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
 import Link from "next/link";
 
 function SaveSection() {
-  const scrollRef = useRef(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   useLocomotiveScroll(scrollRef);
 
   const tripUrlParams = useParams();
@@ -24,7 +25,7 @@ function SaveSection() {
   return (
     <>
       <GridContainer animationClass="final-card">
-        <div className="relative h-full w-full ">
+        <div className="relative h-full w-full">
           <Image
             src={imageData?.tripImage5 ?? defaultImage5}
             alt="city"
@@ -32,7 +33,7 @@ function SaveSection() {
             placeholder="blur"
             priority
             fill
-            className="object-cover shadow-xl "
+            className="object-cover shadow-xl"
           />
         </div>
         <div
@@ -57,7 +58,7 @@ function SaveSection() {
                 <Button
                   className="bg-neptune-500 font-semibold text-gallery-50 lg:text-lg"
                   type="button"
-                  onClick={handleYesAnswer}
+                  onPress={handleYesAnswer}
                   isDisabled={isCreatingTrip}
                 >
                   Yes, please
@@ -65,7 +66,7 @@ function SaveSection() {
                 <Button
                   className="bg-neptune-600 text-gallery-50 lg:text-lg"
                   type="button"
-                  onClick={handleNoAnswer}
+                  onPress={handleNoAnswer}
                   isDisabled={isCreatingTrip}
                 >
                   No, thanks
@@ -75,7 +76,7 @@ function SaveSection() {
           ) : (
             <div className="flex gap-1">
               <Link href="/saved-trips">
-                <Button className="mt-4 bg-neptune-500 p-6 text-base font-semibold  text-gallery-50 xs:text-lg lg:text-xl">
+                <Button className="mt-4 bg-neptune-500 p-6 text-base font-semibold text-gallery-50 xs:text-lg lg:text-xl">
                   View Saved Trips
                 </Button>
               </Link>

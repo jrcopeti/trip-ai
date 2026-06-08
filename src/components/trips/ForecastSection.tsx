@@ -13,7 +13,7 @@ import { BiMessageSquareError } from "react-icons/bi";
 dayjs.extend(utc);
 
 function ForecastSection() {
-  const scrollRef = useRef(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   useLocomotiveScroll(scrollRef);
 
   const params = useParams();

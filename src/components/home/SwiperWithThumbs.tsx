@@ -15,7 +15,6 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/free-mode";
 import "swiper/css/thumbs";
-import "swiper/element/css/effect-fade";
 
 import Image from "next/image";
 import { homepageImages } from "@/data";

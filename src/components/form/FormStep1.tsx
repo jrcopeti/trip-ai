@@ -1,7 +1,16 @@
-import { memo } from "react";
+"use client";
 import { useFormData } from "@/hooks/useFormData";
 import { useCountries } from "@/hooks/useCountries";
-import { Autocomplete, AutocompleteItem, Input } from "@nextui-org/react";
+import {
+  TextField,
+  Label,
+  Input,
+  FieldError,
+  ComboBox,
+  ListBox,
+  ListBoxItem,
+  IconChevronDown,
+} from "@heroui/react";
 import { Controller } from "react-hook-form";
 import { motion } from "framer-motion";
 import FormTitle from "./FormTitle";
@@ -20,82 +29,94 @@ function FormStep1() {
           transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
         >
           <FormTitle />
-          <div className="mt-10 flex flex-col justify-between gap-x-6 gap-y-12 md:mt-[100px] md:flex-row lg:gap-y-20 ">
+          <div className="mt-10 flex flex-col justify-between gap-x-6 gap-y-12 md:mt-[100px] md:flex-row lg:gap-y-20">
             <Controller
               name="userName"
               control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  label="Name"
-                  id="userName"
-                  type="text"
-                  placeholder="What's your name?"
-                  className="max-w-lg text-2xl text-tuna-700"
-                  radius="sm"
-                  size="lg"
-                  variant="faded"
-                  color="primary"
-                  errorMessage={errors.userName?.message}
+              render={({ field: { ref, ...fieldProps } }) => (
+                <TextField
+                  {...fieldProps}
                   isInvalid={!!errors.userName}
                   isRequired
-                />
+                  className="max-w-lg"
+                >
+                  <Label className="text-tuna-700">Name</Label>
+                  <Input
+                    ref={ref}
+                    type="text"
+                    placeholder="What's your name?"
+                    className="text-tuna-700"
+                  />
+                  <FieldError>{errors.userName?.message}</FieldError>
+                </TextField>
               )}
             />
 
             <Controller
               name="age"
               control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  label="Age"
-                  id="age"
-                  type="text"
-                  placeholder="How old are you?"
-                  className="max-w-lg text-tuna-700"
-                  radius="sm"
-                  size="lg"
-                  variant="faded"
-                  color="primary"
+              render={({ field: { ref, ...fieldProps } }) => (
+                <TextField
+                  {...fieldProps}
                   isInvalid={!!errors.age}
-                  errorMessage={errors.age?.message}
                   isRequired
-                />
+                  className="max-w-lg"
+                >
+                  <Label className="text-tuna-700">Age</Label>
+                  <Input
+                    ref={ref}
+                    type="text"
+                    placeholder="How old are you?"
+                    className="text-tuna-700"
+                  />
+                  <FieldError>{errors.age?.message}</FieldError>
+                </TextField>
               )}
             />
 
             <Controller
               name="nationality"
               control={control}
-              render={({ field }) => (
-                <Autocomplete
-                  {...field}
-                  id="nationality"
-                  defaultItems={countries}
-                  label="Nationality"
-                  placeholder="Select a country"
-                  className="max-w-lg text-tuna-700"
-                  radius="sm"
-                  size="lg"
-                  variant="faded"
-                  color="primary"
-                  onSelectionChange={(selectedKey) =>
-                    handleSelectionAutocomplete(selectedKey, "nationality")
-                  }
-                  isInvalid={!!errors.nationality}
-                  isRequired
-                  isDisabled={isLoadingCountries}
-                  errorMessage={errors.nationality?.message}
-                  popoverProps={{ placement: "top" }}
-                >
-                  {(country) => (
-                    <AutocompleteItem key={country.code}>
-                      {country.label}
-                    </AutocompleteItem>
-                  )}
-                </Autocomplete>
-              )}
+              render={({ field }) => {
+                const selectedCountry = countries.find(
+                  (c) => c.value === field.value,
+                );
+                const defaultCode = selectedCountry?.code ?? undefined;
+                const defaultLabel = selectedCountry?.label ?? undefined;
+                return (
+                  <ComboBox<{ code: string; label: string }>
+                    key={defaultCode}
+                    items={countries}
+                    defaultValue={defaultCode}
+                    defaultInputValue={defaultLabel}
+                    onChange={(key) =>
+                      handleSelectionAutocomplete(key, "nationality")
+                    }
+                    isDisabled={isLoadingCountries}
+                    isInvalid={!!errors.nationality}
+                    isRequired
+                    className="max-w-lg"
+                  >
+                    <Label className="text-tuna-700">Nationality</Label>
+                    <ComboBox.InputGroup>
+                      <Input placeholder="Select a country" />
+                      <ComboBox.Trigger>
+                        <IconChevronDown />
+                      </ComboBox.Trigger>
+                    </ComboBox.InputGroup>
+                    <FieldError>{errors.nationality?.message}</FieldError>
+                    <ComboBox.Popover placement="top">
+                      <ListBox<{ code: string; label: string }>>
+                        {(country) => (
+                          <ListBoxItem id={country.code}>
+                            {country.label}
+                          </ListBoxItem>
+                        )}
+                      </ListBox>
+                    </ComboBox.Popover>
+                  </ComboBox>
+                );
+              }}
             />
           </div>
         </motion.div>

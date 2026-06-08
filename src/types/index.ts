@@ -116,7 +116,7 @@ export interface FormContextType {
   control: Control<Inputs> | undefined;
   errors: FieldErrors<Inputs>;
   handleSelectionAutocomplete: (
-    selectedKey: string | number,
+    selectedKey: string | number | null,
     fieldName: FieldName,
   ) => void;
   handleSubmit: (fn: SubmitHandler<Inputs>) => (e: React.FormEvent) => void;

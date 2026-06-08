@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useEffect, useState } from "react";
-import { fetchResponseAI } from "@/app/api/openaiApi";
+import { fetchResponseAI } from "@/app/api/anthropicApi";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -54,7 +54,7 @@ function TripProvider({ children }: { children: React.ReactNode }) {
   return (
     <TripContext.Provider
       value={{
-        tripData,
+        tripData: tripData ?? null,
         generateResponseAI,
         isPendingResponseAI,
         errorResponseAI,

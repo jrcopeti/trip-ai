@@ -12,7 +12,7 @@ import { defaultPlaceholder } from "@/lib/constants";
 import { displayDuration, durationInDays } from "@/lib/utils";
 
 function FormDetailsSection() {
-  const scrollRef = useRef(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   useLocomotiveScroll(scrollRef);
 
   const params = useParams();

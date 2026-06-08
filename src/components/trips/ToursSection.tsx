@@ -7,7 +7,7 @@ import { useTripResponse } from "@/hooks/useTripResponse";
 import plane from "@/assets/travel/plane.png";
 
 function ToursSection() {
-  const scrollRef = useRef(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   useLocomotiveScroll(scrollRef);
 
   const params = useParams();

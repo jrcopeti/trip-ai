@@ -1,6 +1,7 @@
+"use client";
 import { useFormData } from "@/hooks/useFormData";
 import { Controller } from "react-hook-form";
-import { Button, Input } from "@nextui-org/react";
+import { TextField, Label, Input, Button } from "@heroui/react";
 import { motion } from "framer-motion";
 import FormTitle from "./FormTitle";
 
@@ -18,26 +19,21 @@ function FormStep4() {
 
           <div className="mt-10 flex max-h-fit max-w-[600px] flex-col gap-8 lg:mt-[100px]">
             {fields.map((field, index) => (
-              <div className="flex items-center gap-2" key={field.id}>
+              <div className="flex items-end gap-2" key={field.id}>
                 <Controller
                   control={control}
                   name={`requiredItems[${index}].item` as any}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      label={`Item ${index + 1}`}
-                      className="max-w-lg text-tuna-700 "
-                      radius="sm"
-                      variant="faded"
-                      color="primary"
-                    />
+                  render={({ field: { ref, ...fieldProps } }) => (
+                    <TextField {...fieldProps} className="max-w-lg">
+                      <Label className="text-tuna-700">Item {index + 1}</Label>
+                      <Input ref={ref} />
+                    </TextField>
                   )}
                 />
                 <Button
-                  className=" bg-yellorange-700 text-gallery-50"
+                  className="bg-yellorange-700 text-gallery-50"
                   type="button"
-                  size="sm"
-                  onClick={() => remove(index)}
+                  onPress={() => remove(index)}
                 >
                   X
                 </Button>
@@ -46,9 +42,9 @@ function FormStep4() {
           </div>
           <div className="mt-4">
             <Button
-              className="place-items-center bg-neptune-600 text-gallery-50"
+              className="bg-neptune-600 text-gallery-50"
               type="button"
-              onClick={() => append({ item: "" })}
+              onPress={() => append({ item: "" })}
             >
               Add another item
             </Button>

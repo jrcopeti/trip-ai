@@ -138,9 +138,10 @@ function FormProvider({ children }: { children: React.ReactNode }) {
 
   // workaround to get the right value from the autocomplete
   const handleSelectionAutocomplete = (
-    selectedKey: string | number,
+    selectedKey: string | number | null,
     fieldName: FieldName,
   ) => {
+    if (selectedKey === null) return;
     const selectedCountry = countries.find(
       (country) => country.code === selectedKey,
     );
