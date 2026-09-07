@@ -2,9 +2,15 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import logo from "@/assets/travel/logo.png";
 
 function NavbarComponent() {
+  const pathname = usePathname();
+
+  // The landing page ships its own nav in the redesigned system.
+  if (pathname === "/") return null;
+
   return (
     <nav className="z-50 flex h-14 max-w-full items-center bg-gradient-to-r from-gallery-100 to-gallery-200 px-4">
       <Link
