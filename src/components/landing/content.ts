@@ -18,7 +18,7 @@ import train from "@/assets/homepage/5.jpg";
 import suncloudy from "@/assets/weather/suncloudy.png";
 
 /**
- * Content for the /landing-v2 experiment.
+ * Content for the landing page.
  *
  * Curated here rather than pulled from `homepageImages` in src/data: that array
  * carries the same alt text, city and blur placeholder on entries 11-16, and its

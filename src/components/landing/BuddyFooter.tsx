@@ -12,7 +12,6 @@ const columns = [
     heading: "About",
     links: [
       { href: "/about", label: "What this is" },
-      { href: "/", label: "Original landing page" },
     ],
   },
 ];
@@ -50,11 +49,6 @@ function BuddyFooter() {
           ))}
         </div>
       </div>
-
-      <p className="mx-auto mt-14 max-w-6xl text-xs text-buddy-offwhite/40">
-        Design experiment · visual system after “Buddy — Travel Planner” by
-        H3ylab
-      </p>
     </footer>
   );
 }

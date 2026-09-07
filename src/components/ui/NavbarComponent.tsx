@@ -8,8 +8,8 @@ import logo from "@/assets/travel/logo.png";
 function NavbarComponent() {
   const pathname = usePathname();
 
-  // /landing-v2 ships its own nav in the Buddy design system.
-  if (pathname?.startsWith("/landing-v2")) return null;
+  // The landing page ships its own nav in the redesigned system.
+  if (pathname === "/") return null;
 
   return (
     <nav className="z-50 flex h-14 max-w-full items-center bg-gradient-to-r from-gallery-100 to-gallery-200 px-4">

@@ -121,7 +121,7 @@
   --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
   --background-image-gradient-conic: conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops));
 
-  /* buddy — scoped to /landing-v2. Additive only: nothing above is affected. */
+  /* buddy — landing page palette. Additive only: nothing above is affected. */
   --color-buddy-ink: #302e2d;
   --color-buddy-lime: #e2f3a7;
   --color-buddy-lime-punch: #e8ff98;
@@ -174,7 +174,7 @@ body {
 
 
 /*
- * /landing-v2 parallax opt-out.
+ * Landing page parallax opt-out.
  *
  * The hero stickers are positioned by a Framer MotionValue writing an inline
  * transform, which MotionConfig's reduced-motion handling does not cover (it

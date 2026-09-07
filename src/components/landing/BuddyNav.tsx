@@ -4,7 +4,6 @@ const links = [
   { href: "/form", label: "New trip" },
   { href: "/saved-trips", label: "Saved trips" },
   { href: "/about", label: "About" },
-  { href: "/", label: "Old landing" },
 ];
 
 function BuddyNav() {
@@ -12,7 +11,7 @@ function BuddyNav() {
     <header className="sticky top-0 z-50 bg-buddy-canvas/90 backdrop-blur-xl">
       <nav className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-5 sm:px-8">
         <Link
-          href="/landing-v2"
+          href="/"
           className="flex items-center gap-2 rounded-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-buddy-ink"
         >
           <span className="grid size-7 place-items-center rounded-lg bg-buddy-orchid text-[0.6rem] font-extrabold text-buddy-ink">
