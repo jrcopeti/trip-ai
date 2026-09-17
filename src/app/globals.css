@@ -121,19 +121,19 @@
   --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
   --background-image-gradient-conic: conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops));
 
-  /* buddy — landing page palette. Additive only: nothing above is affected. */
-  --color-buddy-ink: #302e2d;
-  --color-buddy-lime: #e2f3a7;
-  --color-buddy-lime-punch: #e8ff98;
-  --color-buddy-orchid: #eea1ff;
-  --color-buddy-indigo: #5a4dff;
-  --color-buddy-offwhite: #f6f6f6;
-  --color-buddy-canvas: #f7f0e7;
-  --color-buddy-lavender: #e9daf1;
-  --color-buddy-blush: #f2d9d9;
-  --color-buddy-cyan: #a7fff7;
+  /* sorbet — landing page palette. Additive only: nothing above is affected. */
+  --color-sorbet-ink: #302e2d;
+  --color-sorbet-lime: #e2f3a7;
+  --color-sorbet-lime-punch: #e8ff98;
+  --color-sorbet-orchid: #eea1ff;
+  --color-sorbet-indigo: #5a4dff;
+  --color-sorbet-offwhite: #f6f6f6;
+  --color-sorbet-canvas: #f7f0e7;
+  --color-sorbet-lavender: #e9daf1;
+  --color-sorbet-blush: #f2d9d9;
+  --color-sorbet-cyan: #a7fff7;
 
-  --font-buddy: var(--font-rubik), ui-sans-serif, system-ui, sans-serif;
+  --font-sorbet: var(--font-rubik), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* HeroUI v3 semantic color overrides */

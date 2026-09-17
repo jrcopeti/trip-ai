@@ -41,25 +41,25 @@ export const itineraryCards: ItineraryCard[] = [
     title: "Dinner at the Eiffel Tower",
     chip: "Romantic",
     Icon: FaHeart,
-    tint: "bg-buddy-lavender",
+    tint: "bg-sorbet-lavender",
   },
   {
     title: "Secret parks of Berlin",
     chip: "Guided tour",
     Icon: FaTree,
-    tint: "bg-buddy-lime-punch",
+    tint: "bg-sorbet-lime-punch",
   },
   {
     title: "Da Giuseppe, pizza night",
     chip: "Gastronomy",
     Icon: FaPizzaSlice,
-    tint: "bg-buddy-blush",
+    tint: "bg-sorbet-blush",
   },
   {
     title: "Rex Club until close",
     chip: "Party",
     Icon: FaChampagneGlasses,
-    tint: "bg-buddy-orchid",
+    tint: "bg-sorbet-orchid",
   },
 ];
 

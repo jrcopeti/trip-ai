@@ -24,7 +24,7 @@ type Props = {
 function StickerBadge({
   label,
   icon,
-  tint = "text-buddy-lime",
+  tint = "text-sorbet-lime",
   size = 112,
   spin = 26,
   className = "",
@@ -62,7 +62,7 @@ function StickerBadge({
         </defs>
         <circle cx="50" cy="50" r="50" fill="currentColor" />
         <text
-          className="fill-buddy-ink"
+          className="fill-sorbet-ink"
           fontSize="8.5"
           fontWeight={600}
           letterSpacing="0.06em"
@@ -74,7 +74,7 @@ function StickerBadge({
       </motion.svg>
       {/* react-icons default to 1em, so font-size drives the glyph size here. */}
       <span
-        className="relative flex items-center justify-center text-buddy-ink"
+        className="relative flex items-center justify-center text-sorbet-ink"
         style={{ marginTop: -size, height: size, fontSize: size * 0.26 }}
       >
         {icon}
