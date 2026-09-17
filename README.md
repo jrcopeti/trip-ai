@@ -31,6 +31,32 @@ single characterful display face. The type is [Rubik](https://fonts.google.com/s
 colour and shape are defined as design tokens in `src/app/globals.css` and applied through
 components in `src/components/landing/`.
 
+### The `sorbet` palette
+
+The new colours live under a `sorbet` token namespace — the palette is pastel lime,
+orchid, blush and lavender on a cream canvas, so the name describes what you see. It
+follows the same convention as the existing palettes (`neptune`, `tuna`, `shark`,
+`gallery`), which are also named for the colour rather than for where they are used. That
+matters because these tokens will outlive the landing page: as the rest of the app moves
+to the new system, the same `sorbet-*` utilities apply everywhere.
+
+| Token | Hex | Role |
+| --- | --- | --- |
+| `sorbet-ink` | `#302e2d` | Text, dark buttons, the circular arrows, focus rings |
+| `sorbet-canvas` | `#f7f0e7` | Warm page ground — the hero, the nav, "How it works" |
+| `sorbet-offwhite` | `#f6f6f6` | Light text on ink surfaces; recessed panels such as the weather card |
+| `sorbet-lime` | `#e2f3a7` | Primary accent — the closing call to action, secondary buttons, a sticker |
+| `sorbet-lime-punch` | `#e8ff98` | Higher-energy lime — the guided-tour card, a sticker, one trip-type chip |
+| `sorbet-orchid` | `#eea1ff` | Secondary accent — the wordmark and nav tiles, the party card, stickers |
+| `sorbet-lavender` | `#e9daf1` | Tinted surfaces — the packing list, the romantic card, one chip |
+| `sorbet-blush` | `#f2d9d9` | Tinted surface — the gastronomy card, one chip |
+| `sorbet-cyan` | `#a7fff7` | One sticker badge and one trip-type chip |
+| `sorbet-indigo` | `#5a4dff` | Used once — the eyebrow dot in the hero |
+
+The display face is exposed as `font-sorbet`, which resolves to Rubik with a system
+fallback. Tokens are additive: nothing in the older palettes was changed, which is how the
+two looks coexist while the migration is in progress.
+
 Two details worth calling out:
 
 - **The trip-type chips are real data.** They render the same taxonomy the trip form

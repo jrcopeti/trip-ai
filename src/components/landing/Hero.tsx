@@ -33,13 +33,13 @@ function Hero() {
   const fast = useTransform(scrollYProgress, [0, 1], [0, 170]);
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-buddy-canvas">
+    <section ref={ref} className="relative overflow-hidden bg-sorbet-canvas">
       {/* Stickers — decorative, hidden below md where they would crowd the type. */}
       <motion.div
         style={{ y: slow }}
         className="parallax-drift absolute left-[4%] top-28 hidden md:block"
       >
-        <StickerBadge label="go anywhere" icon={<BsCompass />} tint="text-buddy-cyan" size={104} />
+        <StickerBadge label="go anywhere" icon={<BsCompass />} tint="text-sorbet-cyan" size={104} />
       </motion.div>
       <motion.div
         style={{ y: fast }}
@@ -48,7 +48,7 @@ function Hero() {
         <StickerBadge
           label="take it easy"
           icon={<LuTreePalm />}
-          tint="text-buddy-lime"
+          tint="text-sorbet-lime"
           size={120}
           spin={-30}
         />
@@ -60,27 +60,27 @@ function Hero() {
         <StickerBadge
           label="pack light"
           icon={<TbBackpack />}
-          tint="text-buddy-orchid"
+          tint="text-sorbet-orchid"
           size={92}
           spin={34}
         />
       </motion.div>
 
       <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-10 sm:px-8 md:pt-16">
-        <p className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-2 text-sm font-medium text-buddy-ink">
-          <span className="size-2 rounded-full bg-buddy-indigo" aria-hidden />
+        <p className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-2 text-sm font-medium text-sorbet-ink">
+          <span className="size-2 rounded-full bg-sorbet-indigo" aria-hidden />
           Your new travel friend
         </p>
 
-        <h1 className="max-w-5xl text-[clamp(2.75rem,7vw,5.5rem)] leading-[0.96] tracking-[-0.03em] text-buddy-ink">
+        <h1 className="max-w-5xl text-[clamp(2.75rem,7vw,5.5rem)] leading-[0.96] tracking-[-0.03em] text-sorbet-ink">
           <span className="block font-extrabold">Plan the trip.</span>
           <span className="block font-medium">Pack for the weather.</span>
         </h1>
 
-        <Squiggle className="mt-8 h-16 w-24 text-buddy-ink md:h-20 md:w-32" />
+        <Squiggle className="mt-8 h-16 w-24 text-sorbet-ink md:h-20 md:w-32" />
 
         <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <p className="max-w-md text-lg leading-relaxed text-buddy-ink/75 md:text-xl">
+          <p className="max-w-md text-lg leading-relaxed text-sorbet-ink/75 md:text-xl">
             Describe where you are headed. Trip AI writes the itinerary, the
             tours worth doing, and a packing list that already knows the
             forecast.
@@ -89,13 +89,13 @@ function Hero() {
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href="/form"
-              className="rounded-full bg-buddy-ink px-7 py-4 text-base font-semibold text-buddy-offwhite transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-buddy-ink"
+              className="rounded-full bg-sorbet-ink px-7 py-4 text-base font-semibold text-sorbet-offwhite transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sorbet-ink"
             >
               Plan a trip
             </Link>
             <Link
               href="/saved-trips"
-              className="rounded-full bg-buddy-lime px-7 py-4 text-base font-semibold text-buddy-ink transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-buddy-ink"
+              className="rounded-full bg-sorbet-lime px-7 py-4 text-base font-semibold text-sorbet-ink transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sorbet-ink"
             >
               See saved trips
             </Link>

@@ -5,10 +5,10 @@ import Reveal from "./Reveal";
 
 function HowItWorks() {
   return (
-    <section className="bg-buddy-canvas px-5 py-20 sm:px-8 md:py-28">
+    <section className="bg-sorbet-canvas px-5 py-20 sm:px-8 md:py-28">
       <div className="mx-auto max-w-6xl">
         <Reveal>
-          <h2 className="max-w-2xl text-[clamp(2rem,5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-buddy-ink">
+          <h2 className="max-w-2xl text-[clamp(2rem,5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-sorbet-ink">
             Three steps, start to bag.
           </h2>
         </Reveal>
@@ -18,15 +18,15 @@ function HowItWorks() {
           <ol className="grid gap-8">
             {steps.map((step, i) => (
               <Reveal key={step.n} delay={0.07 * i}>
-                <li className="flex gap-5 border-t border-buddy-ink/15 pt-6">
-                  <span className="text-sm font-semibold tabular-nums text-buddy-ink/40">
+                <li className="flex gap-5 border-t border-sorbet-ink/15 pt-6">
+                  <span className="text-sm font-semibold tabular-nums text-sorbet-ink/40">
                     {step.n}
                   </span>
                   <div>
-                    <h3 className="text-2xl font-semibold text-buddy-ink">
+                    <h3 className="text-2xl font-semibold text-sorbet-ink">
                       {step.title}
                     </h3>
-                    <p className="mt-2 max-w-md text-lg leading-relaxed text-buddy-ink/70">
+                    <p className="mt-2 max-w-md text-lg leading-relaxed text-sorbet-ink/70">
                       {step.body}
                     </p>
                   </div>
@@ -49,7 +49,7 @@ function HowItWorks() {
                     sizes="(max-width: 1024px) 100vw, 420px"
                     className="h-52 w-full object-cover md:h-60"
                   />
-                  <span className="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium text-buddy-ink backdrop-blur-sm">
+                  <span className="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium text-sorbet-ink backdrop-blur-sm">
                     {photo.label}
                   </span>
                 </div>

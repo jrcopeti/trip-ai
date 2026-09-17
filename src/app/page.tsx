@@ -1,5 +1,5 @@
-import BuddyFooter from "@/components/landing/BuddyFooter";
-import BuddyNav from "@/components/landing/BuddyNav";
+import LandingFooter from "@/components/landing/LandingFooter";
+import LandingNav from "@/components/landing/LandingNav";
 import ClosingCta from "@/components/landing/ClosingCta";
 import Hero from "@/components/landing/Hero";
 import HowItWorks from "@/components/landing/HowItWorks";
@@ -18,8 +18,8 @@ import WordmarkBlock from "@/components/landing/WordmarkBlock";
 function Homepage() {
   return (
     <MotionProvider>
-      <div className="min-h-dvh bg-buddy-canvas font-buddy text-buddy-ink antialiased">
-        <BuddyNav />
+      <div className="min-h-dvh bg-sorbet-canvas font-sorbet text-sorbet-ink antialiased">
+        <LandingNav />
         <main>
           <Hero />
           <WordmarkBlock />
@@ -29,7 +29,7 @@ function Homepage() {
           <WeatherPacking />
           <ClosingCta />
         </main>
-        <BuddyFooter />
+        <LandingFooter />
       </div>
     </MotionProvider>
   );
