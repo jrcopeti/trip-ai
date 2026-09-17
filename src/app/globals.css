@@ -187,3 +187,27 @@ body {
     transform: none !important;
   }
 }
+
+/*
+ * Landing intro.
+ *
+ * Reduced motion: the intro never shows. Done in CSS so the server and client
+ * render the same tree — gating it in JS on a client-only value is what caused
+ * the stranded opacity:0 bug on the reveals.
+ *
+ * Safety net: if JavaScript never runs, the overlay hides itself anyway shortly
+ * after the intro would have finished, so nobody is stuck behind an ink panel.
+ */
+@keyframes landing-intro-failsafe {
+  to {
+    visibility: hidden;
+  }
+}
+.landing-intro {
+  animation: landing-intro-failsafe 0s 4.5s forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-intro {
+    display: none;
+  }
+}

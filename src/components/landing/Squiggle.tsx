@@ -2,8 +2,22 @@
 
 import { motion } from "framer-motion";
 
+type Props = {
+  className?: string;
+  /**
+   * When given, the draw-on waits for `true` instead of firing on viewport
+   * entry. The hero needs this: it is in view from the first paint but hidden
+   * behind the intro, so `whileInView` would draw it before anyone can see it.
+   */
+  play?: boolean;
+  /** Seconds to wait once `play` flips, so the curtain can clear it first. */
+  delay?: number;
+};
+
 /** The hand-drawn ink loop from the reference deck. Decorative. */
-function Squiggle({ className = "" }: { className?: string }) {
+function Squiggle({ className = "", play, delay = 0 }: Props) {
+  const gated = play !== undefined;
+
   return (
     <svg
       aria-hidden
@@ -17,9 +31,10 @@ function Squiggle({ className = "" }: { className?: string }) {
         strokeWidth={3}
         strokeLinecap="round"
         initial={{ pathLength: 0 }}
-        whileInView={{ pathLength: 1 }}
+        animate={gated ? { pathLength: play ? 1 : 0 } : undefined}
+        whileInView={gated ? undefined : { pathLength: 1 }}
         viewport={{ once: true }}
-        transition={{ duration: 1.4, ease: "easeInOut" }}
+        transition={{ duration: 1.0, ease: "easeInOut", delay: play ? delay : 0 }}
       />
     </svg>
   );

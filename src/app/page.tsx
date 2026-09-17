@@ -3,6 +3,8 @@ import LandingNav from "@/components/landing/LandingNav";
 import ClosingCta from "@/components/landing/ClosingCta";
 import Hero from "@/components/landing/Hero";
 import HowItWorks from "@/components/landing/HowItWorks";
+import Intro from "@/components/landing/Intro";
+import { IntroProvider } from "@/components/landing/IntroContext";
 import MotionProvider from "@/components/landing/MotionProvider";
 import PhotoBand from "@/components/landing/PhotoBand";
 import TripTypePills from "@/components/landing/TripTypePills";
@@ -18,19 +20,22 @@ import WordmarkBlock from "@/components/landing/WordmarkBlock";
 function Homepage() {
   return (
     <MotionProvider>
-      <div className="min-h-dvh bg-sorbet-canvas font-sorbet text-sorbet-ink antialiased">
-        <LandingNav />
-        <main>
-          <Hero />
-          <WordmarkBlock />
-          <TripTypePills />
-          <PhotoBand />
-          <HowItWorks />
-          <WeatherPacking />
-          <ClosingCta />
-        </main>
-        <LandingFooter />
-      </div>
+      <IntroProvider>
+        <div className="min-h-dvh bg-sorbet-canvas font-sorbet text-sorbet-ink antialiased">
+          <Intro />
+          <LandingNav />
+          <main>
+            <Hero />
+            <WordmarkBlock />
+            <TripTypePills />
+            <PhotoBand />
+            <HowItWorks />
+            <WeatherPacking />
+            <ClosingCta />
+          </main>
+          <LandingFooter />
+        </div>
+      </IntroProvider>
     </MotionProvider>
   );
 }
