@@ -18,9 +18,9 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
 
 Required in `.env.local`:
 - `DATABASE_URL` — PostgreSQL connection string
-- `ANTHROPIC_API_KEY` — used in `src/app/api/openaiApi.ts`
+- `ANTHROPIC_API_KEY` — used in `src/app/api/anthropicApi.ts`
 - `UNSPLASH_API_KEY` — used in `src/app/api/unsplashApi.ts`
-- `NEXT_PUBLIC_OPENWEATHER_API_KEY` — used in weather hooks
+- `OPEN_WEATHER_KEY` — used in `src/app/api/openWeatherApi.ts`
 - `NEXT_PUBLIC_GEONAMES_USERNAME` — used in `useGeoNames`
 
 ## Architecture
@@ -38,7 +38,7 @@ Required in `.env.local`:
 - **`ImageContext`** (`src/context/ImageContext.tsx`) — TanStack Query mutation calling `fetchTripImage` (Unsplash).
 
 ### Server-side modules (all marked `"use server"`)
-- `src/app/api/openaiApi.ts` — calls Claude (claude-sonnet-4-6) via tool use with a `tripData` tool schema; returns structured JSON (title, objectsList, mustHave, requiredItems, description, tours, tip).
+- `src/app/api/anthropicApi.ts` — calls Claude (claude-sonnet-4-6) via tool use with a `tripData` tool schema; returns structured JSON (title, objectsList, mustHave, requiredItems, description, tours, tip).
 - `src/app/api/unsplashApi.ts` — fetches 5 city photos + generates a base64 plaiceholder blur for the first image.
 - `src/app/api/openWeatherApi.ts` — fetches current weather and forecast from OpenWeather.
 - `src/db/actions.ts` — Prisma server actions: `createTripInDB`, `getAllTrips`, `getSingleSavedTrip`.
