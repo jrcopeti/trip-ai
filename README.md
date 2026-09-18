@@ -112,8 +112,22 @@ The following environment variables are required in `.env.local`:
 | `DATABASE_URL` | Postgres connection string |
 | `ANTHROPIC_API_KEY` | Itinerary generation |
 | `UNSPLASH_API_KEY` | Destination photography |
-| `NEXT_PUBLIC_OPENWEATHER_API_KEY` | Weather and forecast |
+| `OPEN_WEATHER_KEY` | Weather and forecast |
 | `NEXT_PUBLIC_GEONAMES_USERNAME` | City validation |
+
+## Continuous integration
+
+Every pull request runs two checks and one review:
+
+- **Typecheck** — `tsc --noEmit`.
+- **Build** — `prisma generate` + `next build`. Needs no secrets: nothing reads an
+  environment variable at build time.
+- **Claude Code Review** — an automated review posted as inline comments, once when the
+  PR opens. Re-request one by commenting `@claude review` on the PR. It reads
+  `CLAUDE.md` for project conventions.
+
+`npm run lint` is not part of CI. `next lint` was removed in Next.js 16 and the ESLint
+config predates the flat-config format, so it fails before reading any file.
 
 ## Previous design
 
