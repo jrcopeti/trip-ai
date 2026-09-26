@@ -236,7 +236,7 @@ Any element whose `style` takes a `useTransform` output needs `className="parall
 | Reveal | 0.55s |
 | Hero deck | 0.6s, `y 28→0`, delay `0.3 + 0.15i` |
 | Squiggle draw | 1.0s `easeInOut` on `pathLength` |
-| Sticker spin | `|spin|` seconds per turn, `linear`, `Infinity` |
+| Sticker spin | `\|spin\|` seconds per turn, `linear`, `Infinity` |
 | Parallax | `[0, 90]` slow / `[0, 170]` fast over the hero's scroll |
 | Hover | `scale-[1.03]` buttons, `scale-105` pills, `-translate-y-2` deck cards |
 
@@ -336,7 +336,7 @@ Each of these was a bug, not a theory.
    extending that guard.
 
 8. **`homepageImages` in `src/data/index.ts` has fabricated city labels**, and entries
-   11–16 share copy-pasted `alt` text and image 10's blur placeholder. The landing's
+   10–16 all share `city: "Sydney"`, `alt: "tenth"` and one blur placeholder. The landing's
    `content.ts` describes what is in frame and claims no place. Do not caption a photo
    from that array's `city` field.
 

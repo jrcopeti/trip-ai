@@ -10,9 +10,9 @@ before anything becomes a commit. "Make the change" is not permission to commit 
 "branch off and do X" is not permission either. Wait for "commit", "push", or "open a PR".
 
 **Work in the main working tree, on the branch, so the diff is visible.** Create the
-branch with `git checkout -b <name>` in `/Users/jrcopeti/code/trip-ai` itself. Do not do
-the work in a detached worktree somewhere under `/tmp` — the editor is open on this
-directory, and changes made elsewhere cannot be reviewed. If a worktree is genuinely
+branch with `git checkout -b <name>` in the repository root — the directory the editor is
+open on — rather than in a separate worktree. Work done in a detached worktree (under
+`/tmp`, say) cannot be reviewed, because the editor never sees it. If a worktree is genuinely
 needed (reproducing a clean-checkout build, for instance), it is for verification only;
 the change itself still lands here.
 
@@ -136,8 +136,8 @@ Remote images from Unsplash (`images.unsplash.com`) are whitelisted in
 still whitelisted but unused — image generation was removed with the OpenAI migration.
 Plaiceholder generates base64 blur placeholders server-side.
 
-`src/data/index.ts`'s `homepageImages` has fabricated `city` labels, and entries 11–16
-share copy-pasted `alt` text and one blur placeholder. **Never caption an image from
+`src/data/index.ts`'s `homepageImages` has fabricated `city` labels, and entries 10–16
+all share `city: "Sydney"`, `alt: "tenth"` and one blur placeholder. **Never caption an image from
 that array using its `city` field.**
 
 ### Database
