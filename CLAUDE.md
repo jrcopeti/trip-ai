@@ -2,6 +2,26 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Working agreement
+
+**Do not commit, push, or open a pull request unless explicitly asked to.** Finish the
+work, leave it in the working tree, and say what changed. The diff is reviewed in VS Code
+before anything becomes a commit. "Make the change" is not permission to commit it;
+"branch off and do X" is not permission either. Wait for "commit", "push", or "open a PR".
+
+**Work in the main working tree, on the branch, so the diff is visible.** Create the
+branch with `git checkout -b <name>` in `/Users/jrcopeti/code/trip-ai` itself. Do not do
+the work in a detached worktree somewhere under `/tmp` — the editor is open on this
+directory, and changes made elsewhere cannot be reviewed. If a worktree is genuinely
+needed (reproducing a clean-checkout build, for instance), it is for verification only;
+the change itself still lands here.
+
+**Leave the branch checked out when you are done**, so the next session and the editor
+agree on where the work is.
+
+Corollary for anything outward-facing — pushing, PR bodies, PR comments, repository
+settings, deploys: same rule, and ask first. Reading is always fine.
+
 ## Commands
 
 ```bash
