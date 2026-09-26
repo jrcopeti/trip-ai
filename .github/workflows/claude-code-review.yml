@@ -22,7 +22,11 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
-      pull-requests: read
+      # pull-requests must be write, not read: the whole point of this job is to
+      # post inline review comments. With read the run still succeeds and logs
+      # "No buffered inline comments", which looks like "found nothing" rather
+      # than "could not post" — see the claude.yml job, which posts fine on write.
+      pull-requests: write
       issues: read
       id-token: write
       actions: read
