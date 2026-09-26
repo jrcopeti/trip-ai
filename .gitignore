@@ -39,3 +39,6 @@ next-env.d.ts
 # claude code worktrees
 .claude/worktrees/
 .vscode/settings.json
+
+# local working plan (docs/design-notes.md IS tracked)
+docs/PLAN.md
