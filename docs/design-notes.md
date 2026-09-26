@@ -9,7 +9,7 @@ code is right and this file needs fixing.
 
 - The reference: `src/app/page.tsx` and `src/components/landing/*`
 - The tokens: the `sorbet` block at the end of `@theme` in `src/app/globals.css`
-- Current plans: `docs/PLAN.md` (untracked, local)
+- Current plans: `docs/PLAN.md`
 
 ## Status
 

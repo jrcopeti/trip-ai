@@ -53,8 +53,8 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
 - **`docs/design-notes.md`** — the `sorbet` design system: tokens, type scale, layout,
   motion rules, component inventory, and the gotchas that have already cost debugging
   time. **Read it before styling anything.** Tracked in git.
-- **`docs/PLAN.md`** — the current working plan. Gitignored, local only. Read it at the
-  start of a task and keep it updated as the work changes shape.
+- **`docs/PLAN.md`** — the current working plan. Tracked. Read it at the start of a task
+  and keep it updated as the work changes shape; churn there is expected.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
 architecture). `PLAN.md` is for work in flight.
