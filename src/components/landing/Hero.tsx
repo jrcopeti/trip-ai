@@ -8,6 +8,7 @@ import { BsCompass } from "react-icons/bs";
 import { TbBackpack } from "react-icons/tb";
 import { LuTreePalm } from "react-icons/lu";
 
+import { useIntro } from "./IntroContext";
 import StickerBadge from "./StickerBadge";
 import Squiggle from "./Squiggle";
 import TripCard from "./TripCard";
@@ -18,6 +19,7 @@ const fan = ["-rotate-3 md:-rotate-4", "rotate-2 md:rotate-0 md:-translate-y-4",
 
 function Hero() {
   const ref = useRef<HTMLElement>(null);
+  const { done: introDone } = useIntro();
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -77,7 +79,11 @@ function Hero() {
           <span className="block font-medium">Pack for the weather.</span>
         </h1>
 
-        <Squiggle className="mt-8 h-16 w-24 text-sorbet-ink md:h-20 md:w-32" />
+        <Squiggle
+          play={introDone}
+          delay={0.35}
+          className="mt-8 h-16 w-24 text-sorbet-ink md:h-20 md:w-32"
+        />
 
         <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <p className="max-w-md text-lg leading-relaxed text-sorbet-ink/75 md:text-xl">
@@ -108,8 +114,8 @@ function Hero() {
             <motion.div
               key={card.title}
               initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.15 * i, ease: [0.22, 1, 0.36, 1] }}
+              animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+              transition={{ duration: 0.6, delay: 0.3 + 0.15 * i, ease: [0.22, 1, 0.36, 1] }}
               className={`${fan[i]} ${i > 0 ? "-mt-20 md:ml-5 md:mt-0" : ""} w-60 shadow-[0_18px_40px_-24px_rgba(48,46,45,0.55)] transition-transform duration-300 hover:-translate-y-2 md:w-64`}
             >
               <TripCard card={card} />

@@ -17,7 +17,11 @@ function LandingNav() {
           <span className="grid size-7 place-items-center rounded-lg bg-sorbet-orchid text-[0.6rem] font-extrabold text-sorbet-ink">
             ai
           </span>
-          <span className="text-lg font-extrabold tracking-tight text-sorbet-ink">
+          {/* data-wordmark: the intro measures this to know where to fly to. */}
+          <span
+            data-wordmark
+            className="text-lg font-extrabold tracking-tight text-sorbet-ink"
+          >
             trip ai
           </span>
         </Link>
