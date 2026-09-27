@@ -14,6 +14,7 @@ import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { steps } from "@/data";
 import { FormDataSchema } from "@/lib/schema";
+import { transformInputsToFinalData } from "@/lib/formData";
 
 const defaultFormData: Inputs = {
   userName: "",
@@ -36,16 +37,6 @@ const defaultFormData: Inputs = {
   flagUrl: "",
 };
 
-function transformInputsToFinalData(inputs: Inputs): FinalDataTypes {
-  const transformedRequiredItems =
-    inputs.requiredItems?.map((i) => i.item) ?? [];
-
-  return {
-    ...inputs,
-    requiredItems: transformedRequiredItems,
-    weatherForecast: inputs.weatherForecast || "",
-  };
-}
 const initialFinalData = transformInputsToFinalData(defaultFormData);
 
 const defaultContextValue: FormContextType = {

@@ -42,13 +42,56 @@ settings, deploys: same rule, and ask first. Reading is always fine.
 npm run dev          # start dev server
 npm run build        # prisma generate && next build --webpack
 npx tsc --noEmit     # the type check — use this, not lint
+npm test             # vitest run — the unit suite
+npm run test:watch   # vitest in watch mode
+npm run test:e2e     # playwright test (chromium); needs a seeded DB
+npm run seed:e2e     # seed the e2e database — DESTRUCTIVE, see below
 ```
 
-There are no tests in this project **yet**. Step 0 of `docs/PLAN.md` lands the harness —
-Vitest + React Testing Library (`npm test`), a small chromium `@playwright/test` suite
-(`npm run test:e2e`), and both as required CI jobs. Until that merges, `npx tsc --noEmit`
-is the only check; after it, read the testing section of `docs/PLAN.md` before adding a
-test so the mocking boundaries stay consistent.
+### Tests
+
+**Unit — Vitest + React Testing Library**, jsdom, config in `vitest.config.mts`.
+Tests live beside the code as `*.test.ts(x)` under `src/`. `describe`/`it`/`expect` are
+imported explicitly rather than enabled as globals, so `tsconfig.json` needs no `types`
+entry — and because that also disables RTL's auto-cleanup, `src/test/setup.ts` registers
+the unmount itself. Don't remove it: without it every render piles up in one document.
+
+Shared helpers in `src/test/`:
+
+- `render.tsx` — `renderWithProviders`, wrapping `QueryClientProvider` (retries off) and
+  `MotionProvider`. Use it for anything that touches a query or a motion component.
+- `fixtures/` — `Trip` rows, the Anthropic `tripData` response, OpenWeather payloads,
+  an Unsplash payload, and valid form inputs. One source of truth; extend rather than
+  inventing a local literal.
+- `stubs/next.tsx` — `next/navigation` spies and a passthrough `next/image`.
+- `imageStub.ts` — static image imports resolve to an object with `.src`, keyed by
+  filename. `src/lib/utils.ts` reads `sun.src` on ten weather PNGs, so a bare string
+  (Vite's default) would make every branch of `placeWeatherIcons` return `undefined`.
+
+**Boundaries are mocked at the module edge**, never deeper: `vi.mock("@/db")` for the
+Prisma singleton, `vi.mock("@/db/actions")` for components, and `vi.mock` on
+`anthropicApi`, `unsplashApi`, `openWeatherApi`. No network, no database, no keys.
+
+Two limits to work with rather than fight: `whileInView` never fires in jsdom, so assert
+that `Reveal`'s children render, never that an animation ran; and async server components
+cannot be rendered by RTL, so cover their logic as a pure helper and the page itself in
+Playwright.
+
+**Anything reading the clock must pin it.** `placeWeatherIcons`, `findStartIndex` and the
+schema's date refinements all compare against local time, so a UTC-anchored fixture
+passes here and fails in CI. Use `vi.setSystemTime` with a *local* `Date`, and
+`FIXTURE_NOW` from the weather fixture for forecast work.
+
+**E2E — `@playwright/test`**, chromium only, specs in `e2e/`. `webServer` runs
+`npm run start`, so it tests a production build. The one production concession to
+testing: the three `"use server"` modules return a fixture when `E2E_FIXTURES=1`
+(`src/app/api/e2eFixtures.ts`) — those calls are server-side, so `page.route` cannot
+reach them, and the alternative is live API keys in CI.
+
+`saved-trips.spec.ts` asserts against the rows in `scripts/seed-e2e.ts`. **That script
+deletes every trip before seeding**, so it refuses any host but localhost unless
+`ALLOW_REMOTE_E2E_SEED=1` — `.env` here points at the production Neon database. Run the
+e2e suite against a throwaway Postgres, never the real one.
 
 Browser verification during a migration step is done with the **Playwright MCP** tools
 (navigate, resize to 1440/768/390, emulate `prefers-reduced-motion`, read console
@@ -64,9 +107,12 @@ config is parked work.
 `build` passes `--webpack`, opting out of Turbopack. Dev still uses Turbopack, which
 caches CSS aggressively — see the stale-cache note in `docs/design-notes.md`.
 
-CI runs `typecheck` and `build` on every PR (`.github/workflows/ci.yml`); both are
-required to merge. `tsc` needs `npx next typegen` first on a clean checkout, because
-`next-env.d.ts` carries the image-import types and is gitignored.
+CI runs `typecheck`, `build`, `test` and `e2e` on every PR
+(`.github/workflows/ci.yml`); all four are required to merge. `tsc` needs
+`npx next typegen` first on a clean checkout, because `next-env.d.ts` carries the
+image-import types and is gitignored — Vitest does not, as it stubs image imports itself.
+The `e2e` job brings up a `postgres` service container, pushes the schema, seeds it and
+runs the suite with `E2E_FIXTURES=1`, so it needs no secrets.
 
 After any Prisma schema change: `npx prisma generate` (already included in `build`). To push schema changes to the DB: `npx prisma db push`.
 

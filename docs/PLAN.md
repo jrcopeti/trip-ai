@@ -12,11 +12,23 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Now
 
-**Step 0 — test harness and backfill.** See the step list below.
+**Step 1 — the shared shell.** See the step list below.
+
+## Done
+
+- **Step 0 — test harness and backfill.** ✅ Landed on `test-harness`. 210 unit tests
+  across 13 files; 24 e2e tests across 3 specs, of which 15 (`landing`, `about-404`)
+  ran locally against a production build and 9 (`saved-trips`) run in CI, where the
+  seeded throwaway database lives.
+
+  These e2e specs are page-level checks, not journeys — render, navigate, filter,
+  no overflow at 390px, reduced motion does not blank the page. The multi-step
+  journeys come with the steps that restyle those routes: the seven-step form walk
+  in step 4, and form → trip → save/discard in step 5.
 
 ## Next
 
-Step 1 — the shared shell. Then steps 2–6 in order.
+Steps 2–6 in order.
 
 ## Open questions
 
@@ -168,9 +180,32 @@ Every step is one branch off `main`, one PR:
 
 ---
 
-## Step 0 — Test harness and backfill · `test-harness`
+## Step 0 — Test harness and backfill · `test-harness` ✅
 
 No visual changes. This is the regression net the migration leans on.
+
+**Landed.** What the plan did not anticipate, recorded because the next steps inherit it:
+
+- `@types/node` moved from `^20` to `^24` — Vitest 5 requires it, and both CI and the
+  local machine already run Node 24.
+- `vite-tsconfig-paths` is not needed: Vite 8 resolves `@/` from `tsconfig.json`
+  natively via `resolve.tsconfigPaths`.
+- The image stub is **keyed by filename**, not shared. A single stub makes all ten
+  weather PNGs identical and every branch of `placeWeatherIcons` indistinguishable.
+- Without `globals: true`, RTL's auto-cleanup never registers; `src/test/setup.ts` calls
+  `cleanup()` itself. Removing it makes every render accumulate in one document.
+- **Local time, not UTC.** `findStartIndex`, `placeWeatherIcons` and the schema's date
+  refinements all compare against local time. Fixtures and `vi.setSystemTime` are
+  anchored to local `Date`s (`FIXTURE_NOW`), verified across four timezones — a
+  UTC-anchored fixture passes here and fails in CI.
+- `tsx` was added so CI can run the seed script.
+- `scripts/seed-e2e.ts` **refuses any host but localhost** unless
+  `ALLOW_REMOTE_E2E_SEED=1`. It opens with `deleteMany()`, and `.env` points at the
+  production Neon database.
+- `handleNoAnswer` omits `placeholder` where `handleYesAnswer` sets it. **Correct as
+  written, not a bug:** a discarded trip is written to the DB but never read back —
+  `getAllTrips` and `getSingleSavedTrip` both filter `saved: true` — so no blur
+  placeholder is ever rendered for it. Pinned by a test so step 5 does not "fix" it.
 
 **Setup**
 
@@ -212,9 +247,15 @@ No visual changes. This is the regression net the migration leans on.
   `useGeoNames.ts` — query wiring and the empty/error branches.
 
 **E2E (first specs)** — `landing.spec.ts` (hero renders, the intro does not block
-content, nav links work), `about-404.spec.ts`, and `saved-trips.spec.ts` against the
-seeded DB (grid renders, search filters, a card opens its detail page). These are written
-against the *current* UI and updated by the steps that restyle it — that is the point.
+content, nav links work, no console errors, no horizontal scroll at 390px, reduced
+motion does not blank the page), `about-404.spec.ts`, and `saved-trips.spec.ts` against
+the seeded DB (grid renders, search filters by city and by traveller, the empty state
+appears, a card opens its detail page, no card is left at `opacity: 0`). These are
+written against the *current* UI and updated by the steps that restyle it — that is the
+point.
+
+The `saved-trips` spec needs the seeded throwaway database, so it runs in CI rather than
+locally against `.env`. The other two were verified locally against a production build.
 
 ## Step 1 — Shared shell · `sorbet-shell`
 

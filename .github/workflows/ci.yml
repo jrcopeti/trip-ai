@@ -2,7 +2,8 @@
 #
 # `npm run lint` is deliberately absent: `next lint` was removed in Next 16 and
 # the ESLint config is on the legacy format, so it fails before reading a file.
-# Typecheck is the correctness gate until that is migrated.
+# Typecheck, the unit suite and the e2e suite are the correctness gates until
+# that is migrated.
 #
 # The build needs no secrets. `prisma generate` reads only the schema, and Next
 # does not evaluate the "use server" API modules at build time — verified by
@@ -49,3 +50,65 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # Vitest stubs image imports itself (see vitest.config.mts), so unlike the
+      # typecheck job this needs no `next typegen`.
+      - run: npm test
+
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # A throwaway database for the run. The suite seeds it, and saved-trips.spec
+    # asserts against exactly those rows.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: trip_ai_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/trip_ai_e2e
+      # The three "use server" modules answer from fixtures rather than calling
+      # Anthropic, Unsplash and OpenWeather, so the run needs no API keys.
+      E2E_FIXTURES: "1"
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx prisma db push
+      - run: npm run seed:e2e
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
