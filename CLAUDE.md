@@ -4,10 +4,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Working agreement
 
-**Do not commit, push, or open a pull request unless explicitly asked to.** Finish the
-work, leave it in the working tree, and say what changed. The diff is reviewed in VS Code
-before anything becomes a commit. "Make the change" is not permission to commit it;
-"branch off and do X" is not permission either. Wait for "commit", "push", or "open a PR".
+**Never run `git commit`, `git push`, or `gh pr create` on your own initiative.** Finish
+the work, `git add` it so it shows up in the VS Code diff, say what changed — and stop
+there. Every diff is reviewed in the editor *before* it becomes a commit. No exceptions
+for "it's only docs", "it's only a config file", or a change you are confident about.
+
+**The review comes first even when the instruction that started the work mentioned
+committing.** A sentence written before the diff existed cannot approve a diff nobody has
+seen yet. So:
+
+- "Make the change", "do X", "branch off and do X" — not permission to commit.
+- "Write the plan, then commit and push it" — the *work* is authorised; the commit is
+  not yet. Do the work, stage it, report, wait.
+- Only "commit" / "push" / "open a PR" arriving **after** the changes are sitting staged
+  in the working tree is permission — and it covers that diff only, not the next one.
+- Permission does not carry across steps, branches, or turns. Ask again each time.
+
+If you believe something genuinely has to be committed before it can be reviewed, say so
+and wait for an answer instead of committing.
 
 **Work in the main working tree, on the branch, so the diff is visible.** Create the
 branch with `git checkout -b <name>` in the repository root — the directory the editor is
@@ -30,7 +44,15 @@ npm run build        # prisma generate && next build --webpack
 npx tsc --noEmit     # the type check — use this, not lint
 ```
 
-There are no tests in this project.
+There are no tests in this project **yet**. Step 0 of `docs/PLAN.md` lands the harness —
+Vitest + React Testing Library (`npm test`), a small chromium `@playwright/test` suite
+(`npm run test:e2e`), and both as required CI jobs. Until that merges, `npx tsc --noEmit`
+is the only check; after it, read the testing section of `docs/PLAN.md` before adding a
+test so the mocking boundaries stay consistent.
+
+Browser verification during a migration step is done with the **Playwright MCP** tools
+(navigate, resize to 1440/768/390, emulate `prefers-reduced-motion`, read console
+messages), not by asking for a manual pass.
 
 `npm run lint` is broken and has been for a while: it calls `next lint`, which Next 16
 removed, and running `npx eslint` directly fails in `@eslint/eslintrc` with
@@ -55,6 +77,13 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
   time. **Read it before styling anything.** Tracked in git.
 - **`docs/PLAN.md`** — the current working plan. Tracked. Read it at the start of a task
   and keep it updated as the work changes shape; churn there is expected.
+
+  It currently carries the **sorbet migration**: numbered steps 0–6 that finish the
+  redesign, each one a branch off `main` with its own PR. If you are picking up a step,
+  read that step's section plus the "Per-step contract" above it — the contract is where
+  the per-step checks, the Playwright MCP pass and the "don't commit" rule live. The
+  polaroid spec for saved trips and the testing approach are also there, and both are
+  binding.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
 architecture). `PLAN.md` is for work in flight.
@@ -102,7 +131,8 @@ Required in `.env.local`:
 
 **Two visual systems coexist right now.** The app is mid-redesign: `/` uses the new
 `sorbet` system, every other route still uses the previous look. Both are live and both
-must keep working.
+must keep working. The order the remaining routes get migrated in, and what each step
+changes, is `docs/PLAN.md` — don't migrate a route ad hoc.
 
 - **Tailwind CSS v4**, configured CSS-first — design tokens live in the `@theme` block
   of `src/app/globals.css`, not in a JS config. A `tailwind.config.ts` file exists but
