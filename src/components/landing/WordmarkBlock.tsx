@@ -1,4 +1,4 @@
-import Reveal from "./Reveal";
+import Reveal from "@/components/sorbet/Reveal";
 
 const meta = [
   { label: "Model", value: "Claude Sonnet" },

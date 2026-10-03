@@ -11,7 +11,7 @@ import { LuTreePalm } from "react-icons/lu";
 import { useIntro } from "./IntroContext";
 import StickerBadge from "./StickerBadge";
 import Squiggle from "./Squiggle";
-import TripCard from "./TripCard";
+import TripCard from "@/components/sorbet/TripCard";
 import { heroDeck } from "./content";
 
 /** Fan angles for the deck, outer cards tilted away from centre. */

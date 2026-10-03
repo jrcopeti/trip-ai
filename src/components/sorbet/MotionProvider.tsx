@@ -3,7 +3,8 @@
 import { MotionConfig } from "framer-motion";
 
 /**
- * Reduced-motion handling for the whole landing page.
+ * Reduced-motion handling for the whole app — mounted once in
+ * `src/app/providers.tsx`, so every route is covered.
  *
  * `reducedMotion="user"` defers to the OS setting inside Framer Motion itself:
  * transform and layout animations are skipped (they jump straight to their target)

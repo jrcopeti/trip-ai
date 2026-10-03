@@ -77,6 +77,22 @@ that `Reveal`'s children render, never that an animation ran; and async server c
 cannot be rendered by RTL, so cover their logic as a pure helper and the page itself in
 Playwright.
 
+**Fake timers plus Framer Motion needs two things**, both of them learned the hard way in
+`LoaderResponseAI.test.tsx`:
+
+- `requestAnimationFrame` is not in Vitest's default `toFake` list. Without it Framer's
+  frame loop never runs, so an `AnimatePresence mode="wait"` swap never completes and the
+  component is frozen on its first state however far you advance the clock. Pass an
+  explicit `toFake` including `requestAnimationFrame`, `cancelAnimationFrame` and
+  `performance`.
+- That frame loop is a **module-level singleton**, and it will not restart under a fresh
+  fake clock while it still thinks a frame is pending. So `afterEach` must `cleanup()`,
+  then `vi.runOnlyPendingTimers()`, and only then `vi.useRealTimers()` — otherwise the
+  *second* test in the file is the one that mysteriously fails.
+- Don't assert an animated swap at an exact timestamp. Advance in small steps until the
+  expected content is on screen, with a budget; that still pins the order, which is what
+  the behaviour actually is.
+
 **Anything reading the clock must pin it.** `placeWeatherIcons`, `findStartIndex` and the
 schema's date refinements all compare against local time, so a UTC-anchored fixture
 passes here and fails in CI. Use `vi.setSystemTime` with a *local* `Date`, and
@@ -151,7 +167,7 @@ Required in `.env.local`:
 3. On the trip page: user chooses to save or discard → Prisma writes to DB
 4. `/saved-trips` — lists all saved trips; `/saved-trips/[id]` — single saved trip
 
-### State management: four Context providers (nested in `src/app/providers.tsx`)
+### State management: four Context providers (nested in `src/app/providers.tsx`, inside `MotionProvider`)
 - **`FormContext`** (`src/context/FormContext.tsx`) — owns the entire multi-step form: RHF instance, Zod validation (`FormDataSchema`), step navigation (`next`/`prev`), and triggers weather/image fetches on the appropriate steps.
 - **`TripContext`** (`src/context/TripContext.tsx`) — holds the Anthropic API response (`tripData`) and the TanStack Query mutation that calls `fetchResponseAI`. Redirects to `/trips/[tripUrl]` on success.
 - **`WeatherContext`** (`src/context/WeatherContext.tsx`) — three separate TanStack Query mutations: current weather, 5-day forecast, and daily forecast.
@@ -177,7 +193,10 @@ Required in `.env.local`:
 
 **Two visual systems coexist right now.** The app is mid-redesign: `/` uses the new
 `sorbet` system, every other route still uses the previous look. Both are live and both
-must keep working. The order the remaining routes get migrated in, and what each step
+must keep working. The **shared shell is already migrated and global** — `SiteNav` from
+the root layout, `SiteFooter`, the loaders, `NotFoundComponent` and the toasters — so an
+unmigrated route wears sorbet chrome over an old-palette body. That is intended; don't
+"fix" it locally. The order the remaining routes get migrated in, and what each step
 changes, is `docs/PLAN.md` — don't migrate a route ad hoc.
 
 - **Tailwind CSS v4**, configured CSS-first — design tokens live in the `@theme` block
@@ -190,8 +209,9 @@ changes, is `docs/PLAN.md` — don't migrate a route ad hoc.
 - **`daisyui` is installed but never loaded** — no `@plugin "daisyui"`, no `data-theme`
   in `src/`. Ignore it; it is a dependency to be removed, not a system in use.
 - **Fonts** — `src/app/layout.tsx`. `Red Hat Display` on `<body>` is the old body font.
-  `Rubik` is the new display face, exposed as `font-sorbet` and opted into per page;
-  its CSS variable must stay on `<html>` (design-notes explains why).
+  `Rubik` is the new display face, exposed as `font-sorbet` and opted into per page.
+  `Caveat` is the handwriting face, exposed as `font-sorbet-hand`, for polaroid captions
+  only. Both CSS variables must stay on `<html>` (design-notes explains why).
 - **Motion** — Framer Motion for anything new. GSAP (`src/hooks/useScrollTrigger.ts`)
   and Locomotive Scroll are wired into the trip pages only; don't extend them and don't
   mix them into a redesigned page.

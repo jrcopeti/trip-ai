@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { sortedTypes } from "@/data";
-import Reveal from "./Reveal";
+import Reveal from "@/components/sorbet/Reveal";
 
 /** Rotating pastel fills so a long list still reads as one system. */
 const tints = [

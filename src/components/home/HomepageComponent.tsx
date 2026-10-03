@@ -22,7 +22,7 @@ function HomepageComponent() {
   }, []);
 
   return (
-    <Container overflow="overflow-hidden" height="h-[calc(100dvh-3.5rem)]">
+    <Container overflow="overflow-hidden" height="h-[calc(100dvh-4rem)]">
       <GradientBg />
       <AnimatePresence mode="wait">
         {isLoading && <Preloader />}
