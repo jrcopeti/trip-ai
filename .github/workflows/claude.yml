@@ -25,7 +25,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 1
+          # Full history for the same reason as claude-code-review.yml: asking
+          # `@claude review` or a question about why a line looks the way it
+          # does needs `git log` and `git blame` to have something to read.
+          # This job passes no --allowedTools, so git is already permitted here;
+          # only the history was missing.
+          fetch-depth: 0
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

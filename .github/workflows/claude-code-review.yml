@@ -35,19 +35,32 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 1
+          # Full history, not a shallow clone. One of the five review agents is
+          # told to "read the git blame and history of the code modified"; at
+          # depth 1 there is no history to read, so that agent silently returns
+          # nothing useful. The repo is small enough that the fetch is cheap.
+          fetch-depth: 0
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
           plugins: "code-review@claude-code-plugins"
           prompt: "/code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
+          # Without this the run logs only a summary — turn count, cost and a
+          # bare `permission_denials_count` — with no record of which tool was
+          # denied. A review that comes back empty is then indistinguishable
+          # from one that was blocked, which cost an afternoon to work out once.
+          show_full_output: "true"
           # This list REPLACES Claude's defaults, so everything the review needs
           # must be named: the command's own `allowed-tools` frontmatter, the
           # subagent tool it runs every step through (`Agent`, plus the legacy
           # `Task` alias in case one CLI has only the other), TodoWrite, and the
           # right-hand side of any pipe — a Bash rule matches the whole command
           # line, so `gh pr view --comments | head` needs `head` allowed too.
+          #
+          # The git entries are deliberately the four read-only subcommands
+          # rather than a blanket `Bash(git:*)`: the review never needs to write,
+          # and a wildcard would also admit push, reset and checkout.
           claude_args: >-
             --allowedTools
-            "Agent,Task,TodoWrite,Read,Grep,Glob,mcp__github_inline_comment__create_inline_comment,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr list:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh issue list:*),Bash(gh search:*),Bash(head:*),Bash(tail:*),Bash(grep:*),Bash(jq:*),Bash(wc:*)"
+            "Agent,Task,TodoWrite,Read,Grep,Glob,mcp__github_inline_comment__create_inline_comment,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr list:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh issue list:*),Bash(gh search:*),Bash(git log:*),Bash(git blame:*),Bash(git show:*),Bash(git diff:*),Bash(head:*),Bash(tail:*),Bash(grep:*),Bash(jq:*),Bash(wc:*)"
