@@ -1,6 +1,20 @@
 import { defaultPlaceholder } from "@/lib/constants";
 import type { Prisma, Trip } from "@prisma/client";
 
+/**
+ * Files under `public/`, so `next/image` serves them instead of reaching for a
+ * remote host. Invented Unsplash URLs made the optimizer log an upstream 404 per
+ * card under `E2E_FIXTURES`; these resolve. Kept distinct so a test asserting
+ * `image3` cannot pass on `image2`.
+ */
+export const LOCAL_IMAGES = [
+  "/screenshots/desktop/1.png",
+  "/screenshots/desktop/2.png",
+  "/screenshots/desktop/3.png",
+  "/screenshots/desktop/5.png",
+  "/screenshots/desktop/6.png",
+] as const;
+
 /** A saved `Trip` row, matching the Prisma model field for field. */
 export const tripFixture: Trip = {
   id: 1,
@@ -23,12 +37,12 @@ export const tripFixture: Trip = {
   weatherForecast: "",
   flagUrl: "https://flagcdn.com/pt.svg",
   tripUrl: "ab12c",
-  image: "https://images.unsplash.com/photo-lisbon-1",
+  image: LOCAL_IMAGES[0],
   placeholder: defaultPlaceholder,
-  image2: "https://images.unsplash.com/photo-lisbon-2",
-  image3: "https://images.unsplash.com/photo-lisbon-3",
-  image4: "https://images.unsplash.com/photo-lisbon-4",
-  image5: "https://images.unsplash.com/photo-lisbon-5",
+  image2: LOCAL_IMAGES[1],
+  image3: LOCAL_IMAGES[2],
+  image4: LOCAL_IMAGES[3],
+  image5: LOCAL_IMAGES[4],
   saved: true,
   title: "Ana's Seven Sunlit Days Across Lisbon, Portugal",
   description: "Lisbon in May is all tiled facades and long light.",
@@ -57,7 +71,7 @@ export const tripFixture2: Trip = {
   flagUrl: "https://flagcdn.com/jp.svg",
   tripUrl: "de34f",
   title: "Bruno's Quiet Week Among the Temples of Kyoto, Japan",
-  image: "https://images.unsplash.com/photo-kyoto-1",
+  image: LOCAL_IMAGES[1],
 };
 
 export function makeTrip(overrides: Partial<Trip> = {}): Trip {

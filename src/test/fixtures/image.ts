@@ -1,4 +1,5 @@
 import { defaultPlaceholder } from "@/lib/constants";
+import { LOCAL_IMAGES } from "./trip";
 import type { ImageDataTypes } from "@/types";
 
 /**
@@ -13,10 +14,10 @@ import type { ImageDataTypes } from "@/types";
  * the value and fails on anything that is not a genuine base64 image.
  */
 export const imageDataFixture = {
-  tripImage: "https://images.unsplash.com/photo-lisbon-1",
-  tripImage2: "https://images.unsplash.com/photo-lisbon-2",
-  tripImage3: "https://images.unsplash.com/photo-lisbon-3",
-  tripImage4: "https://images.unsplash.com/photo-lisbon-4",
-  tripImage5: "https://images.unsplash.com/photo-lisbon-5",
+  tripImage: LOCAL_IMAGES[0],
+  tripImage2: LOCAL_IMAGES[1],
+  tripImage3: LOCAL_IMAGES[2],
+  tripImage4: LOCAL_IMAGES[3],
+  tripImage5: LOCAL_IMAGES[4],
   placeholder: defaultPlaceholder,
 } satisfies ImageDataTypes;

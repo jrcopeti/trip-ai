@@ -65,11 +65,16 @@ test.describe("/saved-trips", () => {
     // The cards carry opacity-0 for a GSAP batch to clear. If that animation
     // stops running and the class stays, the grid renders blank — this is the
     // regression that would hide.
+    //
+    // `toHaveCount` rather than `count()`: the grid is client-rendered from a
+    // TanStack query, so at navigation there are no cards yet. `count()` does
+    // not retry and would read that empty first paint; the web-first assertion
+    // polls until the query resolves. Pinning the number also asserts both
+    // seeded saved trips arrive and the discarded one stays out.
     const cards = page.getByRole("link", { name: /lisbon|kyoto/i });
-    const count = await cards.count();
-    expect(count).toBeGreaterThan(0);
+    await expect(cards).toHaveCount(2);
 
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < 2; i++) {
       await expect(cards.nth(i)).not.toHaveCSS("opacity", "0");
     }
   });
