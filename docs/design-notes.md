@@ -352,7 +352,9 @@ Each of these was a bug, not a theory.
 7. Wrap entrances in `Reveal`; stagger with `delay={0.06 * i}`.
 8. Add the focus-visible triad to everything interactive.
 9. Check it at 390px — the custom `xs` breakpoint is there for a reason.
-10. Verify with `npx tsc --noEmit` (`npm run lint` is broken — see CLAUDE.md).
+10. Verify with `npx tsc --noEmit`, `npm test` and `npm run build` (`npm run lint` is
+    broken — see CLAUDE.md). Write the step's tests in the same PR; the testing
+    conventions are in CLAUDE.md.
 
 ## Known debt
 

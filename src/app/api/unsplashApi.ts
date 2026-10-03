@@ -1,10 +1,13 @@
 "use server";
 import axios from "axios";
 import { getPlaiceholder } from "plaiceholder";
+import { imageDataFixture, useE2EFixtures } from "./e2eFixtures";
 
 const url = `https://api.unsplash.com/search/photos?client_id=${process.env.UNSPLASH_API_KEY}&query=`;
 
 export const fetchTripImage = async (city: string) => {
+  if (useE2EFixtures) return imageDataFixture;
+
   let tripImage = "";
   let tripImage2 = "";
   let tripImage3 = "";

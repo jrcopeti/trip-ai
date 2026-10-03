@@ -1,6 +1,7 @@
 "use server";
 import Anthropic from "@anthropic-ai/sdk";
 import type { Trip } from "@prisma/client";
+import { tripDataFixture, useE2EFixtures } from "./e2eFixtures";
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -85,6 +86,8 @@ const tripInputSchema: Anthropic.Tool["input_schema"] = {
 };
 
 export const fetchResponseAI = async (prompt: string): Promise<Trip | null> => {
+  if (useE2EFixtures) return tripDataFixture;
+
   try {
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",

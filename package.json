@@ -6,6 +6,10 @@
     "dev": "next dev",
     "build": "prisma generate && next build --webpack",
     "start": "next start",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "seed:e2e": "tsx scripts/seed-e2e.ts",
     "lint": "next lint"
   },
   "dependencies": {
@@ -40,20 +44,28 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.0",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@types/locomotive-scroll": "^4.1.4",
-    "@types/node": "^20.19.41",
+    "@types/node": "^24.19.0",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.1.1",
     "autoprefixer": "^10.5.0",
     "daisyui": "^5.5.20",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.6",
+    "jsdom": "^30.1.1",
     "postcss": "^8.5.15",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "prisma": "^5.11.0",
     "tailwindcss": "^4.3.0",
-    "typescript": "^5"
+    "tsx": "^4.23.15",
+    "typescript": "^5",
+    "vitest": "^5.0.2"
   }
 }

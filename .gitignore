@@ -40,3 +40,11 @@ next-env.d.ts
 .claude/worktrees/
 .vscode/settings.json
 
+
+# test output
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+# Playwright MCP scratch (browser verification during a migration step)
+/.playwright-mcp/

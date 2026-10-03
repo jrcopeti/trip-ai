@@ -1,5 +1,10 @@
 "use server";
 import axios from "axios";
+import {
+  forecastListFixture,
+  useE2EFixtures,
+  weatherFixture,
+} from "./e2eFixtures";
 import type {
   WeatherApiResponse,
   FetchForecastParams,
@@ -11,6 +16,8 @@ export const fetchForecast = async ({
   city,
   country,
 }: FetchForecastParams): Promise<DailyForecastDataTypes[]> => {
+  if (useE2EFixtures) return forecastListFixture;
+
   const coordinatesUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city},${country}&limit=3&appid=${process.env.OPEN_WEATHER_KEY}`;
   let forecast;
 
@@ -31,6 +38,8 @@ export const fetchWeather = async ({
   city,
   country,
 }: FetchWeatherParams): Promise<WeatherApiResponse> => {
+  if (useE2EFixtures) return weatherFixture;
+
   const coordinatesUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city},${country}&limit=3&appid=${process.env.OPEN_WEATHER_KEY}`;
   let weather;
   try {
