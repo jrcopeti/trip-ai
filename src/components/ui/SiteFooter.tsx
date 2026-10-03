@@ -16,9 +16,14 @@ const columns = [
   },
 ];
 
-function LandingFooter() {
+/**
+ * The app's footer, shared by every route. Lifted out of `landing/` unchanged
+ * when the shell became shared; the only addition is `font-sorbet`, so it still
+ * renders in Rubik on a page that has not opted in at its own root yet.
+ */
+function SiteFooter() {
   return (
-    <footer className="bg-sorbet-ink px-5 py-16 text-sorbet-offwhite sm:px-8">
+    <footer className="bg-sorbet-ink px-5 py-16 font-sorbet text-sorbet-offwhite antialiased sm:px-8">
       <div className="mx-auto flex max-w-6xl flex-col gap-12 md:flex-row md:justify-between">
         <div>
           <p className="text-3xl font-extrabold tracking-[-0.03em]">trip ai</p>
@@ -53,4 +58,4 @@ function LandingFooter() {
   );
 }
 
-export default LandingFooter;
+export default SiteFooter;

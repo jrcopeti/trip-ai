@@ -29,7 +29,7 @@ function AboutComponent() {
   }
 
   return (
-    <Container overflow="overflow-hidden" height="h-[calc(100dvh-3.5rem)]">
+    <Container overflow="overflow-hidden" height="h-[calc(100dvh-4rem)]">
       <GradientBg />
       <GridContainer bg="bg-gallery-50/70">
         <div className="flex min-w-full flex-col items-start gap-4 p-4 xs:p-8 md:p-8 lg:gap-8 lg:p-10">

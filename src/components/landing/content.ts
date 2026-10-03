@@ -16,6 +16,7 @@ import balloons from "@/assets/homepage/1.jpg";
 import lake from "@/assets/homepage/7.jpg";
 import train from "@/assets/homepage/5.jpg";
 import suncloudy from "@/assets/weather/suncloudy.png";
+import type { ItineraryCard } from "@/components/sorbet/TripCard";
 
 /**
  * Content for the landing page.
@@ -27,13 +28,6 @@ import suncloudy from "@/assets/weather/suncloudy.png";
  * captions below describe what is actually in frame and make no place claims.
  * Static imports let next/image generate the blur placeholder on its own.
  */
-
-export type ItineraryCard = {
-  title: string;
-  chip: string;
-  Icon: IconType;
-  tint: string;
-};
 
 /** Sample of the shape Trip AI returns: a titled activity plus its category. */
 export const itineraryCards: ItineraryCard[] = [

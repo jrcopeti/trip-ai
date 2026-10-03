@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 import { photos, steps } from "./content";
-import Reveal from "./Reveal";
+import Reveal from "@/components/sorbet/Reveal";
 
 function HowItWorks() {
   return (
