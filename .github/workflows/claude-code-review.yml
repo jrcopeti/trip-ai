@@ -6,47 +6,20 @@
 # On a public repository GitHub withholds secrets from fork PRs, so this only
 # runs for branches in this repository.
 #
-# ---------------------------------------------------------------------------
-# Why this job does the review itself instead of running the code-review plugin
+# NEVER ADD `Agent` OR `Task` BACK TO THE ALLOWLIST. In `-p` mode a session
+# that delegates to a subagent can end its turn waiting for the answer, exit 0
+# having reviewed nothing, and leave a green check. Without a tool to delegate
+# with, the review has to happen inside the one turn. History: PR #163.
 #
-# It used to be `/code-review:code-review --comment`, with `Agent` and `Task`
-# allowed so the command could fan out to its five review agents. That shape
-# produced a GREEN CHECK THAT REVIEWED NOTHING, three PRs running:
-#
-#   "result": "The PR status check is still running. I'll continue once it
-#              reports back."
-#   num_turns: 3, is_error: false, permission_denials: [], 24 seconds
-#
-# The command opens by delegating a gate check ("is this PR closed, a draft,
-# already reviewed?") to a subagent. The main session handed that off and ended
-# its turn to wait for the answer — which is correct in an interactive session,
-# where the subagent finishing wakes it back up, and fatal in `-p`, where there
-# is no next turn. The session exited successfully having reviewed nothing, the
-# job exited 0, and the required check went green. Runs that really reviewed
-# took ~5 minutes; the broken ones took 14s, 41s and 39s.
-#
-# So: NEVER ADD `Agent` OR `Task` BACK TO THE ALLOWLIST. Without a tool to
-# delegate with, the model has to do the review inside its own turn, and the
-# failure is unreachable rather than merely unlikely. The plugin install goes
-# with them — it is what wanted the subagents in the first place.
-#
-# `fetch-depth: 1` for the same reason: the agent that was told to read git
-# history is gone, and no git tool is allowed, so a full clone buys nothing.
-#
-# The last step is the belt to that braces: it fails the job if nothing was
-# posted. Whatever goes wrong next — a prompt that ends early, a token that
-# cannot comment — it shows up as a red check rather than as a green one nobody
-# can distinguish from "found nothing".
-# ---------------------------------------------------------------------------
+# The last step fails the job if nothing was posted, so any other way of
+# ending early shows up red rather than as a green "found nothing".
+
 name: Claude Code Review
 
 on:
   pull_request:
-    # Deliberately not `synchronize`: one review per pull request, not one per
-    # push. `ready_for_review` is here because a PR opened as a draft is skipped
-    # by the guard below, and `reopened` is absent so reopening cannot post a
-    # second review — the old gate-check subagent that used to enforce that is
-    # what broke the job.
+    # Not `synchronize` or `reopened`: one review per pull request. A PR opened
+    # as a draft is skipped by the guard below and reviewed on ready_for_review.
     types: [opened, ready_for_review]
 
 jobs:
@@ -121,43 +94,29 @@ jobs:
           # This list REPLACES the defaults, so everything the review needs must
           # be named — and nothing it does not. No git, no other shell commands.
           #
-          # `Write` is there only for the summary body. Markdown full of
-          # backticks cannot go through `--body "..."` (bash runs every
-          # backtick span as a command), and the usual `$(cat <<'EOF' ...)`
-          # workaround is denied because `cat` is not allowed — so without a
-          # file, the one step that makes the review visible was the likeliest
-          # to fail. The checkout is throwaway and `contents: read`, so a file
-          # written there goes nowhere.
+          # `Write` is only for the summary body: backticks in `--body "..."`
+          # run as commands, and a heredoc needs `cat`, which is not allowed.
+          # The checkout is throwaway, so the file goes nowhere.
           #
-          # `--disallowedTools` makes the Agent/Task ban explicit rather than a
-          # side effect of leaving them off the allowlist, so it holds whatever
-          # the action or the CLI starts allowing by default.
+          # `--disallowedTools` keeps the Agent/Task ban explicit, whatever the
+          # action or CLI starts allowing by default.
           claude_args: >-
             --allowedTools
             "Read,Write,Grep,Glob,mcp__github_inline_comment__create_inline_comment,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
             --disallowedTools
             "Agent,Task"
-          # Without this the run logs only a summary — turn count, cost and a
-          # bare permission_denials_count — with no record of what happened. It
-          # is how the false-green above was eventually diagnosed; keep it.
+          # Without this the log holds only a summary — no transcript, no record
+          # of which tool was denied or how the turn ended. Keep it.
           show_full_output: "true"
 
-      # Runs only if the step above succeeded — that is bash's default `if`, and
-      # it is what we want: a Claude step that failed has already reddened the
-      # job, and a second error would only muddy it.
+      # Runs only if the Claude step succeeded; a failed one has already
+      # reddened the job. Counts claude[bot] comments on both endpoints, since
+      # inline comments alone are still a review.
       #
-      # Checks both comment endpoints, because a review that posted only
-      # line-anchored comments and skipped the summary is still a review.
-      # claude[bot] is the author on every review this repo has had (#156, #157,
-      # #159), from both this workflow and claude.yml.
-      #
-      # One exit is legitimate: the action refuses to run when this workflow
-      # file differs from main's copy ("Workflow validation failed ... identical
-      # content to the version on the repository's default branch"), and exits
-      # 0. That is every PR that edits this file — it is why #153-#155 and #160
-      # never ran their own fix. On that path the action sets no `conclusion`
-      # output, so an empty one means "skipped", reported as a warning: failing
-      # would redden every workflow PR, and passing silently would hide it.
+      # The action skips, exiting 0, whenever this file differs from main's
+      # copy — i.e. on every PR that edits it, which therefore never tests its
+      # own change. That path sets no `conclusion` output, so an empty one is
+      # reported as a skip warning rather than a failure.
       - name: Fail if the review posted nothing
         env:
           GH_TOKEN: ${{ github.token }}
@@ -170,18 +129,10 @@ jobs:
             exit 0
           fi
 
-          # Counts claude[bot] comments created since this job started, on one
-          # endpoint. Prints the count and returns 0; returns 1 if the API call
-          # itself failed.
-          #
-          # The explicit status check matters more than it looks. gh prints its
-          # error body to STDOUT, so on a bad credential `.[]` iterates
-          # {message, documentation_url} and emits two lines — counted naively,
-          # an auth failure reads as "two comments posted". `grep -c '^1$'`
-          # counts only the sentinel jq emits per match, and a non-zero gh exit
-          # is reported as "could not check", never as "checked and passed".
-          # stderr is left alone: `$(...)` captures only stdout, so gh's own
-          # error message lands in the log next to the warning below.
+          # Prints the number of claude[bot] comments since $SINCE on one
+          # endpoint; returns 1 if the API call failed. gh prints its error body
+          # to stdout, so counting lines would read a 401 as two comments —
+          # hence the exit check and the `^1$` sentinel.
           count_new() {
             local out
             if ! out=$(gh api "repos/$GITHUB_REPOSITORY/$1" --paginate \
