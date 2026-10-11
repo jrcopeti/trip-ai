@@ -3,14 +3,14 @@ import path from "path";
 import { getPlaiceholder } from "plaiceholder";
 
 /**
- * Generates the blur `placeholder` for every photo in src/assets/homepage and
+ * Generates the blur `placeholder` for every photo in src/assets/travel-photos and
  * writes `{ "<file>": "<base64>" }` to ./placeholders.json. Copy each value
  * into its `travelPhotos` entry in src/data/index.ts.
  *
  *   node generatePlaceholder.mjs
  */
 async function generatePlaceholders() {
-  const imagesPath = path.join(process.cwd(), "src", "assets", "homepage");
+  const imagesPath = path.join(process.cwd(), "src", "assets", "travel-photos");
   const files = (await fs.readdir(imagesPath))
     .filter((file) => /\.(jpe?g|png|webp)$/i.test(file))
     .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));

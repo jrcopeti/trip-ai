@@ -12,9 +12,9 @@ import {
   TbUmbrella,
 } from "react-icons/tb";
 
-import balloons from "@/assets/homepage/1.jpg";
-import lake from "@/assets/homepage/7.jpg";
-import train from "@/assets/homepage/5.jpg";
+import balloons from "@/assets/travel-photos/1.jpg";
+import lake from "@/assets/travel-photos/7.jpg";
+import train from "@/assets/travel-photos/5.jpg";
 import suncloudy from "@/assets/weather/suncloudy.png";
 import type { ItineraryCard } from "@/components/sorbet/TripCard";
 

@@ -284,7 +284,29 @@ Three directories, and which one a component lives in is the statement about its
 - **`src/components/sorbet/`** — the system's general-purpose pieces. Use these anywhere.
 - **`src/components/ui/`** — the shared shell and the app-wide chrome.
 - **`src/components/landing/`** — the landing page's own sections. Nothing else imports
-  from here.
+  from here. The same goes for each migrated page's directory (`about/`, and the routes
+  still to come).
+
+### Copy lives in `content.ts`
+
+Every migrated page keeps its words in a `content.ts` beside its components —
+`landing/content.ts`, `about/content.ts`. Headings, leads, eyebrows, button labels, link
+targets, alts and sample data go there as plain exported objects; the components hold
+layout and styling and render `{intro.lead}`, never a literal sentence. One file to read
+to review or rewrite a page's copy, and JSX that is only structure.
+
+What does *not* go in it:
+
+- **Data the app produces or stores** — the AI's `tripData`, a `Trip` row, the weather.
+  That arrives through props and queries as it does now; only the static copy *around*
+  it (section headings, empty states, labels) moves.
+- **Option lists that feed the form schema** — `sortedTypes`, `luggageSizes` and the rest
+  stay in `src/data/index.ts`, because the schema and more than one route read them.
+- **Shared-shell copy** — `SiteNav`, `SiteFooter` and the other `ui/` pieces keep their
+  own, since they are not a page.
+
+Keep strings as plain text (`you're`, not `you&apos;re`): JSX escaping only applies to
+text written inline in JSX, and the file should read like copy.
 
 | Component | Where | Notes |
 | --- | --- | --- |
@@ -404,8 +426,12 @@ Each of these was a bug, not a theory.
 6. Alternate the ground against the section above it.
 7. Wrap entrances in `Reveal`; stagger with `delay={0.06 * i}`.
 8. Add the focus-visible triad to everything interactive.
-9. Check it at 390px — the custom `xs` breakpoint is there for a reason.
-10. Verify with `npx tsc --noEmit`, `npm test` and `npm run build` (`npm run lint` is
+9. Move every word on the page into the page's `content.ts` (see "Copy lives in
+   `content.ts`" above).
+10. `priority` on a `next/image` only when it is above the fold on first paint — never
+    inside a `Reveal`, which starts it at opacity 0, so the preload buys nothing.
+11. Check it at 390px — the custom `xs` breakpoint is there for a reason.
+12. Verify with `npx tsc --noEmit`, `npm test` and `npm run build` (`npm run lint` is
     broken — see CLAUDE.md). Write the step's tests in the same PR; the testing
     conventions are in CLAUDE.md.
 

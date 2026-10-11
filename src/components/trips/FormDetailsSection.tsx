@@ -6,7 +6,7 @@ import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useImage } from "@/hooks/useImage";
 import { useFormData } from "@/hooks/useFormData";
 import dayjs from "dayjs";
-import defaultImage4 from "@/assets/homepage/4.jpg";
+import defaultImage4 from "@/assets/travel-photos/4.jpg";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
 import { displayDuration, durationInDays } from "@/lib/utils";

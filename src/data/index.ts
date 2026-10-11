@@ -1,21 +1,21 @@
 import type { StaticImageData } from "next/image";
 
-import image1 from "@/assets/homepage/1.jpg";
-import image2 from "@/assets/homepage/2.jpg";
-import image3 from "@/assets/homepage/3.jpg";
-import image4 from "@/assets/homepage/4.jpg";
-import image5 from "@/assets/homepage/5.jpg";
-import image6 from "@/assets/homepage/6.jpeg";
-import image7 from "@/assets/homepage/7.jpg";
-import image8 from "@/assets/homepage/8.jpg";
-import image9 from "@/assets/homepage/9.jpg";
-import image10 from "@/assets/homepage/10.jpg";
-import image11 from "@/assets/homepage/11.jpg";
-import image12 from "@/assets/homepage/12.jpg";
-import image13 from "@/assets/homepage/13.jpg";
-import image14 from "@/assets/homepage/14.jpg";
-import image15 from "@/assets/homepage/15.jpg";
-import image16 from "@/assets/homepage/16.jpg";
+import image1 from "@/assets/travel-photos/1.jpg";
+import image2 from "@/assets/travel-photos/2.jpg";
+import image3 from "@/assets/travel-photos/3.jpg";
+import image4 from "@/assets/travel-photos/4.jpg";
+import image5 from "@/assets/travel-photos/5.jpg";
+import image6 from "@/assets/travel-photos/6.jpeg";
+import image7 from "@/assets/travel-photos/7.jpg";
+import image8 from "@/assets/travel-photos/8.jpg";
+import image9 from "@/assets/travel-photos/9.jpg";
+import image10 from "@/assets/travel-photos/10.jpg";
+import image11 from "@/assets/travel-photos/11.jpg";
+import image12 from "@/assets/travel-photos/12.jpg";
+import image13 from "@/assets/travel-photos/13.jpg";
+import image14 from "@/assets/travel-photos/14.jpg";
+import image15 from "@/assets/travel-photos/15.jpg";
+import image16 from "@/assets/travel-photos/16.jpg";
 const types = [
   { value: "family", label: "Family" },
   { value: "adventure", label: "Adventure" },
@@ -307,189 +307,6 @@ const formSteps = [
   },
 ];
 
-const savedTripDataCards = [
-  {
-    id: 1,
-    city: "Berlin",
-    country: "Germany",
-    userName: "John Doe",
-    image: image1,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AOzn0v/55v//7P//6wDItJvl0bns3cbj2sUAGQAAOSUYMigfEg4LMRwWIdN3vREAAAAASUVORK5CYII=",
-  },
-  {
-    id: 2,
-    city: "Paris",
-    country: "France",
-    userName: "Jane Doe",
-    image: image2,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAPElEQVR4nGNoVuMskmNo8jZakOHL0KQrZM/OYCvNWWApyxCsI+mnJuUvwnChKYhBhoFBgYEhxlD6/6dLAC+kDJm5EugJAAAAAElFTkSuQmCC",
-  },
-  {
-    id: 3,
-    city: "London",
-    country: "United Kingdom",
-    userName: "Peter",
-    image: image3,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAM0lEQVR4nAEoANf/AHTV53Xc7VzF1wDM///E9//K//8Ag31tgHZmioV0ABYAADsoCUcwD/MKFAd4tFeYAAAAAElFTkSuQmCC",
-  },
-  {
-    id: 4,
-    city: "New York",
-    country: "United States",
-    userName: "Laura",
-    image: image4,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMUlEQVR4nGNYceLu6Wc/Xv3/zzAzK3xORdqDR/cZTO3MHB2stWwcGBjEGRgUVBk4JQC3DQ/c3oLnaQAAAABJRU5ErkJggg==",
-  },
-  {
-    id: 5,
-    city: "Tokyo",
-    country: "Japan",
-    userName: "Grace",
-    image: image5,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVR4nGOY2ZZ1/PrVl///v/v4mqEpPyTAUdrfQUZLloEh1EXTUI7BXJ1BhoEBAH93DhyQDeoiAAAAAElFTkSuQmCC",
-  },
-  {
-    id: 6,
-    city: "Rome",
-    country: "Italy",
-    userName: "Wayne",
-    image: image6,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AHdcWIl1c+r//8fHzgBpLw6gb1Z6YlwmAAAAtKGK5tC6xq6RkXtfdF0TCfd4lUUAAAAASUVORK5CYII=",
-  },
-  {
-    id: 7,
-    city: "Barcelona",
-    country: "Spain",
-    userName: "Florian",
-    image: image7,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVR4nGPIKij8/vf/9Yevtu49yCCgIBQe65eQFMYgzsAgycagysSgxsAgysAAAFe5DAgF4waAAAAAAElFTkSuQmCC",
-  },
-  {
-    id: 8,
-    city: "Istanbul",
-    country: "Turkey",
-    userName: "Sara",
-    image: image8,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAM0lEQVR4nAEoANf/ALu0qvPm3//9+wCqm5HLtq22pJ8AgnZzhHlwY1VNAJSAfRUAAJ2Mi++tFP0r2jShAAAAAElFTkSuQmCC",
-  },
-  {
-    id: 9,
-    city: "Rio de Janeiro",
-    country: "Brazil",
-    userName: "Alex",
-    image: image9,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMUlEQVR4nGP48+fV6ycX7948zuBmq63AzmCkKcFgpi0pychgqizAEOJnExfmZGEgCwBW/wydcsDEeAAAAABJRU5ErkJggg==",
-  },
-  {
-    id: 10,
-    city: "Sydney",
-    country: "Australia",
-    userName: "Mia",
-    image: image10,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII=",
-  },
-  {
-    id: 11,
-    city: "Berlin",
-    country: "Germany",
-    userName: "John Doe",
-    image: image1,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AOzn0v/55v//7P//6wDItJvl0bns3cbj2sUAGQAAOSUYMigfEg4LMRwWIdN3vREAAAAASUVORK5CYII=",
-  },
-  {
-    id: 12,
-    city: "Paris",
-    country: "France",
-    userName: "Jane Doe",
-    image: image2,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAPElEQVR4nGNoVuMskmNo8jZakOHL0KQrZM/OYCvNWWApyxCsI+mnJuUvwnChKYhBhoFBgYEhxlD6/6dLAC+kDJm5EugJAAAAAElFTkSuQmCC",
-  },
-  {
-    id: 13,
-    city: "London",
-    country: "United Kingdom",
-    userName: "Peter",
-    image: image3,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAM0lEQVR4nAEoANf/AHTV53Xc7VzF1wDM///E9//K//8Ag31tgHZmioV0ABYAADsoCUcwD/MKFAd4tFeYAAAAAElFTkSuQmCC",
-  },
-  {
-    id: 14,
-    city: "New York",
-    country: "United States",
-    userName: "Laura",
-    image: image4,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMUlEQVR4nGNYceLu6Wc/Xv3/zzAzK3xORdqDR/cZTO3MHB2stWwcGBjEGRgUVBk4JQC3DQ/c3oLnaQAAAABJRU5ErkJggg==",
-  },
-  {
-    id: 15,
-    city: "Tokyo",
-    country: "Japan",
-    userName: "Grace",
-    image: image5,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVR4nGOY2ZZ1/PrVl///v/v4mqEpPyTAUdrfQUZLloEh1EXTUI7BXJ1BhoEBAH93DhyQDeoiAAAAAElFTkSuQmCC",
-  },
-  {
-    id: 16,
-    city: "Rome",
-    country: "Italy",
-    userName: "Wayne",
-    image: image6,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AHdcWIl1c+r//8fHzgBpLw6gb1Z6YlwmAAAAtKGK5tC6xq6RkXtfdF0TCfd4lUUAAAAASUVORK5CYII=",
-  },
-  {
-    id: 17,
-    city: "Barcelona",
-    country: "Spain",
-    userName: "Florian",
-    image: image7,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVR4nGPIKij8/vf/9Yevtu49yCCgIBQe65eQFMYgzsAgycagysSgxsAgysAAAFe5DAgF4waAAAAAAElFTkSuQmCC",
-  },
-  {
-    id: 18,
-    city: "Istanbul",
-    country: "Turkey",
-    userName: "Sara",
-    image: image8,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAM0lEQVR4nAEoANf/ALu0qvPm3//9+wCqm5HLtq22pJ8AgnZzhHlwY1VNAJSAfRUAAJ2Mi++tFP0r2jShAAAAAElFTkSuQmCC",
-  },
-  {
-    id: 19,
-    city: "Rio de Janeiro",
-    country: "Brazil",
-    userName: "Alex",
-    image: image9,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMUlEQVR4nGP48+fV6ycX7948zuBmq63AzmCkKcFgpi0pychgqizAEOJnExfmZGEgCwBW/wydcsDEeAAAAABJRU5ErkJggg==",
-  },
-  {
-    id: 20,
-    city: "Sydney",
-    country: "Australia",
-    userName: "Mia",
-    image: image10,
-    placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII=",
-  },
-];
-
 export type { TravelPhoto, TripTypeValue };
 
 export {
@@ -501,5 +318,4 @@ export {
   sortedTransports,
   travelPhotos,
   formSteps as steps,
-  savedTripDataCards,
 };

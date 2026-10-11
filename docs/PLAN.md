@@ -173,7 +173,7 @@ Every step is one branch off `main`, one PR:
 
 1. `git checkout main && git pull && git checkout -b <branch>` in the repo root — not a
    worktree (see the working agreement in `CLAUDE.md`).
-2. Read `docs/design-notes.md` "Migrating a page" (the 10-point checklist) and its
+2. Read `docs/design-notes.md` "Migrating a page" (the 12-point checklist) and its
    Gotchas section before touching styling.
 3. Do the work, and write the step's tests in the same PR.
 4. Green: `npx next typegen && npx tsc --noEmit`, `npm test`, `npm run build`, and
@@ -345,7 +345,9 @@ old-palette bodies until step 5, which is intended.
   to render a `Reveal`, and Framer's `whileInView` constructs one on mount. It never
   reports an intersection, which matches the "assert children, not animation" rule.
 - **The photo array was fixed here, not in step 6**, and renamed `homepageImages` →
-  `travelPhotos` (the homepage no longer uses it). Rather than work around its
+  `travelPhotos` (the homepage no longer uses it), with its folder moved from
+  `src/assets/homepage/` to `src/assets/travel-photos/` — not into the existing
+  `assets/travel/`, which holds the trip pages' illustrations. Rather than work around its
   fabricated `city` labels with a neutral alt, it was rewritten: `city` and
   `title` are gone, every photo has a real `alt`, a `tripType` from the form's values
   and a freshly generated blur (only 3 of the 16 old blurs matched their file). It is
@@ -355,6 +357,14 @@ old-palette bodies until step 5, which is intended.
   had the same fake labels and only 10 of the 16 files; it now reads the whole folder.
 - The helper is `pickAboutImage(random?)` in `src/components/about/`; it returns the
   `TravelPhoto` and the page renders its `alt`.
+- **Page copy moved to `about/content.ts`**, following `landing/content.ts`, and that is
+  now a rule for every remaining step (design-notes, "Copy lives in `content.ts`"). For
+  step 3 it means the `/saved-trips` heading, search label and empty state; step 4 the
+  form's step titles, labels and help text (the option lists stay in `src/data`); step 5
+  the section headings and the save/discard copy around the AI's `tripData`.
+- `priority` was dropped from the photo after `/code-review`: it sits in a `Reveal` and
+  below the fold, so the preload competed with what was on screen. Also now a checklist
+  item.
 - `AboutComponent` is a plain (non-async) server component that takes the image as a
   prop, so RTL renders it directly; only the async `page.tsx` is e2e-only.
 

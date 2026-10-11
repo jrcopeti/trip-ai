@@ -3,7 +3,7 @@ import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { useImage } from "@/hooks/useImage";
 import Image from "next/image";
-import defaultImage2 from "@/assets/homepage/2.jpg";
+import defaultImage2 from "@/assets/travel-photos/2.jpg";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
 import { useRef } from "react";
