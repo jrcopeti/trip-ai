@@ -12,9 +12,14 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Now
 
-**Step 3 — `/saved-trips` and the polaroid.** See the step list below.
+**Step 4 — `/form`.** See the step list below.
 
 ## Done
+
+- **Step 3 — `/saved-trips` and the polaroid.** ✅ On `sorbet-saved-trips`. `Polaroid`
+  (both sizes) in `sorbet/`, the grid in `saved-trips/`, GSAP and Locomotive gone from
+  the route. 26 new unit tests (270 total); `saved-trips.spec.ts` updated plus one new
+  e2e (no tilt at 390px).
 
 - **Step 2 — `/about`.** ✅ On `sorbet-about`. Server component with a server-side
   photo pick, canvas → white → lime → ink. 12 new unit tests (244 total), 2 new e2e
@@ -38,7 +43,7 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Next
 
-Steps 4–6 in order.
+Steps 5–6 in order.
 
 ## Open questions
 
@@ -385,7 +390,41 @@ The original plan for this step follows.
 heading, lead and credit link render; the rendered `alt` is the neutral string, never a
 `city` value. E2E: `/about` at 390px has no horizontal scroll, CTA reaches `/form`.
 
-## Step 3 — `/saved-trips` · `sorbet-saved-trips` · the polaroid
+## Step 3 — `/saved-trips` · `sorbet-saved-trips` · the polaroid ✅
+
+**Landed.** What the plan did not anticipate, recorded because the later steps inherit it:
+
+- **The grid sits on `offwhite`, not white.** On a white ground the white frame vanishes
+  and only the shadow marks where a card ends. Grounds are canvas header → offwhite
+  grid → ink footer, and the empty state is the white card the plan asked for (on white
+  it would have been invisible too).
+- **The page keeps an h1.** The plan said "two-tone h2", but the old page's h1 was its only
+  heading; it is now the page-h1 two-tone (`header` in `saved-trips/content.ts`), and the
+  polaroid captions are h2s inside the list.
+- **`Polaroid` takes `size="lg"` already**, to the spec, with its caption as the h1, not a
+  link and not tilted. Step 5's `TitleSection` only has to render it. The caller wraps
+  either size in `Reveal`; the component itself has no motion and stays a server
+  component.
+- **The tilt is on the `<Link>`**, so the focus outline turns with the card. Hover is
+  `sm:hover:rotate-0`, not `hover:rotate-0`, so it outranks the `sm:` tilt at every width.
+- **The stagger is `0.06 * (i % 3)`**, along the row. Rows enter the viewport one at a
+  time, so `0.06 * i` held the twentieth card back more than a second after it scrolled in.
+  There are 74 saved trips in production.
+- **The search is `type="search"`**, so it is a `searchbox` by role. The e2e locators
+  moved from `textbox` to `searchbox` by label. Chrome draws its native clear button in
+  blue; left as it is.
+- **Two HeroUI overrides** — the unlayered global `.label` colour and `outline-none`
+  breaking the focus triad. Both are design-notes gotcha #9; step 4 hits them on every
+  field.
+- `SavedTripsDisplay` and `SavedTripCard` moved to `src/components/saved-trips/` with a
+  `content.ts`. `SavedTripsContainer`, `useScrollingSavedTrips` and `useWindowSize`
+  (nothing else used it) are deleted, with `SavedTripsContainerProps`.
+- The `saved-trips` e2e spec could not run locally (no Postgres, Docker not running); it
+  runs in CI as before. The Playwright MCP pass was against a production build reading
+  the real trips.
+
+The original plan for this step follows.
+
 
 - Build `src/components/sorbet/Polaroid.tsx` to the spec above, plus the Caveat load and
   the two token additions if step 1 didn't land them.

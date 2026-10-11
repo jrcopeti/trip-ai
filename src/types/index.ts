@@ -215,10 +215,6 @@ export interface GridContainerProps {
   animationClass?: string;
 }
 
-export interface SavedTripsContainerProps {
-  children: React.ReactNode;
-  bg?: string;
-}
 export interface NotFoundComponentProps {
   message: string;
   path: string;

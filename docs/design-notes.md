@@ -19,7 +19,8 @@ code is right and this file needs fixing.
 | Shared shell — nav, footer, loaders, 404, toasters | Migrated. On every route. |
 | `/form` | Not migrated — previous look |
 | `/trips/[tripUrl]` | Not migrated — previous look |
-| `/saved-trips`, `/saved-trips/[id]` | Not migrated — previous look |
+| `/saved-trips` | Migrated. The polaroid grid. |
+| `/saved-trips/[id]` | Not migrated — previous look |
 | `/about` | Migrated. |
 
 Two visual systems coexist on purpose while the migration runs, and since the shared
@@ -169,7 +170,7 @@ Radius carries meaning; there are three tiers.
 Interactive is always a pill. If it can be clicked, it is `rounded-full` — that is the
 single strongest signal in the system.
 
-Only one shadow exists in the whole page, on the hero deck:
+Only one shadow exists in the system, on the hero deck and the polaroid:
 `shadow-[0_18px_40px_-24px_rgba(48,46,45,0.55)]`. It is ink-tinted, not black. Elevation
 is otherwise expressed by background colour, not shadow.
 
@@ -284,8 +285,8 @@ Three directories, and which one a component lives in is the statement about its
 - **`src/components/sorbet/`** — the system's general-purpose pieces. Use these anywhere.
 - **`src/components/ui/`** — the shared shell and the app-wide chrome.
 - **`src/components/landing/`** — the landing page's own sections. Nothing else imports
-  from here. The same goes for each migrated page's directory (`about/`, and the routes
-  still to come).
+  from here. The same goes for each migrated page's directory (`about/`, `saved-trips/`,
+  and the routes still to come).
 
 ### Copy lives in `content.ts`
 
@@ -313,6 +314,7 @@ text written inline in JSX, and the file should read like copy.
 | `Reveal` | `sorbet/` | Use for every scroll entrance. |
 | `MotionProvider` | `sorbet/` | Mounted once in `providers.tsx`; don't nest another. |
 | `TripCard` | `sorbet/` | Pastel card: title, chip, arrow. Takes `{ card, className, interactive }`. Owns the `ItineraryCard` type. |
+| `Polaroid` | `sorbet/` | White frame, handwritten caption. `card` (default): a link, byline, arrow, fan tilt by `index` from `sm` up. `lg`: the trip title as h1, no link, no tilt. The caller wraps it in `Reveal`. Never on a white ground: the frame is white paper and only its shadow would show. |
 | `SiteNav` | `ui/` | The nav, on every route. See below. |
 | `SiteFooter` | `ui/` | The ink footer. Rendered per page, not by the layout. |
 | `NotFoundComponent`, `Loader`, `LoaderResponseAI`, `CustomToaster`, `ErrorToaster`, `ButtonBackOutlined` | `ui/` | Shell pieces, in the system. |
@@ -415,6 +417,18 @@ Each of these was a bug, not a theory.
    photos is identifiable as a particular city, so none claims one — keep it that way
    when adding photos, and regenerate the blur with `node generatePlaceholder.mjs`.
 
+9. **HeroUI form parts need two overrides on a migrated page.** Both bit the
+   `/saved-trips` search.
+   - `globals.css` has an *unlayered* `.label { color: #556074 }` for the unmigrated form.
+     Unlayered CSS beats every layered rule, Tailwind utilities included, so
+     `text-sorbet-ink/45` on a HeroUI `Label` does nothing. Use the important modifier
+     (`text-sorbet-ink/45!`) until step 6 removes the rule.
+   - HeroUI's `.input` applies `outline-none`, which in Tailwind v4 sets
+     `--tw-outline-style: none`. `focus-visible:outline-2` reads that variable, so the
+     focus triad silently draws nothing. Add `focus-visible:outline-solid`. Its focus ring
+     is a Tailwind ring in the neptune `--focus` colour: clear it with `focus:ring-0`, not
+     `shadow-none`.
+
 ## Migrating a page
 
 1. Wrap the outermost element: `font-sorbet text-sorbet-ink` plus a `sorbet` ground.
@@ -448,3 +462,5 @@ Each of these was a bug, not a theory.
   (`oaidalleapiprodscus.blob.core.windows.net`) though image generation is gone.
 - HeroUI's semantic overrides in `:root` (`--accent` → neptune) still apply globally.
   They will need revisiting when form and trip pages migrate.
+- The global `.label` colour in `globals.css` is unlayered and only serves the old form
+  (gotcha #9). Delete it in step 6, with the old palettes.
