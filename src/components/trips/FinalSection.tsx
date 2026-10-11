@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 import { Button, ButtonGroup } from "@heroui/react";
-import defaultImage5 from "@/assets/homepage/9.jpg";
+import defaultImage5 from "@/assets/travel-photos/9.jpg";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
 

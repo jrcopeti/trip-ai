@@ -20,7 +20,7 @@ code is right and this file needs fixing.
 | `/form` | Not migrated — previous look |
 | `/trips/[tripUrl]` | Not migrated — previous look |
 | `/saved-trips`, `/saved-trips/[id]` | Not migrated — previous look |
-| `/about` | Not migrated — previous look |
+| `/about` | Migrated. |
 
 Two visual systems coexist on purpose while the migration runs, and since the shared
 shell landed they coexist *on the same screen*: an unmigrated route wears a sorbet nav
@@ -284,7 +284,29 @@ Three directories, and which one a component lives in is the statement about its
 - **`src/components/sorbet/`** — the system's general-purpose pieces. Use these anywhere.
 - **`src/components/ui/`** — the shared shell and the app-wide chrome.
 - **`src/components/landing/`** — the landing page's own sections. Nothing else imports
-  from here.
+  from here. The same goes for each migrated page's directory (`about/`, and the routes
+  still to come).
+
+### Copy lives in `content.ts`
+
+Every migrated page keeps its words in a `content.ts` beside its components —
+`landing/content.ts`, `about/content.ts`. Headings, leads, eyebrows, button labels, link
+targets, alts and sample data go there as plain exported objects; the components hold
+layout and styling and render `{intro.lead}`, never a literal sentence. One file to read
+to review or rewrite a page's copy, and JSX that is only structure.
+
+What does *not* go in it:
+
+- **Data the app produces or stores** — the AI's `tripData`, a `Trip` row, the weather.
+  That arrives through props and queries as it does now; only the static copy *around*
+  it (section headings, empty states, labels) moves.
+- **Option lists that feed the form schema** — `sortedTypes`, `luggageSizes` and the rest
+  stay in `src/data/index.ts`, because the schema and more than one route read them.
+- **Shared-shell copy** — `SiteNav`, `SiteFooter` and the other `ui/` pieces keep their
+  own, since they are not a page.
+
+Keep strings as plain text (`you're`, not `you&apos;re`): JSX escaping only applies to
+text written inline in JSX, and the file should read like copy.
 
 | Component | Where | Notes |
 | --- | --- | --- |
@@ -385,10 +407,13 @@ Each of these was a bug, not a theory.
    `NavbarComponent` and its `pathname === "/"` guard, both deleted: a nav that hides
    itself on one route was a guard waiting to be extended once per migration.)
 
-8. **`homepageImages` in `src/data/index.ts` has fabricated city labels**, and entries
-   10–16 all share `city: "Sydney"`, `alt: "tenth"` and one blur placeholder. The landing's
-   `content.ts` describes what is in frame and claims no place. Do not caption a photo
-   from that array's `city` field.
+8. **Photo text describes what is in frame, never a place.** `travelPhotos` in
+   `src/data/index.ts` once carried `city` labels that did not match the photographs
+   (Cappadocia's balloons as "Berlin", seven different photos as "Sydney") and a
+   copy-pasted alt and blur on half the entries. It now has a real `alt`, a `tripType`
+   and its own blur per photo, with a test pinning alt and blur uniqueness. None of the
+   photos is identifiable as a particular city, so none claims one — keep it that way
+   when adding photos, and regenerate the blur with `node generatePlaceholder.mjs`.
 
 ## Migrating a page
 
@@ -401,8 +426,12 @@ Each of these was a bug, not a theory.
 6. Alternate the ground against the section above it.
 7. Wrap entrances in `Reveal`; stagger with `delay={0.06 * i}`.
 8. Add the focus-visible triad to everything interactive.
-9. Check it at 390px — the custom `xs` breakpoint is there for a reason.
-10. Verify with `npx tsc --noEmit`, `npm test` and `npm run build` (`npm run lint` is
+9. Move every word on the page into the page's `content.ts` (see "Copy lives in
+   `content.ts`" above).
+10. `priority` on a `next/image` only when it is above the fold on first paint — never
+    inside a `Reveal`, which starts it at opacity 0, so the preload buys nothing.
+11. Check it at 390px — the custom `xs` breakpoint is there for a reason.
+12. Verify with `npx tsc --noEmit`, `npm test` and `npm run build` (`npm run lint` is
     broken — see CLAUDE.md). Write the step's tests in the same PR; the testing
     conventions are in CLAUDE.md.
 

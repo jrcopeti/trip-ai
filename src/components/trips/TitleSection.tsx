@@ -5,7 +5,7 @@ import { useTripResponse } from "@/hooks/useTripResponse";
 import { useImage } from "@/hooks/useImage";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import defaultImage1 from "@/assets/homepage/1.jpg";
+import defaultImage1 from "@/assets/travel-photos/1.jpg";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
 

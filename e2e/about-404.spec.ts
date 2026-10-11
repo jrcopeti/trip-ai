@@ -19,6 +19,24 @@ test.describe("/about", () => {
     );
     expect(overflows).toBe(false);
   });
+
+  test("renders the photo in the first byte, with a real alt", async ({ page }) => {
+    await page.goto("/about");
+
+    // Picked server-side now: no mount gate, so no loader before it.
+    const photo = page.getByRole("main").getByRole("img");
+    await expect(photo).toBeVisible();
+    await expect(photo).toHaveAttribute("alt", /\S/);
+  });
+
+  test("the closing call to action reaches /form", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/about");
+
+    // Scoped to main: the nav carries a "Plan a trip" pill of its own.
+    await page.getByRole("main").getByRole("link", { name: "Plan a trip" }).click();
+    await expect(page).toHaveURL(/\/form$/);
+  });
 });
 
 test.describe("not found", () => {

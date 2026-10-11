@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import defaultImage3 from "@/assets/homepage/3.jpg";
+import defaultImage3 from "@/assets/travel-photos/3.jpg";
 import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useTripResponse } from "@/hooks/useTripResponse";

@@ -48,3 +48,5 @@ next-env.d.ts
 /playwright/.cache/
 # Playwright MCP scratch (browser verification during a migration step)
 /.playwright-mcp/
+# Output of `node generatePlaceholder.mjs`; the values are copied into src/data
+/placeholders.json

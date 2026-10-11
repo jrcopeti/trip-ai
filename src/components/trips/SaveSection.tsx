@@ -6,7 +6,7 @@ import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { useImage } from "@/hooks/useImage";
 import { useCreateTrip } from "@/hooks/useCreateTrip";
-import defaultImage5 from "@/assets/homepage/9.jpg";
+import defaultImage5 from "@/assets/travel-photos/9.jpg";
 import { Button, ButtonGroup } from "@heroui/react";
 import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";

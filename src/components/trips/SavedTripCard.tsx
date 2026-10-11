@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import image1 from "@/assets/homepage/1.jpg";
+import image1 from "@/assets/travel-photos/1.jpg";
 import { defaultPlaceholder } from "@/lib/constants";
 import type { Trip } from "@prisma/client";
 

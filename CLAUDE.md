@@ -232,9 +232,11 @@ Remote images from Unsplash (`images.unsplash.com`) are whitelisted in
 still whitelisted but unused — image generation was removed with the OpenAI migration.
 Plaiceholder generates base64 blur placeholders server-side.
 
-`src/data/index.ts`'s `homepageImages` has fabricated `city` labels, and entries 10–16
-all share `city: "Sydney"`, `alt: "tenth"` and one blur placeholder. **Never caption an image from
-that array using its `city` field.**
+`src/data/index.ts`'s `travelPhotos` is the bundled photo set: `{ src, alt, tripType,
+placeholder }` per photo, typed as `TravelPhoto`. `alt` describes what is in frame and
+claims no place; `tripType` is one of the form's trip-type values; `placeholder` is the
+plaiceholder blur of that file, regenerated with `node generatePlaceholder.mjs`.
+`src/data/index.test.ts` keeps alts and blurs unique.
 
 ### Database
 Single `Trip` model (Postgres via Prisma). `relationMode = "prisma"` is set for PlanetScale/edge compatibility. All trips are written immediately (saved or not); `saved: boolean` distinguishes them.

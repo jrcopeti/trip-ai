@@ -17,7 +17,7 @@ import "swiper/css/free-mode";
 import "swiper/css/thumbs";
 
 import Image from "next/image";
-import { homepageImages } from "@/data";
+import { travelPhotos } from "@/data";
 
 function SwiperWithThumbs() {
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperCore | null>(null);
@@ -48,7 +48,7 @@ function SwiperWithThumbs() {
             } as React.CSSProperties
           }
         >
-          {homepageImages.map((image, index) => (
+          {travelPhotos.map((image, index) => (
             <SwiperSlide key={index}>
               <Image
                 src={image.src}
@@ -72,7 +72,7 @@ function SwiperWithThumbs() {
           watchSlidesProgress
           modules={[Autoplay, FreeMode, Navigation, Thumbs]}
         >
-          {homepageImages.map((image, index) => (
+          {travelPhotos.map((image, index) => (
             <SwiperSlide key={index}>
               <div
                 className={`flex h-full w-full cursor-pointer items-center justify-center ${
@@ -86,10 +86,6 @@ function SwiperWithThumbs() {
                   blurDataURL={image.placeholder}
                   className="block h-full w-full rounded-sm object-cover"
                 />
-
-                <p className="absolute w-full bg-gallery-50/70 p-1 text-center text-base font-bold capitalize leading-5 text-tuna-900 lg:text-lg">
-                  {image.title}
-                </p>
               </div>
             </SwiperSlide>
           ))}
