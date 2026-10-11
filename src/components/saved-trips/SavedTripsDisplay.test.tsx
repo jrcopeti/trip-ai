@@ -3,7 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { renderWithProviders, screen, waitFor } from "@/test/render";
 import SavedTripsDisplay from "@/components/saved-trips/SavedTripsDisplay";
 import { getAllTrips } from "@/db/actions";
-import { tripFixture, tripFixture2 } from "@/test/fixtures";
+import { makeTrip, tripFixture, tripFixture2 } from "@/test/fixtures";
+import { stubSrc } from "@/test/imageStub";
 import { empty, error, header } from "@/components/saved-trips/content";
 
 vi.mock("@/db/actions", () => ({ getAllTrips: vi.fn() }));
@@ -60,6 +61,43 @@ describe("SavedTripsDisplay", () => {
     expect(screen.getByRole("link", { name: /kyoto/i }).className).toContain(
       "sm:rotate-1",
     );
+  });
+
+  it("captions each polaroid with city and country, with the traveller beneath", async () => {
+    mockGetAll.mockResolvedValue([tripFixture]);
+    renderWithProviders(<SavedTripsDisplay />);
+
+    expect(
+      await screen.findByRole("heading", { name: "lisbon, Portugal" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("ana")).toBeInTheDocument();
+  });
+
+  it("trims stray whitespace from the city", async () => {
+    mockGetAll.mockResolvedValue([makeTrip({ city: " lisbon " })]);
+    renderWithProviders(<SavedTripsDisplay />);
+
+    expect(
+      await screen.findByRole("heading", { name: "lisbon, Portugal" }),
+    ).toBeInTheDocument();
+  });
+
+  it("falls back to a bundled photo when a trip has none", async () => {
+    mockGetAll.mockResolvedValue([makeTrip({ image: null })]);
+    renderWithProviders(<SavedTripsDisplay />);
+
+    const link = await screen.findByRole("link", { name: /lisbon/i });
+    expect(link.querySelector("img")).toHaveAttribute("src", stubSrc("1.jpg"));
+  });
+
+  it("never leaves a card at opacity-0", async () => {
+    // The old card carried `opacity-0` for a GSAP batch to clear. With GSAP gone,
+    // that class would leave every card in the grid invisible.
+    mockGetAll.mockResolvedValue([tripFixture, tripFixture2]);
+    renderWithProviders(<SavedTripsDisplay />);
+
+    const list = await screen.findByRole("list");
+    expect(list.innerHTML).not.toMatch(/\bopacity-0\b/);
   });
 
   it("shows the empty state when nothing matches", async () => {

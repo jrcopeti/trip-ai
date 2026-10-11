@@ -99,9 +99,10 @@ outermost element. Shared pieces that render *outside* any page wrapper — `Sit
 `SiteFooter`, the toasters, the loaders, `NotFoundComponent` — carry `font-sorbet`
 themselves, because there is no wrapper above them to inherit it from.
 
-**One exception to Rubik: `font-sorbet-hand`.** Caveat (400, 600), loaded alongside Rubik
-in `layout.tsx` as `--font-caveat`. It is for handwritten polaroid captions and nothing
-else. Caveat's x-height is small, so never set it below `text-xl`.
+**One exception to Rubik: `font-sorbet-hand`.** Caveat (variable, 400–700), self-hosted
+from `src/assets/fonts/` with `next/font/local` in `layout.tsx` as `--font-caveat`
+(gotcha #10). It is for handwritten polaroid captions and nothing else. Caveat's x-height
+is small, so never set it below `text-xl`.
 
 ### The scale is fluid, not stepped
 
@@ -314,7 +315,7 @@ text written inline in JSX, and the file should read like copy.
 | `Reveal` | `sorbet/` | Use for every scroll entrance. |
 | `MotionProvider` | `sorbet/` | Mounted once in `providers.tsx`; don't nest another. |
 | `TripCard` | `sorbet/` | Pastel card: title, chip, arrow. Takes `{ card, className, interactive }`. Owns the `ItineraryCard` type. |
-| `Polaroid` | `sorbet/` | White frame, handwritten caption. `card` (default): a link, byline, arrow, fan tilt by `index` from `sm` up. `lg`: the trip title as h1, no link, no tilt. The caller wraps it in `Reveal`. Never on a white ground: the frame is white paper and only its shadow would show. |
+| `Polaroid` | `sorbet/` | White frame, handwritten caption. `card` (default): a link, the traveller's username, arrow, fan tilt by `index` from `sm` up. `lg`: the trip title as h1, no link, no tilt. The caller wraps it in `Reveal`. Never on a white ground: the frame is white paper and only its shadow would show. |
 | `SiteNav` | `ui/` | The nav, on every route. See below. |
 | `SiteFooter` | `ui/` | The ink footer. Rendered per page, not by the layout. |
 | `NotFoundComponent`, `Loader`, `LoaderResponseAI`, `CustomToaster`, `ErrorToaster`, `ButtonBackOutlined` | `ui/` | Shell pieces, in the system. |
@@ -428,6 +429,12 @@ Each of these was a bug, not a theory.
      focus triad silently draws nothing. Add `focus-visible:outline-solid`. Its focus ring
      is a Tailwind ring in the neptune `--focus` colour: clear it with `focus:ring-0`, not
      `shadow-none`.
+
+10. **Caveat cannot come from `next/font/google` under Turbopack.** Google sometimes
+    serves it from `fonts.gstatic.com/l/font?kit=…&skey=…`, and Turbopack's font loader
+    rejects a URL with two query parameters ("next/font/google queries have exactly one
+    entry"). `next dev` then drops the font while the webpack build is fine, so the bug
+    only shows locally. It is self-hosted with `next/font/local`; keep it that way.
 
 ## Migrating a page
 

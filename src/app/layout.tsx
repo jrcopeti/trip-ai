@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import {
-  Caveat,
   Inter,
   League_Spartan,
   Red_Hat_Display,
@@ -21,9 +21,15 @@ export const rubik = Rubik({
 });
 // The one exception to "Rubik is the display face": polaroid captions are
 // handwritten. Exposed as `font-sorbet-hand`.
-export const caveat = Caveat({
-  subsets: ["latin"],
-  weight: ["400", "600"],
+//
+// Self-hosted rather than `next/font/google`: Google sometimes serves Caveat
+// from `fonts.gstatic.com/l/font?kit=…&skey=…`, and Turbopack's font loader
+// fails on a URL with more than one query parameter ("next/font/google queries
+// have exactly one entry"), so `next dev` loses the font. One variable file,
+// latin subset, covers 400–700. OFL, licence beside it.
+export const caveat = localFont({
+  src: "../assets/fonts/caveat-latin-wght.woff2",
+  weight: "400 700",
   variable: "--font-caveat",
 });
 

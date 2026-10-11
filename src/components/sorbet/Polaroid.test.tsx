@@ -15,16 +15,16 @@ const base = {
 
 function renderCard(index = 0) {
   return renderWithProviders(
-    <Polaroid {...base} href="/saved-trips/1" byline="by ana" index={index} />,
+    <Polaroid {...base} href="/saved-trips/1" username="ana" index={index} />,
   );
 }
 
 describe("Polaroid (card)", () => {
-  it("renders the caption and the byline", () => {
+  it("renders the caption and the username", () => {
     renderCard();
 
     expect(screen.getByRole("heading", { name: "lisbon, Portugal" })).toBeInTheDocument();
-    expect(screen.getByText("by ana")).toBeInTheDocument();
+    expect(screen.getByText("ana")).toBeInTheDocument();
   });
 
   it("sets the caption in the handwriting face, never below text-xl", () => {
@@ -90,7 +90,7 @@ describe("Polaroid (card)", () => {
 });
 
 describe("Polaroid (lg)", () => {
-  it("renders the caption as the page heading, with no link, byline or arrow", () => {
+  it("renders the caption as the page heading, with no link, username or arrow", () => {
     const { container } = renderWithProviders(
       <Polaroid {...base} size="lg" caption="Seven Sunlit Days in Lisbon" />,
     );

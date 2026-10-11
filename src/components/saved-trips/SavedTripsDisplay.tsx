@@ -2,10 +2,12 @@
 import { useSavedTrips } from "@/hooks/useSavedTrips";
 
 import { TextField, Label, Input } from "@heroui/react";
+import image1 from "@/assets/travel-photos/1.jpg";
+import Polaroid from "@/components/sorbet/Polaroid";
 import Reveal from "@/components/sorbet/Reveal";
 import { SPINNER_INK } from "@/components/ui/Loader";
 import ErrorComponent from "@/components/ui/NotFoundComponent";
-import SavedTripCard from "./SavedTripCard";
+import { defaultPlaceholder } from "@/lib/constants";
 import { empty, error, header, loading } from "./content";
 
 import { PuffLoader } from "react-spinners";
@@ -35,15 +37,15 @@ function SavedTripsDisplay() {
 
   return (
     <>
-      <section className="bg-sorbet-canvas px-5 pb-16 pt-10 sm:px-8 md:pb-20 md:pt-16">
+      <section className="bg-sorbet-canvas px-5 pt-10 pb-16 sm:px-8 md:pt-16 md:pb-20">
         <div className="mx-auto max-w-6xl">
-          <p className="mb-6 text-sm font-medium uppercase tracking-[0.18em] text-sorbet-ink/50">
+          <p className="text-sorbet-ink/50 mb-6 text-sm font-medium tracking-[0.18em] uppercase">
             {header.eyebrow}
           </p>
 
-          <h1 className="max-w-5xl text-[clamp(2.75rem,7vw,5.5rem)] leading-[0.96] tracking-[-0.03em] text-sorbet-ink">
+          <h1 className="text-sorbet-ink max-w-5xl text-[clamp(2.75rem,7vw,5.5rem)] leading-[0.96] tracking-[-0.03em]">
             <span className="block font-extrabold">{header.heading.claim}</span>
-            <span className="block font-medium text-sorbet-ink/60">
+            <span className="text-sorbet-ink/60 block font-medium">
               {header.heading.qualifier}
             </span>
           </h1>
@@ -55,13 +57,13 @@ function SavedTripsDisplay() {
           >
             {/* `!` because globals.css has an unlayered `.label` colour for the
                 unmigrated form, and unlayered CSS beats every layered utility. */}
-            <Label className="text-xs font-medium uppercase tracking-[0.12em] text-sorbet-ink/45!">
+            <Label className="text-sorbet-ink/45! text-xs font-medium tracking-[0.12em] uppercase">
               {header.search.label}
             </Label>
             <Input
               type="search"
               placeholder={header.search.placeholder}
-              className="w-full rounded-full border border-sorbet-ink/15 bg-white px-6 py-4 text-base text-sorbet-ink shadow-none placeholder:text-sorbet-ink/45 hover:bg-white focus:border-sorbet-ink focus:bg-white focus:shadow-none focus:ring-0 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-sorbet-ink sm:text-base"
+              className="border-sorbet-ink/15 text-sorbet-ink placeholder:text-sorbet-ink/45 focus:border-sorbet-ink focus-visible:outline-sorbet-ink w-full rounded-full border bg-white px-6 py-4 text-base shadow-none hover:bg-white focus:bg-white focus:shadow-none focus:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid sm:text-base"
             />
           </TextField>
         </div>
@@ -72,15 +74,19 @@ function SavedTripsDisplay() {
       <section className="bg-sorbet-offwhite px-5 py-20 sm:px-8 md:py-28">
         <div className="mx-auto max-w-6xl">
           {isPendingSavedTrips ? (
-            <div role="status" aria-label={loading.label} className="grid place-items-center py-10">
+            <div
+              role="status"
+              aria-label={loading.label}
+              className="grid place-items-center py-10"
+            >
               <PuffLoader size={80} color={SPINNER_INK} />
             </div>
           ) : savedTrips?.length === 0 ? (
-            <div className="mx-auto max-w-xl rounded-3xl bg-sorbet-white p-8 text-center md:p-10">
-              <h2 className="text-2xl font-semibold text-sorbet-ink">
+            <div className="bg-sorbet-white mx-auto max-w-xl rounded-3xl p-8 text-center md:p-10">
+              <h2 className="text-sorbet-ink text-2xl font-semibold">
                 {empty.heading}
               </h2>
-              <p className="mt-3 text-lg leading-relaxed text-sorbet-ink/70">
+              <p className="text-sorbet-ink/70 mt-3 text-lg leading-relaxed">
                 {empty.body}
               </p>
             </div>
@@ -92,7 +98,14 @@ function SavedTripsDisplay() {
                       enters the viewport on its own, so `0.06 * i` would hold the
                       twentieth card back over a second after it scrolled in. */}
                   <Reveal delay={0.06 * (i % 3)}>
-                    <SavedTripCard trip={trip} index={i} />
+                    <Polaroid
+                      href={`/saved-trips/${trip.id}`}
+                      image={trip.image ?? image1}
+                      placeholder={trip.placeholder ?? defaultPlaceholder}
+                      caption={`${trip.city.trim()}, ${trip.country}`}
+                      username={`${trip.userName}`}
+                      index={i}
+                    />
                   </Reveal>
                 </li>
               ))}

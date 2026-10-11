@@ -18,7 +18,7 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 - **Step 3 — `/saved-trips` and the polaroid.** ✅ On `sorbet-saved-trips`. `Polaroid`
   (both sizes) in `sorbet/`, the grid in `saved-trips/`, GSAP and Locomotive gone from
-  the route. 26 new unit tests (270 total); `saved-trips.spec.ts` updated plus one new
+  the route. 25 new unit tests (269 total); `saved-trips.spec.ts` updated plus one new
   e2e (no tilt at 390px).
 
 - **Step 2 — `/about`.** ✅ On `sorbet-about`. Server component with a server-side
@@ -416,9 +416,11 @@ heading, lead and credit link render; the rendered `alt` is the neutral string, 
 - **Two HeroUI overrides** — the unlayered global `.label` colour and `outline-none`
   breaking the focus triad. Both are design-notes gotcha #9; step 4 hits them on every
   field.
-- `SavedTripsDisplay` and `SavedTripCard` moved to `src/components/saved-trips/` with a
-  `content.ts`. `SavedTripsContainer`, `useScrollingSavedTrips` and `useWindowSize`
-  (nothing else used it) are deleted, with `SavedTripsContainerProps`.
+- `SavedTripsDisplay` moved to `src/components/saved-trips/` with a `content.ts`.
+  **`SavedTripCard` is gone**: it only mapped a `Trip` to `Polaroid`'s props, so the
+  display renders `Polaroid` directly and its tests moved into
+  `SavedTripsDisplay.test.tsx`. `SavedTripsContainer`, `useScrollingSavedTrips` and
+  `useWindowSize` (nothing else used it) are deleted, with `SavedTripsContainerProps`.
 - The `saved-trips` e2e spec could not run locally (no Postgres, Docker not running); it
   runs in CI as before. The Playwright MCP pass was against a production build reading
   the real trips.

@@ -16,10 +16,6 @@ export const header = {
   },
 };
 
-export const card = {
-  bylinePrefix: "by",
-};
-
 export const empty = {
   heading: "No trips found",
   body: "Nothing matches that search. Try a city, a country or a traveller's name.",

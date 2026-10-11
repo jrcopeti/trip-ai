@@ -28,7 +28,7 @@ type Common = {
 type CardProps = Common & {
   size?: "card";
   href: string;
-  byline: string;
+  username: string;
   /** Position in the grid; picks the fan angle, wrapping every four. */
   index: number;
 };
@@ -76,7 +76,7 @@ function Polaroid(props: Props) {
     );
   }
 
-  const { href, byline, index } = props;
+  const { href, username, index } = props;
   const tilt = POLAROID_TILT[index % POLAROID_TILT.length];
 
   return (
@@ -102,7 +102,7 @@ function Polaroid(props: Props) {
               {caption}
             </h2>
             <p className="mt-2 text-xs font-medium uppercase tracking-[0.12em] text-sorbet-ink/45">
-              {byline}
+              {username}
             </p>
           </div>
           <span
