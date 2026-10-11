@@ -1,5 +1,5 @@
-import { getAllTrips } from "@/db/actions";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { getSavedTripsPage } from "@/db/actions";
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useDebouncedValue } from "./useDebouncedValue";
 
@@ -10,25 +10,39 @@ export function useSavedTrips() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const debouncedSearchTerm = useDebouncedValue(searchTerm, SEARCH_DEBOUNCE_MS);
   const {
-    data: savedTrips,
+    data,
     isPending: isPendingSavedTrips,
     isPlaceholderData,
     isFetching,
     error: savedTripsError,
-  } = useQuery({
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    // A new search is a new key, so it starts again from the first page.
     queryKey: ["trips", debouncedSearchTerm],
-    queryFn: () => getAllTrips(debouncedSearchTerm),
+    queryFn: ({ pageParam }) => getSavedTripsPage(debouncedSearchTerm, pageParam),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, pages) => {
+      const loaded = pages.reduce((n, page) => n + page.trips.length, 0);
+      return loaded < lastPage.total ? pages.length : undefined;
+    },
     // Keep the last result on screen while the next search loads, so the grid
     // does not drop to the spinner on every keystroke.
     placeholderData: keepPreviousData,
   });
 
   return {
-    savedTrips,
+    savedTrips: data?.pages.flatMap((page) => page.trips),
+    /** Every saved trip matching the search, loaded or not. */
+    totalSavedTrips: data?.pages[0]?.total ?? 0,
     isPendingSavedTrips,
     /** Showing the previous search's trips while the new one loads. */
     isSearchingSavedTrips: isPlaceholderData && isFetching,
     savedTripsError,
+    hasMoreSavedTrips: hasNextPage,
+    loadMoreSavedTrips: fetchNextPage,
+    isLoadingMoreSavedTrips: isFetchingNextPage,
     setSearchTerm,
     searchTerm,
   };

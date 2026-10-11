@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createTripInDB,
-  getAllTrips,
+  getSavedTripsPage,
   getSingleSavedTrip,
 } from "@/db/actions";
 import prisma from "@/db";
 import { tripCreateInput, tripFixture, tripFixture2 } from "@/test/fixtures";
+import { SAVED_TRIPS_PAGE_SIZE } from "@/lib/constants";
 
 vi.mock("@/db", () => ({
   default: {
@@ -13,6 +14,7 @@ vi.mock("@/db", () => ({
       create: vi.fn(),
       findMany: vi.fn(),
       findUnique: vi.fn(),
+      count: vi.fn(),
     },
   },
 }));
@@ -23,6 +25,7 @@ beforeEach(() => {
   vi.mocked(trip.create).mockReset();
   vi.mocked(trip.findMany).mockReset();
   vi.mocked(trip.findUnique).mockReset();
+  vi.mocked(trip.count).mockReset();
 });
 
 describe("createTripInDB", () => {
@@ -56,60 +59,95 @@ describe("createTripInDB", () => {
   });
 });
 
-describe("getAllTrips", () => {
-  it("returns only saved trips when the search term is empty", async () => {
-    vi.mocked(trip.findMany).mockResolvedValue([tripFixture, tripFixture2]);
+describe("getSavedTripsPage", () => {
+  const ORDER = [{ city: "asc" }, { id: "asc" }];
 
-    const result = await getAllTrips("");
+  function resolve(trips = [tripFixture, tripFixture2], total = trips.length) {
+    vi.mocked(trip.findMany).mockResolvedValue(trips);
+    vi.mocked(trip.count).mockResolvedValue(total);
+  }
+
+  it("returns the first page of saved trips and the total", async () => {
+    resolve([tripFixture, tripFixture2], 74);
+
+    const result = await getSavedTripsPage("", 0);
 
     expect(trip.findMany).toHaveBeenCalledWith({
       where: { saved: true },
-      orderBy: { city: "asc" },
+      orderBy: ORDER,
+      skip: 0,
+      take: SAVED_TRIPS_PAGE_SIZE,
     });
-    expect(result).toHaveLength(2);
+    expect(result).toEqual({ trips: [tripFixture, tripFixture2], total: 74 });
   });
 
-  it("orders by city ascending", async () => {
-    vi.mocked(trip.findMany).mockResolvedValue([]);
+  it("counts with the same filter as the page", async () => {
+    resolve();
 
-    await getAllTrips("");
+    await getSavedTripsPage("lisbon", 0);
+
+    const where = vi.mocked(trip.findMany).mock.calls[0][0]?.where;
+    expect(trip.count).toHaveBeenCalledWith({ where });
+  });
+
+  it("skips whole pages", async () => {
+    resolve();
+
+    await getSavedTripsPage("", 2);
 
     expect(trip.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ orderBy: { city: "asc" } }),
+      expect.objectContaining({ skip: 2 * SAVED_TRIPS_PAGE_SIZE, take: SAVED_TRIPS_PAGE_SIZE }),
     );
   });
 
+  it("breaks ties on id, so trips sharing a city cannot repeat across pages", async () => {
+    resolve();
+
+    await getSavedTripsPage("", 1);
+
+    expect(trip.findMany).toHaveBeenCalledWith(expect.objectContaining({ orderBy: ORDER }));
+  });
+
+  it.each([-1, 1.5, Number.NaN])("treats a bad page (%s) as the first", async (page) => {
+    resolve();
+
+    await getSavedTripsPage("", page);
+
+    expect(trip.findMany).toHaveBeenCalledWith(expect.objectContaining({ skip: 0 }));
+  });
+
   it("searches city, country and userName case-insensitively", async () => {
-    vi.mocked(trip.findMany).mockResolvedValue([tripFixture]);
+    resolve([tripFixture]);
 
-    await getAllTrips("lisbon");
+    await getSavedTripsPage("lisbon", 0);
 
-    expect(trip.findMany).toHaveBeenCalledWith({
-      where: {
-        saved: true,
-        OR: [
-          { city: { contains: "lisbon", mode: "insensitive" } },
-          { country: { contains: "lisbon", mode: "insensitive" } },
-          { userName: { contains: "lisbon", mode: "insensitive" } },
-        ],
-      },
-      orderBy: { city: "asc" },
-    });
+    expect(trip.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          saved: true,
+          OR: [
+            { city: { contains: "lisbon", mode: "insensitive" } },
+            { country: { contains: "lisbon", mode: "insensitive" } },
+            { userName: { contains: "lisbon", mode: "insensitive" } },
+          ],
+        },
+      }),
+    );
   });
 
   it("keeps the saved filter alongside the search", async () => {
-    vi.mocked(trip.findMany).mockResolvedValue([]);
+    resolve([]);
 
-    await getAllTrips("kyoto");
+    await getSavedTripsPage("kyoto", 0);
 
     const where = vi.mocked(trip.findMany).mock.calls[0][0]?.where;
     expect(where).toMatchObject({ saved: true });
   });
 
-  it("returns an empty list when nothing matches", async () => {
-    vi.mocked(trip.findMany).mockResolvedValue([]);
+  it("returns an empty page when nothing matches", async () => {
+    resolve([], 0);
 
-    await expect(getAllTrips("atlantis")).resolves.toEqual([]);
+    await expect(getSavedTripsPage("atlantis", 0)).resolves.toEqual({ trips: [], total: 0 });
   });
 });
 

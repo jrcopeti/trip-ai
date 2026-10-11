@@ -1,5 +1,6 @@
 "use client";
 import { useRef } from "react";
+import { FaArrowDown } from "react-icons/fa6";
 import { LuCamera } from "react-icons/lu";
 import { useSavedTrips } from "@/hooks/useSavedTrips";
 
@@ -12,7 +13,7 @@ import StickerBadge from "@/components/sorbet/StickerBadge";
 import { SPINNER_INK } from "@/components/ui/Loader";
 import ErrorComponent from "@/components/ui/NotFoundComponent";
 import { defaultPlaceholder } from "@/lib/constants";
-import { badge, empty, error, header, loading } from "./content";
+import { badge, empty, error, header, loading, more } from "./content";
 
 import { PuffLoader } from "react-spinners";
 
@@ -49,6 +50,10 @@ function SavedTripsDisplay() {
     isPendingSavedTrips,
     isSearchingSavedTrips,
     savedTripsError,
+    totalSavedTrips,
+    hasMoreSavedTrips,
+    loadMoreSavedTrips,
+    isLoadingMoreSavedTrips,
     setSearchTerm,
     searchTerm,
   } = useSavedTrips();
@@ -169,6 +174,35 @@ function SavedTripsDisplay() {
                 </li>
               ))}
             </ul>
+          )}
+
+          {!isPendingSavedTrips && savedTrips && savedTrips.length > 0 && (
+            <div className="mt-16 flex flex-col items-center gap-4">
+              {hasMoreSavedTrips && (
+                <button
+                  type="button"
+                  onClick={() => loadMoreSavedTrips()}
+                  disabled={isLoadingMoreSavedTrips}
+                  aria-busy={isLoadingMoreSavedTrips}
+                  className="group bg-sorbet-ink text-sorbet-offwhite focus-visible:outline-sorbet-ink inline-flex items-center gap-4 rounded-full py-3 pr-3 pl-8 text-lg font-semibold transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-70 disabled:hover:scale-100 motion-reduce:transition-none"
+                >
+                  {isLoadingMoreSavedTrips ? more.loading : more.button}
+                  <span
+                    aria-hidden
+                    className="bg-sorbet-lime text-sorbet-ink grid size-11 place-items-center rounded-full transition-transform group-hover:translate-y-0.5 motion-reduce:transition-none"
+                  >
+                    <FaArrowDown size={15} />
+                  </span>
+                </button>
+              )}
+              {/* Live, so a screen reader hears the count grow after "Show more". */}
+              <p
+                aria-live="polite"
+                className="text-sorbet-ink/45 text-xs font-medium tracking-[0.12em] uppercase"
+              >
+                {more.count(savedTrips.length, totalSavedTrips)}
+              </p>
+            </div>
           )}
         </div>
       </section>

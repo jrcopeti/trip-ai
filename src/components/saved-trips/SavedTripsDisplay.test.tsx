@@ -3,29 +3,29 @@ import userEvent from "@testing-library/user-event";
 import { renderWithProviders, screen, waitFor } from "@/test/render";
 import SavedTripsDisplay from "@/components/saved-trips/SavedTripsDisplay";
 import { SEARCH_DEBOUNCE_MS } from "@/hooks/useSavedTrips";
-import { getAllTrips } from "@/db/actions";
-import { makeTrip, tripFixture, tripFixture2 } from "@/test/fixtures";
+import { getSavedTripsPage } from "@/db/actions";
+import { makeTrip, savedTripsPage, tripFixture, tripFixture2 } from "@/test/fixtures";
 import { stubSrc } from "@/test/imageStub";
-import { badge, empty, error, header } from "@/components/saved-trips/content";
+import { badge, empty, error, header, more } from "@/components/saved-trips/content";
 
-vi.mock("@/db/actions", () => ({ getAllTrips: vi.fn() }));
+vi.mock("@/db/actions", () => ({ getSavedTripsPage: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("next/image", async () => ({
   default: (await import("@/test/stubs/next")).NextImage,
 }));
 
-const mockGetAll = vi.mocked(getAllTrips);
+const mockGetPage = vi.mocked(getSavedTripsPage);
 
 /** For waits that sit behind the search debounce: the default 1s is too tight under load. */
 const AFTER_DEBOUNCE = { timeout: SEARCH_DEBOUNCE_MS + 2000 };
 
 beforeEach(() => {
-  mockGetAll.mockReset();
+  mockGetPage.mockReset();
 });
 
 describe("SavedTripsDisplay", () => {
   it("renders the page heading", () => {
-    mockGetAll.mockReturnValue(new Promise(() => {}));
+    mockGetPage.mockReturnValue(new Promise(() => {}));
     renderWithProviders(<SavedTripsDisplay />);
 
     expect(
@@ -34,7 +34,7 @@ describe("SavedTripsDisplay", () => {
   });
 
   it("turns a decorative sticker in the header, hidden from assistive tech", () => {
-    mockGetAll.mockReturnValue(new Promise(() => {}));
+    mockGetPage.mockReturnValue(new Promise(() => {}));
     renderWithProviders(<SavedTripsDisplay />);
 
     const ring = screen.getAllByText(new RegExp(badge.label), { exact: false })[0];
@@ -42,14 +42,14 @@ describe("SavedTripsDisplay", () => {
   });
 
   it("shows a loading status while the query is pending", () => {
-    mockGetAll.mockReturnValue(new Promise(() => {}));
+    mockGetPage.mockReturnValue(new Promise(() => {}));
     renderWithProviders(<SavedTripsDisplay />);
 
     expect(screen.getByRole("status")).toBeInTheDocument();
   });
 
   it("renders one polaroid per trip, as a list", async () => {
-    mockGetAll.mockResolvedValue([tripFixture, tripFixture2]);
+    mockGetPage.mockResolvedValue(savedTripsPage([tripFixture, tripFixture2]));
     renderWithProviders(<SavedTripsDisplay />);
 
     expect(await screen.findAllByRole("listitem")).toHaveLength(2);
@@ -64,7 +64,7 @@ describe("SavedTripsDisplay", () => {
   });
 
   it("fans the cards by their position in the grid", async () => {
-    mockGetAll.mockResolvedValue([tripFixture, tripFixture2]);
+    mockGetPage.mockResolvedValue(savedTripsPage([tripFixture, tripFixture2]));
     renderWithProviders(<SavedTripsDisplay />);
 
     expect((await screen.findByRole("link", { name: /lisbon/i })).className).toContain(
@@ -76,7 +76,7 @@ describe("SavedTripsDisplay", () => {
   });
 
   it("captions each polaroid with city and country, with the traveller beneath", async () => {
-    mockGetAll.mockResolvedValue([tripFixture]);
+    mockGetPage.mockResolvedValue(savedTripsPage([tripFixture]));
     renderWithProviders(<SavedTripsDisplay />);
 
     expect(
@@ -86,7 +86,7 @@ describe("SavedTripsDisplay", () => {
   });
 
   it("trims stray whitespace from the city", async () => {
-    mockGetAll.mockResolvedValue([makeTrip({ city: " lisbon " })]);
+    mockGetPage.mockResolvedValue(savedTripsPage([makeTrip({ city: " lisbon " })]));
     renderWithProviders(<SavedTripsDisplay />);
 
     expect(
@@ -95,7 +95,7 @@ describe("SavedTripsDisplay", () => {
   });
 
   it("falls back to a bundled photo when a trip has none", async () => {
-    mockGetAll.mockResolvedValue([makeTrip({ image: null })]);
+    mockGetPage.mockResolvedValue(savedTripsPage([makeTrip({ image: null })]));
     renderWithProviders(<SavedTripsDisplay />);
 
     const link = await screen.findByRole("link", { name: /lisbon/i });
@@ -105,15 +105,41 @@ describe("SavedTripsDisplay", () => {
   it("never leaves a card at opacity-0", async () => {
     // The old card carried `opacity-0` for a GSAP batch to clear. With GSAP gone,
     // that class would leave every card in the grid invisible.
-    mockGetAll.mockResolvedValue([tripFixture, tripFixture2]);
+    mockGetPage.mockResolvedValue(savedTripsPage([tripFixture, tripFixture2]));
     renderWithProviders(<SavedTripsDisplay />);
 
     const list = await screen.findByRole("list");
     expect(list.innerHTML).not.toMatch(/\bopacity-0\b/);
   });
 
+  it("offers more trips when there are more than one page", async () => {
+    const user = userEvent.setup();
+    mockGetPage
+      .mockResolvedValueOnce(savedTripsPage([tripFixture], 2))
+      .mockResolvedValueOnce(savedTripsPage([tripFixture2], 2));
+    renderWithProviders(<SavedTripsDisplay />);
+
+    const button = await screen.findByRole("button", { name: more.button });
+    expect(screen.getByText(more.count(1, 2))).toBeInTheDocument();
+
+    await user.click(button);
+
+    expect(await screen.findAllByRole("listitem")).toHaveLength(2);
+    expect(mockGetPage).toHaveBeenLastCalledWith("", 1);
+    expect(screen.getByText(more.count(2, 2))).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: more.button })).not.toBeInTheDocument();
+  });
+
+  it("shows the count but no button once every trip is on screen", async () => {
+    mockGetPage.mockResolvedValue(savedTripsPage([tripFixture, tripFixture2]));
+    renderWithProviders(<SavedTripsDisplay />);
+
+    expect(await screen.findByText(more.count(2, 2))).toHaveAttribute("aria-live", "polite");
+    expect(screen.queryByRole("button", { name: more.button })).not.toBeInTheDocument();
+  });
+
   it("shows the empty state when nothing matches", async () => {
-    mockGetAll.mockResolvedValue([]);
+    mockGetPage.mockResolvedValue(savedTripsPage([]));
     renderWithProviders(<SavedTripsDisplay />);
 
     expect(await screen.findByRole("heading", { name: empty.heading })).toBeInTheDocument();
@@ -122,24 +148,24 @@ describe("SavedTripsDisplay", () => {
 
   it("queries with what is typed in the search", async () => {
     const user = userEvent.setup();
-    mockGetAll.mockResolvedValue([tripFixture, tripFixture2]);
+    mockGetPage.mockResolvedValue(savedTripsPage([tripFixture, tripFixture2]));
     renderWithProviders(<SavedTripsDisplay />);
 
     await user.type(screen.getByRole("searchbox", { name: header.search.label }), "kyoto");
 
     await waitFor(() => {
-      expect(mockGetAll).toHaveBeenLastCalledWith("kyoto");
+      expect(mockGetPage).toHaveBeenLastCalledWith("kyoto", 0);
     }, AFTER_DEBOUNCE);
     expect(screen.getByRole("searchbox")).toHaveValue("kyoto");
   });
 
   it("keeps the grid up, marked busy, while a search loads", async () => {
     const user = userEvent.setup();
-    mockGetAll.mockResolvedValue([tripFixture, tripFixture2]);
+    mockGetPage.mockResolvedValue(savedTripsPage([tripFixture, tripFixture2]));
     renderWithProviders(<SavedTripsDisplay />);
     expect(await screen.findAllByRole("listitem")).toHaveLength(2);
 
-    mockGetAll.mockReturnValue(new Promise(() => {}));
+    mockGetPage.mockReturnValue(new Promise(() => {}));
     await user.type(screen.getByRole("searchbox"), "kyoto");
 
     await waitFor(() => {
@@ -151,7 +177,7 @@ describe("SavedTripsDisplay", () => {
 
   it("scrolls the search up to reveal the results when typing below the fold", async () => {
     const user = userEvent.setup();
-    mockGetAll.mockResolvedValue([tripFixture, tripFixture2]);
+    mockGetPage.mockResolvedValue(savedTripsPage([tripFixture, tripFixture2]));
     renderWithProviders(<SavedTripsDisplay />);
     const search = screen.getByRole("searchbox");
     vi.spyOn(search, "getBoundingClientRect").mockReturnValue({ top: 440 } as DOMRect);
@@ -164,7 +190,7 @@ describe("SavedTripsDisplay", () => {
 
   it("leaves the page alone once the search is already near the top", async () => {
     const user = userEvent.setup();
-    mockGetAll.mockResolvedValue([tripFixture, tripFixture2]);
+    mockGetPage.mockResolvedValue(savedTripsPage([tripFixture, tripFixture2]));
     renderWithProviders(<SavedTripsDisplay />);
     const search = screen.getByRole("searchbox");
     vi.spyOn(search, "getBoundingClientRect").mockReturnValue({ top: 96 } as DOMRect);
@@ -176,7 +202,7 @@ describe("SavedTripsDisplay", () => {
   });
 
   it("renders the error panel when the query fails", async () => {
-    mockGetAll.mockRejectedValue(new Error("db down"));
+    mockGetPage.mockRejectedValue(new Error("db down"));
     renderWithProviders(<SavedTripsDisplay />);
 
     expect(await screen.findByRole("heading", { name: error.message })).toBeInTheDocument();

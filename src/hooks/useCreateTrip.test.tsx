@@ -145,7 +145,7 @@ describe("useCreateTrip — handleNoAnswer", () => {
 
   it("attaches the images but no blur placeholder", async () => {
     // Deliberate, not an oversight: a discarded trip is written to the DB but
-    // never read back — both getAllTrips and getSingleSavedTrip filter on
+    // never read back — both getSavedTripsPage and getSingleSavedTrip filter on
     // saved: true — so nothing ever renders its blur placeholder.
     renderHook();
     hook.handleNoAnswer();

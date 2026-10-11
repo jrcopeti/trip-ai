@@ -17,6 +17,12 @@ test.describe("/saved-trips", () => {
     await expect(page.getByRole("link", { name: /kyoto/i })).toBeVisible();
   });
 
+  test("counts the trips and offers no more when they all fit", async ({ page }) => {
+    // Two saved seeds, well under a page of 24.
+    await expect(page.getByText("2 of 2 trips")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Show more trips" })).toHaveCount(0);
+  });
+
   test("excludes trips that were discarded", async ({ page }) => {
     await expect(page.getByRole("link", { name: /lisbon/i })).toBeVisible();
     // Oslo is seeded with saved: false and must never reach the grid.

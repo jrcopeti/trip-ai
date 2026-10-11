@@ -95,3 +95,8 @@ export function tripCreateInput(
     tours: rest.tours as Prisma.InputJsonValue,
   };
 }
+
+/** What `getSavedTripsPage` resolves to: one page, and the total behind it. */
+export function savedTripsPage(trips: Trip[], total = trips.length) {
+  return { trips, total };
+}

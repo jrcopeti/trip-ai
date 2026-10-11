@@ -26,6 +26,12 @@ export const empty = {
   body: "Nothing matches that search. Try a city, a country or a traveller's name.",
 };
 
+export const more = {
+  button: "Show more trips",
+  loading: "Loading more trips",
+  count: (shown: number, total: number) => `${shown} of ${total} trips`,
+};
+
 export const loading = {
   label: "Loading saved trips",
 };
