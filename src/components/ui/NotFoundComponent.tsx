@@ -9,10 +9,14 @@ import type { NotFoundComponentProps } from "@/types";
  * It centres in the space below the nav rather than covering the viewport: the
  * old `fixed … h-screen overflow-hidden` sat on top of the bar, so there was no
  * way back out except the one button.
+ *
+ * `w-full` because some callers render it inside a centring flex row — `Form`
+ * does, through `Container` — where a block without a width shrinks to its
+ * text and leaves the page's old gradient showing either side.
  */
 function NotFoundComponent({ message, path, button }: NotFoundComponentProps) {
   return (
-    <div className="grid min-h-[calc(100dvh-4rem)] place-items-center bg-sorbet-canvas px-5 py-20 font-sorbet text-sorbet-ink antialiased sm:px-8">
+    <div className="grid w-full min-h-[calc(100dvh-4rem)] place-items-center bg-sorbet-canvas px-5 py-20 font-sorbet text-sorbet-ink antialiased sm:px-8">
       <div className="mx-auto flex max-w-2xl flex-col items-center gap-8 text-center">
         <span aria-hidden className="text-3xl text-sorbet-alert">
           <BiMessageSquareError />

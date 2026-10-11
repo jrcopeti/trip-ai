@@ -32,13 +32,16 @@ describe("NotFoundComponent", () => {
   });
 
   it("hides the error glyph from assistive technology", () => {
-    renderWithProviders(
+    const { container } = renderWithProviders(
       <NotFoundComponent message="Something went wrong!" path="/" button="Back" />,
     );
 
-    // The heading already says it; the glyph is decoration.
-    expect(screen.getByRole("heading").parentElement).toContainHTML(
-      'aria-hidden="true"',
-    );
+    // The heading already says it; the glyph is decoration. Pinned on the glyph
+    // itself: "something in here is aria-hidden" would still pass if the
+    // attribute moved onto the heading or the link.
+    const glyph = container.querySelector("svg");
+    expect(glyph?.closest('[aria-hidden="true"]')).not.toBeNull();
+    expect(screen.getByRole("heading").closest('[aria-hidden="true"]')).toBeNull();
+    expect(screen.getByRole("link").closest('[aria-hidden="true"]')).toBeNull();
   });
 });
