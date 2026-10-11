@@ -16,12 +16,18 @@ code is right and this file needs fixing.
 | Area | State |
 | --- | --- |
 | `/` landing | Migrated. The reference implementation. |
+| Shared shell — nav, footer, loaders, 404, toasters | Migrated. On every route. |
 | `/form` | Not migrated — previous look |
 | `/trips/[tripUrl]` | Not migrated — previous look |
 | `/saved-trips`, `/saved-trips/[id]` | Not migrated — previous look |
 | `/about` | Not migrated — previous look |
 
-Two visual systems coexist on purpose while the migration runs. The old palettes
+Two visual systems coexist on purpose while the migration runs, and since the shared
+shell landed they coexist *on the same screen*: an unmigrated route wears a sorbet nav
+and footer over an old-palette body. That is the intended intermediate state, not a bug
+to patch locally — the body catches up when that route's step runs.
+
+The old palettes
 (`neptune`, `tuna`, `shark`, `gallery`, `yellorange`, `deeporange`, `cabaret`, `violay`)
 are still live on every unmigrated page.
 
@@ -30,7 +36,7 @@ unmigrated pages depend on them being exactly what they are. Add, don't edit.
 
 ## Colour
 
-Ten tokens. The name describes the colour, not the job, matching the existing
+Twelve tokens. The name describes the colour, not the job, matching the existing
 convention (`neptune`, `tuna`) so these survive past the landing page.
 
 | Token | Hex | Where it actually goes |
@@ -45,6 +51,8 @@ convention (`neptune`, `tuna`) so these survive past the landing page.
 | `sorbet-blush` | `#f2d9d9` | Tinted surface — one card tint, one chip. |
 | `sorbet-cyan` | `#a7fff7` | One sticker, one chip. |
 | `sorbet-indigo` | `#5a4dff` | Used once, deliberately: the eyebrow dot in the hero. |
+| `sorbet-white` | `#ffffff` | Section grounds, card fills, chip fills, the polaroid frame. |
+| `sorbet-alert` | `#c2150c` | Error glyphs and field errors. The only red in the system. |
 
 ### Section grounds alternate
 
@@ -54,10 +62,10 @@ Reading top to bottom, the landing page runs
 Adjacent sections never share a ground. That alternation is what gives the page
 rhythm without any dividers.
 
-**Note the gap:** `bg-white` is used directly as a section ground and for chip fills
-(`bg-white/70`, `bg-white/90`) but is *not* a `sorbet` token. It reads as pure white
-against the warm canvas, which is the intent. If you find yourself wanting a token for
-it, add `--color-sorbet-white: #ffffff` rather than inventing a different white.
+**On white:** `bg-white` was used directly as a section ground and for chip fills
+(`bg-white/70`, `bg-white/90`) before it had a name. It now has one —
+`--color-sorbet-white` — and it is the same `#ffffff`. Both spellings are live; prefer
+`sorbet-white` in new work, and never invent a second, slightly-different white.
 
 ### Tint on ink, not grey
 
@@ -86,7 +94,13 @@ On the ink footer this inverts: `sorbet-offwhite` at `/80`, `/60`, `/45`.
 
 The old body face, Red Hat Display, is still on `<body>`; `font-sorbet` is opted into
 on the migrated page's root wrapper. Migrating a page means adding `font-sorbet` to its
-outermost element.
+outermost element. Shared pieces that render *outside* any page wrapper — `SiteNav`,
+`SiteFooter`, the toasters, the loaders, `NotFoundComponent` — carry `font-sorbet`
+themselves, because there is no wrapper above them to inherit it from.
+
+**One exception to Rubik: `font-sorbet-hand`.** Caveat (400, 600), loaded alongside Rubik
+in `layout.tsx` as `--font-caveat`. It is for handwritten polaroid captions and nothing
+else. Caveat's x-height is small, so never set it below `text-xl`.
 
 ### The scale is fluid, not stepped
 
@@ -195,8 +209,9 @@ Sizes seen: `size-8` (chip), `size-9` (card), `size-11` (closing CTA, lime on in
 ### The two rules that matter
 
 **1. Reduced motion is handled centrally, never per component.**
-`MotionProvider` wraps the page with `<MotionConfig reducedMotion="user">`. Framer then
-skips transform and layout animations and keeps opacity and colour.
+`MotionProvider` is mounted once, in `src/app/providers.tsx`, so `<MotionConfig
+reducedMotion="user">` is in force on every route. Framer then skips transform and layout
+animations and keeps opacity and colour. Don't nest a second one around a page.
 
 **Never branch what you render on `useReducedMotion()`.** It returns `null` on the
 server and the real value on the client, so any branch that changes the rendered tree
@@ -264,23 +279,56 @@ Reduced motion and JS failure are both handled in CSS on `.landing-intro`
 
 ## Components
 
-In `src/components/landing/`. The first three are general-purpose — use them when
-migrating other pages.
+Three directories, and which one a component lives in is the statement about its reach:
 
-| Component | Reusable? | Notes |
+- **`src/components/sorbet/`** — the system's general-purpose pieces. Use these anywhere.
+- **`src/components/ui/`** — the shared shell and the app-wide chrome.
+- **`src/components/landing/`** — the landing page's own sections. Nothing else imports
+  from here.
+
+| Component | Where | Notes |
 | --- | --- | --- |
-| `Reveal` | **Yes** | Use for every scroll entrance. |
-| `MotionProvider` | **Yes** | Wrap any page using the system. |
-| `TripCard` | **Yes** | Pastel card: title, chip, arrow. Takes `{ card, className, interactive }`. |
-| `StickerBadge` | Decorative | Circular text on `<textPath>`, slow spin. |
-| `Squiggle` | Decorative | Ink loop, draws on. Optional `play` gate. |
-| `LandingNav` / `LandingFooter` | Landing-only | Will generalise when more pages migrate. |
-| `Intro`, `IntroContext` | Landing-only | |
-| `Hero`, `WordmarkBlock`, `TripTypePills`, `PhotoBand`, `HowItWorks`, `WeatherPacking`, `ClosingCta` | Sections | |
+| `Reveal` | `sorbet/` | Use for every scroll entrance. |
+| `MotionProvider` | `sorbet/` | Mounted once in `providers.tsx`; don't nest another. |
+| `TripCard` | `sorbet/` | Pastel card: title, chip, arrow. Takes `{ card, className, interactive }`. Owns the `ItineraryCard` type. |
+| `SiteNav` | `ui/` | The nav, on every route. See below. |
+| `SiteFooter` | `ui/` | The ink footer. Rendered per page, not by the layout. |
+| `NotFoundComponent`, `Loader`, `LoaderResponseAI`, `CustomToaster`, `ErrorToaster`, `ButtonBackOutlined` | `ui/` | Shell pieces, in the system. |
+| `StickerBadge` | `landing/` | Decorative: circular text on `<textPath>`, slow spin. |
+| `Squiggle` | `landing/` | Decorative: ink loop, draws on. Optional `play` gate. |
+| `Intro`, `IntroContext` | `landing/` | |
+| `Hero`, `WordmarkBlock`, `TripTypePills`, `PhotoBand`, `HowItWorks`, `WeatherPacking`, `ClosingCta` | `landing/` | Sections. |
 
 Server components by default. Only these are `"use client"`: `Hero`, `Intro`,
-`IntroContext`, `MotionProvider`, `Reveal`, `Squiggle`, `StickerBadge` — i.e. only what
-needs hooks or motion.
+`IntroContext`, `MotionProvider`, `Reveal`, `SiteNav`, `Squiggle`, `StickerBadge`,
+`LoaderResponseAI`, `ButtonBackOutlined` — i.e. only what needs hooks or motion.
+
+### The shared shell
+
+`SiteNav` is rendered once by `src/app/layout.tsx`, so it is on every route and there is
+no per-page nav any more. Three things follow from that:
+
+- **It is above the page wrapper**, so it carries its own `font-sorbet` and the canvas
+  ground lives on `<body>` — the bar is `bg-sorbet-canvas/90`, and over a white body
+  those 10% read as a pale band.
+- **The bar is `h-16` (4rem).** Anything that sizes itself against the viewport minus the
+  nav uses `calc(100dvh-4rem)`.
+- **`[data-wordmark]` still lives on it.** `Intro` measures that element to fly the
+  wordmark into place; it is load-bearing, not decoration.
+
+Active route: `aria-current="page"` plus a `bg-sorbet-ink/5` fill, matched on the exact
+path or a child of it (`/saved-trips/42` lights `Saved trips`).
+
+Below `md` the links collapse into a disclosure panel — ink-outline `Menu` pill,
+`aria-expanded` / `aria-controls="site-menu"`, a canvas sheet under the sticky bar with
+the links as `text-lg` pills and the "Plan a trip" ink pill last. Escape closes it and
+returns focus to the trigger; a link click or a pathname change closes it. **The hiding
+is CSS (`md:hidden`), never a `matchMedia` branch** — see the motion rule below; a
+client-only value deciding what gets rendered is the same hydration trap in a different
+coat.
+
+`SiteFooter` is rendered by each page rather than by the layout, so a page can choose not
+to have one (the form does not).
 
 ### The weather card breakout
 
@@ -331,9 +379,11 @@ Each of these was a bug, not a theory.
 6. **Don't use `Container` / `GridContainer` / `GradientBg`** on a migrated page. They
    lock the page to `h-[calc(100dvh-3.5rem)] overflow-hidden`, which cannot scroll.
 
-7. **`NavbarComponent` hides itself on `/`** via `if (pathname === "/") return null;`
-   because the landing ships its own nav. Migrating another page to a bespoke nav means
-   extending that guard.
+7. **The nav is global and 4rem tall.** `SiteNav` comes from the root layout on every
+   route, so a page that also wants to fill the screen measures `calc(100dvh-4rem)`, not
+   `100dvh` — otherwise it buys a scrollbar it does not use. (This replaces the old
+   `NavbarComponent` and its `pathname === "/"` guard, both deleted: a nav that hides
+   itself on one route was a guard waiting to be extended once per migration.)
 
 8. **`homepageImages` in `src/data/index.ts` has fabricated city labels**, and entries
    10–16 all share `city: "Sydney"`, `alt: "tenth"` and one blur placeholder. The landing's
@@ -343,7 +393,7 @@ Each of these was a bug, not a theory.
 ## Migrating a page
 
 1. Wrap the outermost element: `font-sorbet text-sorbet-ink` plus a `sorbet` ground.
-2. Wrap in `MotionProvider` if anything animates.
+2. Nothing to do for motion — `MotionProvider` is already above you, from `providers.tsx`.
 3. Replace old palette classes with `sorbet` equivalents. Secondary text becomes
    `text-sorbet-ink/70`, not a grey.
 4. Drop `Container`/`GridContainer`/`GradientBg`; use the section/measure/gutter pattern.

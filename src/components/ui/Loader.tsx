@@ -1,9 +1,12 @@
 import PuffLoader from "react-spinners/PuffLoader";
 
+/** `--color-sorbet-ink`. react-spinners takes a colour value, not a class. */
+export const SPINNER_INK = "#302e2d";
+
 function Loader() {
   return (
-    <div className="fixed left-0 top-0 z-40 flex h-screen w-screen items-center justify-center overflow-hidden bg-gradient-to-b from-shark-100 to-neptune-200">
-      <PuffLoader size={80} color="#4e888c" />
+    <div className="fixed inset-0 z-40 grid place-items-center bg-sorbet-canvas">
+      <PuffLoader size={80} color={SPINNER_INK} />
     </div>
   );
 }

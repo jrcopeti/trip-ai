@@ -1,6 +1,17 @@
+import type { IconType } from "react-icons";
 import { FaArrowRight } from "react-icons/fa6";
 
-import type { ItineraryCard } from "./content";
+/**
+ * One activity card's content: a title, its category chip, and the pastel
+ * ground it sits on. Lives here rather than with the landing copy so any
+ * migrated page can build a card without importing landing content.
+ */
+export type ItineraryCard = {
+  title: string;
+  chip: string;
+  Icon: IconType;
+  tint: string;
+};
 
 /**
  * The pastel activity card from the reference: title top, category chip

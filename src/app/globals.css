@@ -121,7 +121,7 @@
   --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
   --background-image-gradient-conic: conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops));
 
-  /* sorbet — landing page palette. Additive only: nothing above is affected. */
+  /* sorbet — the redesign's palette. Additive only: nothing above is affected. */
   --color-sorbet-ink: #302e2d;
   --color-sorbet-lime: #e2f3a7;
   --color-sorbet-lime-punch: #e8ff98;
@@ -132,8 +132,15 @@
   --color-sorbet-lavender: #e9daf1;
   --color-sorbet-blush: #f2d9d9;
   --color-sorbet-cyan: #a7fff7;
+  /* Used directly as a section ground and for chip fills. Named so it stops
+     being the one colour in the system without a token. */
+  --color-sorbet-white: #ffffff;
+  /* The red already in use for error glyphs and field errors, given a name. */
+  --color-sorbet-alert: #c2150c;
 
   --font-sorbet: var(--font-rubik), ui-sans-serif, system-ui, sans-serif;
+  /* Handwriting, for polaroid captions only — the single exception to Rubik. */
+  --font-sorbet-hand: var(--font-caveat), ui-rounded, cursive;
 }
 
 /* HeroUI v3 semantic color overrides */

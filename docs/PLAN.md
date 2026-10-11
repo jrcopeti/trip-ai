@@ -12,9 +12,15 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Now
 
-**Step 1 — the shared shell.** See the step list below.
+**Step 2 — `/about`.** See the step list below.
 
 ## Done
+
+- **Step 1 — the shared shell.** ✅ Landed on `sorbet-shell`. `SiteNav` on every route
+  with a mobile disclosure menu, `SiteFooter`, `MotionProvider` app-wide, the three
+  general-purpose components moved to `src/components/sorbet/`, and the loaders, 404,
+  toasters and back button restyled. 22 new unit tests (232 total), 8 new e2e
+  (`site-nav.spec.ts`).
 
 - **Step 0 — test harness and backfill.** ✅ Landed on `test-harness`. 210 unit tests
   across 13 files; 24 e2e tests across 3 specs, of which 15 (`landing`, `about-404`)
@@ -28,7 +34,7 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Next
 
-Steps 2–6 in order.
+Steps 3–6 in order.
 
 ## Open questions
 
@@ -257,7 +263,38 @@ point.
 The `saved-trips` spec needs the seeded throwaway database, so it runs in CI rather than
 locally against `.env`. The other two were verified locally against a production build.
 
-## Step 1 — Shared shell · `sorbet-shell`
+## Step 1 — Shared shell · `sorbet-shell` ✅
+
+**Landed.** What the plan did not anticipate, recorded because the later steps inherit it:
+
+- **The canvas ground moved to `<body>`.** The nav is `bg-sorbet-canvas/90`, and once it
+  sits above the page wrapper rather than inside it, those 10% show white through. An
+  unmigrated route paints its own opaque full-viewport gradient over this, so nothing
+  there changed.
+- **The nav is `h-16`, the old one was `h-14`.** Every `calc(100dvh-3.5rem)` became
+  `calc(100dvh-4rem)` (`Container`'s default plus three call sites). Those pages are all
+  rewritten in steps 2, 4 and 5, but until then they would have bought a scrollbar.
+- **`MotionProvider` is in `providers.tsx` only** — the plan said to keep the landing's
+  too, but a second identical `MotionConfig` is noise that invites someone to "fix" one
+  of the two. One place handles reduced motion; that is the rule in design-notes.
+- **`--color-sorbet-alert: #c2150c` landed here, not in step 4.** `NotFoundComponent` and
+  `ErrorToaster` both needed the red, and a hard-coded hex in the shared shell is worse
+  than pulling one additive token forward. Step 4's `FieldError` can just use it.
+- **Below `md` the bar is wordmark + trigger only** — the "Plan a trip" pill is in the
+  panel, as specced. The landing does not lose its mobile CTA: `Hero` has its own.
+- **`LandingNav` and `LandingFooter` are gone**, not kept alongside. `SiteNav` is the
+  rewrite, `SiteFooter` is `git mv`'d; leaving the originals would have left two navs
+  one of which nothing rendered.
+- **Fake timers and Framer Motion fight each other.** `requestAnimationFrame` is not in
+  Vitest's default `toFake`, and Framer's frame loop is a module-level singleton that
+  will not restart under a fresh fake clock while a frame is still pending — so the
+  *second* test in a file is the one that fails. Written up in CLAUDE.md; step 5 will
+  need it.
+- E2E locators must be scoped to `header nav`: the footer carries links with the same
+  names, so an unscoped `getByRole("link", { name: "Saved trips" })` matches two.
+
+The original plan for this step follows.
+
 
 - New `src/components/sorbet/` — move `Reveal.tsx`, `MotionProvider.tsx`, `TripCard.tsx`
   out of `landing/` (design-notes already marks these three general-purpose); update

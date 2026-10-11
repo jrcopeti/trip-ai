@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from "react";
 import { render, type RenderOptions } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import MotionProvider from "@/components/landing/MotionProvider";
+import MotionProvider from "@/components/sorbet/MotionProvider";
 
 function makeQueryClient() {
   return new QueryClient({

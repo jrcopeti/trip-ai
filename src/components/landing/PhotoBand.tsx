@@ -2,8 +2,8 @@ import Image from "next/image";
 import { FaArrowRight } from "react-icons/fa6";
 
 import { itineraryCards, photos } from "./content";
-import Reveal from "./Reveal";
-import TripCard from "./TripCard";
+import Reveal from "@/components/sorbet/Reveal";
+import TripCard from "@/components/sorbet/TripCard";
 
 function PhotoBand() {
   return (
