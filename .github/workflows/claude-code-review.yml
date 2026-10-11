@@ -50,12 +50,20 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: "/code-review --comment ${{ github.event.pull_request.number }}"
-          # Naming the inline-comment tool is what makes the action start the
-          # MCP server that posts inline comments. The disallow list is the
-          # hard boundary: the review reads and comments, it never edits or
-          # pushes.
+          # CI has no permission prompt, so anything not listed here is denied.
+          # Read-only commands (cat, grep, head) pass without listing; `gh` and
+          # `git` do not. With only the inline-comment tool listed, #162's
+          # review was denied `gh pr diff`, reviewed the wrong diff and posted
+          # nothing. This list is what a local run under CI-like permissions
+          # (`--permission-mode dontAsk`) showed the review needs: `gh pr diff`
+          # and `gh pr view` to read the PR, `gh api` or the inline-comment tool
+          # to post. Naming the inline-comment tool is also what makes the
+          # action start its MCP server.
+          #
+          # The disallow list is the hard boundary: the review reads and
+          # comments, it never edits or pushes.
           claude_args: >-
-            --allowedTools "mcp__github_inline_comment__create_inline_comment"
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh api:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*)"
             --disallowedTools "Edit,NotebookEdit,Bash(git push:*)"
           # Without this the log holds only a summary — no transcript, no record
           # of how the turn ended. Keep it.
