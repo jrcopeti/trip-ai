@@ -1,5 +1,6 @@
 "use client";
 import { useRef } from "react";
+import { LuCamera } from "react-icons/lu";
 import { useSavedTrips } from "@/hooks/useSavedTrips";
 
 import { TextField, Label, Input } from "@heroui/react";
@@ -7,10 +8,11 @@ import image1 from "@/assets/travel-photos/1.jpg";
 import Polaroid from "@/components/sorbet/Polaroid";
 import Reveal from "@/components/sorbet/Reveal";
 import SquiggleArrow from "@/components/sorbet/SquiggleArrow";
+import StickerBadge from "@/components/sorbet/StickerBadge";
 import { SPINNER_INK } from "@/components/ui/Loader";
 import ErrorComponent from "@/components/ui/NotFoundComponent";
 import { defaultPlaceholder } from "@/lib/constants";
-import { empty, error, header, loading } from "./content";
+import { badge, empty, error, header, loading } from "./content";
 
 import { PuffLoader } from "react-spinners";
 
@@ -104,6 +106,18 @@ function SavedTripsDisplay() {
               cards. Absolutely placed so it costs the header no height, and
               positioned, so it paints over the next section's background. */}
           <SquiggleArrow className="text-sorbet-ink absolute top-full left-2 z-10 mt-3 h-24 w-12 md:h-28 md:w-14" />
+
+          {/* Fills the empty right of the search row, dropped to straddle the
+              header and the grid like the squiggle opposite it. From `md` only:
+              below it the search takes the full width and there is no right side. */}
+          <StickerBadge
+            label={badge.label}
+            icon={<LuCamera />}
+            tint="text-sorbet-orchid"
+            size={128}
+            spin={28}
+            className="absolute right-0 -bottom-24 z-10 hidden md:block lg:right-8"
+          />
         </div>
       </section>
 

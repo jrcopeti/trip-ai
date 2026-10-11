@@ -320,7 +320,7 @@ text written inline in JSX, and the file should read like copy.
 | `SiteNav` | `ui/` | The nav, on every route. See below. |
 | `SiteFooter` | `ui/` | The ink footer. Rendered per page, not by the layout. |
 | `NotFoundComponent`, `Loader`, `LoaderResponseAI`, `CustomToaster`, `ErrorToaster`, `ButtonBackOutlined` | `ui/` | Shell pieces, in the system. |
-| `StickerBadge` | `landing/` | Decorative: circular text on `<textPath>`, slow spin. |
+| `StickerBadge` | `sorbet/` | Decorative: circular text on `<textPath>`, slow spin. Takes `icon: ReactNode`. On the landing and the `/saved-trips` header. |
 | `Squiggle` | `landing/` | Decorative: ink loop, draws on. Optional `play` gate. |
 | `Intro`, `IntroContext` | `landing/` | |
 | `Hero`, `WordmarkBlock`, `TripTypePills`, `PhotoBand`, `HowItWorks`, `WeatherPacking`, `ClosingCta` | `landing/` | Sections. |

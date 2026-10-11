@@ -16,6 +16,11 @@ export const header = {
   },
 };
 
+/** The sticker turning in the header's bottom-right corner. */
+export const badge = {
+  label: "trips worth keeping",
+};
+
 export const empty = {
   heading: "No trips found",
   body: "Nothing matches that search. Try a city, a country or a traveller's name.",

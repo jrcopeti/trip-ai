@@ -18,7 +18,7 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 - **Step 3 — `/saved-trips` and the polaroid.** ✅ On `sorbet-saved-trips`. `Polaroid`
   (both sizes) in `sorbet/`, the grid in `saved-trips/`, GSAP and Locomotive gone from
-  the route. 36 new unit tests (280 total); `saved-trips.spec.ts` updated plus one new
+  the route. 37 new unit tests (281 total); `saved-trips.spec.ts` updated plus one new
   e2e (no tilt at 390px).
 
 - **Step 2 — `/about`.** ✅ On `sorbet-about`. Server component with a server-side
@@ -424,6 +424,10 @@ heading, lead and credit link render; the rendered `alt` is the neutral string, 
   96px; the grid's top padding is down to `pt-16` so the first row peeks on load; and a
   new `SquiggleArrow` in `sorbet/` hangs from the search into the grid, pointing down.
   `src/test/setup.ts` gains an inert `scrollIntoView` — jsdom has none.
+- **A sticker fills the header's right side.** An orchid `StickerBadge` ("trips worth
+  keeping", camera) sits bottom-right from `md`, dropped to straddle the header and the
+  grid opposite the squiggle. `StickerBadge` moved from `landing/` to `sorbet/` to allow
+  it, with the three landing imports updated.
 - **Two HeroUI overrides** — the unlayered global `.label` colour and `outline-none`
   breaking the focus triad. Both are design-notes gotcha #9; step 4 hits them on every
   field.

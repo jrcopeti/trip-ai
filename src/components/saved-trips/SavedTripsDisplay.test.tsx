@@ -6,7 +6,7 @@ import { SEARCH_DEBOUNCE_MS } from "@/hooks/useSavedTrips";
 import { getAllTrips } from "@/db/actions";
 import { makeTrip, tripFixture, tripFixture2 } from "@/test/fixtures";
 import { stubSrc } from "@/test/imageStub";
-import { empty, error, header } from "@/components/saved-trips/content";
+import { badge, empty, error, header } from "@/components/saved-trips/content";
 
 vi.mock("@/db/actions", () => ({ getAllTrips: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
@@ -31,6 +31,14 @@ describe("SavedTripsDisplay", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: new RegExp(header.heading.claim) }),
     ).toBeInTheDocument();
+  });
+
+  it("turns a decorative sticker in the header, hidden from assistive tech", () => {
+    mockGetAll.mockReturnValue(new Promise(() => {}));
+    renderWithProviders(<SavedTripsDisplay />);
+
+    const ring = screen.getAllByText(new RegExp(badge.label), { exact: false })[0];
+    expect(ring.closest("[aria-hidden]")).not.toBeNull();
   });
 
   it("shows a loading status while the query is pending", () => {
