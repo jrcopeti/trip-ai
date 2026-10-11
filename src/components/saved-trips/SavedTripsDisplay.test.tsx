@@ -130,6 +130,29 @@ describe("SavedTripsDisplay", () => {
     expect(screen.queryByRole("button", { name: more.button })).not.toBeInTheDocument();
   });
 
+  it("shows a trip once when the next page repeats it", async () => {
+    // Another user saving a trip that sorts earlier shifts every row down one,
+    // so the last trip of page 0 comes back first on page 1.
+    const user = userEvent.setup();
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockGetPage
+      .mockResolvedValueOnce(savedTripsPage([tripFixture], 3))
+      .mockResolvedValueOnce(savedTripsPage([tripFixture, tripFixture2], 3));
+    renderWithProviders(<SavedTripsDisplay />);
+
+    await user.click(await screen.findByRole("button", { name: more.button }));
+
+    await waitFor(() => expect(screen.getAllByRole("listitem")).toHaveLength(2));
+    expect(screen.getAllByRole("link", { name: /lisbon/i })).toHaveLength(1);
+    expect(screen.getByText(more.count(2, 3))).toBeInTheDocument();
+    // React's duplicate-key warning, however it formats its arguments.
+    const keyWarnings = consoleError.mock.calls.filter((args) =>
+      args.map(String).join(" ").includes("same key"),
+    );
+    expect(keyWarnings).toEqual([]);
+    consoleError.mockRestore();
+  });
+
   it("shows the count but no button once every trip is on screen", async () => {
     mockGetPage.mockResolvedValue(savedTripsPage([tripFixture, tripFixture2]));
     renderWithProviders(<SavedTripsDisplay />);
@@ -234,6 +257,28 @@ describe("SavedTripsDisplay", () => {
     expect((await screen.findByRole("button", { name: more.button })).className).toContain(
       "cursor-pointer",
     );
+  });
+
+  it("keeps the grid and offers a retry when loading more fails", async () => {
+    const user = userEvent.setup();
+    mockGetPage
+      .mockResolvedValueOnce(savedTripsPage([tripFixture], 2))
+      .mockRejectedValueOnce(new Error("timeout"))
+      .mockResolvedValueOnce(savedTripsPage([tripFixture2], 2));
+    renderWithProviders(<SavedTripsDisplay />);
+
+    await user.click(await screen.findByRole("button", { name: more.button }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(more.failed);
+    expect(screen.getAllByRole("listitem")).toHaveLength(1);
+    expect(screen.getByRole("searchbox")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: error.message })).not.toBeInTheDocument();
+
+    // The same button retries.
+    await user.click(screen.getByRole("button", { name: more.button }));
+
+    await waitFor(() => expect(screen.getAllByRole("listitem")).toHaveLength(2));
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   it("renders the error panel when the query fails", async () => {

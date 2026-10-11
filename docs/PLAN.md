@@ -18,7 +18,7 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 - **Step 3 — `/saved-trips` and the polaroid.** ✅ On `sorbet-saved-trips`. `Polaroid`
   (both sizes) in `sorbet/`, the grid in `saved-trips/`, GSAP and Locomotive gone from
-  the route. 47 new unit tests (291 total); `saved-trips.spec.ts` updated plus two new
+  the route. 54 new unit tests (298 total); `saved-trips.spec.ts` updated plus two new
   e2e (no tilt at 390px, the trip count).
 
 - **Step 2 — `/about`.** ✅ On `sorbet-about`. Server component with a server-side
@@ -432,6 +432,13 @@ heading, lead and credit link render; the rendered `alt` is the neutral string, 
   `useInfiniteQuery`; a new search restarts at page 0. Under the grid: an ink pill and a
   live "18 of 74 trips" count. Ordering puts accented cities after plain ones ("málaga"
   after "munich") — the database collation, unchanged from before.
+
+  Two follow-ups from `/code-review`: a failed "Show more" (or background refetch) no
+  longer swaps the page for the error panel — `savedTripsError` is only set when nothing
+  has loaded; otherwise the grid stays and a red "Couldn't load more trips" line appears,
+  and the same button retries. TanStack's default 3 retries absorb a single blip first,
+  so the line only shows once all four attempts fail. And because offset paging can
+  repeat a row when a trip is saved between pages, the hook drops repeated ids.
 - **A sticker fills the header's right side.** An orchid `StickerBadge` ("trips worth
   keeping", camera) sits bottom-right from `md`, dropped to straddle the header and the
   grid opposite the squiggle. `StickerBadge` moved from `landing/` to `sorbet/` to allow

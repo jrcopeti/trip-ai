@@ -160,6 +160,40 @@ describe("useSavedTrips", () => {
     await waitFor(() => expect(hook.savedTrips).toEqual([tripFixture]));
   });
 
+  it("drops a trip a later page repeats", async () => {
+    // A trip saved between two pages shifts every row down one, so the last
+    // trip of page 0 comes back first on page 1.
+    mockGetPage
+      .mockResolvedValueOnce(savedTripsPage([tripFixture], 3))
+      .mockResolvedValueOnce(savedTripsPage([tripFixture, tripFixture2], 3));
+    renderWithProviders(<Probe />);
+    await waitFor(() => expect(hook.hasMoreSavedTrips).toBe(true));
+
+    await act(async () => {
+      await hook.loadMoreSavedTrips();
+    });
+
+    await waitFor(() => {
+      expect(hook.savedTrips?.map((trip) => trip.id)).toEqual([1, 2]);
+    });
+  });
+
+  it("keeps the loaded trips when loading more fails", async () => {
+    mockGetPage
+      .mockResolvedValueOnce(savedTripsPage([tripFixture], 2))
+      .mockRejectedValueOnce(new Error("timeout"));
+    renderWithProviders(<Probe />);
+    await waitFor(() => expect(hook.hasMoreSavedTrips).toBe(true));
+
+    await act(async () => {
+      await hook.loadMoreSavedTrips();
+    });
+
+    await waitFor(() => expect(hook.loadMoreFailed).toBe(true));
+    expect(hook.savedTrips).toEqual([tripFixture]);
+    expect(hook.savedTripsError).toBeNull();
+  });
+
   it("exposes the current search term", async () => {
     mockGetPage.mockResolvedValue(savedTripsPage([]));
     renderWithProviders(<Probe />);

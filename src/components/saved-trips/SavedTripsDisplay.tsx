@@ -54,6 +54,7 @@ function SavedTripsDisplay() {
     hasMoreSavedTrips,
     loadMoreSavedTrips,
     isLoadingMoreSavedTrips,
+    loadMoreFailed,
     setSearchTerm,
     searchTerm,
   } = useSavedTrips();
@@ -214,6 +215,11 @@ function SavedTripsDisplay() {
                     <FaArrowDown size={15} />
                   </span>
                 </button>
+              )}
+              {loadMoreFailed && !isLoadingMoreSavedTrips && (
+                <p role="alert" className="text-sorbet-alert text-sm font-medium">
+                  {more.failed}
+                </p>
               )}
               {/* Live, so a screen reader hears the count grow after "Show more". */}
               <p

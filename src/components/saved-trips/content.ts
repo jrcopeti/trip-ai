@@ -30,6 +30,7 @@ export const empty = {
 export const more = {
   button: "Show more trips",
   loading: "Loading more trips",
+  failed: "Couldn't load more trips. Try again.",
   count: (shown: number, total: number) => `${shown} of ${total} trips`,
 };
 
