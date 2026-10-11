@@ -18,7 +18,7 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 - **Step 3 — `/saved-trips` and the polaroid.** ✅ On `sorbet-saved-trips`. `Polaroid`
   (both sizes) in `sorbet/`, the grid in `saved-trips/`, GSAP and Locomotive gone from
-  the route. 25 new unit tests (269 total); `saved-trips.spec.ts` updated plus one new
+  the route. 36 new unit tests (280 total); `saved-trips.spec.ts` updated plus one new
   e2e (no tilt at 390px).
 
 - **Step 2 — `/about`.** ✅ On `sorbet-about`. Server component with a server-side
@@ -413,6 +413,17 @@ heading, lead and credit link render; the rendered `alt` is the neutral string, 
 - **The search is `type="search"`**, so it is a `searchbox` by role. The e2e locators
   moved from `textbox` to `searchbox` by label. Chrome draws its native clear button in
   blue; left as it is.
+- **The search is debounced and keeps the last result.** `useSavedTrips` queries on a
+  `useDebouncedValue(searchTerm, 300)` (new, `src/hooks/`) with
+  `placeholderData: keepPreviousData`. The old page fired a query per keystroke and
+  dropped the grid to the spinner each time; now the spinner is first-load only, and
+  while a search is in flight the stale grid is `aria-busy` at `opacity-60`.
+- **Typing reveals the results.** At laptop height (1280×720) the header filled the
+  screen, so a search changed a grid nobody could see. Typing now scrolls the search up
+  under the nav (`scroll-mt-24`, smooth unless reduced motion) once, when it sits below
+  96px; the grid's top padding is down to `pt-16` so the first row peeks on load; and a
+  new `SquiggleArrow` in `sorbet/` hangs from the search into the grid, pointing down.
+  `src/test/setup.ts` gains an inert `scrollIntoView` — jsdom has none.
 - **Two HeroUI overrides** — the unlayered global `.label` colour and `outline-none`
   breaking the focus triad. Both are design-notes gotcha #9; step 4 hits them on every
   field.

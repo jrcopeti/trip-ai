@@ -51,3 +51,9 @@ if (!globalThis.IntersectionObserver) {
     }
   } as unknown as typeof IntersectionObserver;
 }
+
+// jsdom has no layout, so it has no `scrollIntoView` either. The saved-trips
+// search calls it to bring results into view; a test that cares spies on it.
+if (!Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = function scrollIntoView() {};
+}

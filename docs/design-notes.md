@@ -316,6 +316,7 @@ text written inline in JSX, and the file should read like copy.
 | `MotionProvider` | `sorbet/` | Mounted once in `providers.tsx`; don't nest another. |
 | `TripCard` | `sorbet/` | Pastel card: title, chip, arrow. Takes `{ card, className, interactive }`. Owns the `ItineraryCard` type. |
 | `Polaroid` | `sorbet/` | White frame, handwritten caption. `card` (default): a link, the traveller's username, arrow, fan tilt by `index` from `sm` up. `lg`: the trip title as h1, no link, no tilt. The caller wraps it in `Reveal`. Never on a white ground: the frame is white paper and only its shadow would show. |
+| `SquiggleArrow` | `sorbet/` | Decorative: the `Squiggle` hand, a loop dropping into a down arrow; draws on in view. Hangs from the `/saved-trips` search to point at the grid. |
 | `SiteNav` | `ui/` | The nav, on every route. See below. |
 | `SiteFooter` | `ui/` | The ink footer. Rendered per page, not by the layout. |
 | `NotFoundComponent`, `Loader`, `LoaderResponseAI`, `CustomToaster`, `ErrorToaster`, `ButtonBackOutlined` | `ui/` | Shell pieces, in the system. |
@@ -325,7 +326,7 @@ text written inline in JSX, and the file should read like copy.
 | `Hero`, `WordmarkBlock`, `TripTypePills`, `PhotoBand`, `HowItWorks`, `WeatherPacking`, `ClosingCta` | `landing/` | Sections. |
 
 Server components by default. Only these are `"use client"`: `Hero`, `Intro`,
-`IntroContext`, `MotionProvider`, `Reveal`, `SiteNav`, `Squiggle`, `StickerBadge`,
+`IntroContext`, `MotionProvider`, `Reveal`, `SiteNav`, `Squiggle`, `SquiggleArrow`, `StickerBadge`,
 `LoaderResponseAI`, `ButtonBackOutlined` — i.e. only what needs hooks or motion.
 
 ### The shared shell

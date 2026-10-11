@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { renderWithProviders, screen, waitFor } from "@/test/render";
 import SavedTripsDisplay from "@/components/saved-trips/SavedTripsDisplay";
+import { SEARCH_DEBOUNCE_MS } from "@/hooks/useSavedTrips";
 import { getAllTrips } from "@/db/actions";
 import { makeTrip, tripFixture, tripFixture2 } from "@/test/fixtures";
 import { stubSrc } from "@/test/imageStub";
@@ -14,6 +15,9 @@ vi.mock("next/image", async () => ({
 }));
 
 const mockGetAll = vi.mocked(getAllTrips);
+
+/** For waits that sit behind the search debounce: the default 1s is too tight under load. */
+const AFTER_DEBOUNCE = { timeout: SEARCH_DEBOUNCE_MS + 2000 };
 
 beforeEach(() => {
   mockGetAll.mockReset();
@@ -117,8 +121,50 @@ describe("SavedTripsDisplay", () => {
 
     await waitFor(() => {
       expect(mockGetAll).toHaveBeenLastCalledWith("kyoto");
-    });
+    }, AFTER_DEBOUNCE);
     expect(screen.getByRole("searchbox")).toHaveValue("kyoto");
+  });
+
+  it("keeps the grid up, marked busy, while a search loads", async () => {
+    const user = userEvent.setup();
+    mockGetAll.mockResolvedValue([tripFixture, tripFixture2]);
+    renderWithProviders(<SavedTripsDisplay />);
+    expect(await screen.findAllByRole("listitem")).toHaveLength(2);
+
+    mockGetAll.mockReturnValue(new Promise(() => {}));
+    await user.type(screen.getByRole("searchbox"), "kyoto");
+
+    await waitFor(() => {
+      expect(screen.getByRole("list")).toHaveAttribute("aria-busy", "true");
+    }, AFTER_DEBOUNCE);
+    expect(screen.getAllByRole("listitem")).toHaveLength(2);
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it("scrolls the search up to reveal the results when typing below the fold", async () => {
+    const user = userEvent.setup();
+    mockGetAll.mockResolvedValue([tripFixture, tripFixture2]);
+    renderWithProviders(<SavedTripsDisplay />);
+    const search = screen.getByRole("searchbox");
+    vi.spyOn(search, "getBoundingClientRect").mockReturnValue({ top: 440 } as DOMRect);
+    const scroll = vi.spyOn(search, "scrollIntoView");
+
+    await user.type(search, "k");
+
+    expect(scroll).toHaveBeenCalledWith(expect.objectContaining({ block: "start" }));
+  });
+
+  it("leaves the page alone once the search is already near the top", async () => {
+    const user = userEvent.setup();
+    mockGetAll.mockResolvedValue([tripFixture, tripFixture2]);
+    renderWithProviders(<SavedTripsDisplay />);
+    const search = screen.getByRole("searchbox");
+    vi.spyOn(search, "getBoundingClientRect").mockReturnValue({ top: 96 } as DOMRect);
+    const scroll = vi.spyOn(search, "scrollIntoView");
+
+    await user.type(search, "kyoto");
+
+    expect(scroll).not.toHaveBeenCalled();
   });
 
   it("renders the error panel when the query fails", async () => {
