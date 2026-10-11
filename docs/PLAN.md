@@ -424,13 +424,13 @@ heading, lead and credit link render; the rendered `alt` is the neutral string, 
   96px; the grid's top padding is down to `pt-16` so the first row peeks on load; and a
   new `SquiggleArrow` in `sorbet/` hangs from the search into the grid, pointing down.
   `src/test/setup.ts` gains an inert `scrollIntoView` — jsdom has none.
-- **Paged, 24 at a time, behind "Show more trips".** `getAllTrips` became
+- **Paged, 18 at a time, behind "Show more trips".** `getAllTrips` became
   `getSavedTripsPage(searchTerm, page)` → `{ trips, total }`, with the page size fixed
   server-side (`SAVED_TRIPS_PAGE_SIZE` in `src/lib/constants.ts`; a `"use server"` module
   can only export async functions) and `id` as an order tiebreak — four trips share
   Paris, and `city` alone let `skip` repeat or drop one. `useSavedTrips` is a
   `useInfiniteQuery`; a new search restarts at page 0. Under the grid: an ink pill and a
-  live "24 of 74 trips" count. Ordering puts accented cities after plain ones ("málaga"
+  live "18 of 74 trips" count. Ordering puts accented cities after plain ones ("málaga"
   after "munich") — the database collation, unchanged from before.
 - **A sticker fills the header's right side.** An orchid `StickerBadge` ("trips worth
   keeping", camera) sits bottom-right from `md`, dropped to straddle the header and the

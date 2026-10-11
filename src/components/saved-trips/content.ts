@@ -13,6 +13,7 @@ export const header = {
   search: {
     label: "Search for a trip",
     placeholder: "A city, country or name",
+    clear: "Clear search",
   },
 };
 

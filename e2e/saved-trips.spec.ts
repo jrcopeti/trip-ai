@@ -18,7 +18,7 @@ test.describe("/saved-trips", () => {
   });
 
   test("counts the trips and offers no more when they all fit", async ({ page }) => {
-    // Two saved seeds, well under a page of 24.
+    // Two saved seeds, well under a page of 18.
     await expect(page.getByText("2 of 2 trips")).toBeVisible();
     await expect(page.getByRole("button", { name: "Show more trips" })).toHaveCount(0);
   });

@@ -1,6 +1,6 @@
 "use client";
 import { useRef } from "react";
-import { FaArrowDown } from "react-icons/fa6";
+import { FaArrowDown, FaXmark } from "react-icons/fa6";
 import { LuCamera } from "react-icons/lu";
 import { useSavedTrips } from "@/hooks/useSavedTrips";
 
@@ -64,6 +64,11 @@ function SavedTripsDisplay() {
     revealResults(searchRef.current);
   }
 
+  function clearSearch() {
+    setSearchTerm("");
+    searchRef.current?.focus();
+  }
+
   if (savedTripsError) {
     return (
       <ErrorComponent
@@ -99,12 +104,27 @@ function SavedTripsDisplay() {
             <Label className="text-sorbet-ink/45! text-xs font-medium tracking-[0.12em] uppercase">
               {header.search.label}
             </Label>
-            <Input
-              ref={searchRef}
-              type="search"
-              placeholder={header.search.placeholder}
-              className="border-sorbet-ink/15 text-sorbet-ink placeholder:text-sorbet-ink/45 focus:border-sorbet-ink focus-visible:outline-sorbet-ink w-full scroll-mt-24 rounded-full border bg-white px-6 py-4 text-base shadow-none hover:bg-white focus:bg-white focus:shadow-none focus:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid sm:text-base"
-            />
+            <div className="relative">
+              {/* The native WebKit clear button is hidden — it cannot be
+                  styled to the system, and Firefox draws none — and replaced
+                  by the pill below. `pr-16` keeps text clear of it. */}
+              <Input
+                ref={searchRef}
+                type="search"
+                placeholder={header.search.placeholder}
+                className="border-sorbet-ink/15 text-sorbet-ink placeholder:text-sorbet-ink/45 focus:border-sorbet-ink focus-visible:outline-sorbet-ink w-full scroll-mt-24 rounded-full border bg-white py-4 pr-16 pl-6 text-base shadow-none hover:bg-white focus:bg-white focus:shadow-none focus:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid sm:text-base [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-cancel-button]:appearance-none"
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  aria-label={header.search.clear}
+                  className="bg-sorbet-ink/10 text-sorbet-ink hover:bg-sorbet-ink hover:text-sorbet-offwhite focus-visible:outline-sorbet-ink absolute top-1/2 right-3 grid size-9 -translate-y-1/2 cursor-pointer place-items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 motion-reduce:transition-none"
+                >
+                  <FaXmark size={14} aria-hidden />
+                </button>
+              )}
+            </div>
           </TextField>
 
           {/* Hangs from the search into the grid's ground, pointing at the
@@ -184,7 +204,7 @@ function SavedTripsDisplay() {
                   onClick={() => loadMoreSavedTrips()}
                   disabled={isLoadingMoreSavedTrips}
                   aria-busy={isLoadingMoreSavedTrips}
-                  className="group bg-sorbet-ink text-sorbet-offwhite focus-visible:outline-sorbet-ink inline-flex items-center gap-4 rounded-full py-3 pr-3 pl-8 text-lg font-semibold transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-70 disabled:hover:scale-100 motion-reduce:transition-none"
+                  className="group bg-sorbet-ink text-sorbet-offwhite focus-visible:outline-sorbet-ink inline-flex cursor-pointer items-center gap-4 rounded-full py-3 pr-3 pl-8 text-lg font-semibold transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-70 disabled:hover:scale-100 motion-reduce:transition-none"
                 >
                   {isLoadingMoreSavedTrips ? more.loading : more.button}
                   <span

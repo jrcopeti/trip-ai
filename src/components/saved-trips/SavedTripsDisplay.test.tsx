@@ -201,6 +201,41 @@ describe("SavedTripsDisplay", () => {
     expect(scroll).not.toHaveBeenCalled();
   });
 
+  it("offers a clear button only once there is something to clear", async () => {
+    const user = userEvent.setup();
+    mockGetPage.mockResolvedValue(savedTripsPage([tripFixture, tripFixture2]));
+    renderWithProviders(<SavedTripsDisplay />);
+
+    expect(screen.queryByRole("button", { name: header.search.clear })).not.toBeInTheDocument();
+
+    await user.type(screen.getByRole("searchbox"), "kyoto");
+
+    expect(screen.getByRole("button", { name: header.search.clear })).toBeInTheDocument();
+  });
+
+  it("clearing empties the search and returns focus to it", async () => {
+    const user = userEvent.setup();
+    mockGetPage.mockResolvedValue(savedTripsPage([tripFixture, tripFixture2]));
+    renderWithProviders(<SavedTripsDisplay />);
+    const search = screen.getByRole("searchbox");
+    await user.type(search, "kyoto");
+
+    await user.click(screen.getByRole("button", { name: header.search.clear }));
+
+    expect(search).toHaveValue("");
+    expect(search).toHaveFocus();
+    expect(screen.queryByRole("button", { name: header.search.clear })).not.toBeInTheDocument();
+  });
+
+  it("gives its buttons a pointer cursor", async () => {
+    mockGetPage.mockResolvedValue(savedTripsPage([tripFixture], 2));
+    renderWithProviders(<SavedTripsDisplay />);
+
+    expect((await screen.findByRole("button", { name: more.button })).className).toContain(
+      "cursor-pointer",
+    );
+  });
+
   it("renders the error panel when the query fails", async () => {
     mockGetPage.mockRejectedValue(new Error("db down"));
     renderWithProviders(<SavedTripsDisplay />);

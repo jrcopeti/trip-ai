@@ -189,6 +189,11 @@ className="… bg-sorbet-lime … text-sorbet-ink"
 
 Nav-sized: `px-5 py-2.5 text-sm`.
 
+**A `<button>` needs `cursor-pointer`.** Tailwind v4's preflight resets buttons to the
+default arrow; links keep the pointer on their own. Disabled-while-loading takes
+`disabled:cursor-wait`. (`ButtonBackOutlined` and the form's `DatePicker` trigger still
+lack it — fix them when their steps run.)
+
 **Do not use HeroUI `Button` on migrated pages.** `--accent` is globally overridden to
 neptune teal in `globals.css`, so a HeroUI button fights the system. Style plain
 elements.
