@@ -9,7 +9,7 @@ import { TbBackpack } from "react-icons/tb";
 import { LuTreePalm } from "react-icons/lu";
 
 import { useIntro } from "./IntroContext";
-import StickerBadge from "./StickerBadge";
+import StickerBadge from "@/components/sorbet/StickerBadge";
 import Squiggle from "./Squiggle";
 import TripCard from "@/components/sorbet/TripCard";
 import { heroDeck } from "./content";

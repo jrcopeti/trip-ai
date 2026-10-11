@@ -4,7 +4,7 @@ import { FaCheck } from "react-icons/fa6";
 
 import { currentWeather, forecast, packing } from "./content";
 import Reveal from "@/components/sorbet/Reveal";
-import StickerBadge from "./StickerBadge";
+import StickerBadge from "@/components/sorbet/StickerBadge";
 
 function WeatherPacking() {
   const { iconSrc, place, temperature, feelsLike, condition, description, tempMin, tempMax, metrics } =

@@ -19,7 +19,8 @@ code is right and this file needs fixing.
 | Shared shell — nav, footer, loaders, 404, toasters | Migrated. On every route. |
 | `/form` | Not migrated — previous look |
 | `/trips/[tripUrl]` | Not migrated — previous look |
-| `/saved-trips`, `/saved-trips/[id]` | Not migrated — previous look |
+| `/saved-trips` | Migrated. The polaroid grid. |
+| `/saved-trips/[id]` | Not migrated — previous look |
 | `/about` | Migrated. |
 
 Two visual systems coexist on purpose while the migration runs, and since the shared
@@ -98,9 +99,10 @@ outermost element. Shared pieces that render *outside* any page wrapper — `Sit
 `SiteFooter`, the toasters, the loaders, `NotFoundComponent` — carry `font-sorbet`
 themselves, because there is no wrapper above them to inherit it from.
 
-**One exception to Rubik: `font-sorbet-hand`.** Caveat (400, 600), loaded alongside Rubik
-in `layout.tsx` as `--font-caveat`. It is for handwritten polaroid captions and nothing
-else. Caveat's x-height is small, so never set it below `text-xl`.
+**One exception to Rubik: `font-sorbet-hand`.** Caveat (variable, 400–700), self-hosted
+from `src/assets/fonts/` with `next/font/local` in `layout.tsx` as `--font-caveat`
+(gotcha #10). It is for handwritten polaroid captions and nothing else. Caveat's x-height
+is small, so never set it below `text-xl`.
 
 ### The scale is fluid, not stepped
 
@@ -169,7 +171,7 @@ Radius carries meaning; there are three tiers.
 Interactive is always a pill. If it can be clicked, it is `rounded-full` — that is the
 single strongest signal in the system.
 
-Only one shadow exists in the whole page, on the hero deck:
+Only one shadow exists in the system, on the hero deck and the polaroid:
 `shadow-[0_18px_40px_-24px_rgba(48,46,45,0.55)]`. It is ink-tinted, not black. Elevation
 is otherwise expressed by background colour, not shadow.
 
@@ -186,6 +188,11 @@ className="… bg-sorbet-lime … text-sorbet-ink"
 ```
 
 Nav-sized: `px-5 py-2.5 text-sm`.
+
+**A `<button>` needs `cursor-pointer`.** Tailwind v4's preflight resets buttons to the
+default arrow; links keep the pointer on their own. Disabled-while-loading takes
+`disabled:cursor-wait`. (`ButtonBackOutlined` and the form's `DatePicker` trigger still
+lack it — fix them when their steps run.)
 
 **Do not use HeroUI `Button` on migrated pages.** `--accent` is globally overridden to
 neptune teal in `globals.css`, so a HeroUI button fights the system. Style plain
@@ -284,8 +291,8 @@ Three directories, and which one a component lives in is the statement about its
 - **`src/components/sorbet/`** — the system's general-purpose pieces. Use these anywhere.
 - **`src/components/ui/`** — the shared shell and the app-wide chrome.
 - **`src/components/landing/`** — the landing page's own sections. Nothing else imports
-  from here. The same goes for each migrated page's directory (`about/`, and the routes
-  still to come).
+  from here. The same goes for each migrated page's directory (`about/`, `saved-trips/`,
+  and the routes still to come).
 
 ### Copy lives in `content.ts`
 
@@ -313,16 +320,18 @@ text written inline in JSX, and the file should read like copy.
 | `Reveal` | `sorbet/` | Use for every scroll entrance. |
 | `MotionProvider` | `sorbet/` | Mounted once in `providers.tsx`; don't nest another. |
 | `TripCard` | `sorbet/` | Pastel card: title, chip, arrow. Takes `{ card, className, interactive }`. Owns the `ItineraryCard` type. |
+| `Polaroid` | `sorbet/` | White frame, handwritten caption. `card` (default): a link, the traveller's username, arrow, fan tilt by `index` from `sm` up. `lg`: the trip title as h1, no link, no tilt. The caller wraps it in `Reveal`. Never on a white ground: the frame is white paper and only its shadow would show. |
+| `SquiggleArrow` | `sorbet/` | Decorative: the `Squiggle` hand, a loop dropping into a down arrow; draws on in view. Hangs from the `/saved-trips` search to point at the grid. |
 | `SiteNav` | `ui/` | The nav, on every route. See below. |
 | `SiteFooter` | `ui/` | The ink footer. Rendered per page, not by the layout. |
 | `NotFoundComponent`, `Loader`, `LoaderResponseAI`, `CustomToaster`, `ErrorToaster`, `ButtonBackOutlined` | `ui/` | Shell pieces, in the system. |
-| `StickerBadge` | `landing/` | Decorative: circular text on `<textPath>`, slow spin. |
+| `StickerBadge` | `sorbet/` | Decorative: circular text on `<textPath>`, slow spin. Takes `icon: ReactNode`. On the landing and the `/saved-trips` header. |
 | `Squiggle` | `landing/` | Decorative: ink loop, draws on. Optional `play` gate. |
 | `Intro`, `IntroContext` | `landing/` | |
 | `Hero`, `WordmarkBlock`, `TripTypePills`, `PhotoBand`, `HowItWorks`, `WeatherPacking`, `ClosingCta` | `landing/` | Sections. |
 
 Server components by default. Only these are `"use client"`: `Hero`, `Intro`,
-`IntroContext`, `MotionProvider`, `Reveal`, `SiteNav`, `Squiggle`, `StickerBadge`,
+`IntroContext`, `MotionProvider`, `Reveal`, `SiteNav`, `Squiggle`, `SquiggleArrow`, `StickerBadge`,
 `LoaderResponseAI`, `ButtonBackOutlined` — i.e. only what needs hooks or motion.
 
 ### The shared shell
@@ -372,6 +381,11 @@ Reuse this when a section needs an image to break its container.
   them.
 - **Semantics** — numbered steps are an `<ol>`, metadata is a `<dl>`, cards are
   `<article>`. Don't flatten these to divs.
+- **A link around an `<article>` needs an explicit name.** Chromium does not compute a
+  link's name from content inside an `<article>`, so `Polaroid` sets
+  `aria-label={caption, username}` on its `<Link>`. jsdom *does* compute it, so unit
+  tests pass either way — check the Playwright snapshot, where an unnamed card shows
+  as a bare `link`. This one reached CI.
 
 ## Gotchas that cost real time
 
@@ -415,6 +429,24 @@ Each of these was a bug, not a theory.
    photos is identifiable as a particular city, so none claims one — keep it that way
    when adding photos, and regenerate the blur with `node generatePlaceholder.mjs`.
 
+9. **HeroUI form parts need two overrides on a migrated page.** Both bit the
+   `/saved-trips` search.
+   - `globals.css` has an *unlayered* `.label { color: #556074 }` for the unmigrated form.
+     Unlayered CSS beats every layered rule, Tailwind utilities included, so
+     `text-sorbet-ink/45` on a HeroUI `Label` does nothing. Use the important modifier
+     (`text-sorbet-ink/45!`) until step 6 removes the rule.
+   - HeroUI's `.input` applies `outline-none`, which in Tailwind v4 sets
+     `--tw-outline-style: none`. `focus-visible:outline-2` reads that variable, so the
+     focus triad silently draws nothing. Add `focus-visible:outline-solid`. Its focus ring
+     is a Tailwind ring in the neptune `--focus` colour: clear it with `focus:ring-0`, not
+     `shadow-none`.
+
+10. **Caveat cannot come from `next/font/google` under Turbopack.** Google sometimes
+    serves it from `fonts.gstatic.com/l/font?kit=…&skey=…`, and Turbopack's font loader
+    rejects a URL with two query parameters ("next/font/google queries have exactly one
+    entry"). `next dev` then drops the font while the webpack build is fine, so the bug
+    only shows locally. It is self-hosted with `next/font/local`; keep it that way.
+
 ## Migrating a page
 
 1. Wrap the outermost element: `font-sorbet text-sorbet-ink` plus a `sorbet` ground.
@@ -448,3 +480,5 @@ Each of these was a bug, not a theory.
   (`oaidalleapiprodscus.blob.core.windows.net`) though image generation is gone.
 - HeroUI's semantic overrides in `:root` (`--accent` → neptune) still apply globally.
   They will need revisiting when form and trip pages migrate.
+- The global `.label` colour in `globals.css` is unlayered and only serves the old form
+  (gotcha #9). Delete it in step 6, with the old palettes.

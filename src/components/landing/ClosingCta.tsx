@@ -2,7 +2,7 @@ import Link from "next/link";
 import { FaArrowRight, FaPlaneUp } from "react-icons/fa6";
 
 import Reveal from "@/components/sorbet/Reveal";
-import StickerBadge from "./StickerBadge";
+import StickerBadge from "@/components/sorbet/StickerBadge";
 
 function ClosingCta() {
   return (

@@ -10,9 +10,17 @@ test.describe("/saved-trips", () => {
   });
 
   test("renders the seeded saved trips", async ({ page }) => {
-    await expect(page.getByRole("heading", { name: "Saved Trips" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 1, name: /where people went/i }),
+    ).toBeVisible();
     await expect(page.getByRole("link", { name: /lisbon/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /kyoto/i })).toBeVisible();
+  });
+
+  test("counts the trips and offers no more when they all fit", async ({ page }) => {
+    // Two saved seeds, well under a page of 18.
+    await expect(page.getByText("2 of 2 trips")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Show more trips" })).toHaveCount(0);
   });
 
   test("excludes trips that were discarded", async ({ page }) => {
@@ -24,27 +32,27 @@ test.describe("/saved-trips", () => {
   test("search narrows the grid by city", async ({ page }) => {
     await expect(page.getByRole("link", { name: /kyoto/i })).toBeVisible();
 
-    await page.getByRole("textbox").fill("lisbon");
+    await page.getByRole("searchbox", { name: "Search for a trip" }).fill("lisbon");
 
     await expect(page.getByRole("link", { name: /lisbon/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /kyoto/i })).toHaveCount(0);
   });
 
   test("search matches on the traveller's name too", async ({ page }) => {
-    await page.getByRole("textbox").fill("bruno");
+    await page.getByRole("searchbox", { name: "Search for a trip" }).fill("bruno");
 
     await expect(page.getByRole("link", { name: /kyoto/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /lisbon/i })).toHaveCount(0);
   });
 
   test("a search with no matches shows the empty state", async ({ page }) => {
-    await page.getByRole("textbox").fill("atlantis");
+    await page.getByRole("searchbox", { name: "Search for a trip" }).fill("atlantis");
 
     await expect(page.getByText("No trips found")).toBeVisible();
   });
 
   test("clearing the search brings the grid back", async ({ page }) => {
-    const search = page.getByRole("textbox");
+    const search = page.getByRole("searchbox", { name: "Search for a trip" });
     await search.fill("atlantis");
     await expect(page.getByText("No trips found")).toBeVisible();
 
@@ -62,9 +70,10 @@ test.describe("/saved-trips", () => {
   });
 
   test("every card is visible rather than left at opacity 0", async ({ page }) => {
-    // The cards carry opacity-0 for a GSAP batch to clear. If that animation
-    // stops running and the class stays, the grid renders blank — this is the
-    // regression that would hide.
+    // The old cards carried opacity-0 for a GSAP batch to clear, and each
+    // polaroid now starts at opacity 0 inside a `Reveal`. If either entrance
+    // stops running, the grid renders blank — this is the regression that
+    // would hide.
     //
     // `toHaveCount` rather than `count()`: the grid is client-rendered from a
     // TanStack query, so at navigation there are no cards yet. `count()` does
@@ -77,6 +86,17 @@ test.describe("/saved-trips", () => {
     for (let i = 0; i < 2; i++) {
       await expect(cards.nth(i)).not.toHaveCSS("opacity", "0");
     }
+  });
+
+  test("the polaroids are not tilted at 390px", async ({ page }) => {
+    // A rotated card overflows the 20px gutter on a phone, so the fan only
+    // starts at `sm`.
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/saved-trips");
+    const card = page.getByRole("link", { name: /lisbon/i });
+    await expect(card).toBeVisible();
+
+    await expect(card).toHaveCSS("rotate", "none");
   });
 
   test("does not scroll horizontally at 390px", async ({ page }) => {

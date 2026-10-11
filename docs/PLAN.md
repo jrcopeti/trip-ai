@@ -12,9 +12,14 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Now
 
-**Step 3 — `/saved-trips` and the polaroid.** See the step list below.
+**Step 4 — `/form`.** See the step list below.
 
 ## Done
+
+- **Step 3 — `/saved-trips` and the polaroid.** ✅ On `sorbet-saved-trips`. `Polaroid`
+  (both sizes) in `sorbet/`, the grid in `saved-trips/`, GSAP and Locomotive gone from
+  the route. 55 new unit tests (299 total); `saved-trips.spec.ts` updated plus two new
+  e2e (no tilt at 390px, the trip count).
 
 - **Step 2 — `/about`.** ✅ On `sorbet-about`. Server component with a server-side
   photo pick, canvas → white → lime → ink. 12 new unit tests (244 total), 2 new e2e
@@ -38,7 +43,7 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Next
 
-Steps 4–6 in order.
+Steps 5–6 in order.
 
 ## Open questions
 
@@ -385,7 +390,78 @@ The original plan for this step follows.
 heading, lead and credit link render; the rendered `alt` is the neutral string, never a
 `city` value. E2E: `/about` at 390px has no horizontal scroll, CTA reaches `/form`.
 
-## Step 3 — `/saved-trips` · `sorbet-saved-trips` · the polaroid
+## Step 3 — `/saved-trips` · `sorbet-saved-trips` · the polaroid ✅
+
+**Landed.** What the plan did not anticipate, recorded because the later steps inherit it:
+
+- **The grid sits on `offwhite`, not white.** On a white ground the white frame vanishes
+  and only the shadow marks where a card ends. Grounds are canvas header → offwhite
+  grid → ink footer, and the empty state is the white card the plan asked for (on white
+  it would have been invisible too).
+- **The page keeps an h1.** The plan said "two-tone h2", but the old page's h1 was its only
+  heading; it is now the page-h1 two-tone (`header` in `saved-trips/content.ts`), and the
+  polaroid captions are h2s inside the list.
+- **`Polaroid` takes `size="lg"` already**, to the spec, with its caption as the h1, not a
+  link and not tilted. Step 5's `TitleSection` only has to render it. The caller wraps
+  either size in `Reveal`; the component itself has no motion and stays a server
+  component.
+- **The tilt is on the `<Link>`**, so the focus outline turns with the card. Hover is
+  `sm:hover:rotate-0`, not `hover:rotate-0`, so it outranks the `sm:` tilt at every width.
+- **The stagger is `0.06 * (i % 3)`**, along the row. Rows enter the viewport one at a
+  time, so `0.06 * i` held the twentieth card back more than a second after it scrolled in.
+  There are 74 saved trips in production.
+- **The search is `type="search"`**, so it is a `searchbox` by role. The e2e locators
+  moved from `textbox` to `searchbox` by label. Chrome draws its native clear button in
+  blue; left as it is.
+- **The search is debounced and keeps the last result.** `useSavedTrips` queries on a
+  `useDebouncedValue(searchTerm, 300)` (new, `src/hooks/`) with
+  `placeholderData: keepPreviousData`. The old page fired a query per keystroke and
+  dropped the grid to the spinner each time; now the spinner is first-load only, and
+  while a search is in flight the stale grid is `aria-busy` at `opacity-60`.
+- **Typing reveals the results.** At laptop height (1280×720) the header filled the
+  screen, so a search changed a grid nobody could see. Typing now scrolls the search up
+  under the nav (`scroll-mt-24`, smooth unless reduced motion) once, when it sits below
+  96px; the grid's top padding is down to `pt-16` so the first row peeks on load; and a
+  new `SquiggleArrow` in `sorbet/` hangs from the search into the grid, pointing down.
+  `src/test/setup.ts` gains an inert `scrollIntoView` — jsdom has none.
+- **Paged, 18 at a time, behind "Show more trips".** `getAllTrips` became
+  `getSavedTripsPage(searchTerm, page)` → `{ trips, total }`, with the page size fixed
+  server-side (`SAVED_TRIPS_PAGE_SIZE` in `src/lib/constants.ts`; a `"use server"` module
+  can only export async functions) and `id` as an order tiebreak — four trips share
+  Paris, and `city` alone let `skip` repeat or drop one. `useSavedTrips` is a
+  `useInfiniteQuery`; a new search restarts at page 0. Under the grid: an ink pill and a
+  live "18 of 74 trips" count. Ordering puts accented cities after plain ones ("málaga"
+  after "munich") — the database collation, unchanged from before.
+
+  Two follow-ups from `/code-review`: a failed "Show more" (or background refetch) no
+  longer swaps the page for the error panel — `savedTripsError` is only set when nothing
+  has loaded; otherwise the grid stays and a red "Couldn't load more trips" line appears,
+  and the same button retries. TanStack's default 3 retries absorb a single blip first,
+  so the line only shows once all four attempts fail. And because offset paging can
+  repeat a row when a trip is saved between pages, the hook drops repeated ids.
+
+  CI's e2e then caught what every local check missed: the polaroid links had **no
+  accessible name** in Chromium (name-from-content does not reach through the
+  `<article>`), so every `getByRole("link", { name: /lisbon/i })` failed. `Polaroid`
+  now sets `aria-label` from caption and username; design-notes, Accessibility.
+- **A sticker fills the header's right side.** An orchid `StickerBadge` ("trips worth
+  keeping", camera) sits bottom-right from `md`, dropped to straddle the header and the
+  grid opposite the squiggle. `StickerBadge` moved from `landing/` to `sorbet/` to allow
+  it, with the three landing imports updated.
+- **Two HeroUI overrides** — the unlayered global `.label` colour and `outline-none`
+  breaking the focus triad. Both are design-notes gotcha #9; step 4 hits them on every
+  field.
+- `SavedTripsDisplay` moved to `src/components/saved-trips/` with a `content.ts`.
+  **`SavedTripCard` is gone**: it only mapped a `Trip` to `Polaroid`'s props, so the
+  display renders `Polaroid` directly and its tests moved into
+  `SavedTripsDisplay.test.tsx`. `SavedTripsContainer`, `useScrollingSavedTrips` and
+  `useWindowSize` (nothing else used it) are deleted, with `SavedTripsContainerProps`.
+- The `saved-trips` e2e spec could not run locally (no Postgres, Docker not running); it
+  runs in CI as before. The Playwright MCP pass was against a production build reading
+  the real trips.
+
+The original plan for this step follows.
+
 
 - Build `src/components/sorbet/Polaroid.tsx` to the spec above, plus the Caveat load and
   the two token additions if step 1 didn't land them.

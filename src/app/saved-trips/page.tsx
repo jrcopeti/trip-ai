@@ -3,25 +3,21 @@ import {
   QueryClient,
   dehydrate,
 } from "@tanstack/react-query";
-import SavedTripsDisplay from "@/components/trips/SavedTripsDisplay";
-import Container from "@/components/ui/Container";
-import GradientBg from "@/components/ui/GradientBg";
-import SavedTripsContainer from "@/components/trips/SavedTripsContainer";
+import SavedTripsDisplay from "@/components/saved-trips/SavedTripsDisplay";
+import SiteFooter from "@/components/ui/SiteFooter";
 
 function SavedTripsPage() {
   const queryClient = new QueryClient();
 
   return (
-    <>
-      <Container height="h-full">
-        <GradientBg position="fixed" />
-        <SavedTripsContainer>
-          <HydrationBoundary state={dehydrate(queryClient)}>
-            <SavedTripsDisplay />
-          </HydrationBoundary>
-        </SavedTripsContainer>
-      </Container>
-    </>
+    <div className="min-h-dvh bg-sorbet-canvas font-sorbet text-sorbet-ink antialiased">
+      <main>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <SavedTripsDisplay />
+        </HydrationBoundary>
+      </main>
+      <SiteFooter />
+    </div>
   );
 }
 

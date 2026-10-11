@@ -177,7 +177,7 @@ Required in `.env.local`:
 - `src/app/api/anthropicApi.ts` — calls Claude (claude-sonnet-4-6) via tool use with a `tripData` tool schema; returns structured JSON (title, objectsList, mustHave, requiredItems, description, tours, tip).
 - `src/app/api/unsplashApi.ts` — fetches 5 city photos + generates a base64 plaiceholder blur for the first image.
 - `src/app/api/openWeatherApi.ts` — fetches current weather and forecast from OpenWeather.
-- `src/db/actions.ts` — Prisma server actions: `createTripInDB`, `getAllTrips`, `getSingleSavedTrip`.
+- `src/db/actions.ts` — Prisma server actions: `createTripInDB`, `getSavedTripsPage` (18 saved trips per page plus the total, for the "Show more" grid), `getSingleSavedTrip`.
 - `src/db/index.ts` — singleton Prisma client.
 
 ### Form data lifecycle
