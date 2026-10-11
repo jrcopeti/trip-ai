@@ -34,3 +34,20 @@ if (!globalThis.ResizeObserver) {
     disconnect() {}
   } as unknown as typeof ResizeObserver;
 }
+
+// Framer's `whileInView` (so every `Reveal`) constructs one on mount. Inert on
+// purpose: it never reports an intersection, which is jsdom's reality anyway —
+// assert that a `Reveal`'s children render, never that the animation ran.
+if (!globalThis.IntersectionObserver) {
+  globalThis.IntersectionObserver = class {
+    root = null;
+    rootMargin = "";
+    thresholds = [];
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+  } as unknown as typeof IntersectionObserver;
+}

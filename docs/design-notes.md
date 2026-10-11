@@ -20,7 +20,7 @@ code is right and this file needs fixing.
 | `/form` | Not migrated — previous look |
 | `/trips/[tripUrl]` | Not migrated — previous look |
 | `/saved-trips`, `/saved-trips/[id]` | Not migrated — previous look |
-| `/about` | Not migrated — previous look |
+| `/about` | Migrated. |
 
 Two visual systems coexist on purpose while the migration runs, and since the shared
 shell landed they coexist *on the same screen*: an unmigrated route wears a sorbet nav
@@ -385,10 +385,13 @@ Each of these was a bug, not a theory.
    `NavbarComponent` and its `pathname === "/"` guard, both deleted: a nav that hides
    itself on one route was a guard waiting to be extended once per migration.)
 
-8. **`homepageImages` in `src/data/index.ts` has fabricated city labels**, and entries
-   10–16 all share `city: "Sydney"`, `alt: "tenth"` and one blur placeholder. The landing's
-   `content.ts` describes what is in frame and claims no place. Do not caption a photo
-   from that array's `city` field.
+8. **Photo text describes what is in frame, never a place.** `travelPhotos` in
+   `src/data/index.ts` once carried `city` labels that did not match the photographs
+   (Cappadocia's balloons as "Berlin", seven different photos as "Sydney") and a
+   copy-pasted alt and blur on half the entries. It now has a real `alt`, a `tripType`
+   and its own blur per photo, with a test pinning alt and blur uniqueness. None of the
+   photos is identifiable as a particular city, so none claims one — keep it that way
+   when adding photos, and regenerate the blur with `node generatePlaceholder.mjs`.
 
 ## Migrating a page
 

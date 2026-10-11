@@ -1,3 +1,5 @@
+import type { StaticImageData } from "next/image";
+
 import image1 from "@/assets/homepage/1.jpg";
 import image2 from "@/assets/homepage/2.jpg";
 import image3 from "@/assets/homepage/3.jpg";
@@ -14,7 +16,6 @@ import image13 from "@/assets/homepage/13.jpg";
 import image14 from "@/assets/homepage/14.jpg";
 import image15 from "@/assets/homepage/15.jpg";
 import image16 from "@/assets/homepage/16.jpg";
-
 const types = [
   { value: "family", label: "Family" },
   { value: "adventure", label: "Adventure" },
@@ -28,8 +29,17 @@ const types = [
   { value: "urban", label: "Urban" },
   { value: "party", label: "Party" },
   { value: "road trip", label: "Road Trip" },
-];
-const sortedTypes = [...types.sort((a, b) => a.label.localeCompare(b.label))];
+] as const;
+const sortedTypes = [...types].sort((a, b) => a.label.localeCompare(b.label));
+
+type TripTypeValue = (typeof types)[number]["value"];
+
+type TravelPhoto = {
+  src: StaticImageData;
+  alt: string;
+  tripType: TripTypeValue;
+  placeholder: string;
+};
 
 const luggageSizes = [
   { value: "backpack", label: "Backpack" },
@@ -123,134 +133,124 @@ const sortedTransports = [
   ...transports.sort((a, b) => a.label.localeCompare(b.label)),
 ];
 
-const homepageImages = [
+/**
+ * Travel photos bundled with the app. Each `alt` describes what is actually in
+ * frame — none of these is identifiable as a particular city, so none claims one.
+ * `tripType` is one of the form's trip-type values, so a photo can be matched to
+ * a trip. `placeholder` is the plaiceholder blur of that exact file.
+ */
+const travelPhotos: TravelPhoto[] = [
   {
     src: image1,
-    alt: "first",
-    city: "Berlin",
-    title: "discover the unseen",
+    alt: "Hot-air balloons drifting over a hazy valley at sunrise",
+    tripType: "adventure",
     placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AOzn0v/55v//7P//6wDItJvl0bns3cbj2sUAGQAAOSUYMigfEg4LMRwWIdN3vREAAAAASUVORK5CYII=",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AOzn0v/55v//7P//6wDItJvl0bns3cXj2sUAGQAAOSUYMigfEg4LMQsWIMYHupEAAAAASUVORK5CYII=",
   },
   {
     src: image2,
-    alt: "second",
-    city: "Paris",
-    title: "go beyond the horizon",
+    alt: "A white fairy-tale castle on a wooded hilltop in autumn",
+    tripType: "cultural",
     placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAPElEQVR4nGNoVuMskmNo8jZakOHL0KQrZM/OYCvNWWApyxCsI+mnJuUvwnChKYhBhoFBgYEhxlD6/6dLAC+kDJm5EugJAAAAAElFTkSuQmCC",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAM0lEQVR4nAEoANf/AHTV53Xc7VzF1wDM///E9//K//8Ag31tf3ZmioV0ABYAADsoCUcwD/L6FAbaZxiOAAAAAElFTkSuQmCC",
   },
   {
     src: image3,
-    alt: "third",
-    city: "London",
-    title: "explore the world",
+    alt: "A saddled donkey resting beside a red sandstone wall and a flowering oleander",
+    tripType: "cultural",
     placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAM0lEQVR4nAEoANf/AHTV53Xc7VzF1wDM///E9//K//8Ag31tgHZmioV0ABYAADsoCUcwD/MKFAd4tFeYAAAAAElFTkSuQmCC",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAPElEQVR4nGNoUuEslGFo8jZakOHL0KQrZM/OYCvNWWApyxCsI+mnJuUvwnC+KYBBhoFBgYEhxlD6/6dLAC5TDJD6waR7AAAAAElFTkSuQmCC",
   },
   {
     src: image4,
-    alt: "fourth",
-    city: "New York",
-    title: "embrace the adventure",
+    alt: "Pastel houses stacked on a cliff above the sea",
+    tripType: "romantic",
     placeholder:
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMUlEQVR4nGNYceLu6Wc/Xv3/zzAzK3xORdqDR/cZTO3MHB2stWwcGBjEGRgUVBk4JQC3DQ/c3oLnaQAAAABJRU5ErkJggg==",
   },
   {
     src: image5,
-    alt: "fifth",
-    city: "Tokyo",
-    title: "experience the culture",
+    alt: "A passenger train curving through open high country",
+    tripType: "nature",
     placeholder:
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVR4nGOY2ZZ1/PrVl///v/v4mqEpPyTAUdrfQUZLloEh1EXTUI7BXJ1BhoEBAH93DhyQDeoiAAAAAElFTkSuQmCC",
   },
   {
     src: image6,
-    alt: "sixth",
-    city: "Rome",
-    title: "taste new flavors",
+    alt: "A yellow camper van on a desert road between red rock formations",
+    tripType: "road trip",
     placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AHdcWIl1c+r//8fHzgBpLw6gb1Z6YlwmAAAAtKGK5tC6xq6RkXtfdF0TCfd4lUUAAAAASUVORK5CYII=",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AHldWot2dur//8jHzwBtMhGjcVd9ZFwmAAAAtqKL59G7x6+TlH1feEwTO3KoROoAAAAASUVORK5CYII=",
   },
   {
     src: image7,
-    alt: "seventh",
-    city: "Barcelona",
-    title: "seek other paths",
+    alt: "The bow of a wooden rowing boat on a still mountain lake",
+    tripType: "nature",
     placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVR4nGPIKij8/vf/9Yevtu49yCCgIBQe65eQFMYgzsAgycagysSgxsAgysAAAFe5DAgF4waAAAAAAElFTkSuQmCC",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVR4nGPIKij8/vf/tfuvtu49yCCgIBge45eQFMYgzsAgycagysSgxsAgxsAAAFcyDAQUojdhAAAAAElFTkSuQmCC",
   },
   {
     src: image8,
-    alt: "eighth",
-    city: "Istanbul",
-    title: "find your own way",
+    alt: "A traveller photographing a neon public-market sign",
+    tripType: "urban",
     placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAM0lEQVR4nAEoANf/ALu0qvPm3//9+wCqm5HLtq22pJ8AgnZzhHlwY1VNAJSAfRUAAJ2Mi++tFP0r2jShAAAAAElFTkSuQmCC",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAM0lEQVR4nAEoANf/ALu0qvPm3//9+wCqm5HLtq23o58AgHZzhHlwY1VNAJSAfRUAAJ2Mi++IFPun5qYRAAAAAElFTkSuQmCC",
   },
   {
     src: image9,
-    alt: "ninth",
-    city: "Rio de Janeiro",
-    title: "discover the unknown",
+    alt: "A red-brick flatiron building reflected in a rainy street, towers lost in fog",
+    tripType: "urban",
     placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMUlEQVR4nGP48+fV6ycX7948zuBmq63AzmCkKcFgpi0pychgqizAEOJnExfmZGEgCwBW/wydcsDEeAAAAABJRU5ErkJggg==",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMUlEQVR4nGP48+fV6ycX7948zuBmq63AzmCkKcFgpi0pychgqszPEOJnExfmZGEgCwBW9AycThHg0wAAAABJRU5ErkJggg==",
   },
   {
     src: image10,
-    alt: "tenth",
-    city: "Sydney",
-    title: "create your own story",
+    alt: "A hiker leaping between red sandstone rocks above desert buttes",
+    tripType: "adventure",
     placeholder:
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII=",
   },
   {
     src: image11,
-    alt: "tenth",
-    city: "Sydney",
-    title: "discover the unseen",
+    alt: "Small boats moored in turquoise water off a white-sand beach, seen from above",
+    tripType: "family",
     placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII=",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAM0lEQVR4nAEoANf/AB42LBEaHgAHCABV19CJvLaem5sAaPPzkfPo//jiAGn195vy5f/u10KGFcKWGkYiAAAAAElFTkSuQmCC",
   },
   {
     src: image12,
-    alt: "tenth",
-    city: "Sydney",
-    title: "go beyond the horizon",
+    alt: "A city skyline at dusk above a riverside highway full of traffic",
+    tripType: "urban",
     placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII=",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMUlEQVR4nGNgM/C2Te8MSaximDN1wf9vn94e2sGQGRtfkpYsr2nAwK6gr2Zgw8AmCQBEeA3eDITVuQAAAABJRU5ErkJggg==",
   },
   {
     src: image13,
-    alt: "tenth",
-    city: "Sydney",
-    title: "explore the world",
+    alt: "A figure with arms outstretched below a tall waterfall in a fern-filled gorge",
+    tripType: "adventure",
     placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII=",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVR4nGNQtjU6eOEMh7IcA4Ok0Kc//5RtTRiMXK3zG8u5VGQZYvKSGAQYGMT5APqXCql1lP4HAAAAAElFTkSuQmCC",
   },
   {
     src: image14,
-    alt: "tenth",
-    city: "Sydney",
-    title: "embrace the adventure",
+    alt: "Rowing boats on a turquoise lake beneath jagged mountain peaks",
+    tripType: "romantic",
     placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII=",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVR4nGMwVOa8////xY//W6evZRCUZyjurWQOCmQQZWRgMJFhyQ0O2zQhZ+ciADpoDp2QD7dzAAAAAElFTkSuQmCC",
   },
   {
     src: image15,
-    alt: "tenth",
-    city: "Sydney",
-    title: "experience the culture",
+    alt: "Sneakers propped out of a car window on a misty mountain road",
+    tripType: "road trip",
     placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII=",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAM0lEQVR4nAEoANf/APb58Pv+9vDz7ACan5q0trF+f3kADxISdmpOPzQOABIAAE9AK3xlO9hbEcyFJVu3AAAAAElFTkSuQmCC",
   },
   {
     src: image16,
-    alt: "tenth",
-    city: "Sydney",
-    title: "taste new flavors",
+    alt: "A hiker writing in a notebook on a summit, snowy peaks behind",
+    tripType: "solo",
     placeholder:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAIAAAA7ljmRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMklEQVR4nAEnANj/AO72/+nu//T+/8Pe/wCtiH+Sdm2XenOofnMAch4AYBIAPAAATwAA9/0THu/nSesAAAAASUVORK5CYII=",
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAM0lEQVR4nAEoANf/AFi96HTV/3LK9gC///+e0eKn7/8AUWhqFhYBAA4eAPTn1qeqn7atoNtGFjvgJjQHAAAAAElFTkSuQmCC",
   },
 ];
 
@@ -490,6 +490,8 @@ const savedTripDataCards = [
   },
 ];
 
+export type { TravelPhoto, TripTypeValue };
+
 export {
   sortedTypes,
   luggageSizes,
@@ -497,7 +499,7 @@ export {
   budgets,
   sortedInterest,
   sortedTransports,
-  homepageImages,
+  travelPhotos,
   formSteps as steps,
   savedTripDataCards,
 };

@@ -12,9 +12,13 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Now
 
-**Step 2 — `/about`.** See the step list below.
+**Step 3 — `/saved-trips` and the polaroid.** See the step list below.
 
 ## Done
+
+- **Step 2 — `/about`.** ✅ On `sorbet-about`. Server component with a server-side
+  photo pick, canvas → white → lime → ink. 12 new unit tests (244 total), 2 new e2e
+  (`about-404.spec.ts`).
 
 - **Step 1 — the shared shell.** ✅ Landed on `sorbet-shell`. `SiteNav` on every route
   with a mobile disclosure menu, `SiteFooter`, `MotionProvider` app-wide, the three
@@ -34,7 +38,7 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Next
 
-Steps 3–6 in order.
+Steps 4–6 in order.
 
 ## Open questions
 
@@ -328,7 +332,34 @@ messages rotate under fake timers. `ButtonBackOutlined`: accessible name, calls
 Turbopack's stale CSS cache (`rm -rf .next`); unmigrated routes wear a sorbet nav over
 old-palette bodies until step 5, which is intended.
 
-## Step 2 — `/about` · `sorbet-about`
+## Step 2 — `/about` · `sorbet-about` ✅
+
+**Landed.** What the plan did not anticipate, recorded because the later steps inherit it:
+
+- **The page calls `await connection()`** (from `next/server`). Without it Next
+  prerenders `/about` at build time, `Math.random()` runs once, and every visitor sees
+  the same "random" photo. It is now `ƒ` in the build output.
+- **`src/app/about/loading.tsx` is deleted.** The page awaits nothing, and a route-level
+  `loading` would just bring back the `Loader` flash the rewrite removes.
+- **`src/test/setup.ts` gains an inert `IntersectionObserver`.** This is the first unit test
+  to render a `Reveal`, and Framer's `whileInView` constructs one on mount. It never
+  reports an intersection, which matches the "assert children, not animation" rule.
+- **The photo array was fixed here, not in step 6**, and renamed `homepageImages` →
+  `travelPhotos` (the homepage no longer uses it). Rather than work around its
+  fabricated `city` labels with a neutral alt, it was rewritten: `city` and
+  `title` are gone, every photo has a real `alt`, a `tripType` from the form's values
+  and a freshly generated blur (only 3 of the 16 old blurs matched their file). It is
+  typed as `TravelPhoto`; `types` became `as const` so `tripType` is checked, and
+  `sortedTypes` now sorts a copy instead of mutating `types`. The dead
+  `SwiperWithThumbs` lost its `title` caption to keep compiling. `generatePlaceholder.mjs`
+  had the same fake labels and only 10 of the 16 files; it now reads the whole folder.
+- The helper is `pickAboutImage(random?)` in `src/components/about/`; it returns the
+  `TravelPhoto` and the page renders its `alt`.
+- `AboutComponent` is a plain (non-async) server component that takes the image as a
+  prop, so RTL renders it directly; only the async `page.tsx` is e2e-only.
+
+The original plan for this step follows.
+
 
 - Rewrite `AboutComponent`: drop `Container`/`GridContainer`/`GradientBg` and the
   `isMounted` + `Loader` flash; pick the random image **server-side** so there is no
@@ -338,6 +369,7 @@ old-palette bodies until step 5, which is intended.
   an ink pill to `/form`.
 - Keep the José Copeti credit, with the focus triad on the link.
 - **Never caption the image from `homepageImages[i].city`** (gotcha #8) — neutral alt.
+  _(Superseded: the data was fixed instead — see "Landed" above.)_
 
 **Tests** — the image-pick helper returns an in-range index and a defined placeholder;
 heading, lead and credit link render; the rendered `alt` is the neutral string, never a
@@ -452,8 +484,6 @@ Every deletion gated on a grep showing zero uses.
   `gallery`, `yellorange`, `deeporange`, `cabaret`, `violay`) — the first moment touching
   them is safe.
 - `next.config.mjs` — drop the unused DALL-E host.
-- Fix `src/data/index.ts`'s fabricated `city` labels and the duplicated `alt: "tenth"`
-  and shared placeholder on entries 10–16.
 - `docs/design-notes.md` — Status all Migrated, drop the "two systems coexist" framing,
   record the polaroid, `font-sorbet-hand` and the mobile menu as part of the system,
   clear the resolved Known-debt items.

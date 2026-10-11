@@ -21,12 +21,10 @@ import type { ItineraryCard } from "@/components/sorbet/TripCard";
 /**
  * Content for the landing page.
  *
- * Curated here rather than pulled from `homepageImages` in src/data: that array
- * carries the same alt text, city and blur placeholder on entries 11-16, and its
- * city labels do not match the photographs at all (entry 1 is labelled Berlin but
- * shows Cappadocia, entry 7 is labelled Barcelona but shows an alpine lake). The
- * captions below describe what is actually in frame and make no place claims.
- * Static imports let next/image generate the blur placeholder on its own.
+ * The photos are picked and captioned here for the landing's own sections. The
+ * captions describe what is actually in frame and make no place claims, the same
+ * rule `travelPhotos` in src/data follows. Static imports let next/image
+ * generate the blur placeholder on its own.
  */
 
 /** Sample of the shape Trip AI returns: a titled activity plus its category. */

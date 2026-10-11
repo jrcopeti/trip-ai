@@ -5,7 +5,7 @@ import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import { homepageImages } from "@/data";
+import { travelPhotos } from "@/data";
 
 function SwiperComponent() {
   return (
@@ -16,7 +16,7 @@ function SwiperComponent() {
         modules={[Navigation, Pagination]}
         className="h-full w-full"
       >
-        {homepageImages.map((image, index) => (
+        {travelPhotos.map((image, index) => (
           <SwiperSlide key={index}>
             <div className="relative h-full w-full">
               <Image
