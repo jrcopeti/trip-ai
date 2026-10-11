@@ -80,8 +80,12 @@ function Polaroid(props: Props) {
   const tilt = POLAROID_TILT[index % POLAROID_TILT.length];
 
   return (
+    // Named explicitly: Chromium does not compute a link's name from content
+    // inside an `<article>`, so without this every card is an unnamed link to a
+    // screen reader (jsdom does, which is why the unit tests never saw it).
     <Link
       href={href}
+      aria-label={`${caption}, ${username}`}
       className={`block rounded-2xl transition-transform duration-300 hover:-translate-y-2 sm:hover:rotate-0 motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sorbet-ink ${tilt}`}
     >
       <article className={`rounded-2xl bg-white p-3 pb-0 ${SHADOW}`}>

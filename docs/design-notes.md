@@ -381,6 +381,11 @@ Reuse this when a section needs an image to break its container.
   them.
 - **Semantics** — numbered steps are an `<ol>`, metadata is a `<dl>`, cards are
   `<article>`. Don't flatten these to divs.
+- **A link around an `<article>` needs an explicit name.** Chromium does not compute a
+  link's name from content inside an `<article>`, so `Polaroid` sets
+  `aria-label={caption, username}` on its `<Link>`. jsdom *does* compute it, so unit
+  tests pass either way — check the Playwright snapshot, where an unnamed card shows
+  as a bare `link`. This one reached CI.
 
 ## Gotchas that cost real time
 

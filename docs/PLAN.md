@@ -18,7 +18,7 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 - **Step 3 — `/saved-trips` and the polaroid.** ✅ On `sorbet-saved-trips`. `Polaroid`
   (both sizes) in `sorbet/`, the grid in `saved-trips/`, GSAP and Locomotive gone from
-  the route. 54 new unit tests (298 total); `saved-trips.spec.ts` updated plus two new
+  the route. 55 new unit tests (299 total); `saved-trips.spec.ts` updated plus two new
   e2e (no tilt at 390px, the trip count).
 
 - **Step 2 — `/about`.** ✅ On `sorbet-about`. Server component with a server-side
@@ -439,6 +439,11 @@ heading, lead and credit link render; the rendered `alt` is the neutral string, 
   and the same button retries. TanStack's default 3 retries absorb a single blip first,
   so the line only shows once all four attempts fail. And because offset paging can
   repeat a row when a trip is saved between pages, the hook drops repeated ids.
+
+  CI's e2e then caught what every local check missed: the polaroid links had **no
+  accessible name** in Chromium (name-from-content does not reach through the
+  `<article>`), so every `getByRole("link", { name: /lisbon/i })` failed. `Polaroid`
+  now sets `aria-label` from caption and username; design-notes, Accessibility.
 - **A sticker fills the header's right side.** An orchid `StickerBadge` ("trips worth
   keeping", camera) sits bottom-right from `md`, dropped to straddle the header and the
   grid opposite the squiggle. `StickerBadge` moved from `landing/` to `sorbet/` to allow

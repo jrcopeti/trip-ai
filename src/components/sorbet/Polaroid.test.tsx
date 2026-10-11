@@ -43,6 +43,13 @@ describe("Polaroid (card)", () => {
     expect(link.querySelector("article")).not.toBeNull();
   });
 
+  it("names the link explicitly with the caption and username", () => {
+    // Not left to name-from-content: Chromium skips text inside the `<article>`.
+    renderCard();
+
+    expect(screen.getByRole("link")).toHaveAttribute("aria-label", "lisbon, Portugal, ana");
+  });
+
   it("hides the arrow from assistive tech", () => {
     const { container } = renderCard();
 
