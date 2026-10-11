@@ -17,7 +17,7 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 ## Done
 
 - **Step 4 — `/form`.** ✅ On `sorbet-form`. One white surface on canvas, HeroUI opted
-  into sorbet with `data-sorbet`, copy in `form/content.ts`. 15 new unit tests (314
+  into sorbet with `data-sorbet`, copy in `form/content.ts`. 19 new unit tests (318
   total), 5 new e2e (`form.spec.ts`: premature Next blocked, the seven-step walk at
   1440 and 390, Back keeps values, choosing a chip moves no chip).
 
@@ -533,6 +533,14 @@ narrows, a polaroid opens its detail page, 390px has no horizontal scroll.
 - **Not changed, worth knowing:** a field's error stays up after it is fixed until the
   next Next, because `FormContext` only validates on `trigger()`. Changing that means
   changing the context this step promised not to touch.
+- **The generating screen (`LoaderResponseAI`) got a second pass** after the form landed:
+  a looping `SquiggleLoader` replaces the spinner, each message arrives word by word
+  (rise, tilt, un-blur, staggered), and a lime `StickerBadge` ("packing up") turns in
+  the bottom-right corner. The heading keeps the plain sentence as its text — words are
+  inline-block spans with real spaces between — so screen readers and the rotation test
+  read it whole. "Please Wait" became "Please wait". `FormButtons` now keys Next and
+  Submit apart, so React swaps the element on step 7 instead of retyping the button
+  that was just clicked.
 - **An unexplained local e2e failure:** `landing.spec`'s "logs no console errors" failed
   all three repeats in the first run after a fresh build, then passed in every run
   after (87/87 twice). It only visits `/`, which this step does not touch.

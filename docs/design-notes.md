@@ -258,6 +258,8 @@ Any element whose `style` takes a `useTransform` output needs `className="parall
 | Reveal | 0.55s |
 | Hero deck | 0.6s, `y 28→0`, delay `0.3 + 0.15i` |
 | Squiggle draw | 1.0s `easeInOut` on `pathLength` |
+| Squiggle loader | 2.4s loop, `pathLength [0,1,1]` + `pathOffset [0,0,1]`, 0.2s rest |
+| Loader sentence | words staggered 0.09s: `y 18→0`, `rotate ±6→0`, `blur 6px→0`, 0.7s; out 0.04s stagger, 0.35s |
 | Sticker spin | `\|spin\|` seconds per turn, `linear`, `Infinity` |
 | Parallax | `[0, 90]` slow / `[0, 170]` fast over the hero's scroll |
 | Hover | `scale-[1.03]` buttons, `scale-105` pills, `-translate-y-2` deck cards |
@@ -321,6 +323,7 @@ text written inline in JSX, and the file should read like copy.
 | `MotionProvider` | `sorbet/` | Mounted once in `providers.tsx`; don't nest another. |
 | `TripCard` | `sorbet/` | Pastel card: title, chip, arrow. Takes `{ card, className, interactive }`. Owns the `ItineraryCard` type. |
 | `Polaroid` | `sorbet/` | White frame, handwritten caption. `card` (default): a link, the traveller's username, arrow, fan tilt by `index` from `sm` up. `lg`: the trip title as h1, no link, no tilt. The caller wraps it in `Reveal`. Never on a white ground: the frame is white paper and only its shadow would show. |
+| `SquiggleLoader` | `sorbet/` | Decorative: the `Squiggle` loop drawn on, carried along and drawn off on repeat — the waiting mark in `LoaderResponseAI`. Keeps running under reduced motion (it animates `pathLength`, not a transform), since it is the only sign the wait is not stuck. |
 | `SquiggleArrow` | `sorbet/` | Decorative: the `Squiggle` hand, a loop dropping into a down arrow; draws on in view. Hangs from the `/saved-trips` search to point at the grid. |
 | `SiteNav` | `ui/` | The nav, on every route. See below. |
 | `SiteFooter` | `ui/` | The ink footer. Rendered per page, not by the layout. |

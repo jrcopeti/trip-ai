@@ -10,7 +10,7 @@ vi.mock("@/app/api/anthropicApi", () => ({ fetchResponseAI: vi.fn() }));
 /** The rotation, in the component's order. */
 const messages = [
   "Planning your trip",
-  "Please Wait",
+  "Please wait",
   "Analyzing your preferences",
   "Getting the best tours",
   "Checking the weather",
@@ -99,6 +99,26 @@ describe("LoaderResponseAI", () => {
       await advanceUntil(message);
     }
     await advanceUntil(messages[0]);
+  });
+
+  it("splits the sentence into words without changing what it reads as", () => {
+    const { container } = renderWithProviders(<LoaderResponseAI />);
+
+    const heading = screen.getByRole("heading");
+    expect(heading).toHaveTextContent(messages[0]);
+    // One animated span per word, so each can arrive on its own.
+    expect(heading.querySelectorAll("span.inline-block")).toHaveLength(
+      messages[0].split(" ").length,
+    );
+    expect(container.querySelectorAll("svg[aria-hidden]").length).toBeGreaterThan(0);
+  });
+
+  it("keeps its decoration out of the accessibility tree", () => {
+    renderWithProviders(<LoaderResponseAI />);
+
+    // The squiggle and the sticker are aria-hidden; only the message is read.
+    const ring = screen.getAllByText(/packing up/i)[0];
+    expect(ring.closest("[aria-hidden]")).not.toBeNull();
   });
 
   it("warns before the page is abandoned mid-generation", () => {

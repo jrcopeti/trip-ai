@@ -28,13 +28,17 @@ function FormButtons() {
         {buttons.back}
       </button>
 
+      {/* Separate keys: React swaps in a new element rather than turning the
+          Next button that was just clicked into a submit button. Reusing it
+          leaves whether that click also submits to event timing. */}
       {isLast ? (
-        <button type="submit" disabled={!isValid} className={inkPill}>
+        <button key="submit" type="submit" disabled={!isValid} className={inkPill}>
           {buttons.submit}
           <FaArrowRight size={14} aria-hidden />
         </button>
       ) : (
         <button
+          key="next"
           type="button"
           onClick={next}
           disabled={currentStep > 0 && !isCityValid}
