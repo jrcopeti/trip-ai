@@ -1,44 +1,50 @@
 "use client";
-import { Button } from "@heroui/react";
-import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa6";
 import { steps } from "@/data";
 import { useFormData } from "@/hooks/useFormData";
 import { useGeoNames } from "@/hooks/useGeoNames";
+import { buttons } from "./content";
+import { inkPill, limePill } from "./styles";
 
+/**
+ * Back and Next, or Back and Submit on the last step. Inside the `<form>`, so
+ * Submit is a real submit button; Back and Next are `type="button"` and only
+ * move between steps. The wiring is `FormContext`'s, unchanged.
+ */
 function FormButtons() {
-  const { currentStep, next, prev, cityWatch, countryCode } = useFormData();
-  const { isCityValid } = useGeoNames({
-    city: cityWatch,
-    countryCode: countryCode,
-  });
+  const { currentStep, next, prev, cityWatch, countryCode, isValid } = useFormData();
+  const { isCityValid } = useGeoNames({ city: cityWatch, countryCode });
+  const isLast = currentStep === steps.length - 1;
+
   return (
-    <>
-      <div className="absolute left-16 top-[95%] z-50 -translate-y-1/2 transform lg:top-1/2">
-        <Button
+    <div className="mt-12 flex items-center justify-between gap-4 border-t border-sorbet-ink/15 pt-8">
+      <button
+        type="button"
+        onClick={prev}
+        disabled={currentStep === 0}
+        className={limePill}
+      >
+        <FaArrowLeft size={14} aria-hidden />
+        {buttons.back}
+      </button>
+
+      {isLast ? (
+        <button type="submit" disabled={!isValid} className={inkPill}>
+          {buttons.submit}
+          <FaArrowRight size={14} aria-hidden />
+        </button>
+      ) : (
+        <button
           type="button"
-          isDisabled={currentStep === 0}
-          onPress={prev}
-          className="bg-transparent text-3xl text-tuna-800 md:text-4xl"
-          aria-label="Previous Step"
+          onClick={next}
+          disabled={currentStep > 0 && !isCityValid}
+          className={inkPill}
         >
-          <FaAngleLeft />
-        </Button>
-      </div>
-      <div className="absolute right-16 top-[95%] z-50 -translate-y-1/2 transform lg:top-1/2">
-        <Button
-          type="button"
-          onPress={next}
-          isDisabled={
-            currentStep === steps.length - 1 ||
-            (currentStep > 0 && !isCityValid)
-          }
-          className="bg-transparent text-3xl text-tuna-800 md:text-4xl"
-          aria-label="Next Step"
-        >
-          <FaAngleRight />
-        </Button>
-      </div>
-    </>
+          {buttons.next}
+          <FaArrowRight size={14} aria-hidden />
+        </button>
+      )}
+    </div>
   );
 }
 

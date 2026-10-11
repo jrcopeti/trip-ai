@@ -2,21 +2,15 @@
 import { useFormData } from "@/hooks/useFormData";
 import { Controller } from "react-hook-form";
 import { Checkbox } from "@heroui/react";
-import { motion } from "framer-motion";
 import DatePicker from "./DatePicker";
-import FormTitle from "./FormTitle";
+import StepPanel from "./StepPanel";
 import dayjs from "dayjs";
+import { dates } from "./content";
+import { fieldError } from "./styles";
 
 function FormStep5() {
-  const {
-    currentStep,
-    delta,
-    isWeatherSelected,
-    setIsWeatherSelected,
-    control,
-    errors,
-    setValue,
-  } = useFormData();
+  const { currentStep, isWeatherSelected, setIsWeatherSelected, control, errors, setValue } =
+    useFormData();
 
   const handleCheckboxChange = () => {
     setIsWeatherSelected(!isWeatherSelected);
@@ -26,78 +20,72 @@ function FormStep5() {
     setValue("endDate", endDate.toISOString());
   };
 
-  return (
-    <>
-      {currentStep === 4 && (
-        <motion.div
-          initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-        >
-          <FormTitle />
+  if (currentStep !== 4) return null;
 
-          <div className="mt-10 flex flex-col gap-x-6 gap-y-8">
-            <Checkbox
-              isSelected={isWeatherSelected}
-              onChange={handleCheckboxChange}
-              className="font-semibold"
-            >
-              <Checkbox.Control>
-                <Checkbox.Indicator />
-              </Checkbox.Control>
-              <Checkbox.Content>
-                <p className="text-tuna-900">Based on the weather</p>
-              </Checkbox.Content>
-            </Checkbox>
-            {!isWeatherSelected ? (
-              <>
-                <h3 className="text-tuna-800">Or</h3>
+  return (
+    <StepPanel>
+      <div className="flex flex-col gap-8">
+        <Checkbox
+          isSelected={isWeatherSelected}
+          onChange={handleCheckboxChange}
+          className="w-fit cursor-pointer rounded-3xl bg-sorbet-lavender px-5 py-4"
+        >
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
+          <Checkbox.Content>
+            <span className="text-base font-semibold text-sorbet-ink">{dates.weather}</span>
+          </Checkbox.Content>
+        </Checkbox>
+
+        {!isWeatherSelected ? (
+          <>
+            <p className="text-sm font-medium uppercase tracking-[0.18em] text-sorbet-ink/50">
+              {dates.or}
+            </p>
+            <div className="grid gap-8 sm:grid-cols-2">
+              <div className="flex flex-col gap-2">
                 <Controller
                   name="startDate"
                   control={control}
                   render={({ field }) => (
                     <DatePicker
                       {...field}
-                      label="Start Date"
+                      label={dates.start.label}
                       id="startDate"
-                      placeholder="When do your trip start?"
+                      placeholder={dates.start.placeholder}
+                      invalid={!!errors.startDate}
                     />
                   )}
                 />
                 {errors.startDate?.message && (
-                  <p className="text-xs text-red-500">
-                    {errors.startDate.message}
-                  </p>
+                  <p className={fieldError}>{errors.startDate.message}</p>
                 )}
+              </div>
 
+              <div className="flex flex-col gap-2">
                 <Controller
                   name="endDate"
                   control={control}
                   render={({ field }) => (
                     <DatePicker
                       {...field}
-                      label="End Date"
+                      label={dates.end.label}
                       id="endDate"
-                      placeholder="When does it end?"
+                      placeholder={dates.end.placeholder}
+                      invalid={!!errors.endDate}
                     />
                   )}
                 />
-                {errors.endDate?.message && (
-                  <p className="text-xs text-red-500">
-                    {errors.endDate.message}
-                  </p>
-                )}
-              </>
-            ) : (
-              <p className="text-tuna-900">
-                Your trip plans will be based on the weather forecast for the
-                next 5 days.
-              </p>
-            )}
-          </div>
-        </motion.div>
-      )}
-    </>
+                {errors.endDate?.message && <p className={fieldError}>{errors.endDate.message}</p>}
+              </div>
+            </div>
+          </>
+        ) : (
+          <p className="text-lg text-sorbet-ink/70">{dates.weatherNote}</p>
+        )}
+      </div>
+    </StepPanel>
   );
 }
 

@@ -17,7 +17,7 @@ code is right and this file needs fixing.
 | --- | --- |
 | `/` landing | Migrated. The reference implementation. |
 | Shared shell — nav, footer, loaders, 404, toasters | Migrated. On every route. |
-| `/form` | Not migrated — previous look |
+| `/form` | Migrated. One white surface on canvas, opted into HeroUI's sorbet colours with `data-sorbet`. |
 | `/trips/[tripUrl]` | Not migrated — previous look |
 | `/saved-trips` | Migrated. The polaroid grid. |
 | `/saved-trips/[id]` | Not migrated — previous look |
@@ -447,6 +447,26 @@ Each of these was a bug, not a theory.
     entry"). `next dev` then drops the font while the webpack build is fine, so the bug
     only shows locally. It is self-hosted with `next/font/local`; keep it that way.
 
+11. **HeroUI on a migrated page: opt in with `data-sorbet`.** `:root` still maps
+    HeroUI's semantic colours (`--accent`, `--focus`, `--field-*`) to neptune for the
+    unmigrated trip pages, so a sorbet page sets `data-sorbet` on its wrapper and a
+    scoped block in `globals.css` remaps them to ink. **Popovers portal out of that
+    wrapper**, so `ComboBox.Popover` and `Popover.Content` carry `data-sorbet`
+    themselves. The old unlayered `.label` colour now skips `[data-sorbet]`, so labels
+    there need no `!`. Step 6 moves the values to `:root` and deletes the scope.
+
+12. **Three HeroUI traps the form hit.**
+    - `Popover.Trigger` renders its own `role="button"` element. Put the field's look on
+      the trigger itself; a `<button>` inside it is a button in a button with two tab
+      stops.
+    - `ComboBox` filters `defaultItems` but treats `items` as already filtered, and
+      HeroUI's `ListBoxItem` wraps its label with an indicator, so react-aria cannot
+      read the text. A searchable list needs `defaultItems` **and** `textValue` on each
+      item — with either missing, typing filters nothing.
+    - Radios and checkboxes are a `<label>` around a visually hidden `<input>`. In
+      Playwright, click the label; a forced click on the input does not toggle it.
+      Style the selected state with `data-selected:` on the label.
+
 ## Migrating a page
 
 1. Wrap the outermost element: `font-sorbet text-sorbet-ink` plus a `sorbet` ground.
@@ -478,7 +498,7 @@ Each of these was a bug, not a theory.
   `globals.css`; the file is vestigial and adding config to it would do nothing.
 - `next.config.mjs` still whitelists the DALL-E host
   (`oaidalleapiprodscus.blob.core.windows.net`) though image generation is gone.
-- HeroUI's semantic overrides in `:root` (`--accent` → neptune) still apply globally.
-  They will need revisiting when form and trip pages migrate.
+- HeroUI's semantic overrides in `:root` (`--accent` → neptune) still apply globally;
+  migrated pages opt out with `data-sorbet` (gotcha #11). Step 6 flips `:root`.
 - The global `.label` colour in `globals.css` is unlayered and only serves the old form
   (gotcha #9). Delete it in step 6, with the old palettes.

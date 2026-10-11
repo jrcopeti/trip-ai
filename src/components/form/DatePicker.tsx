@@ -8,77 +8,108 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import dayjs from "dayjs";
 import { formatDate } from "@/lib/utils";
+import { dates } from "./content";
+import { fieldLabel, focusTriad } from "./styles";
 
 interface DatePickerProps {
-  label?: string;
-  id?: string;
+  label: string;
+  id: string;
   placeholder?: string;
   onChange?: (val?: string) => void;
   value?: string;
   onBlur?: () => void;
   name?: string;
-  ref?: React.Ref<HTMLButtonElement>;
+  ref?: React.Ref<HTMLDivElement>;
+  invalid?: boolean;
 }
 
-function DatePicker({ placeholder, onChange, value, ref }: DatePickerProps) {
-    const [open, actions] = useToggle();
-    const [date, setDate] = useState<string>();
+/** react-day-picker v9 themed through its own variables. */
+const calendarTheme = {
+  "--rdp-accent-color": "#302e2d",
+  "--rdp-accent-background-color": "#e2f3a7",
+  "--rdp-today-color": "#302e2d",
+  "--rdp-day-height": "2.5rem",
+  "--rdp-day-width": "2.5rem",
+} as React.CSSProperties;
 
-    useEffect(() => {
-      typeof value !== "undefined" && setDate(value);
-    }, [value]);
+/**
+ * A date field: a pill that opens a calendar in a white card. The clear button
+ * is a sibling of the trigger, not inside it — a button inside a button is
+ * neither valid nor reachable by keyboard.
+ */
+function DatePicker({ label, id, placeholder, onChange, value, ref, invalid }: DatePickerProps) {
+  const [open, actions] = useToggle();
+  const [date, setDate] = useState<string>();
 
-    return (
-      <Popover isOpen={open} onOpenChange={actions.setVisible}>
-        <Popover.Trigger>
-          <button
+  useEffect(() => {
+    typeof value !== "undefined" && setDate(value);
+  }, [value]);
+
+  return (
+    <div className="flex w-full flex-col gap-2">
+      <span id={`${id}-label`} className={fieldLabel}>
+        {label}
+      </span>
+      <div className="relative">
+        <Popover isOpen={open} onOpenChange={actions.setVisible}>
+          {/* The trigger *is* the field. HeroUI's `Popover.Trigger` renders its
+              own `role="button"` element, so a `<button>` inside it would be a
+              button in a button with two tab stops. */}
+          <Popover.Trigger
             ref={ref}
-            type="button"
-            className="flex max-w-lg w-full items-center gap-2 rounded-md border border-shark-300 bg-white px-3 py-3 text-left text-sm text-tuna-700 hover:border-neptune-400 focus:outline-none focus:ring-2 focus:ring-neptune-400"
+            id={id}
+            aria-labelledby={`${id}-label ${id}-value`}
+            aria-invalid={invalid || undefined}
+            className={`flex w-full cursor-pointer items-center gap-3 rounded-full border bg-white py-3.5 pl-5 pr-14 text-left text-base text-sorbet-ink hover:border-sorbet-ink/35 ${invalid ? "border-sorbet-alert" : "border-sorbet-ink/15"} ${focusTriad}`}
           >
-            <MdOutlineCalendarToday size="16px" className="shrink-0 text-tuna-500" />
-            <span className={`flex-1 truncate ${date ? "text-tuna-700" : "text-shark-400"}`}>
+            <MdOutlineCalendarToday size={18} aria-hidden className="shrink-0 text-sorbet-ink/60" />
+            <span id={`${id}-value`} className={`flex-1 truncate ${date ? "" : "text-sorbet-ink/45"}`}>
               {date ? formatDate(date, false) : placeholder}
             </span>
-            {date && (
-              <FaXmark
-                size="14px"
-                className="shrink-0 cursor-pointer text-shark-400 hover:text-tuna-700"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  setDate("");
-                  onChange?.(undefined);
+          </Popover.Trigger>
+          <Popover.Content
+            data-sorbet
+            placement="bottom start"
+            className="w-auto rounded-3xl border border-sorbet-ink/10 bg-white p-3 font-sorbet text-sorbet-ink shadow-[0_18px_40px_-24px_rgba(48,46,45,0.55)]"
+          >
+            <Popover.Dialog aria-label={label}>
+              <DayPicker
+                style={calendarTheme}
+                classNames={{
+                  day_button: "rounded-full cursor-pointer",
+                  selected: "font-semibold",
+                  today: "font-semibold",
                 }}
+                mode="single"
+                selected={date ? dayjs(date).toDate() : undefined}
+                onSelect={(_val) => {
+                  const formattedDate = dayjs(_val).toISOString();
+                  setDate(formattedDate);
+                  onChange?.(formattedDate);
+                  actions.onHidden();
+                }}
+                autoFocus
               />
-            )}
+            </Popover.Dialog>
+          </Popover.Content>
+        </Popover>
+
+        {date && (
+          <button
+            type="button"
+            aria-label={dates.clear(label)}
+            onClick={() => {
+              setDate("");
+              onChange?.(undefined);
+            }}
+            className={`absolute right-3 top-1/2 grid size-9 -translate-y-1/2 cursor-pointer place-items-center rounded-full bg-sorbet-ink/10 text-sorbet-ink transition-colors hover:bg-sorbet-ink hover:text-sorbet-offwhite motion-reduce:transition-none ${focusTriad}`}
+          >
+            <FaXmark size={14} aria-hidden />
           </button>
-        </Popover.Trigger>
-        <Popover.Content placement="bottom" className="w-auto p-0">
-          <Popover.Dialog>
-            <DayPicker
-              classNames={{
-                caption: "text-shark-800",
-                head: "text-shark-800",
-                day: "w-10 h-8 rounded-full cursor-pointer hover:bg-yellow-300",
-              }}
-              modifiersStyles={{
-                selected: { backgroundColor: "#447176", color: "#f8f8f8" },
-              }}
-              mode="single"
-              selected={date ? dayjs(date).toDate() : undefined}
-              onSelect={(_val) => {
-                const formattedDate = dayjs(_val).toISOString();
-                setDate(formattedDate);
-                onChange?.(formattedDate);
-                actions.onHidden();
-              }}
-              autoFocus
-            />
-          </Popover.Dialog>
-        </Popover.Content>
-      </Popover>
-    );
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default DatePicker;

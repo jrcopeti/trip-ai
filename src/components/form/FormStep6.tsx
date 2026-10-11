@@ -2,74 +2,63 @@
 import { useFormData } from "@/hooks/useFormData";
 import { CheckboxGroup, Label, FieldError, TextField, TextArea } from "@heroui/react";
 import { Controller } from "react-hook-form";
-import { motion } from "framer-motion";
-import FormTitle from "./FormTitle";
+import StepPanel from "./StepPanel";
 import CustomCheckbox from "./CustomCheckbox";
 import { sortedInterest } from "@/data";
+import { interests } from "./content";
+import { field, fieldError, fieldLabel, fieldTextArea } from "./styles";
 
 function FormStep6() {
-  const { currentStep, control, errors, delta } = useFormData();
+  const { currentStep, control, errors } = useFormData();
+
+  if (currentStep !== 5) return null;
+
   return (
-    <>
-      {currentStep === 5 && (
-        <motion.div
-          initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-        >
-          <FormTitle />
+    <StepPanel>
+      <div className="flex flex-col gap-10">
+        <Controller
+          name="interests"
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <CheckboxGroup
+              value={value}
+              onChange={onChange}
+              isInvalid={!!errors.interests}
+              className="flex flex-col gap-3"
+            >
+              <Label className={fieldLabel}>{interests.label}</Label>
+              <div className="flex flex-wrap gap-2">
+                {sortedInterest.map((interest) => (
+                  <CustomCheckbox
+                    key={interest.value}
+                    value={interest.value}
+                    isDisabled={value.length >= 3 && !value.includes(interest.value)}
+                  >
+                    {interest.label}
+                  </CustomCheckbox>
+                ))}
+              </div>
+              <FieldError className={fieldError}>{errors.interests?.message}</FieldError>
+            </CheckboxGroup>
+          )}
+        />
 
-          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8">
-            <Controller
-              name="interests"
-              control={control}
-              render={({ field }) => (
-                <CheckboxGroup
-                  value={field.value}
-                  onChange={field.onChange}
-                  className="max-w-2xl"
-                >
-                  <Label>Select up to 3 interests</Label>
-                  <div className="flex flex-wrap gap-4">
-                    {sortedInterest.map((interest) => (
-                      <CustomCheckbox
-                        key={interest.value}
-                        value={interest.value}
-                        isDisabled={
-                          field.value.length >= 3 &&
-                          !field.value.includes(interest.value)
-                        }
-                      >
-                        {interest.label}
-                      </CustomCheckbox>
-                    ))}
-                  </div>
-                  <FieldError>{errors.interests?.message}</FieldError>
-                </CheckboxGroup>
-              )}
-            />
-
-            <Controller
-              name="note"
-              control={control}
-              render={({ field: { ref, ...fieldProps } }) => (
-                <TextField
-                  {...fieldProps}
-                  className="max-w-lg"
-                >
-                  <Label>Notes</Label>
-                  <TextArea
-                    ref={ref}
-                    placeholder="Anything you want to add?"
-                    className="min-h-[100px]"
-                  />
-                </TextField>
-              )}
-            />
-          </div>
-        </motion.div>
-      )}
-    </>
+        <Controller
+          name="note"
+          control={control}
+          render={({ field: { ref, ...fieldProps } }) => (
+            <TextField {...fieldProps} className={`max-w-xl ${field}`}>
+              <Label className={fieldLabel}>{interests.notes.label}</Label>
+              <TextArea
+                ref={ref}
+                placeholder={interests.notes.placeholder}
+                className={`min-h-32 ${fieldTextArea}`}
+              />
+            </TextField>
+          )}
+        />
+      </div>
+    </StepPanel>
   );
 }
 

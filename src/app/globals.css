@@ -171,8 +171,39 @@ body {
   color: #464f5e;
 }
 
-.label {
+/*
+ * The unmigrated form's label colour. Unlayered, so it beats every Tailwind
+ * utility; it skips sorbet pages (`data-sorbet`) so their labels take their own
+ * classes (design-notes, gotcha #9). Step 6 deletes it.
+ */
+.label:not([data-sorbet] .label) {
   color: #556074;
+}
+
+/*
+ * HeroUI on a migrated page. `:root` above still maps HeroUI's semantic colours
+ * to neptune for the unmigrated routes, so a sorbet page opts in with
+ * `data-sorbet` on its wrapper instead of `:root` changing under everyone.
+ * Popovers render in a portal outside that wrapper, so they carry
+ * `data-sorbet` themselves. Step 6 moves these values to `:root` and deletes
+ * this block.
+ */
+[data-sorbet] {
+  --accent: #302e2d;
+  --accent-foreground: #f6f6f6;
+  --accent-hover: #302e2d;
+  --focus: #302e2d;
+  --foreground: #302e2d;
+  --danger: #c2150c;
+  --overlay: #ffffff;
+  --field-background: #ffffff;
+  --field-foreground: #302e2d;
+  --field-placeholder: rgb(48 46 45 / 0.45);
+  --field-border: rgb(48 46 45 / 0.15);
+  --field-border-hover: rgb(48 46 45 / 0.35);
+  --field-border-focus: #302e2d;
+  --field-focus: #ffffff;
+  --field-hover: #ffffff;
 }
 
 [data-overlay-container] {

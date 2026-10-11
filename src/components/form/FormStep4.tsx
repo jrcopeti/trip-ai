@@ -1,57 +1,53 @@
 "use client";
 import { useFormData } from "@/hooks/useFormData";
 import { Controller } from "react-hook-form";
-import { TextField, Label, Input, Button } from "@heroui/react";
-import { motion } from "framer-motion";
-import FormTitle from "./FormTitle";
+import { TextField, Label, Input } from "@heroui/react";
+import { FaPlus, FaXmark } from "react-icons/fa6";
+import StepPanel from "./StepPanel";
+import { items } from "./content";
+import { field, fieldInput, fieldLabel, focusTriad, limePill } from "./styles";
 
 function FormStep4() {
-  const { currentStep, fields, control, append, remove, delta } = useFormData();
-  return (
-    <>
-      {currentStep === 3 && (
-        <motion.div
-          initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut" }}
-        >
-          <FormTitle />
+  const { currentStep, fields, control, append, remove } = useFormData();
 
-          <div className="mt-10 flex max-h-fit max-w-[600px] flex-col gap-8 lg:mt-[100px]">
-            {fields.map((field, index) => (
-              <div className="flex items-end gap-2" key={field.id}>
-                <Controller
-                  control={control}
-                  name={`requiredItems[${index}].item` as any}
-                  render={({ field: { ref, ...fieldProps } }) => (
-                    <TextField {...fieldProps} className="max-w-lg">
-                      <Label className="text-tuna-700">Item {index + 1}</Label>
-                      <Input ref={ref} />
-                    </TextField>
-                  )}
-                />
-                <Button
-                  className="bg-yellorange-700 text-gallery-50"
-                  type="button"
-                  onPress={() => remove(index)}
-                >
-                  X
-                </Button>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4">
-            <Button
-              className="bg-neptune-600 text-gallery-50"
-              type="button"
-              onPress={() => append({ item: "" })}
-            >
-              Add another item
-            </Button>
-          </div>
-        </motion.div>
+  if (currentStep !== 3) return null;
+
+  return (
+    <StepPanel>
+      {fields.length === 0 ? (
+        <p className="text-lg text-sorbet-ink/70">{items.empty}</p>
+      ) : (
+        <ol className="flex max-w-xl flex-col gap-6">
+          {fields.map((item, index) => (
+            <li className="flex items-end gap-3" key={item.id}>
+              <Controller
+                control={control}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                name={`requiredItems[${index}].item` as any}
+                render={({ field: { ref, ...fieldProps } }) => (
+                  <TextField {...fieldProps} className={field}>
+                    <Label className={fieldLabel}>{items.label(index + 1)}</Label>
+                    <Input ref={ref} className={fieldInput} />
+                  </TextField>
+                )}
+              />
+              <button
+                type="button"
+                onClick={() => remove(index)}
+                aria-label={items.remove(index + 1)}
+                className={`mb-1.5 grid size-11 shrink-0 cursor-pointer place-items-center rounded-full bg-sorbet-ink/10 text-sorbet-ink transition-colors hover:bg-sorbet-ink hover:text-sorbet-offwhite motion-reduce:transition-none ${focusTriad}`}
+              >
+                <FaXmark size={15} aria-hidden />
+              </button>
+            </li>
+          ))}
+        </ol>
       )}
-    </>
+      <button type="button" onClick={() => append({ item: "" })} className={`mt-8 ${limePill}`}>
+        <FaPlus size={13} aria-hidden />
+        {items.add}
+      </button>
+    </StepPanel>
   );
 }
 
