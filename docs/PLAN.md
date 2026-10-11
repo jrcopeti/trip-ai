@@ -17,9 +17,10 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 ## Done
 
 - **Step 4 — `/form`.** ✅ On `sorbet-form`. One white surface on canvas, HeroUI opted
-  into sorbet with `data-sorbet`, copy in `form/content.ts`. 19 new unit tests (318
-  total), 5 new e2e (`form.spec.ts`: premature Next blocked, the seven-step walk at
-  1440 and 390, Back keeps values, choosing a chip moves no chip).
+  into sorbet with `data-sorbet`, copy in `form/content.ts`. 21 new unit tests (320
+  total), 6 new e2e (`form.spec.ts`: premature Next blocked, the seven-step walk at
+  1440 and 390, Back keeps values, choosing a chip moves no chip, the city check
+  moves nothing).
 
 - **Step 3 — `/saved-trips` and the polaroid.** ✅ On `sorbet-saved-trips`. `Polaroid`
   (both sizes) in `sorbet/`, the grid in `saved-trips/`, GSAP and Locomotive gone from
@@ -541,6 +542,17 @@ narrows, a polaroid opens its detail page, 390px has no horizontal scroll.
   read it whole. "Please Wait" became "Please wait". `FormButtons` now keys Next and
   Submit apart, so React swaps the element on step 7 instead of retyping the button
   that was just clicked.
+- **`SquiggleLoader` replaced every spinner**: the route `Loader` (both trip pages,
+  which also gained `role="status"` and a name), the saved-trips grid and the form's
+  city check — which now sits inside the City field at its right edge, absolutely
+  positioned: as a block under the fields it pushed the buttons down and back, and a
+  quick check showed only the jump (`form.spec` pins the Next button's position across
+  a slowed check). Nothing imports `react-spinners` now; the dependency goes in step 6 with
+  the others.
+- **`LoaderResponseAI.test` steps its fake clock in 250ms, not 100ms**, with a 15s
+  limit on the two full walks. Per-word animation made each step dearer, and under
+  full-suite load the eight-message walk crossed Vitest's 5s default; a timed-out test
+  strands Framer's frame loop and fails everything after it in the file.
 - **An unexplained local e2e failure:** `landing.spec`'s "logs no console errors" failed
   all three repeats in the first run after a fresh build, then passed in every run
   after (87/87 twice). It only visits `/`, which this step does not touch.

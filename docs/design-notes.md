@@ -323,7 +323,7 @@ text written inline in JSX, and the file should read like copy.
 | `MotionProvider` | `sorbet/` | Mounted once in `providers.tsx`; don't nest another. |
 | `TripCard` | `sorbet/` | Pastel card: title, chip, arrow. Takes `{ card, className, interactive }`. Owns the `ItineraryCard` type. |
 | `Polaroid` | `sorbet/` | White frame, handwritten caption. `card` (default): a link, the traveller's username, arrow, fan tilt by `index` from `sm` up. `lg`: the trip title as h1, no link, no tilt. The caller wraps it in `Reveal`. Never on a white ground: the frame is white paper and only its shadow would show. |
-| `SquiggleLoader` | `sorbet/` | Decorative: the `Squiggle` loop drawn on, carried along and drawn off on repeat — the waiting mark in `LoaderResponseAI`. Keeps running under reduced motion (it animates `pathLength`, not a transform), since it is the only sign the wait is not stuck. |
+| `SquiggleLoader` | `sorbet/` | Decorative: the `Squiggle` loop drawn on, carried along and drawn off on repeat — the app's only loading mark: `LoaderResponseAI`, the route `Loader`, the saved-trips grid and the form's city check. `react-spinners` is no longer imported anywhere (step 6 drops the dependency). Keeps running under reduced motion (it animates `pathLength`, not a transform), since it is the only sign the wait is not stuck. |
 | `SquiggleArrow` | `sorbet/` | Decorative: the `Squiggle` hand, a loop dropping into a down arrow; draws on in view. Hangs from the `/saved-trips` search to point at the grid. |
 | `SiteNav` | `ui/` | The nav, on every route. See below. |
 | `SiteFooter` | `ui/` | The ink footer. Rendered per page, not by the layout. |

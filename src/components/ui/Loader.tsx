@@ -1,12 +1,14 @@
-import PuffLoader from "react-spinners/PuffLoader";
+import SquiggleLoader from "@/components/sorbet/SquiggleLoader";
 
-/** `--color-sorbet-ink`. react-spinners takes a colour value, not a class. */
-export const SPINNER_INK = "#302e2d";
-
+/** The full-screen wait between routes: the looping ink squiggle on canvas. */
 function Loader() {
   return (
-    <div className="fixed inset-0 z-40 grid place-items-center bg-sorbet-canvas">
-      <PuffLoader size={80} color={SPINNER_INK} />
+    <div
+      role="status"
+      aria-label="Loading"
+      className="fixed inset-0 z-40 grid place-items-center bg-sorbet-canvas text-sorbet-ink"
+    >
+      <SquiggleLoader className="h-20 w-32 md:h-24 md:w-40" />
     </div>
   );
 }

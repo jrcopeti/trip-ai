@@ -3,7 +3,8 @@
 import { motion } from "framer-motion";
 
 /**
- * A loading mark in the system's hand: the ink loop from the landing's
+ * The app's loading mark, wherever something is being waited on, in the
+ * system's hand: the ink loop from the landing's
  * `Squiggle`, drawn on, carried along and drawn off, over and over — so it reads
  * as "still working" rather than a one-off flourish. Decorative; the page next
  * to it says what is happening.

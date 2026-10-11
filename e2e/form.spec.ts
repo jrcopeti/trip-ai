@@ -156,6 +156,37 @@ test.describe("/form", () => {
     }
   });
 
+  test("the city check does not move the layout", async ({ page }) => {
+    // The check's squiggle used to be a block under the fields: it pushed the
+    // buttons down while checking and back after, so a quick check was a jump.
+    await page.unroute("https://secure.geonames.org/**");
+    await page.route("https://secure.geonames.org/**", async (route) => {
+      await new Promise((r) => setTimeout(r, 1500));
+      await route.fulfill({ json: LISBON });
+    });
+    await page.goto("/form");
+    await page.getByRole("textbox", { name: /name/i }).fill("Ana");
+    await page.getByRole("textbox", { name: /age/i }).fill("31");
+    await pickCountry(page, /nationality/i, "Brazil");
+    await next(page);
+    await expect(heading(page)).toHaveText("Destination");
+
+    const nextButton = page.getByRole("button", { name: "Next" });
+    const top = async () => (await nextButton.boundingBox())!.y;
+    await pickCountry(page, /country/i, "Portugal");
+    const idle = await top();
+
+    await page.getByRole("textbox", { name: /city/i }).fill("Lisbon");
+    const checking = page.getByRole("status", { name: "Checking the city" });
+    await expect(checking).toBeVisible();
+    // Inside the city field, not below the grid.
+    await expect(page.getByRole("textbox", { name: /city/i }).locator("..").getByRole("status")).toBeVisible();
+    expect(await top()).toBe(idle);
+
+    await expect(checking).toBeHidden();
+    expect(await top()).toBe(idle);
+  });
+
   test("Back keeps what was entered", async ({ page }) => {
     await page.goto("/form");
     await page.getByRole("textbox", { name: /name/i }).fill("Ana");

@@ -5,14 +5,13 @@ import { useGeoNames } from "@/hooks/useGeoNames";
 
 import { TextField, Label, Input, FieldError } from "@heroui/react";
 import { Controller } from "react-hook-form";
-import { PuffLoader } from "react-spinners";
 import toast from "react-hot-toast";
 
 import StepPanel from "./StepPanel";
 import CountryComboBox from "./CountryComboBox";
 import CustomToaster from "../ui/CustomToaster";
 import ErrorToaster from "../ui/ErrorToaster";
-import { SPINNER_INK } from "../ui/Loader";
+import SquiggleLoader from "@/components/sorbet/SquiggleLoader";
 import { destination } from "./content";
 import { field, fieldError, fieldInput, fieldLabel } from "./styles";
 
@@ -51,7 +50,26 @@ function FormStep2() {
           render={({ field: { ref, ...fieldProps } }) => (
             <TextField {...fieldProps} isInvalid={!!errors.city} isRequired className={field}>
               <Label className={fieldLabel}>{destination.city.label}</Label>
-              <Input ref={ref} type="text" placeholder={destination.city.placeholder} className={fieldInput} />
+              {/* The city check shows inside the field, at its right edge, and
+                  is positioned absolutely: as a block under the fields it pushed
+                  the buttons down and back, and a quick check was only a jump. */}
+              <div className="relative">
+                <Input
+                  ref={ref}
+                  type="text"
+                  placeholder={destination.city.placeholder}
+                  className={`${fieldInput} pr-16`}
+                />
+                {isLoadingCityValid && (
+                  <div
+                    role="status"
+                    aria-label={destination.checking}
+                    className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2"
+                  >
+                    <SquiggleLoader className="h-6 w-10 text-sorbet-ink" />
+                  </div>
+                )}
+              </div>
               <FieldError className={fieldError}>{errors.city?.message}</FieldError>
             </TextField>
           )}
@@ -72,11 +90,6 @@ function FormStep2() {
         />
       </div>
 
-      {isLoadingCityValid && (
-        <div role="status" aria-label={destination.checking} className="mt-6">
-          <PuffLoader size={32} color={SPINNER_INK} />
-        </div>
-      )}
     </StepPanel>
   );
 }

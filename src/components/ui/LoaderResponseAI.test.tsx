@@ -19,7 +19,15 @@ const messages = [
   "Thank you for using Trip AI",
 ];
 
-const STEP = 100;
+/**
+ * Fake-clock step. Well under the 2.8s a message stays up, so none can be
+ * skipped; coarse enough that walking all eight messages stays fast now that
+ * every word animates on its own.
+ */
+const STEP = 250;
+/** The full walks are long; a timeout here would strand Framer's frame loop
+ * and fail every later test in the file (see afterEach). */
+const WALK_TIMEOUT = 15_000;
 const GIVE_UP_AFTER = 20_000;
 
 /**
@@ -90,7 +98,7 @@ describe("LoaderResponseAI", () => {
     for (const message of messages) {
       await advanceUntil(message);
     }
-  });
+  }, WALK_TIMEOUT);
 
   it("wraps back to the first message after the last", async () => {
     renderWithProviders(<LoaderResponseAI />);
@@ -99,7 +107,7 @@ describe("LoaderResponseAI", () => {
       await advanceUntil(message);
     }
     await advanceUntil(messages[0]);
-  });
+  }, WALK_TIMEOUT);
 
   it("splits the sentence into words without changing what it reads as", () => {
     const { container } = renderWithProviders(<LoaderResponseAI />);
