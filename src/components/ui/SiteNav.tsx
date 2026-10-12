@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import Logo from "@/components/sorbet/Logo";
 
 const links = [
   { href: "/form", label: "New trip" },
@@ -61,9 +62,7 @@ function SiteNav() {
           href="/"
           className="flex items-center gap-2 rounded-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sorbet-ink"
         >
-          <span className="grid size-7 place-items-center rounded-lg bg-sorbet-orchid text-[0.6rem] font-extrabold text-sorbet-ink">
-            ai
-          </span>
+          <Logo />
           {/* data-wordmark: the intro measures this to know where to fly to. */}
           <span
             data-wordmark

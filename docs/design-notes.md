@@ -39,9 +39,9 @@ page's use of them.
 | `sorbet-ink` | `#302e2d` | All text. Dark buttons, circular arrows, focus rings, the footer ground. |
 | `sorbet-canvas` | `#f7f0e7` | Warm page ground — hero, nav, "Three steps". The default backdrop. |
 | `sorbet-offwhite` | `#f6f6f6` | Text on ink surfaces; also the trip-types ground and the weather card. |
-| `sorbet-lime` | `#e2f3a7` | Primary accent — the closing CTA ground, secondary buttons, a sticker. |
+| `sorbet-lime` | `#e2f3a7` | Primary accent — the closing CTA ground, secondary buttons, a sticker, the logo tile (always lime, glyph in ink). |
 | `sorbet-lime-punch` | `#e8ff98` | Higher-energy lime — one card tint, one sticker, one chip. |
-| `sorbet-orchid` | `#eea1ff` | Secondary accent — the logo tiles, one card tint, stickers. |
+| `sorbet-orchid` | `#eea1ff` | Secondary accent — one card tint, stickers. |
 | `sorbet-lavender` | `#e9daf1` | Tinted surface — packing list, one card tint, one chip. |
 | `sorbet-blush` | `#f2d9d9` | Tinted surface — one card tint, one chip. |
 | `sorbet-cyan` | `#a7fff7` | One sticker, one chip. |
@@ -316,6 +316,7 @@ text written inline in JSX, and the file should read like copy.
 | `Polaroid` | `sorbet/` | White frame, handwritten caption. `card` (default): a link, the traveller's username, arrow, fan tilt by `index` from `sm` up. `lg`: the trip title as h1, no link; rests on the fan's first angle from `sm` up and straightens and lifts on hover, like the cards. The caller wraps it in `Reveal`. Never on a white ground: the frame is white paper and only its shadow would show. |
 | `SquiggleLoader` | `sorbet/` | Decorative: the `Squiggle` loop drawn on, carried along and drawn off on repeat — the app's only loading mark: `LoaderResponseAI`, the route `Loader`, the saved-trips grid and the form's city check. `react-spinners` is no longer imported anywhere (step 6 drops the dependency). Keeps running under reduced motion (it animates `pathLength`, not a transform), since it is the only sign the wait is not stuck. |
 | `SquiggleArrow` | `sorbet/` | Decorative: the `Squiggle` hand, a loop dropping into a down arrow; draws on in view. Hangs from the `/saved-trips` search to point at the grid. |
+| `Logo` | `sorbet/` | Decorative (`aria-hidden`): the lime tile with the suitcase-and-passport glyph in ink. The glyph is `bg-sorbet-ink` masked by `src/assets/logo.png` (`mask-(--logo-mask)`, the static import's URL passed as that custom property), so only the PNG's alpha is used and the colour is the token's. `size="nav"` (32px) in `SiteNav`, `size="lockup"` (64 → 96px from `md`) in `WordmarkBlock`; the wordmark text beside it is the accessible name. The favicons are `logo.png` as drawn — its own teal gradient, no tile, transparent ground — resized by `node scripts/render-icons.mjs` to `src/app/icon.png` (512px) and `apple-icon.png` (180px). Rerun it if the logo changes. |
 | `SiteNav` | `ui/` | The nav, on every route. See below. |
 | `SiteFooter` | `ui/` | The ink footer. Rendered per page, not by the layout. |
 | `NotFoundComponent`, `Loader`, `LoaderResponseAI`, `CustomToaster`, `ErrorToaster`, `ButtonBackOutlined` | `ui/` | Shell pieces, in the system. |

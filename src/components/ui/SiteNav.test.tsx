@@ -20,6 +20,14 @@ beforeEach(() => {
 });
 
 describe("SiteNav", () => {
+  it("wears the logo tile beside the wordmark, which stays the link's name", () => {
+    renderWithProviders(<SiteNav />);
+
+    const home = screen.getByRole("link", { name: "trip ai" });
+    expect(home).toHaveAttribute("href", "/");
+    expect(home.querySelector("[data-logo-glyph]")).toBeInTheDocument();
+  });
+
   describe("active route", () => {
     it("marks the link for the current route", () => {
       resetNextStubs("/form");
