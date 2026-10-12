@@ -2,17 +2,18 @@ import { defaultPlaceholder } from "@/lib/constants";
 import type { Prisma, Trip } from "@prisma/client";
 
 /**
- * Files under `public/`, so `next/image` serves them instead of reaching for a
- * remote host. Invented Unsplash URLs made the optimizer log an upstream 404 per
- * card under `E2E_FIXTURES`; these resolve. Kept distinct so a test asserting
- * `image3` cannot pass on `image2`.
+ * Files under `public/fixtures/` — downscaled copies of bundled travel photos —
+ * so `next/image` serves them instead of reaching for a remote host. Invented
+ * Unsplash URLs made the optimizer log an upstream 404 per card under
+ * `E2E_FIXTURES`; these resolve, and the seeded saved trips look like trips.
+ * Kept distinct so a test asserting `image3` cannot pass on `image2`.
  */
 export const LOCAL_IMAGES = [
-  "/screenshots/desktop/1.png",
-  "/screenshots/desktop/2.png",
-  "/screenshots/desktop/3.png",
-  "/screenshots/desktop/5.png",
-  "/screenshots/desktop/6.png",
+  "/fixtures/trip-1.jpg",
+  "/fixtures/trip-2.jpg",
+  "/fixtures/trip-3.jpg",
+  "/fixtures/trip-4.jpg",
+  "/fixtures/trip-5.jpg",
 ] as const;
 
 /** A saved `Trip` row, matching the Prisma model field for field. */

@@ -124,4 +124,53 @@ test.describe("landing page", () => {
 
     expect(errors).toEqual([]);
   });
+  test("keeps a sticker on a phone, clear of the heading", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+
+    const sticker = page.locator('[data-sticker="phone"]');
+    await expect(sticker).toBeVisible();
+    const s = (await sticker.boundingBox())!;
+    const h1 = (await page.getByRole("heading", { level: 1 }).boundingBox())!;
+    expect(s.y).toBeGreaterThanOrEqual(h1.y + h1.height);
+    expect(s.x + s.width).toBeLessThanOrEqual(390);
+  });
+
+  // The cyan sticker sat at a fixed 4% from the viewport edge, which landed on
+  // "Plan the trip." at every width the gutter is narrower than the sticker.
+  // Each is shown only where it fits: cyan from 85rem, orchid from lg. Below that
+  // the test asserts it is hidden, so neither can pass by disappearing.
+  for (const width of [768, 1024, 1280, 1360, 1440, 1920]) {
+    test(`the go-anywhere sticker stays clear of the heading at ${width}px`, async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/");
+
+      const sticker = page.locator(".parallax-drift", { hasText: "go anywhere" });
+      if (width < 1360) return await expect(sticker).toBeHidden();
+      await expect(sticker).toBeVisible();
+      const s = (await sticker.boundingBox())!;
+      const h1 = (await page.getByRole("heading", { level: 1 }).boundingBox())!;
+      expect(s.x).toBeGreaterThanOrEqual(0);
+      expect(s.x + s.width).toBeLessThanOrEqual(h1.x);
+    });
+
+    // The orchid one, at a percentage of the hero's height, tucked under the buttons.
+    test(`the pack-light sticker stays above the hero buttons at ${width}px`, async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/");
+
+      const sticker = page.locator(".parallax-drift", { hasText: "pack light" });
+      if (width < 1024) return await expect(sticker).toBeHidden();
+      await expect(sticker).toBeVisible();
+      const s = (await sticker.boundingBox())!;
+      const button = (await page
+        .locator("section")
+        .first()
+        .getByRole("link", { name: "See saved trips" })
+        .boundingBox())!;
+      expect(s.y + s.height).toBeLessThanOrEqual(button.y);
+    });
+  }
 });
