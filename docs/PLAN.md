@@ -12,7 +12,12 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Now
 
-_Nothing in flight._ The sorbet migration is finished (steps 0–6 below).
+**Follow-ups, one branch per group.** Order: form bugs → form behaviour → rename →
+tour titles. The sorbet migration is finished (steps 0–6 below).
+
+- **Form bugs** · `form-fixes` ✅ — staged for review. Re-clicking the chosen day keeps
+  it (`required` on the `DayPicker`), and clearing a country or nationality clears the
+  field (and the flag). 4 new unit tests, 1 replaced (408 total); 44/44 e2e.
 
 ## Done
 
@@ -720,28 +725,17 @@ Issues noticed during the migration that predate it or sit outside a step's scop
 Left alone on purpose so each step stayed a restyle.
 Each wants a test that fails first.
 
-**Form bugs** (from `/code-review` on `sorbet-form`):
-
-- **Re-clicking the selected day clears the date to today.** react-day-picker calls
-  `onSelect(undefined)` when the chosen day is clicked again, and `DatePicker` passes
-  that to `dayjs(undefined)`, which is *now* — so the field silently becomes today
-  rather than empty. Treat `undefined` as a clear (`onChange(undefined)`), or pass
-  `required` so the day cannot be deselected. `src/components/form/DatePicker.tsx`.
-- **Clearing the country keeps the old value.** `handleSelectionAutocomplete` returns
-  early on a `null` key, so emptying the nationality or country input leaves the
-  previous country in the form state, and it passes validation. Clear the field on
-  `null`. `src/context/FormContext.tsx` — the context steps 0–4 promised not to touch,
-  so add a `FormContext` test for it.
-
-**Form behaviour worth deciding:**
+**Form behaviour** · `form-behaviour`:
 
 - **A fixed field keeps its error until the next Next.** `FormContext` validates only
   on `trigger()`, so a Zod message stays up after the field is corrected. Revalidate
   touched fields on change (RHF `mode: "onTouched"`, or `trigger(name)` in the
   Controllers).
-- **Enter on step 4 with one item submits the whole form.** A form with a single text
-  input submits on Enter; validation then fails on later steps' fields and nothing
-  visible happens. Swallow Enter on steps 1–6, or map it to Next.
+- **Enter in a step-4 item input does nothing.** It fires the form's submit, which
+  fails validation on later steps' fields and stops silently. Make Enter add the next
+  item and move focus to it, as list inputs usually do — an `onKeyDown` in
+  `FormStep4.tsx`. (Enter with Next focused moves on, which is right: step 4 validates
+  nothing.)
 
 **Tour titles from the AI:**
 
@@ -767,9 +761,6 @@ Each wants a test that fails first.
   read as dead code in review. Touches `TripContext` (and `src/types/index.ts`),
   `useCreateTrip`, `useConfirmonPageExit`, `SaveSection`, and the `closing`,
   `TripContext` and `useCreateTrip` tests. Behaviour unchanged.
-- **Accented cities sort after plain ones** on `/saved-trips` ("málaga" after
-  "munich"): the database collation. Order by `city` with a case/accent-insensitive
-  collation, or sort in the action.
 - **`landing.spec`'s "logs no console errors" failed three repeats once**, in the first
   local run after a fresh build, and never again (87/87 twice). If it shows up in CI,
   capture the console text before guessing.
