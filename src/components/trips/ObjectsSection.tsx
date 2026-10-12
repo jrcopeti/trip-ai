@@ -7,7 +7,7 @@ import TripCard from "@/components/sorbet/TripCard";
 import type { ObjectsListType } from "@/types";
 import { Section, SectionHeading } from "./Section";
 import { objects as copy } from "./content";
-import { CARD_TINTS } from "./tints";
+import { CARD_TINTS } from "@/components/sorbet/tints";
 import { CARD_DRIFT, drift } from "./drift";
 
 function ObjectsSection() {

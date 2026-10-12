@@ -12,7 +12,7 @@ import { useIntro } from "./IntroContext";
 import StickerBadge from "@/components/sorbet/StickerBadge";
 import Squiggle from "./Squiggle";
 import TripCard from "@/components/sorbet/TripCard";
-import { heroDeck } from "./content";
+import { heroDeck, heroEyebrow } from "./content";
 
 /** Fan angles for the deck, outer cards tilted away from centre. */
 const fan = ["-rotate-3 md:-rotate-4", "rotate-2 md:rotate-0 md:-translate-y-4", "-rotate-1 md:rotate-4"];
@@ -69,9 +69,8 @@ function Hero() {
       </motion.div>
 
       <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-10 sm:px-8 md:pt-16">
-        <p className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-2 text-sm font-medium text-sorbet-ink">
-          <span className="size-2 rounded-full bg-sorbet-indigo" aria-hidden />
-          Your new travel friend
+        <p className="mb-6 text-sm font-medium uppercase tracking-[0.18em] text-sorbet-ink/50">
+          {heroEyebrow}
         </p>
 
         <h1 className="max-w-5xl text-[clamp(2.75rem,7vw,5.5rem)] leading-[0.96] tracking-[-0.03em] text-sorbet-ink">

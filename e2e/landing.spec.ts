@@ -40,6 +40,30 @@ test.describe("landing page", () => {
     }
   });
 
+  test("shows five sample tours under the band, each with its kind", async ({ page }) => {
+    const heading = page.getByRole("heading", { level: 2, name: /^What comes back:/ });
+    const section = page.locator("section").filter({ has: heading });
+    const tours = section.getByRole("article");
+    await expect(tours).toHaveCount(5);
+    for (const kind of ["Nature", "History", "Art", "Food", "Nightlife"]) {
+      await expect(section.getByText(kind, { exact: true })).toBeVisible();
+    }
+  });
+
+  test("picks the band photo per request, from the bundled set", async ({ page }) => {
+    const band = page.locator("section").filter({
+      has: page.getByRole("heading", { level: 2, name: /^What comes back:/ }),
+    });
+    const alts = new Set<string>();
+    for (let i = 0; i < 8; i++) {
+      await page.goto("/");
+      alts.add((await band.getByRole("img").first().getAttribute("alt")) ?? "");
+    }
+    // Eight loads of a random pick from the set: one photo every time would
+    // mean it was fixed at build time.
+    expect(alts.size).toBeGreaterThan(1);
+  });
+
   test("does not scroll horizontally at 390px", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");

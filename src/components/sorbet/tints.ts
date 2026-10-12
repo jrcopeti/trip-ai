@@ -1,6 +1,6 @@
 /**
  * The pastel card grounds, cycled by index so neighbouring cards differ. The
- * landing's itinerary cards use the same four.
+ * trip pages' tours and packing cards and the landing's sample tours use them.
  */
 export const CARD_TINTS = [
   "bg-sorbet-lavender",

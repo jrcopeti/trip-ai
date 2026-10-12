@@ -4,8 +4,8 @@ import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa6";
 import { LuMapPin } from "react-icons/lu";
 import { tours as copy } from "./content";
-import { kindIcon } from "./kinds";
-import { CARD_TINTS } from "./tints";
+import { kindIcon } from "@/components/sorbet/kinds";
+import { CARD_TINTS } from "@/components/sorbet/tints";
 import type { Tour } from "./tours";
 
 /** How far a swipe has to travel, in px, before it counts as one. */
