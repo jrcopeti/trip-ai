@@ -1,22 +1,24 @@
-# PLAN
+# PLAN — the sorbet migration
 
-Working plan for whatever is currently in progress. Tracked, so it is visible in the
-Explorer and in diffs, and it travels with the repo.
+The plan for moving every route onto the `sorbet` design system (steps 0–6) and the
+follow-ups it left. Tracked, so it is visible in the Explorer and in diffs, and it
+travels with the repo. Other work gets its own folder and plan, `docs/<topic>/PLAN.md`.
 
-Keep it current: read it at the start of a task, update it as the shape of the work
-changes, and clear finished items out rather than letting them pile up. Churn here is
-expected and fine — it is a plan, not a record. If a decision turns out to be durable it
-belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not here.
+Keep it current while there is work under it: update it as the shape of the work
+changes, and clear finished items out rather than letting them pile up. If a decision
+turns out to be durable it belongs in `docs/design-notes.md` (visual system) or
+`CLAUDE.md` (rules), not here.
 
 ---
 
 ## Now
 
-**Follow-ups, one branch per group.** Order: form bugs ✅ → form behaviour ✅ →
-tour titles. The rename was dropped (see Follow-ups). The sorbet migration is
-finished (steps 0–6 below).
+_Nothing in flight._ The migration (steps 0–6) and its follow-ups are done; the
+rename was dropped, and one watch item is left (see Follow-ups).
 
-- **Tour titles** · `tour-titles` — staged for review. The `tripData` tool returns
+## Done
+
+- **Tour titles** · `tour-titles` ✅ — #176. The `tripData` tool returns
   each tour as `{ title, description }`, and the carousel shows the title above it.
   Trips saved before that hold plain strings and show the tour with no title — the
   "Tour title" placeholder is gone. The fixture tours are titled and the e2e journey
@@ -26,8 +28,6 @@ finished (steps 0–6 below).
   one-word `kind` from a fixed list (`src/lib/tourKinds.ts`, the schema's `enum`),
   shown as a second chip with its own icon beside "Tour 01"; the prompt asks for
   five tours, and `max_tokens` goes to 8192 to fit them. 8 new unit tests (425).
-
-## Done
 
 - **Form behaviour** · `form-behaviour` ✅ — #175. A field's message goes
   as soon as it is fixed: any value change re-checks the current step's fields that
@@ -90,7 +90,7 @@ finished (steps 0–6 below).
 
 ## Next
 
-The follow-ups below.
+_Nothing scheduled._
 
 ## Open questions
 
@@ -131,45 +131,7 @@ data lifecycle or the save/discard flow breaks silently, so the suite lands firs
 
 ## The polaroid (non-negotiable)
 
-New shared component `src/components/sorbet/Polaroid.tsx`. Every value already exists in
-the system; the only inventions are the caption face and a white token.
-
-```tsx
-// Frame — white paper, the system's single ink-tinted shadow, card-tier radius
-"rounded-2xl bg-white p-3 pb-0 shadow-[0_18px_40px_-24px_rgba(48,46,45,0.55)]"
-// Photo — square inset, radius one tier below the frame
-"relative aspect-square overflow-hidden rounded-xl"
-// Caption lip — the fat bottom edge that makes it a polaroid
-"flex items-end justify-between gap-2 px-1 pb-4 pt-3"
-```
-
-- **Caption** — `font-sorbet-hand text-2xl leading-none text-sorbet-ink`
-  (`{city}, {country}`). Caveat's x-height is small; never below `text-xl`.
-- **Byline** — stays Rubik, meta-label idiom:
-  `text-xs font-medium uppercase tracking-[0.12em] text-sorbet-ink/45` (`by {userName}`).
-- **Arrow** — the standard chip-size disc, `size-8`, `aria-hidden`, bottom-right of the lip.
-- **Tilt** — deterministic fan by index, reusing the Hero deck's vocabulary:
-  `["sm:-rotate-2", "sm:rotate-1", "sm:-rotate-1", "sm:rotate-2"]`. **No tilt below
-  `sm`** — at 390px a rotated card overflows the gutter.
-- **Hover** — `transition-transform hover:rotate-0 hover:-translate-y-2` (the deck's
-  existing hover value) plus `motion-reduce:transition-none`.
-- **Link + focus** — the whole card is a `<Link>` around an `<article>`, with
-  `rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sorbet-ink`.
-- **Entrance** — wrapped in the shared `Reveal`, `delay={0.06 * i}`.
-
-Additive-only token and font work it needs:
-
-- `--color-sorbet-white: #ffffff` in `@theme` — the name design-notes already reserves.
-- `Caveat` (400, 600) loaded in `src/app/layout.tsx` as `variable: "--font-caveat"`,
-  **added to the `<html>` className** next to `rubik.variable` (gotcha #1 — a font
-  variable declared one level lower fails silently), with
-  `--font-sorbet-hand: var(--font-caveat), ui-rounded, cursive` appended to `@theme`.
-  This is an exception to "Rubik is the display face"; design-notes must record it.
-
-**Large variant** (`size="lg"`) for the trip title, used by *both* trip routes: same
-frame, `max-w-md`, caption is the trip title at
-`text-[clamp(1.75rem,4vw,2.75rem)] text-balance`, no byline, no arrow. `TitleSection`
-renders it unconditionally — no variant prop, no fork.
+Moved to `docs/design-notes.md`, "The polaroid", now that it is part of the system.
 
 ## The mobile nav menu
 
@@ -185,60 +147,11 @@ renders it unconditionally — no variant prop, no fork.
 
 ## Testing approach
 
-`vitest.config.mts` + `src/test/setup.ts`, jsdom, `@vitejs/plugin-react`,
-`vite-tsconfig-paths` for `@/`. Explicit `import { describe, it, expect } from "vitest"`
-rather than `globals: true`, so `tsconfig.json` needs no `types` entry.
-
-Shared helpers in `src/test/`:
-
-- `setup.ts` — `@testing-library/jest-dom/vitest`, plus `matchMedia` and
-  `ResizeObserver` polyfills (react-aria, under HeroUI, needs both).
-- `render.tsx` — `renderWithProviders`, wrapping `QueryClientProvider` (retries off) and
-  `MotionProvider`.
-- `imageStub.ts` — aliased for `*.jpg|png|webp|svg` imports. **Required**: Vite returns a
-  bare string for an image import, but `src/lib/utils.ts` reads `sun.src` on ten weather
-  PNGs, so without the stub (`{ src, width, height, blurDataURL }`) those helpers return
-  `undefined`.
-- `stubs/next.tsx` — `next/navigation` (`useRouter`, `usePathname`, `useParams`,
-  `notFound`) and a passthrough `next/image`.
-- `fixtures/` — a `Trip` fixture matching the Prisma model, an Anthropic `tripData`
-  response, OpenWeather current + daily payloads, an Unsplash payload.
-
-Boundaries are mocked at the module edge: `vi.mock("@/db")` for the Prisma singleton,
-`vi.mock("@/db/actions")` for components, and `vi.mock` on `anthropicApi`,
-`unsplashApi`, `openWeatherApi`. No network, no database, no keys.
-
-Two limits to work with rather than fight: `whileInView` never fires in jsdom, so assert
-that `Reveal`'s children render, never that an animation ran; and async server components
-cannot be rendered by RTL, so `/about`'s server-side random pick is tested as a pure
-helper with the page itself covered by Playwright.
-
-E2E lives in `e2e/`, chromium only, `webServer` running `npm run start`. The one
-production concession: the three `"use server"` modules check
-`process.env.E2E_FIXTURES === "1"` and return a fixture instead of calling out — those
-calls are server-side, so `page.route` cannot reach them. No visual snapshot baselines
-initially; assertions are behavioural.
+Moved to `CLAUDE.md`, "Tests".
 
 ## Per-step contract
 
-Every step is one branch off `main`, one PR:
-
-1. `git checkout main && git pull && git checkout -b <branch>` in the repo root — not a
-   worktree (see the working agreement in `CLAUDE.md`).
-2. Read `docs/design-notes.md` "Migrating a page" (the 12-point checklist) and its
-   Gotchas section before touching styling.
-3. Do the work, and write the step's tests in the same PR.
-4. Green: `npx next typegen && npx tsc --noEmit`, `npm test`, `npm run build`, and
-   `npm run test:e2e` when the step touched a covered flow. `npm run lint` is broken and
-   is not a signal.
-5. Verify in the browser with the **Playwright MCP** tools: `browser_navigate`,
-   `browser_resize` at 1440 / 768 / **390**, `browser_emulate_media` with
-   `prefers-reduced-motion: reduce`, `browser_console_messages` for hydration errors,
-   `browser_snapshot` for the a11y tree, `browser_take_screenshot` for the record.
-6. Update the `docs/design-notes.md` Status row and tick the step here.
-7. **Stage the work and stop.** No commit, no push, no PR — the diff is reviewed in the
-   editor first, and permission to commit only counts once it arrives after the diff
-   exists (see the working agreement in `CLAUDE.md`). Leave the branch checked out.
+Moved to `CLAUDE.md`, "Per-branch checklist", generalised to any branch.
 
 ---
 

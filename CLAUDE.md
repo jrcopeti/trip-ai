@@ -36,6 +36,28 @@ agree on where the work is.
 Corollary for anything outward-facing — pushing, PR bodies, PR comments, repository
 settings, deploys: same rule, and ask first. Reading is always fine.
 
+## Per-branch checklist
+
+Every piece of work is one branch off `main`, one PR:
+
+1. `git checkout main && git pull && git checkout -b <branch>` in the repo root — not a
+   worktree (see the working agreement above).
+2. Before touching styling, read `docs/design-notes.md` — at least "Building a page"
+   and "Gotchas that cost real time".
+3. Do the work, and write its tests in the same PR — a failing test first for a bug.
+4. Green: `npx next typegen && npx tsc --noEmit`, `npm test`, `npm run build`, and
+   `npm run test:e2e` when the change touches a covered flow. `npm run lint` is broken
+   and is not a signal.
+5. When the change is visible, verify it in the browser with the **Playwright MCP**
+   tools: `browser_navigate`, `browser_resize` at 1440 / 768 / **390**,
+   `browser_emulate_media` with `prefers-reduced-motion: reduce`,
+   `browser_console_messages` for hydration errors, `browser_snapshot` for the a11y
+   tree, `browser_take_screenshot` for the record.
+6. Update the work's plan (`docs/<topic>/PLAN.md`), and `docs/design-notes.md` when the
+   visual system changed.
+7. **Stage the work and stop.** No commit, no push, no PR — see the working agreement.
+   Leave the branch checked out.
+
 ## Commands
 
 ```bash
@@ -55,6 +77,8 @@ Tests live beside the code as `*.test.ts(x)` under `src/`. `describe`/`it`/`expe
 imported explicitly rather than enabled as globals, so `tsconfig.json` needs no `types`
 entry — and because that also disables RTL's auto-cleanup, `src/test/setup.ts` registers
 the unmount itself. Don't remove it: without it every render piles up in one document.
+`setup.ts` also loads `jest-dom`'s matchers and polyfills `matchMedia` and
+`ResizeObserver`, which react-aria (under HeroUI) needs and jsdom lacks.
 
 Shared helpers in `src/test/`:
 
@@ -114,9 +138,10 @@ deletes every trip before seeding**, so it refuses any host but localhost unless
 `ALLOW_REMOTE_E2E_SEED=1` — `.env` here points at the production Neon database. Run the
 e2e suite against a throwaway Postgres, never the real one.
 
-Browser verification during a migration step is done with the **Playwright MCP** tools
-(navigate, resize to 1440/768/390, emulate `prefers-reduced-motion`, read console
-messages), not by asking for a manual pass.
+E2E assertions are behavioural; there are no visual snapshot baselines.
+
+Browser verification is done with the **Playwright MCP** tools (see the per-branch
+checklist), not by asking for a manual pass.
 
 `npm run lint` is broken and has been for a while: it calls `next lint`, which Next 16
 removed, and running `npx eslint` directly fails in `@eslint/eslintrc` with
@@ -142,16 +167,17 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
 - **`docs/design-notes.md`** — the `sorbet` design system: tokens, type scale, layout,
   motion rules, component inventory, and the gotchas that have already cost debugging
   time. **Read it before styling anything.** Tracked in git.
-- **`docs/PLAN.md`** — the current working plan. Tracked. Read it at the start of a task
-  and keep it updated as the work changes shape; churn there is expected.
+- **`docs/<topic>/PLAN.md`** — one folder and plan per piece of work. Tracked. Read
+  the relevant plan at the start of a task and keep it updated as the work changes
+  shape; churn there is expected. A new piece of work gets a new folder.
 
-  It carries the finished **sorbet migration** (steps 0–6, one branch and PR each) and
-  the **follow-ups** it left. The "Per-step contract" there — per-step checks, the
-  Playwright MCP pass, the "don't commit" rule — still applies to any follow-up branch.
-  The polaroid spec and the testing approach are also there, and both are binding.
+- **`docs/sorbet-migration/PLAN.md`** — the finished **sorbet migration** (steps 0–6,
+  one branch and PR each) and the **follow-ups** it left. A record now: what it set
+  that still binds lives in this file (the per-branch checklist, the testing rules)
+  and in `design-notes.md` (the polaroid).
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
-architecture). `PLAN.md` is for work in flight.
+architecture). A plan is for work in flight.
 
 ## Environment Variables
 
