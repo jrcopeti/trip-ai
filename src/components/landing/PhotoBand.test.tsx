@@ -22,7 +22,7 @@ describe("PhotoBand", () => {
     renderWithProviders(<PhotoBand photo={photo} />);
 
     expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
-      "What comes back: tours for the city, the forecast for your dates, and what to pack.",
+      "What comes back: tours for the city, the weather for your dates, and what to pack.",
     );
   });
 

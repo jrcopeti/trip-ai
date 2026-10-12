@@ -67,7 +67,7 @@ export const features = {
   items: [
     {
       title: "Checks the weather",
-      body: "The forecast for your dates, and a packing list that follows it.",
+      body: "The 5-day forecast if you're leaving now, the usual weather if you're not, and a packing list that follows it.",
     },
     {
       title: "Uses real photos",
@@ -87,7 +87,7 @@ export const features = {
 /** The photo band's heading: what an answer actually holds. */
 export const bandHeading = {
   claim: "What comes back:",
-  qualifier: "tours for the city, the forecast for your dates, and what to pack.",
+  qualifier: "tours for the city, the weather for your dates, and what to pack.",
 };
 
 /**

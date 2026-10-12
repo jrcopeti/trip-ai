@@ -17,8 +17,9 @@ reduced motion, stage and stop. This file is the plan.
 
 Decided with the user:
 - Logo: ink glyph on the orchid tile, colour from tokens.
-- Section 6 heading: "What comes back: tours for the city, the forecast for your
-  dates, and what to pack."
+- Section 6 heading: "What comes back: tours for the city, the weather for your
+  dates, and what to pack." ("weather", not "forecast": only the "plan around the
+  weather" option fetches a forecast; chosen dates get the usual weather.)
 - Section 7 heading: "Three steps. That's the app."
 - Demo video: recorded walkthrough with a **real** API call.
 
@@ -39,7 +40,8 @@ Copy and static content; no data dependencies beyond the photo pick.
 - **4. Features instead of meta** (`landing/WordmarkBlock.tsx` → `content.ts`):
   replace the Model/Weather/Photos/Steps `dl` with four product features, same `dl`
   layout, `dt` the feature, `dd` one line:
-  - Checks the weather — the forecast for your dates, and a packing list that follows it.
+  - Checks the weather — the 5-day forecast if you're leaving now, the usual weather
+    if you're not, and a packing list that follows it.
   - Uses real photos — pictures of your destination from Unsplash, not stock art.
   - Five tours, by kind — each with a title and what kind of tour it is.
   - Keeps what you save — saved trips stay, with the weather they were planned for.
