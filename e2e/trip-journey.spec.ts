@@ -92,7 +92,10 @@ test.describe("trip journey", () => {
     await card.click();
     await expect(page).toHaveURL(/\/saved-trips\/\d+$/);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(tripDataFixture.title!);
-    await expect(page.getByText("A saved trip")).toBeVisible();
+    // The walk picks a cultural trip planned around the forecast.
+    await expect(page.getByText("A cultural trip · 5 days")).toBeVisible();
+    // Its real dates stay, with a note that the forecast set them.
+    await expect(page.getByText("Planned by the forecast")).toBeVisible();
   });
 
   test("a discarded trip does not", async ({ page }) => {

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import dayjs from "dayjs";
-import { screen, within } from "@/test/render";
+import { cleanup, screen, within } from "@/test/render";
 import { renderGeneratedTrip, renderSavedTrip } from "@/test/trip";
 import {
   LOCAL_IMAGES,
@@ -49,7 +49,6 @@ describe("TitleSection", () => {
     renderGeneratedTrip(<TitleSection />);
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(tripDataFixture.title!);
-    expect(screen.getByText(title.eyebrow.generated)).toBeInTheDocument();
   });
 
   it("captions it with the saved trip's title on the saved route", async () => {
@@ -58,7 +57,22 @@ describe("TitleSection", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: "A Week of Saved Light" }),
     ).toBeInTheDocument();
-    expect(screen.getByText(title.eyebrow.saved)).toBeInTheDocument();
+  });
+
+  it("opens with the kind of trip and its length, on both routes", async () => {
+    // The fixtures: a cultural trip, 1 to 8 May — seven days.
+    renderGeneratedTrip(<TitleSection />);
+    expect(screen.getByText("A cultural trip · 7 days")).toBeInTheDocument();
+    cleanup();
+
+    renderSavedTrip(<TitleSection />, { row: makeTrip({ type: "adventure" }) });
+    expect(await screen.findByText("An adventure trip · 7 days")).toBeInTheDocument();
+  });
+
+  it("counts a forecast trip's days from its real dates", async () => {
+    renderSavedTrip(<TitleSection />, { row: makeTrip({ weatherForecast: "yes" }) });
+
+    expect(await screen.findByText("A cultural trip · 7 days")).toBeInTheDocument();
   });
 
   it("puts the trip's first photo in the frame", async () => {
@@ -82,10 +96,22 @@ describe("TitleSection", () => {
     expect(screen.getByText("ana")).toBeInTheDocument();
   });
 
-  it("says the dates follow the forecast when the trip was planned by the weather", async () => {
+  it("keeps a forecast trip's real dates and notes they followed the forecast", async () => {
     renderSavedTrip(<TitleSection />, { row: makeTrip({ weatherForecast: "yes" }) });
 
-    expect(await screen.findByText(title.byWeather)).toBeInTheDocument();
+    const start = dayjs(tripFixture.startDate).format("DD.MM.YYYY");
+    const end = dayjs(tripFixture.endDate).format("DD.MM.YYYY");
+    await screen.findByText(title.byWeather);
+    const dates = screen.getByText(title.dates, { selector: "dt" }).nextElementSibling;
+    expect(dates).toHaveTextContent(`${start} – ${end}`);
+    expect(dates).toHaveTextContent(title.byWeather);
+  });
+
+  it("adds no forecast note to a trip with chosen dates", async () => {
+    renderSavedTrip(<TitleSection />);
+
+    await screen.findByText("lisbon, Portugal");
+    expect(screen.queryByText(title.byWeather)).not.toBeInTheDocument();
   });
 });
 
@@ -391,5 +417,30 @@ describe("FormDetailsSection", () => {
     renderGeneratedTrip(<FormDetailsSection />);
 
     expect(screen.getByText("wants a day trip to sintra")).toBeInTheDocument();
+  });
+});
+
+describe("title.kind", () => {
+  it("uses an before a vowel and a before a consonant", () => {
+    expect(title.kind("urban", 3)).toBe("An urban trip · 3 days");
+    expect(title.kind("family", 3)).toBe("A family trip · 3 days");
+  });
+
+  it("does not say trip twice", () => {
+    expect(title.kind("road trip", 10)).toBe("A road trip · 10 days");
+  });
+
+  it("calls a same-day or one-day trip 1 day", () => {
+    expect(title.kind("solo", 0)).toBe("A solo trip · 1 day");
+    expect(title.kind("solo", 1)).toBe("A solo trip · 1 day");
+  });
+
+  it("falls back to a trip when the type is missing", () => {
+    expect(title.kind(undefined, 4)).toBe("A trip · 4 days");
+    expect(title.kind("", 5)).toBe("A trip · 5 days");
+  });
+
+  it("lowercases the stored type", () => {
+    expect(title.kind("Gastronomy", 2)).toBe("A gastronomy trip · 2 days");
   });
 });
