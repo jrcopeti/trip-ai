@@ -18,19 +18,14 @@ export type ItineraryCard = {
 /**
  * The pastel activity card from the reference: title top, category chip
  * bottom-left, dark circular arrow bottom-right.
- *
- * The title is capped at 14ch for a short name; `titleClassName` lifts the cap
- * when the title is a sentence (a suggested tour).
  */
 function TripCard({
   card,
   className = "",
-  titleClassName = "max-w-[14ch]",
   interactive = true,
 }: {
   card: ItineraryCard;
   className?: string;
-  titleClassName?: string;
   interactive?: boolean;
 }) {
   return (
@@ -39,7 +34,7 @@ function TripCard({
     >
       <div>
         <h3
-          className={`text-lg font-semibold leading-snug text-sorbet-ink first-letter:uppercase md:text-xl ${titleClassName}`}
+          className="max-w-[14ch] text-lg font-semibold leading-snug text-sorbet-ink first-letter:uppercase md:text-xl"
         >
           {card.title}
         </h3>

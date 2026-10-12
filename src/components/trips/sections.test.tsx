@@ -26,7 +26,6 @@ import {
   objects,
   packReady,
   title,
-  tours,
   weather,
 } from "./content";
 import type { ObjectsListType } from "@/types";
@@ -105,27 +104,16 @@ describe("DescriptionSection", () => {
 });
 
 describe("ToursSection", () => {
-  it("lists every tour in order, each numbered on its chip", () => {
+  it("shows the generated trip's first tour", () => {
     renderGeneratedTrip(<ToursSection />);
 
-    const items = within(screen.getByRole("list")).getAllByRole("listitem");
-    expect(items).toHaveLength(generatedTours.length);
-    generatedTours.forEach((tour, i) => {
-      expect(within(items[i]).getByRole("heading", { level: 3 })).toHaveTextContent(tour);
-      expect(within(items[i]).getByText(tours.chip(i + 1))).toBeInTheDocument();
-    });
+    expect(screen.getByRole("group", { name: "1 of 3" })).toHaveTextContent(generatedTours[0]);
   });
 
-  it("is an ordered list", () => {
-    renderGeneratedTrip(<ToursSection />);
-
-    expect(screen.getByRole("list").tagName).toBe("OL");
-  });
-
-  it("renders the saved trip's tours", async () => {
+  it("shows the saved trip's tours", async () => {
     renderSavedTrip(<ToursSection />, { row: makeTrip({ tours: ["Only this one."] }) });
 
-    expect(await screen.findByText("Only this one.")).toBeInTheDocument();
+    expect(await screen.findByRole("group")).toHaveTextContent("Only this one.");
   });
 });
 

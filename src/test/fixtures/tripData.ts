@@ -18,7 +18,9 @@ export const tripDataFixture = {
   tours: [
     "Walk the Alfama at first light, before the trams fill.",
     "Take the train to Sintra and climb to the Moorish castle.",
-    "Spend an afternoon in Belem, pastry in hand.",
+    // Long on purpose: real tours run to a paragraph, and the tours carousel has
+    // to hold its height when one does (trip-journey.spec measures it).
+    "Spend an afternoon in Belem, pastry in hand: start at the Jeronimos Monastery before the tour buses arrive, walk the riverfront to the Monument to the Discoveries, then climb the Tower of Belem as the light turns gold over the Tagus.",
   ],
   tip: "A carry-on suits the hills; cobblestones punish wheeled luggage.",
 } as unknown as Trip;

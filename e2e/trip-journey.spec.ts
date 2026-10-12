@@ -96,8 +96,31 @@ test.describe("trip journey", () => {
   });
 
   test("a discarded trip does not", async ({ page }) => {
+    // Reduced motion, so the carousel is not measured mid-entrance or mid-slide.
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.setViewportSize({ width: 390, height: 844 });
     await generateTrip(page, DISCARDER);
+    await noHorizontalScroll(page);
+
+    // The tours are a carousel: one at a time, Next brings the second.
+    const tours = tripDataFixture.tours as unknown as string[];
+    const carousel = page.getByRole("region", { name: "Suggested tours" });
+    await expect(carousel.getByRole("group", { name: "1 of 3" })).toContainText(tours[0]);
+    // No titles from the AI yet: the title slot holds the placeholder.
+    await expect(carousel.getByRole("heading", { level: 3 })).toHaveText("Tour title");
+    // The fixture's tours wrap to different heights at 390. The card is sized to
+    // the longest, so stepping through them must not change the carousel's
+    // height — or move the rest of the page below it.
+    const nextTour = carousel.getByRole("button", { name: "Next tour" });
+    const height = async () => (await carousel.boundingBox())!.height;
+    const before = await height();
+    for (const [i, tour] of tours.slice(1).entries()) {
+      await nextTour.click();
+      await expect(carousel.getByRole("group", { name: `${i + 2} of 3` })).toHaveText(
+        new RegExp(tour),
+      );
+      expect(await height()).toBe(before);
+    }
     await noHorizontalScroll(page);
 
     await page.getByRole("button", { name: "No, thanks" }).click();

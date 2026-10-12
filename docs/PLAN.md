@@ -20,6 +20,8 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
   the large polaroid title, alternating grounds and a lime close; GSAP and Locomotive
   are gone from `src/`. 48 new unit tests (368 total), 2 new e2e
   (`trip-journey.spec.ts`: save → in `/saved-trips` → opens; discard → absent, at 390).
+  Afterwards the tours became a carousel (`ToursCarousel`): one wide card, sized to
+  the longest tour so a long one never shifts the page.
 
 - **Step 4 — `/form`.** ✅ On `sorbet-form`. One white surface on canvas, HeroUI opted
   into sorbet with `data-sorbet`, copy in `form/content.ts`. 21 new unit tests (320
@@ -710,6 +712,22 @@ Each wants a test that fails first.
 - **Enter on step 4 with one item submits the whole form.** A form with a single text
   input submits on Enter; validation then fails on later steps' fields and nothing
   visible happens. Swallow Enter on steps 1–6, or map it to Next.
+
+**Tour titles from the AI:**
+
+- **Each tour should come back as `{ title, description }`.** The tours carousel already
+  has the title slot, filled with a muted "Tour title" placeholder
+  (`tours.untitled` in `trips/content.ts`, `data-placeholder` on the `h3`), because
+  the `tripData` tool returns each tour as one string. To finish it:
+  - `src/app/api/anthropicApi.ts` — make `tours` an array of objects with a short
+    `title` and the `description`, and say so in the tool description.
+  - `src/test/fixtures/tripData.ts` — give the fixture tours titles; the e2e journey
+    asserts the placeholder today and should assert a real title instead.
+  - Nothing to change in the components: `toTours` (`trips/tours.ts`) already reads
+    both shapes, and `Trip.tours` is `Json`, so no migration.
+  - Decide what **old saved trips** show — they stay plain strings forever. Keep the
+    placeholder, or hide the slot when `title` is missing (the card is sized by the
+    invisible sizers, so either is shift-free).
 
 **Smaller:**
 

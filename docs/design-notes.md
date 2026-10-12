@@ -316,7 +316,7 @@ text written inline in JSX, and the file should read like copy.
 | --- | --- | --- |
 | `Reveal` | `sorbet/` | Use for every scroll entrance. |
 | `MotionProvider` | `sorbet/` | Mounted once in `providers.tsx`; don't nest another. |
-| `TripCard` | `sorbet/` | Pastel card: title, optional `body` line, chip, arrow. Takes `{ card, className, titleClassName, interactive }`; `titleClassName` lifts the 14ch cap for sentence titles (the trip's tours). Owns the `ItineraryCard` type. |
+| `TripCard` | `sorbet/` | Pastel card: title, optional `body` line, chip, arrow. Takes `{ card, className, interactive }`. Owns the `ItineraryCard` type. |
 | `Polaroid` | `sorbet/` | White frame, handwritten caption. `card` (default): a link, the traveller's username, arrow, fan tilt by `index` from `sm` up. `lg`: the trip title as h1, no link, no tilt. The caller wraps it in `Reveal`. Never on a white ground: the frame is white paper and only its shadow would show. |
 | `SquiggleLoader` | `sorbet/` | Decorative: the `Squiggle` loop drawn on, carried along and drawn off on repeat — the app's only loading mark: `LoaderResponseAI`, the route `Loader`, the saved-trips grid and the form's city check. `react-spinners` is no longer imported anywhere (step 6 drops the dependency). Keeps running under reduced motion (it animates `pathLength`, not a transform), since it is the only sign the wait is not stuck. |
 | `SquiggleArrow` | `sorbet/` | Decorative: the `Squiggle` hand, a loop dropping into a down arrow; draws on in view. Hangs from the `/saved-trips` search to point at the grid. |
@@ -328,6 +328,7 @@ text written inline in JSX, and the file should read like copy.
 | `Intro`, `IntroContext` | `landing/` | |
 | `Hero`, `WordmarkBlock`, `TripTypePills`, `PhotoBand`, `HowItWorks`, `WeatherPacking`, `ClosingCta` | `landing/` | Sections. |
 | `TripPage`, `Section`, `SectionHeading`, `MediaFrame`, `Closing` and the ten sections | `trips/` | Both trip routes. `TripPage` lays out the shared sections and takes the route's closing; `Closing` is the lime last section (tip, then the route's pills — ink primary, ink-outline secondary, because a lime secondary vanishes on lime). `MediaFrame` is 16:10 when stacked, 4:5 beside copy from `lg`. |
+| `ToursCarousel` | `trips/` | The suggested tours, one wide pastel card at a time. Controls **above** the card (counter, dots, previous/next ink discs, wrapping) so they never move; arrow keys and swipe too. WAI carousel semantics — named `carousel` region, `slide` groups labelled "n of total", a polite live region. Chip, title (`text-xl` → `lg:text-[1.75rem]`) and description (`text-lg md:text-xl`, ink/75) sit at the top of the card, so a short tour reads at once. Until the AI returns tour titles the title is a muted "Tour title" placeholder (follow-up in PLAN); `toTours` reads both the string and the `{ title, description }` shape. **Every tour is also rendered invisibly in the same grid cell**, so the card is as tall as the longest tour and the page below never shifts; `trip-journey.spec` pins the height with a deliberately long fixture tour. HeroUI v3 has no carousel. |
 
 Server components by default. Only these are `"use client"`: `Hero`, `Intro`,
 `IntroContext`, `MotionProvider`, `Reveal`, `SiteNav`, `Squiggle`, `SquiggleArrow`, `StickerBadge`,
