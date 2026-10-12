@@ -15,7 +15,7 @@ function ForecastSection() {
   const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
   const { formData } = useFormData();
-  const { generateDailyForecast, dailyForecastData, isPendingDailyForecast } = useWeather();
+  const { generateDailyForecast, dailyForecastData, errorDailyForecast } = useWeather();
 
   const city = trip?.city || formData?.city;
   const country = trip?.country || formData?.country;
@@ -39,7 +39,10 @@ function ForecastSection() {
     formData?.country,
   ]);
 
+  // Undefined until the first forecast arrives (see WeatherContext): loading
+  // until then, unless the request failed. An empty list is a real answer.
   const days = dailyForecastData ?? [];
+  const loading = dailyForecastData === undefined && !errorDailyForecast;
 
   return (
     <Section ground="bg-white">
@@ -59,7 +62,7 @@ function ForecastSection() {
             </li>
           ))}
         </ul>
-      ) : isPendingDailyForecast ? (
+      ) : loading ? (
         <div role="status" aria-label={copy.loading} className="mt-12">
           <SquiggleLoader className="h-12 w-20" />
         </div>

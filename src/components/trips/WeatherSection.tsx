@@ -25,7 +25,7 @@ function WeatherSection() {
   const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
   const { formData } = useFormData();
-  const { generateWeather, weatherData, isPendingWeather } = useWeather();
+  const { generateWeather, weatherData, errorWeather } = useWeather();
 
   const city = trip?.city || formData?.city;
   const country = trip?.country || formData?.country;
@@ -55,7 +55,9 @@ function WeatherSection() {
       <SectionHeading eyebrow={copy.eyebrow} heading={copy.heading} />
       {weatherData ? (
         <WeatherCard weatherData={weatherData} place={`${city}, ${country}`} />
-      ) : isPendingWeather ? (
+      ) : !errorWeather ? (
+        // Loading until there is weather or an error — including the first render,
+        // before the effect above has even started the request.
         <div role="status" aria-label={copy.loading} className="mt-12">
           <SquiggleLoader className="h-12 w-20" />
         </div>

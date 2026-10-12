@@ -320,18 +320,22 @@ describe("WeatherSection", () => {
     expect(icon).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("shows a loading status while the weather is on its way", () => {
-    renderGeneratedTrip(<WeatherSection />, {
-      weather: { generateWeather, isPendingWeather: true },
-    });
-
-    expect(screen.getByRole("status", { name: weather.loading })).toBeInTheDocument();
-  });
-
-  it("says so when there is no weather", () => {
+  it("shows the loader on the first render, before the request has started", () => {
+    // The request starts in an effect, after the first render: no data, nothing
+    // pending yet. This used to flash "not available" for a frame.
     renderGeneratedTrip(<WeatherSection />, { weather: { generateWeather } });
 
+    expect(screen.getByRole("status", { name: weather.loading })).toBeInTheDocument();
+    expect(screen.queryByText(weather.unavailable)).not.toBeInTheDocument();
+  });
+
+  it("says so only when the request failed", () => {
+    renderGeneratedTrip(<WeatherSection />, {
+      weather: { generateWeather, errorWeather: new Error("down") },
+    });
+
     expect(screen.getByText(weather.unavailable)).toBeInTheDocument();
+    expect(screen.queryByRole("status", { name: weather.loading })).not.toBeInTheDocument();
   });
 });
 
@@ -368,16 +372,25 @@ describe("ForecastSection", () => {
     expect(within(cards[0]).getByText("Clouds")).toBeInTheDocument();
   });
 
-  it("shows a loading status while the forecast is on its way", () => {
-    renderGeneratedTrip(<ForecastSection />, {
-      weather: { generateDailyForecast, isPendingDailyForecast: true },
-    });
+  it("shows the loader until the first forecast arrives", () => {
+    renderGeneratedTrip(<ForecastSection />, { weather: { generateDailyForecast } });
 
     expect(screen.getByRole("status", { name: forecast.loading })).toBeInTheDocument();
+    expect(screen.queryByText(forecast.unavailable)).not.toBeInTheDocument();
   });
 
-  it("says so when there is no forecast", () => {
-    renderGeneratedTrip(<ForecastSection />, { weather: { generateDailyForecast } });
+  it("says so when the forecast came back with no days", () => {
+    renderGeneratedTrip(<ForecastSection />, {
+      weather: { generateDailyForecast, dailyForecastData: [] },
+    });
+
+    expect(screen.getByText(forecast.unavailable)).toBeInTheDocument();
+  });
+
+  it("says so when the request failed", () => {
+    renderGeneratedTrip(<ForecastSection />, {
+      weather: { generateDailyForecast, errorDailyForecast: new Error("down") },
+    });
 
     expect(screen.getByText(forecast.unavailable)).toBeInTheDocument();
   });
