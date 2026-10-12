@@ -1,5 +1,5 @@
 "use client";
-import { useState, createContext } from "react";
+import { useState, useEffect, createContext } from "react";
 import type {
   FieldName,
   FinalDataTypes,
@@ -54,6 +54,7 @@ const defaultContextValue: FormContextType = {
   countryCode: "",
   fields: [],
   append: () => {},
+  insert: () => {},
   remove: () => {},
   setValue: () => {},
   isWeatherSelected: false,
@@ -81,6 +82,7 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     reset,
     trigger,
     getValues,
+    getFieldState,
     setValue,
     formState: { errors, isValid },
   } = useForm<Inputs>({
@@ -107,7 +109,7 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, insert, remove } = useFieldArray({
     control,
     name: "requiredItems",
   });
@@ -151,6 +153,22 @@ function FormProvider({ children }: { children: React.ReactNode }) {
       }
     }
   };
+
+  // Errors appear on Next (`trigger` in `next`), but should go as soon as the
+  // field is fixed. Any value change re-checks the current step's fields that
+  // are showing one — a watch, not RHF's `mode`, because the comboboxes and
+  // choice groups write without a blur, and an end date's error can be fixed
+  // by changing the start date.
+  useEffect(() => {
+    const { unsubscribe } = watch((_, { name }) => {
+      if (!name) return;
+      const stale = (steps[currentStep].fields as FieldName[]).filter(
+        (field) => getFieldState(field).error,
+      );
+      if (stale.length) trigger(stale);
+    });
+    return unsubscribe;
+  }, [watch, trigger, getFieldState, currentStep]);
 
   const stepValue = steps[currentStep].stepValue;
 
@@ -252,6 +270,7 @@ function FormProvider({ children }: { children: React.ReactNode }) {
         countryCode,
         fields,
         append,
+        insert,
         remove,
         setValue,
         isWeatherSelected,

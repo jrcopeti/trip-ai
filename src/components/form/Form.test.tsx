@@ -110,6 +110,28 @@ describe("Form", () => {
     expect(screen.getByRole("heading", { level: 1, name: stepCopy[0].title })).toBeInTheDocument();
   });
 
+  it("clears a field's message as soon as the field is fixed, and only that one", async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await user.click(screen.getByRole("button", { name: buttons.next }));
+    await screen.findByText("Name is required");
+
+    await user.type(screen.getByRole("textbox", { name: /^name/i }), "Ana");
+
+    await waitFor(() => expect(screen.queryByText("Name is required")).not.toBeInTheDocument());
+    expect(screen.getByText("Age is required")).toBeInTheDocument();
+  });
+
+  it("shows no message on a field before Next is pressed", async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.type(screen.getByRole("textbox", { name: /^name/i }), "Ana");
+    await user.clear(screen.getByRole("textbox", { name: /^name/i }));
+
+    expect(screen.queryByText("Name is required")).not.toBeInTheDocument();
+  });
+
   it("blocks a premature Next on step 3 with a message per question", async () => {
     const user = userEvent.setup();
     renderForm();
@@ -121,6 +143,21 @@ describe("Form", () => {
     expect(screen.getByText("Accommodation is required")).toBeInTheDocument();
     expect(screen.getByText("Budget is required")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: stepCopy[2].title })).toBeInTheDocument();
+  });
+
+  it("clears a question's message once a chip is chosen", async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await walkTo(2, user);
+    await user.click(screen.getByRole("button", { name: buttons.next }));
+    await screen.findByText("Type of travel is required");
+
+    await user.click(screen.getByText("Cultural"));
+
+    await waitFor(() =>
+      expect(screen.queryByText("Type of travel is required")).not.toBeInTheDocument(),
+    );
+    expect(screen.getByText("Budget is required")).toBeInTheDocument();
   });
 
   it("marks a chosen chip as checked", async () => {
@@ -148,6 +185,45 @@ describe("Form", () => {
 
     await user.click(screen.getByRole("button", { name: items.remove(1) }));
     expect(screen.getByText(items.empty)).toBeInTheDocument();
+  });
+
+  it("adds the next item on Enter and moves focus to it", async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await walkTo(3, user);
+
+    await user.type(screen.getByRole("textbox", { name: items.label(1) }), "Passport{Enter}");
+
+    const second = await screen.findByRole("textbox", { name: items.label(2) });
+    await waitFor(() => expect(second).toHaveFocus());
+    expect(screen.getByRole("textbox", { name: items.label(1) })).toHaveValue("Passport");
+    expect(screen.getByRole("heading", { level: 1, name: stepCopy[3].title })).toBeInTheDocument();
+  });
+
+  it("inserts the new item right after the one Enter was pressed in", async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await walkTo(3, user);
+    await user.type(screen.getByRole("textbox", { name: items.label(1) }), "Passport");
+    await user.click(screen.getByRole("button", { name: items.add }));
+    await user.type(screen.getByRole("textbox", { name: items.label(2) }), "Charger");
+
+    await user.type(screen.getByRole("textbox", { name: items.label(1) }), "{Enter}");
+
+    await waitFor(() => expect(screen.getByRole("textbox", { name: items.label(2) })).toHaveFocus());
+    expect(screen.getByRole("textbox", { name: items.label(2) })).toHaveValue("");
+    expect(screen.getByRole("textbox", { name: items.label(3) })).toHaveValue("Charger");
+  });
+
+  it("adds nothing on Enter in an empty item", async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await walkTo(3, user);
+
+    await user.type(screen.getByRole("textbox", { name: items.label(1) }), "{Enter}");
+
+    expect(screen.queryByRole("textbox", { name: items.label(2) })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: stepCopy[3].title })).toBeInTheDocument();
   });
 
   it("goes back a step and keeps what was entered", async () => {
