@@ -10,9 +10,8 @@ import type { NotFoundComponentProps } from "@/types";
  * old `fixed … h-screen overflow-hidden` sat on top of the bar, so there was no
  * way back out except the one button.
  *
- * `w-full` because some callers render it inside a centring flex row — `Form`
- * does, through `Container` — where a block without a width shrinks to its
- * text and leaves the page's old gradient showing either side.
+ * `w-full` so it still fills the width if a caller ever renders it inside a
+ * centring flex row, where a block without a width shrinks to its text.
  */
 function NotFoundComponent({ message, path, button }: NotFoundComponentProps) {
   return (

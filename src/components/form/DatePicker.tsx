@@ -68,7 +68,6 @@ function DatePicker({ label, id, placeholder, onChange, value, ref, invalid }: D
             </span>
           </Popover.Trigger>
           <Popover.Content
-            data-sorbet
             placement="bottom start"
             className="w-auto rounded-3xl border border-sorbet-ink/10 bg-white p-3 font-sorbet text-sorbet-ink shadow-[0_18px_40px_-24px_rgba(48,46,45,0.55)]"
           >

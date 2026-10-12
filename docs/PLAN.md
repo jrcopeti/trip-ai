@@ -12,9 +12,16 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Now
 
-**Step 6 — cleanup and docs.** See the step list below.
+_Nothing in flight._ The sorbet migration is finished (steps 0–6 below).
 
 ## Done
+
+- **Step 6 — cleanup and docs.** ✅ On `sorbet-cleanup`. The old palettes, the
+  `Container`/`GridContainer`/`GradientBg`/`Gradient1`/`GradientConic` panels and
+  their types, `src/components/home/`, `SwiperComponent`, the unlayered `.label` rule,
+  the DALL-E host and six packages are gone; HeroUI's colours are sorbet on `:root`
+  and the `[data-sorbet]` scope is deleted. 4 new unit tests (403 total,
+  `src/test/hygiene.test.ts`); all 44 e2e green against the local throwaway Postgres.
 
 - **Step 5 — trip pages.** ✅ On `sorbet-trip-pages`. Both routes share `TripPage`,
   the large polaroid title, alternating grounds and a lime close; GSAP and Locomotive
@@ -59,7 +66,7 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Next
 
-The follow-ups below, once step 6 lands.
+The follow-ups below.
 
 ## Open questions
 
@@ -662,7 +669,24 @@ mocked `createTripInDB` with the right `saved` flag. E2E happy path with
 `E2E_FIXTURES=1`: form → generated trip → polaroid title → save → the trip appears in
 `/saved-trips`; and discard → it does not.
 
-## Step 6 — Cleanup and docs · `sorbet-cleanup`
+## Step 6 — Cleanup and docs · `sorbet-cleanup` ✅
+
+**Landed.** What the plan did not anticipate:
+
+- `SavedTripsContainer` was already gone; `Gradient1`/`GradientConic` were unreferenced
+  too, so they went with the rest.
+- The old `:root` also set `--default`, `--muted`, `--success` and `--warning`. Only
+  variants we never render read them (`secondary` inputs and checkboxes, coloured
+  progress bars), so they are not mapped — HeroUI's defaults stand until a real use
+  needs a sorbet value.
+- `body`'s colour moved from tuna to ink; the `/saved-trips` search label lost the `!`
+  it needed against the `.label` rule.
+- The old fonts went too: Red Hat Display, Inter and League Spartan are no longer
+  loaded, and `font-sorbet` moved onto `<body>`. `ButtonBackOutlined` got its
+  `cursor-pointer`.
+
+The original plan for this step follows.
+
 
 Every deletion gated on a grep showing zero uses.
 
@@ -687,10 +711,10 @@ Every deletion gated on a grep showing zero uses.
 `swiper` import and no old-palette class prefix remains in `src/`; `package.json` no
 longer lists the removed deps. Full `npm test` and `npm run test:e2e` green.
 
-## Follow-ups — after step 6
+## Follow-ups
 
 Issues noticed during the migration that predate it or sit outside a step's scope.
-Left alone on purpose so each step stayed a restyle; pick them up once step 6 lands.
+Left alone on purpose so each step stayed a restyle.
 Each wants a test that fails first.
 
 **Form bugs** (from `/code-review` on `sorbet-form`):
@@ -734,9 +758,12 @@ Each wants a test that fails first.
 
 **Smaller:**
 
-- **HeroUI's derived soft colours stay teal inside `[data-sorbet]`** (`--accent-soft`,
-  `--danger-soft` are computed once at `:root`). Nothing uses them yet; step 6's
-  `:root` flip fixes it for free — check it did.
+- **Rename `isTripSaved` to `hasAnswered`.** `useCreateTrip` sets it `true` in both
+  `handleYesAnswer` and `handleNoAnswer`, so it means "the user has answered the save
+  question", not "the trip is saved" — which made `SaveSection`'s "What next?" branch
+  read as dead code in review. Touches `TripContext` (and `src/types/index.ts`),
+  `useCreateTrip`, `useConfirmonPageExit`, `SaveSection`, and the `closing`,
+  `TripContext` and `useCreateTrip` tests. Behaviour unchanged.
 - **Accented cities sort after plain ones** on `/saved-trips` ("málaga" after
   "munich"): the database collation. Order by `city` with a case/accent-insensitive
   collation, or sort in the action.

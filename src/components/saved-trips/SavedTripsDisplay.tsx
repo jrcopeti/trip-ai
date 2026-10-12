@@ -99,9 +99,7 @@ function SavedTripsDisplay() {
             onChange={handleSearch}
             className="mt-10 flex max-w-lg flex-col gap-3"
           >
-            {/* `!` because globals.css has an unlayered `.label` colour for the
-                unmigrated form, and unlayered CSS beats every layered utility. */}
-            <Label className="text-sorbet-ink/45! text-xs font-medium tracking-[0.12em] uppercase">
+            <Label className="text-sorbet-ink/45 text-xs font-medium tracking-[0.12em] uppercase">
               {header.search.label}
             </Label>
             <div className="relative">
