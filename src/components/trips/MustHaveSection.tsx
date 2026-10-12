@@ -7,6 +7,7 @@ import Reveal from "@/components/sorbet/Reveal";
 import StickerBadge from "@/components/sorbet/StickerBadge";
 import { Section, SectionHeading } from "./Section";
 import { mustHave as copy } from "./content";
+import { PILL_DRIFT, drift } from "./drift";
 
 /** A checklist card in the landing's packing-list idiom: check pills on a pastel. */
 function Checklist({
@@ -28,7 +29,7 @@ function Checklist({
           {items.map((item, i) => (
             <li
               key={i}
-              className="flex items-center gap-3 rounded-full bg-white/70 px-4 py-3"
+              className={`flex items-center gap-3 rounded-full bg-white/70 px-4 py-3 ${drift(PILL_DRIFT, i)}`}
             >
               <span
                 aria-hidden

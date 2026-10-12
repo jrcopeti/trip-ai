@@ -8,6 +8,7 @@ import type { ObjectsListType } from "@/types";
 import { Section, SectionHeading } from "./Section";
 import { objects as copy } from "./content";
 import { CARD_TINTS } from "./tints";
+import { CARD_DRIFT, drift } from "./drift";
 
 function ObjectsSection() {
   const params = useParams();
@@ -33,7 +34,7 @@ function ObjectsSection() {
                   tint: CARD_TINTS[i % CARD_TINTS.length],
                 }}
                 interactive={false}
-                className="h-full"
+                className={`h-full ${drift(CARD_DRIFT, i)}`}
               />
             </Reveal>
           </li>

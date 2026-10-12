@@ -47,7 +47,12 @@ function ForecastSection() {
       {days.length > 0 ? (
         <ul className="mt-20 grid grid-cols-2 gap-x-4 gap-y-14 lg:grid-cols-5">
           {days.map((forecast, i) => (
-            <li key={forecast.dt}>
+            // Two columns below lg: an odd last card spans both and centres at
+            // one column's width (half the row minus half the 1rem gap).
+            <li
+              key={forecast.dt}
+              className="max-lg:last:odd:col-span-2 max-lg:last:odd:w-[calc(50%-0.5rem)] max-lg:last:odd:justify-self-center"
+            >
               <Reveal delay={0.06 * i} className="h-full">
                 <ForecastSectionCard forecast={forecast} />
               </Reveal>

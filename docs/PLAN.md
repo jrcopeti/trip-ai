@@ -608,9 +608,9 @@ steps at 1440 and 390, assert validation blocks a premature "next".
   Forecast ground, where they would have had no edge.
 - **Secondary pills on lime are ink outlines** — a lime secondary vanishes on the lime
   close.
-- **Photos 3–5 show from `lg` only** (beside copy); stacked, three more full-width
-  frames made the phone page much longer for no information. `MediaFrame` is 16:10
-  stacked, 4:5 beside copy.
+- **`MediaFrame` is 16:10 stacked, 4:5 beside copy.** Photos 3–5 first showed from
+  `lg` only; photo 3 then moved to its own section, and 4 and 5 came back on phones
+  under their section's content.
 - **Small fixes on the way:** blank required items and interests (the form keeps an
   empty first row) no longer render as empty pills or a "--"; weather and forecast show
   a squiggle status while loading instead of "not available"; the flag has a real alt

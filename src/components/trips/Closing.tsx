@@ -46,7 +46,7 @@ function Closing({
             <p className="text-sm font-medium uppercase tracking-[0.18em] text-sorbet-ink/50">
               {copy.eyebrow}
             </p>
-            <p className="mt-4 max-w-2xl text-[clamp(1.5rem,3vw,2.25rem)] font-medium leading-snug tracking-[-0.02em] text-sorbet-ink">
+            <p className="mt-4 max-w-2xl text-[clamp(1.25rem,2.5vw,1.875rem)] font-medium leading-snug tracking-[-0.02em] text-sorbet-ink">
               {tip}
             </p>
           </Reveal>
@@ -55,7 +55,7 @@ function Closing({
             <div className="mt-5 flex flex-wrap gap-3">{children}</div>
           </Reveal>
         </div>
-        <Reveal delay={0.12} className="hidden lg:block">
+        <Reveal delay={0.12}>
           <MediaFrame>
             <Image
               src={image}
@@ -63,7 +63,7 @@ function Closing({
               fill
               placeholder="blur"
               blurDataURL={placeholder}
-              sizes="400px"
+              sizes="(min-width: 1024px) 400px, 100vw"
               className="object-cover"
             />
           </MediaFrame>

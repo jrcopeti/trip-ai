@@ -126,6 +126,15 @@ test.describe("trip journey", () => {
     }
     await noHorizontalScroll(page);
 
+    // Every photo shows on a phone too — the details and closing photos used to
+    // be desktop-only.
+    const sections = page.locator("main > section");
+    for (const section of [sections.nth(-2), sections.last()]) {
+      const photo = section.locator("img").last(); // the details also hold the flag
+      await photo.scrollIntoViewIfNeeded();
+      await expect(photo).toBeVisible();
+    }
+
     await page.getByRole("button", { name: "No, thanks" }).click();
     // The answer is written either way; wait for it before looking.
     await expect(page.getByRole("heading", { name: "What next?" })).toBeVisible();

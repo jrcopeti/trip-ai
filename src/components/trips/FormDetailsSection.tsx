@@ -113,7 +113,7 @@ function FormDetailsSection() {
           </Reveal>
         </div>
 
-        <Reveal delay={0.12} className="hidden lg:block">
+        <Reveal delay={0.12}>
           <MediaFrame>
             <Image
               src={image4 ?? defaultImage4}
@@ -121,7 +121,7 @@ function FormDetailsSection() {
               fill
               placeholder="blur"
               blurDataURL={placeholder ?? defaultPlaceholder}
-              sizes="400px"
+              sizes="(min-width: 1024px) 400px, 100vw"
               className="object-cover"
             />
           </MediaFrame>

@@ -202,6 +202,17 @@ describe("ObjectsSection", () => {
     });
   });
 
+  it("gives neighbouring cards a different hover lean, eased with an overshoot", () => {
+    renderGeneratedTrip(<ObjectsSection />);
+
+    const cards = screen.getAllByRole("article");
+    const lean = (el: HTMLElement) => el.className.match(/hover:-?rotate-\S+/)?.[0];
+    expect(lean(cards[0])).toBeDefined();
+    expect(lean(cards[0])).not.toBe(lean(cards[1]));
+    expect(lean(cards[1])).not.toBe(lean(cards[2]));
+    expect(cards[0].className).toContain("motion-reduce:transition-none");
+  });
+
   it("renders the saved trip's list", async () => {
     renderSavedTrip(<ObjectsSection />);
 
@@ -228,6 +239,17 @@ describe("MustHaveSection", () => {
     const ring = screen.getAllByText(new RegExp(mustHave.badge), { exact: false })[0];
     expect(ring.closest("[aria-hidden]")).not.toBeNull();
     expect(container.querySelector("img")).toBeNull();
+  });
+
+  it("gives neighbouring pills a different hover lean", () => {
+    renderGeneratedTrip(<MustHaveSection />);
+
+    const mustList = screen.getByRole("heading", { name: mustHave.mustHave }).parentElement!;
+    const pills = within(mustList).getAllByRole("listitem");
+    const lean = (el: HTMLElement) => el.className.match(/hover:-?rotate-\S+/)?.[0];
+    expect(lean(pills[0])).toBeDefined();
+    expect(lean(pills[0])).not.toBe(lean(pills[1]));
+    expect(pills[0].className).toContain("motion-reduce:transition-none");
   });
 
   it("drops blank required items and says so when none are left", async () => {

@@ -44,8 +44,8 @@ type Props = CardProps | LargeProps;
  *
  * `card` (the default) is a saved-trip tile: the whole thing is a link, tilted on
  * a fan from `sm` up, straightening and lifting on hover. `lg` is the trip title on
- * both trip routes: same frame, wider, the caption is the page's h1, and it is
- * neither a link nor tilted.
+ * both trip routes: same frame, wider, the caption is the page's h1, not a link;
+ * it rests on the fan's first angle and straightens on hover like the cards.
  *
  * The entrance is the caller's: wrap it in `Reveal`.
  */
@@ -54,7 +54,11 @@ function Polaroid(props: Props) {
 
   if (props.size === "lg") {
     return (
-      <article className={`w-full max-w-md rounded-2xl bg-white p-3 pb-0 ${SHADOW}`}>
+      // Rests on the fan's first angle and straightens and lifts on hover, as the
+      // saved-trips cards do; untilted below `sm` for the same gutter reason.
+      <article
+        className={`w-full max-w-md rounded-2xl bg-white p-3 pb-0 transition-transform duration-300 hover:-translate-y-2 sm:hover:rotate-0 motion-reduce:transition-none ${POLAROID_TILT[0]} ${SHADOW}`}
+      >
         <div className="relative aspect-square overflow-hidden rounded-xl">
           <Image
             src={image}

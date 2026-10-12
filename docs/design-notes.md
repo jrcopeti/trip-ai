@@ -258,7 +258,7 @@ Any element whose `style` takes a `useTransform` output needs `className="parall
 | Loader sentence | words staggered 0.09s: `y 18→0`, `rotate ±6→0`, `blur 6px→0`, 0.7s; out 0.04s stagger, 0.35s |
 | Sticker spin | `\|spin\|` seconds per turn, `linear`, `Infinity` |
 | Parallax | `[0, 90]` slow / `[0, 170]` fast over the hero's scroll |
-| Hover | `scale-[1.03]` buttons, `scale-105` pills, `-translate-y-2` deck cards |
+| Hover | `scale-[1.03]` buttons, `scale-105` pills, `-translate-y-2` deck cards and polaroids; the trip page's packing cards and Essentials pills drift — a per-item lift and lean (`trips/drift.ts`: `CARD_DRIFT`, and the gentler `PILL_DRIFT`), 0.5s with an overshoot ease `[0.34, 1.56, 0.64, 1]` |
 
 Framer Motion is the only motion library in use. GSAP and Locomotive Scroll left the
 trip pages in step 5 (their hooks are deleted); the packages go in step 6.
@@ -317,7 +317,7 @@ text written inline in JSX, and the file should read like copy.
 | `Reveal` | `sorbet/` | Use for every scroll entrance. |
 | `MotionProvider` | `sorbet/` | Mounted once in `providers.tsx`; don't nest another. |
 | `TripCard` | `sorbet/` | Pastel card: title, optional `body` line, chip, arrow. Takes `{ card, className, interactive }`. Owns the `ItineraryCard` type. |
-| `Polaroid` | `sorbet/` | White frame, handwritten caption. `card` (default): a link, the traveller's username, arrow, fan tilt by `index` from `sm` up. `lg`: the trip title as h1, no link, no tilt. The caller wraps it in `Reveal`. Never on a white ground: the frame is white paper and only its shadow would show. |
+| `Polaroid` | `sorbet/` | White frame, handwritten caption. `card` (default): a link, the traveller's username, arrow, fan tilt by `index` from `sm` up. `lg`: the trip title as h1, no link; rests on the fan's first angle from `sm` up and straightens and lifts on hover, like the cards. The caller wraps it in `Reveal`. Never on a white ground: the frame is white paper and only its shadow would show. |
 | `SquiggleLoader` | `sorbet/` | Decorative: the `Squiggle` loop drawn on, carried along and drawn off on repeat — the app's only loading mark: `LoaderResponseAI`, the route `Loader`, the saved-trips grid and the form's city check. `react-spinners` is no longer imported anywhere (step 6 drops the dependency). Keeps running under reduced motion (it animates `pathLength`, not a transform), since it is the only sign the wait is not stuck. |
 | `SquiggleArrow` | `sorbet/` | Decorative: the `Squiggle` hand, a loop dropping into a down arrow; draws on in view. Hangs from the `/saved-trips` search to point at the grid. |
 | `SiteNav` | `ui/` | The nav, on every route. See below. |
