@@ -5,6 +5,7 @@ import Hero from "@/components/landing/Hero";
 import HowItWorks from "@/components/landing/HowItWorks";
 import Intro from "@/components/landing/Intro";
 import { IntroProvider } from "@/components/landing/IntroContext";
+import loadLatestTrips from "@/components/landing/loadLatestTrips";
 import PhotoBand from "@/components/landing/PhotoBand";
 import TripTypePills from "@/components/landing/TripTypePills";
 import WeatherPacking from "@/components/landing/WeatherPacking";
@@ -21,15 +22,17 @@ import pickTravelPhoto from "@/lib/pickTravelPhoto";
  */
 async function Homepage() {
   // Per-request rendering, as `/about` does: otherwise the band's "random" photo
-  // is picked once at build time and every visitor gets the same one.
+  // is picked once at build time and every visitor gets the same one, and the
+  // hero's latest trips are whatever was saved when the site was built.
   await connection();
+  const latestTrips = await loadLatestTrips();
 
   return (
     <IntroProvider>
       <div className="min-h-dvh bg-sorbet-canvas font-sorbet text-sorbet-ink antialiased">
         <Intro />
         <main>
-          <Hero />
+          <Hero trips={latestTrips} />
           <WordmarkBlock />
           <TripTypePills />
           <PhotoBand photo={pickTravelPhoto()} />

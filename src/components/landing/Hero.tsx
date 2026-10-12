@@ -8,16 +8,28 @@ import { BsCompass } from "react-icons/bs";
 import { TbBackpack } from "react-icons/tb";
 import { LuTreePalm } from "react-icons/lu";
 
+import image1 from "@/assets/travel-photos/1.jpg";
+import type { LatestTrip } from "@/db/actions";
+import { defaultPlaceholder } from "@/lib/constants";
 import { useIntro } from "./IntroContext";
+import Polaroid from "@/components/sorbet/Polaroid";
 import StickerBadge from "@/components/sorbet/StickerBadge";
 import Squiggle from "./Squiggle";
-import TripCard from "@/components/sorbet/TripCard";
-import { heroDeck, heroEyebrow } from "./content";
+import { heroDeckLabel, heroEyebrow } from "./content";
 
-/** Fan angles for the deck, outer cards tilted away from centre. */
-const fan = ["-rotate-3 md:-rotate-4", "rotate-2 md:rotate-0 md:-translate-y-4", "-rotate-1 md:rotate-4"];
+/**
+ * Stacking for the deck below `md`, where the cards overlap in a column: each
+ * sits *under* the one before, so the overlap hides the top of a photo rather
+ * than the caption on the lip above it.
+ */
+const stack = ["z-30", "z-20", "z-10"];
 
-function Hero() {
+type Props = {
+  /** The latest saved trips, newest first; up to three, and possibly none. */
+  trips: LatestTrip[];
+};
+
+function Hero({ trips }: Props) {
   const ref = useRef<HTMLElement>(null);
   const { done: introDone } = useIntro();
   const { scrollYProgress } = useScroll({
@@ -107,20 +119,32 @@ function Hero() {
           </div>
         </div>
 
-        {/* The deck stands in for the product surface: what Trip AI hands back. */}
-        <div className="mt-16 flex flex-col items-center md:mt-20 md:flex-row md:items-end md:justify-center">
-          {heroDeck.map((card, i) => (
-            <motion.div
-              key={card.title}
-              initial={{ opacity: 0, y: 28 }}
-              animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
-              transition={{ duration: 0.6, delay: 0.3 + 0.15 * i, ease: [0.22, 1, 0.36, 1] }}
-              className={`${fan[i]} ${i > 0 ? "-mt-20 md:ml-5 md:mt-0" : ""} w-60 shadow-[0_18px_40px_-24px_rgba(48,46,45,0.55)] transition-transform duration-300 hover:-translate-y-2 md:w-64`}
-            >
-              <TripCard card={card} />
-            </motion.div>
-          ))}
-        </div>
+        {/* The deck is the product's output: the latest trips people kept. */}
+        {trips.length > 0 && (
+          <ul
+            aria-label={heroDeckLabel}
+            className="mt-16 flex flex-col items-center md:mt-20 md:flex-row md:items-end md:justify-center"
+          >
+            {trips.map((trip, i) => (
+              <motion.li
+                key={trip.id}
+                initial={{ opacity: 0, y: 28 }}
+                animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+                transition={{ duration: 0.6, delay: 0.3 + 0.15 * i, ease: [0.22, 1, 0.36, 1] }}
+                className={`relative ${stack[i]} ${i > 0 ? "-mt-20 md:ml-5 md:mt-0" : ""} w-60 md:w-64`}
+              >
+                <Polaroid
+                  href={`/saved-trips/${trip.id}`}
+                  image={trip.image ?? image1}
+                  placeholder={trip.placeholder ?? defaultPlaceholder}
+                  caption={`${trip.city.trim()}, ${trip.country}`}
+                  username={trip.userName}
+                  index={i}
+                />
+              </motion.li>
+            ))}
+          </ul>
+        )}
       </div>
     </section>
   );

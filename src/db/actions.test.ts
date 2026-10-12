@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createTripInDB,
+  getLatestSavedTrips,
   getSavedTripsPage,
   getSingleSavedTrip,
 } from "@/db/actions";
@@ -148,6 +149,35 @@ describe("getSavedTripsPage", () => {
     resolve([], 0);
 
     await expect(getSavedTripsPage("atlantis", 0)).resolves.toEqual({ trips: [], total: 0 });
+  });
+});
+
+describe("getLatestSavedTrips", () => {
+  it("asks for the three newest saved trips, newest first, ties broken by id", async () => {
+    vi.mocked(trip.findMany).mockResolvedValue([tripFixture2, tripFixture]);
+
+    const result = await getLatestSavedTrips();
+
+    expect(trip.findMany).toHaveBeenCalledWith({
+      where: { saved: true },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      take: 3,
+      select: {
+        id: true,
+        city: true,
+        country: true,
+        userName: true,
+        image: true,
+        placeholder: true,
+      },
+    });
+    expect(result).toEqual([tripFixture2, tripFixture]);
+  });
+
+  it("propagates a read failure, for the caller to decide", async () => {
+    vi.mocked(trip.findMany).mockRejectedValue(new Error("connection refused"));
+
+    await expect(getLatestSavedTrips()).rejects.toThrow("connection refused");
   });
 });
 

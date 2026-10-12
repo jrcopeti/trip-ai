@@ -25,7 +25,8 @@ Decided with the user:
 
 ## Now
 
-- **Branch 1** · `landing-copy` — staged for review.
+- **Branch 1** · `landing-copy` — merged (#178).
+- **Branch 2** · `landing-polaroids` — staged for review.
 
 ## Branch 1 — `landing-copy` (items 2, 4, 5, 6, 7)
 
@@ -84,8 +85,16 @@ gains: five tour cards render; no horizontal scroll at 390 still holds.
   own `fan` rotations, since `Polaroid` already tilts by `index` (and never below
   `sm`). Fewer than three saved trips: show what there is; none: no deck.
   `heroDeck` and the old `itineraryCards` sample data are gone after branches 1–2.
+- As built: the action `select`s only the polaroid's fields (`LatestTrip`), so the
+  client component is not handed whole rows. The catch lives in
+  `landing/loadLatestTrips.ts`, which logs the error and returns `[]` — a pure
+  helper, since RTL cannot render the async page. Below `md` the deck still
+  overlaps, but each card sits *under* the one before (`z-30/20/10`): stacked the
+  other way, the overlap hid the caption on the card above. The deck is a `<ul>`
+  named "Latest saved trips".
 - Tests: action (mocked `@/db`: ordering, `take`, `saved`), `Hero` (three polaroids
-  linking to their trips; none when empty). `landing.spec`: the seed has two saved
+  linking to their trips; none when empty), the loader (passes trips through; a
+  database error becomes `[]` and is logged). `landing.spec`: the seed has two saved
   trips → two polaroids, the first opens `/saved-trips/{id}`; the discarded one
   never appears.
 
