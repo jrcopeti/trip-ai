@@ -1,11 +1,5 @@
 import Reveal from "@/components/sorbet/Reveal";
-
-const meta = [
-  { label: "Model", value: "Claude Sonnet" },
-  { label: "Weather", value: "OpenWeather" },
-  { label: "Photos", value: "Unsplash" },
-  { label: "Steps in the form", value: "Seven" },
-];
+import { features } from "./content";
 
 function WordmarkBlock() {
   return (
@@ -13,7 +7,7 @@ function WordmarkBlock() {
       <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1.6fr_1fr] lg:gap-20">
         <Reveal>
           <p className="mb-8 text-sm font-medium uppercase tracking-[0.18em] text-sorbet-ink/50">
-            Your new travel friend
+            {features.eyebrow}
           </p>
 
           {/* Logo lockup: the wordmark with the app tile tucked under its tail. */}
@@ -35,13 +29,16 @@ function WordmarkBlock() {
 
         <Reveal delay={0.1}>
           <dl className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
-            {meta.map((row) => (
-              <div key={row.label} className="border-t border-sorbet-ink/15 pt-4">
-                <dt className="text-xs font-medium uppercase tracking-[0.12em] text-sorbet-ink/45">
-                  {row.label}
-                </dt>
-                <dd className="mt-1 text-lg font-semibold text-sorbet-ink">
-                  {row.value}
+            {features.items.map((feature) => (
+              // Rules divide the features, so none above the first row: the
+              // first item, plus the second while they sit in two columns.
+              <div
+                key={feature.title}
+                className="border-t border-sorbet-ink/15 pt-4 first:border-t-0 first:pt-0 sm:nth-2:border-t-0 sm:nth-2:pt-0 lg:nth-2:border-t lg:nth-2:pt-4"
+              >
+                <dt className="text-lg font-semibold text-sorbet-ink">{feature.title}</dt>
+                <dd className="mt-1 text-base leading-relaxed text-sorbet-ink/70">
+                  {feature.body}
                 </dd>
               </div>
             ))}

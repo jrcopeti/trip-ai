@@ -252,7 +252,9 @@ Plaiceholder generates base64 blur placeholders server-side.
 placeholder }` per photo, typed as `TravelPhoto`. `alt` describes what is in frame and
 claims no place; `tripType` is one of the form's trip-type values; `placeholder` is the
 plaiceholder blur of that file, regenerated with `node generatePlaceholder.mjs`.
-`src/data/index.test.ts` keeps alts and blurs unique.
+`src/data/index.test.ts` keeps alts and blurs unique. `pickTravelPhoto` (`src/lib/`)
+picks one at random on the server — `/about`'s photo and the landing's band — so both
+pages call `await connection()` to render per request.
 
 ### Database
 Single `Trip` model (Postgres via Prisma). `relationMode = "prisma"` is set for PlanetScale/edge compatibility. All trips are written immediately (saved or not); `saved: boolean` distinguishes them.

@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import { renderWithProviders, screen } from "@/test/render";
 import AboutComponent from "@/components/about/AboutComponent";
-import pickAboutImage from "@/components/about/pickAboutImage";
+import pickTravelPhoto from "@/lib/pickTravelPhoto";
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("next/image", async () => ({
   default: (await import("@/test/stubs/next")).NextImage,
 }));
 
-const image = pickAboutImage(() => 0);
+const image = pickTravelPhoto(() => 0);
 
 describe("AboutComponent", () => {
   it("renders the page heading", () => {

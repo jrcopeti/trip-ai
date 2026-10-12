@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { photos, steps } from "./content";
+import { photos, steps, stepsHeading } from "./content";
 import Reveal from "@/components/sorbet/Reveal";
 
 function HowItWorks() {
@@ -8,8 +8,8 @@ function HowItWorks() {
     <section className="bg-sorbet-canvas px-5 py-20 sm:px-8 md:py-28">
       <div className="mx-auto max-w-6xl">
         <Reveal>
-          <h2 className="max-w-2xl text-[clamp(2rem,5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-sorbet-ink">
-            Three steps, start to bag.
+          <h2 className="max-w-2xl text-[clamp(2rem,5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-balance text-sorbet-ink">
+            {stepsHeading}
           </h2>
         </Reveal>
 
@@ -18,7 +18,11 @@ function HowItWorks() {
           <ol className="grid gap-8">
             {steps.map((step, i) => (
               <Reveal key={step.n} delay={0.07 * i}>
-                <li className="flex gap-5 border-t border-sorbet-ink/15 pt-6">
+                {/* Rules divide the steps, so none above the first. Each `li`
+                    sits alone in its `Reveal`, so `first:` cannot tell. */}
+                <li
+                  className={`flex gap-5 ${i > 0 ? "border-t border-sorbet-ink/15 pt-6" : ""}`}
+                >
                   <span className="text-sm font-semibold tabular-nums text-sorbet-ink/40">
                     {step.n}
                   </span>
