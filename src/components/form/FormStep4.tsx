@@ -8,7 +8,7 @@ import { items } from "./content";
 import { field, fieldInput, fieldLabel, focusTriad, limePill } from "./styles";
 
 function FormStep4() {
-  const { currentStep, fields, control, append, remove } = useFormData();
+  const { currentStep, fields, control, append, insert, remove } = useFormData();
 
   if (currentStep !== 3) return null;
 
@@ -22,12 +22,24 @@ function FormStep4() {
             <li className="flex items-end gap-3" key={item.id}>
               <Controller
                 control={control}
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                name={`requiredItems[${index}].item` as any}
+                // Dotted, not `[${index}]`: RHF finds a row to focus by its
+                // dotted path, so a bracketed name is never focused.
+                name={`requiredItems.${index}.item`}
                 render={({ field: { ref, ...fieldProps } }) => (
                   <TextField {...fieldProps} className={field}>
                     <Label className={fieldLabel}>{items.label(index + 1)}</Label>
-                    <Input ref={ref} className={fieldInput} />
+                    <Input
+                      ref={ref}
+                      // Enter adds the next item below and focuses it (RHF's
+                      // `insert` focuses by default), as list inputs do. Left
+                      // alone it would submit the form, which fails silently.
+                      onKeyDown={(e) => {
+                        if (e.key !== "Enter" || e.nativeEvent.isComposing) return;
+                        e.preventDefault();
+                        if (fieldProps.value?.trim()) insert(index + 1, { item: "" });
+                      }}
+                      className={fieldInput}
+                    />
                   </TextField>
                 )}
               />

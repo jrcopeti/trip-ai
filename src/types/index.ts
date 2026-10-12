@@ -126,6 +126,7 @@ export interface FormContextType {
   countryCode?: string;
   fields: { id: string }[];
   append: (data: { item: string }) => void;
+  insert: (index: number, data: { item: string }) => void;
   remove: (index: number) => void;
   setValue: (name: FieldName, value: string) => void;
   isWeatherSelected: boolean;

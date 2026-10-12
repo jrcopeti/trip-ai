@@ -12,14 +12,21 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Now
 
-**Follow-ups, one branch per group.** Order: form bugs → form behaviour → rename →
-tour titles. The sorbet migration is finished (steps 0–6 below).
+**Follow-ups, one branch per group.** Order: form bugs ✅ → form behaviour →
+rename → tour titles. The sorbet migration is finished (steps 0–6 below).
 
-- **Form bugs** · `form-fixes` ✅ — staged for review. Re-clicking the chosen day keeps
-  it (`required` on the `DayPicker`), and clearing a country or nationality clears the
-  field (and the flag). 4 new unit tests, 1 replaced (408 total); 44/44 e2e.
+- **Form behaviour** · `form-behaviour` — staged for review. A field's message goes
+  as soon as it is fixed: any value change re-checks the current step's fields that
+  show an error (a `watch` in `FormContext`, since the comboboxes and chips never
+  blur). Enter in a step-4 item inserts the next item and focuses it; the rows are
+  named `requiredItems.${i}.item`, the dotted path RHF focuses by. 6 new unit tests
+  (414 total); 44/44 e2e.
 
 ## Done
+
+- **Form bugs** · `form-fixes` ✅ — #174. Re-clicking the chosen day keeps it
+  (`required` on the `DayPicker`), and clearing a country or nationality clears the
+  field (and the flag). 4 new unit tests, 1 replaced (408 total); 44/44 e2e.
 
 - **Step 6 — cleanup and docs.** ✅ On `sorbet-cleanup`. The old palettes, the
   `Container`/`GridContainer`/`GradientBg`/`Gradient1`/`GradientConic` panels and
@@ -724,18 +731,6 @@ longer lists the removed deps. Full `npm test` and `npm run test:e2e` green.
 Issues noticed during the migration that predate it or sit outside a step's scope.
 Left alone on purpose so each step stayed a restyle.
 Each wants a test that fails first.
-
-**Form behaviour** · `form-behaviour`:
-
-- **A fixed field keeps its error until the next Next.** `FormContext` validates only
-  on `trigger()`, so a Zod message stays up after the field is corrected. Revalidate
-  touched fields on change (RHF `mode: "onTouched"`, or `trigger(name)` in the
-  Controllers).
-- **Enter in a step-4 item input does nothing.** It fires the form's submit, which
-  fails validation on later steps' fields and stops silently. Make Enter add the next
-  item and move focus to it, as list inputs usually do — an `onKeyDown` in
-  `FormStep4.tsx`. (Enter with Next focused moves on, which is right: step 4 validates
-  nothing.)
 
 **Tour titles from the AI:**
 
