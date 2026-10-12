@@ -1,13 +1,11 @@
 import { useParams } from "next/navigation";
-import Image from "next/image";
 import { FaCheck } from "react-icons/fa6";
+import { LuBackpack } from "react-icons/lu";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useTripResponse } from "@/hooks/useTripResponse";
-import { useImage } from "@/hooks/useImage";
-import defaultImage3 from "@/assets/travel-photos/3.jpg";
 import Reveal from "@/components/sorbet/Reveal";
-import { defaultPlaceholder } from "@/lib/constants";
-import { MediaFrame, Section, SectionHeading } from "./Section";
+import StickerBadge from "@/components/sorbet/StickerBadge";
+import { Section, SectionHeading } from "./Section";
 import { mustHave as copy } from "./content";
 
 /** A checklist card in the landing's packing-list idiom: check pills on a pastel. */
@@ -55,10 +53,7 @@ function MustHaveSection() {
   const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
   const { tripData: response } = useTripResponse();
-  const { imageData } = useImage();
 
-  const image3 = trip?.image3 || imageData?.tripImage3;
-  const placeholder = trip?.placeholder || imageData?.placeholder;
   const mustHave = trip?.mustHave || response?.mustHave || [];
   // The form keeps an empty first row when nothing was added, so blanks are dropped.
   const requiredItems = (
@@ -82,18 +77,14 @@ function MustHaveSection() {
             />
           </Reveal>
         </div>
-        <Reveal delay={0.12} className="hidden lg:block">
-          <MediaFrame>
-            <Image
-              src={image3 ?? defaultImage3}
-              alt=""
-              fill
-              placeholder="blur"
-              blurDataURL={placeholder ?? defaultPlaceholder}
-              sizes="400px"
-              className="object-cover"
-            />
-          </MediaFrame>
+        <Reveal delay={0.12} className="grid place-items-center py-4 lg:py-0">
+          <StickerBadge
+            label={copy.badge}
+            icon={<LuBackpack />}
+            tint="text-sorbet-lime-punch"
+            size={176}
+            spin={-34}
+          />
         </Reveal>
       </div>
     </Section>

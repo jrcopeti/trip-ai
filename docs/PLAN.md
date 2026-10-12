@@ -22,6 +22,9 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
   (`trip-journey.spec.ts`: save → in `/saved-trips` → opens; discard → absent, at 390).
   Afterwards the tours became a carousel (`ToursCarousel`): one wide card, sized to
   the longest tour so a long one never shifts the page.
+  Then the Essentials photo moved out into its own section between Tours and
+  Packing (`PhotoSection`, on canvas, 4:3 at `max-w-4xl`), with a sticker turning in
+  its old place.
 
 - **Step 4 — `/form`.** ✅ On `sorbet-form`. One white surface on canvas, HeroUI opted
   into sorbet with `data-sorbet`, copy in `form/content.ts`. 21 new unit tests (320

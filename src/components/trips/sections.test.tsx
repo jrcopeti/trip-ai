@@ -16,6 +16,7 @@ import ToursSection from "./ToursSection";
 import PackReadySection from "./PackReadySection";
 import ObjectsSection from "./ObjectsSection";
 import MustHaveSection from "./MustHaveSection";
+import PhotoSection from "./PhotoSection";
 import WeatherSection from "./WeatherSection";
 import ForecastSection from "./ForecastSection";
 import FormDetailsSection from "./FormDetailsSection";
@@ -117,6 +118,24 @@ describe("ToursSection", () => {
   });
 });
 
+describe("PhotoSection", () => {
+  it("shows the generated trip's third photo", () => {
+    const { container } = renderGeneratedTrip(<PhotoSection />);
+
+    expect(container.querySelector("img")).toHaveAttribute("src", LOCAL_IMAGES[2]);
+  });
+
+  it("shows the saved trip's third photo", async () => {
+    const { container } = renderSavedTrip(<PhotoSection />, {
+      row: makeTrip({ image3: "/saved/third.jpg" }),
+    });
+
+    await vi.waitFor(() =>
+      expect(container.querySelector("img")).toHaveAttribute("src", "/saved/third.jpg"),
+    );
+  });
+});
+
 describe("PackReadySection", () => {
   it("gives the date range", async () => {
     renderSavedTrip(<PackReadySection />);
@@ -175,6 +194,14 @@ describe("MustHaveSection", () => {
     const requiredList = screen.getByRole("heading", { name: mustHave.required }).parentElement!;
     expect(within(requiredList).getByText("camera")).toBeInTheDocument();
     expect(within(requiredList).getByText("walking shoes")).toBeInTheDocument();
+  });
+
+  it("turns a sticker where the photo used to be, hidden from assistive tech", () => {
+    const { container } = renderGeneratedTrip(<MustHaveSection />);
+
+    const ring = screen.getAllByText(new RegExp(mustHave.badge), { exact: false })[0];
+    expect(ring.closest("[aria-hidden]")).not.toBeNull();
+    expect(container.querySelector("img")).toBeNull();
   });
 
   it("drops blank required items and says so when none are left", async () => {

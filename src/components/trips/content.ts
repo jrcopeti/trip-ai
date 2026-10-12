@@ -51,6 +51,7 @@ export const mustHave = {
   mustHave: "Must have",
   required: "You asked for",
   noRequired: "Nothing extra this time.",
+  badge: "pack it, check it",
 };
 
 export const weather = {

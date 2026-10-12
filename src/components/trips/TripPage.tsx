@@ -3,6 +3,7 @@ import SiteFooter from "../ui/SiteFooter";
 import TitleSection from "./TitleSection";
 import DescriptionSection from "./DescriptionSection";
 import ToursSection from "./ToursSection";
+import PhotoSection from "./PhotoSection";
 import PackReadySection from "./PackReadySection";
 import ObjectsSection from "./ObjectsSection";
 import MustHaveSection from "./MustHaveSection";
@@ -12,8 +13,10 @@ import FormDetailsSection from "./FormDetailsSection";
 
 /**
  * The sections both trip routes share, in the sorbet system. Grounds run
- * canvas → white → offwhite → white → canvas → white → offwhite → white →
- * canvas → lime (the route's closing section) → ink footer, never repeating.
+ * canvas (title) → white (description) → offwhite (tours) → canvas (photo) →
+ * white (packing) → canvas (list) → white (essentials) → offwhite (weather) →
+ * white (forecast) → canvas (details) → lime (the route's closing section) →
+ * ink footer, never two alike in a row.
  */
 function TripPage({ before, closing }: { before?: ReactNode; closing: ReactNode }) {
   return (
@@ -23,6 +26,7 @@ function TripPage({ before, closing }: { before?: ReactNode; closing: ReactNode 
         <TitleSection />
         <DescriptionSection />
         <ToursSection />
+        <PhotoSection />
         <PackReadySection />
         <ObjectsSection />
         <MustHaveSection />
