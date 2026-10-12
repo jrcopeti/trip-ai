@@ -1,3 +1,4 @@
+import Logo from "@/components/sorbet/Logo";
 import Reveal from "@/components/sorbet/Reveal";
 import { features } from "./content";
 
@@ -15,9 +16,7 @@ function WordmarkBlock() {
             <span className="text-[clamp(3.5rem,12vw,9rem)] font-extrabold leading-[0.8] tracking-[-0.05em] text-sorbet-ink">
               trip ai
             </span>
-            <span className="grid size-16 shrink-0 -translate-y-1 place-items-center rounded-2xl bg-sorbet-orchid text-sm font-extrabold text-sorbet-ink md:size-24 md:rounded-3xl md:text-lg">
-              trip ai
-            </span>
+            <Logo size="lockup" className="shrink-0 -translate-y-1" />
           </div>
 
           <p className="mt-12 max-w-xl text-lg leading-relaxed text-sorbet-ink/75 md:text-xl">

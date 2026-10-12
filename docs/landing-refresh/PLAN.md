@@ -26,7 +26,8 @@ Decided with the user:
 ## Now
 
 - **Branch 1** · `landing-copy` — merged (#178).
-- **Branch 2** · `landing-polaroids` — staged for review.
+- **Branch 2** · `landing-polaroids` — merged (#179).
+- **Branch 3** · `sorbet-logo` — staged for review.
 
 ## Branch 1 — `landing-copy` (items 2, 4, 5, 6, 7)
 
@@ -118,6 +119,16 @@ gains: five tour cards render; no horizontal scroll at 390 still holds.
   logo tile's colour.
 - Tests: `Logo` renders the tile and the mask; nav still has the wordmark
   (`landing.spec`'s existing checks cover the intro hook).
+- As built: the mask is Tailwind's (`mask-(--logo-mask) mask-contain mask-center
+  mask-no-repeat`) with the URL in a `--logo-mask` custom property — jsdom drops
+  `mask-*` set as inline style, so the test could not see it, and the utilities read
+  like the rest of the code. The script is `scripts/render-icons.mjs`; it reads lime
+  and ink from `globals.css`. The tile was planned orchid and changed to lime in
+  review; the nav tile grew to 32px (`size-8`) at the same time. `icon.png` is 512px with the lockup's corner ratio
+  (a quarter); `apple-icon.png` is a full 180px square, since iOS rounds it and
+  blackens transparent corners. Glyph inset a sixth each side, as the lockup's `p-4`.
+  Nav and lockup tests assert the glyph is present and adds no text: the home link's
+  name is still "trip ai", and the lockup no longer repeats it.
 
 ## Branch 4 — `readme-demo` (item 8, last, once the look is final)
 

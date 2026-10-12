@@ -23,4 +23,11 @@ describe("WordmarkBlock", () => {
     expect(screen.getByText("What it does")).toBeInTheDocument();
     expect(screen.queryByText("Your new travel friend")).not.toBeInTheDocument();
   });
+
+  it("tucks the logo tile under the wordmark, with no text of its own", () => {
+    const { container } = renderWithProviders(<WordmarkBlock />);
+
+    expect(container.querySelector("[data-logo-glyph]")).toBeInTheDocument();
+    expect(screen.getAllByText("trip ai")).toHaveLength(1);
+  });
 });
