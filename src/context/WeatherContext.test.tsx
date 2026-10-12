@@ -178,9 +178,20 @@ describe("WeatherContext — current weather", () => {
 });
 
 describe("WeatherContext — five-day forecast", () => {
-  it("starts as an empty list", () => {
+  it("starts unfetched, not empty", () => {
     renderWeather();
-    expect(ctx.dailyForecastData).toEqual([]);
+    expect(ctx.dailyForecastData).toBeUndefined();
+  });
+
+  it("holds an empty list when the forecast has no days to show", async () => {
+    mockForecast.mockResolvedValue([]);
+    renderWeather();
+
+    ctx.generateDailyForecast({ city: "lisbon", country: "Portugal" });
+
+    await waitFor(() => {
+      expect(ctx.dailyForecastData).toEqual([]);
+    });
   });
 
   it("returns one entry per day, each carrying its own icon", async () => {
@@ -211,7 +222,7 @@ describe("WeatherContext — five-day forecast", () => {
     expect(first.main.temp).toBeTypeOf("number");
   });
 
-  it("surfaces the error and leaves the list empty on failure", async () => {
+  it("surfaces the error and leaves the list unfetched on failure", async () => {
     mockForecast.mockRejectedValue(new Error("Error fetching forecast data"));
     renderWeather();
 
@@ -220,7 +231,7 @@ describe("WeatherContext — five-day forecast", () => {
     await waitFor(() => {
       expect(ctx.errorDailyForecast).toBeInstanceOf(Error);
     });
-    expect(ctx.dailyForecastData).toEqual([]);
+    expect(ctx.dailyForecastData).toBeUndefined();
   });
 
   it("is driven independently of the prompt forecast", async () => {

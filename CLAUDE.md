@@ -99,12 +99,17 @@ passes here and fails in CI. Use `vi.setSystemTime` with a *local* `Date`, and
 `FIXTURE_NOW` from the weather fixture for forecast work.
 
 **E2E — `@playwright/test`**, chromium only, specs in `e2e/`. `webServer` runs
-`npm run start`, so it tests a production build. The one production concession to
+`npm run start` on **port 3100**, so it tests a production build — and never reuses a
+`npm run dev` on 3000, which would be reading the production database from `.env`. The one production concession to
 testing: the three `"use server"` modules return a fixture when `E2E_FIXTURES=1`
 (`src/app/api/e2eFixtures.ts`) — those calls are server-side, so `page.route` cannot
 reach them, and the alternative is live API keys in CI.
 
-`saved-trips.spec.ts` asserts against the rows in `scripts/seed-e2e.ts`. **That script
+`saved-trips.spec.ts` asserts against the rows in `scripts/seed-e2e.ts`.
+`trip-journey.spec.ts` (form → trip → save/discard) is the one spec that **writes**: it
+runs as its own Playwright project after the rest, serially, deletes its own rows before
+and after, and skips unless DATABASE_URL — resolved the way Next resolves it — is local
+(`scripts/localDatabase.ts`, shared with the seed script). **That script
 deletes every trip before seeding**, so it refuses any host but localhost unless
 `ALLOW_REMOTE_E2E_SEED=1` — `.env` here points at the production Neon database. Run the
 e2e suite against a throwaway Postgres, never the real one.
@@ -191,13 +196,10 @@ Required in `.env.local`:
 
 ### Styling
 
-**Two visual systems coexist right now.** The app is mid-redesign: `/` uses the new
-`sorbet` system, every other route still uses the previous look. Both are live and both
-must keep working. The **shared shell is already migrated and global** — `SiteNav` from
-the root layout, `SiteFooter`, the loaders, `NotFoundComponent` and the toasters — so an
-unmigrated route wears sorbet chrome over an old-palette body. That is intended; don't
-"fix" it locally. The order the remaining routes get migrated in, and what each step
-changes, is `docs/PLAN.md` — don't migrate a route ad hoc.
+**Every route is on the `sorbet` system.** The previous look's leftovers — the old
+palettes, HeroUI's neptune `:root` overrides, the unlayered `.label` rule, and the
+`gsap`/`locomotive-scroll`/`swiper`/`daisyui`/`react-spinners` dependencies — are still
+in the tree until step 6 of `docs/PLAN.md` removes them. Don't use them in new work.
 
 - **Tailwind CSS v4**, configured CSS-first — design tokens live in the `@theme` block
   of `src/app/globals.css`, not in a JS config. A `tailwind.config.ts` file exists but
@@ -212,9 +214,8 @@ changes, is `docs/PLAN.md` — don't migrate a route ad hoc.
   `Rubik` is the new display face, exposed as `font-sorbet` and opted into per page.
   `Caveat` is the handwriting face, exposed as `font-sorbet-hand`, for polaroid captions
   only. Both CSS variables must stay on `<html>` (design-notes explains why).
-- **Motion** — Framer Motion for anything new. GSAP (`src/hooks/useScrollTrigger.ts`)
-  and Locomotive Scroll are wired into the trip pages only; don't extend them and don't
-  mix them into a redesigned page.
+- **Motion** — Framer Motion only. GSAP and Locomotive Scroll are no longer imported
+  anywhere (their packages go in step 6).
 
 **Tokens are additive.** The `sorbet` block is appended to `@theme`; the older palettes
 (`gallery`, `neptune`, `tuna`, `shark`, `yellorange`, `deeporange`, `cabaret`, `violay`)

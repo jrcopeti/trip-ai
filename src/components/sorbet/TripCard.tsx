@@ -11,6 +11,8 @@ export type ItineraryCard = {
   chip: string;
   Icon: IconType;
   tint: string;
+  /** A line under the title, for cards that need more than a name. */
+  body?: string;
 };
 
 /**
@@ -30,9 +32,16 @@ function TripCard({
     <article
       className={`flex min-h-40 flex-col justify-between rounded-3xl p-4 md:min-h-44 md:p-5 ${card.tint} ${className}`}
     >
-      <h3 className="max-w-[14ch] text-lg font-semibold leading-snug text-sorbet-ink md:text-xl">
-        {card.title}
-      </h3>
+      <div>
+        <h3
+          className="max-w-[14ch] text-lg font-semibold leading-snug text-sorbet-ink first-letter:uppercase md:text-xl"
+        >
+          {card.title}
+        </h3>
+        {card.body && (
+          <p className="mt-2 text-sm leading-relaxed text-sorbet-ink/70">{card.body}</p>
+        )}
+      </div>
       <div className="mt-5 flex items-center justify-between gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-xs font-medium text-sorbet-ink">
           <card.Icon size={12} aria-hidden />
@@ -43,7 +52,7 @@ function TripCard({
             aria-hidden
             className="grid size-9 shrink-0 place-items-center rounded-full bg-sorbet-ink text-sorbet-offwhite"
           >
-<FaArrowRight size={13} />
+            <FaArrowRight size={13} />
           </span>
         )}
       </div>

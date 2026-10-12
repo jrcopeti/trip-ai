@@ -27,7 +27,7 @@ const defaultContextValue: WeatherContextType = {
   generateWeather: async () => {},
   isPendingWeather: false,
   errorWeather: null,
-  dailyForecastData: [],
+  dailyForecastData: undefined,
   generateDailyForecast: async () => {},
   isPendingDailyForecast: false,
   errorDailyForecast: null,
@@ -42,9 +42,11 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
   const [weatherData, setWeatherData] = useState<
     Partial<WeatherDataTypes> | undefined
   >(undefined);
+  // Undefined until the first forecast arrives, so "not fetched yet" (show a
+  // loader) and "fetched, but empty" (say so) are different states.
   const [dailyForecastData, setDailyForecast] = useState<
-    DailyForecastDataTypes[]
-  >([]);
+    DailyForecastDataTypes[] | undefined
+  >(undefined);
 
   const {
     mutate: generateForecast,

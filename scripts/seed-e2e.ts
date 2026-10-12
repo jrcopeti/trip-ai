@@ -14,6 +14,7 @@
  */
 import { PrismaClient } from "@prisma/client";
 import { tripCreateInput, tripFixture, tripFixture2 } from "../src/test/fixtures/trip";
+import { mayWriteToDatabase } from "./localDatabase";
 
 /** The rows `saved-trips.spec.ts` asserts against. */
 const seeds = [
@@ -40,8 +41,7 @@ async function main() {
   }
 
   const host = new URL(url).hostname;
-  const isLocal = ["localhost", "127.0.0.1", "::1", "postgres"].includes(host);
-  if (!isLocal && process.env.ALLOW_REMOTE_E2E_SEED !== "1") {
+  if (!mayWriteToDatabase(url)) {
     throw new Error(
       `Refusing to seed ${host}: this deletes every trip. Point DATABASE_URL at a ` +
         `throwaway database, or set ALLOW_REMOTE_E2E_SEED=1 if you really mean it.`,

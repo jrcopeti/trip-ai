@@ -109,11 +109,15 @@ describe("Polaroid (lg)", () => {
     expect(container.querySelector("svg")).toBeNull();
   });
 
-  it("is not tilted", () => {
-    const { container } = renderWithProviders(
-      <Polaroid {...base} size="lg" caption="Seven Sunlit Days in Lisbon" />,
-    );
+  it("rests on the fan's first angle from sm up and straightens on hover, like the cards", () => {
+    renderWithProviders(<Polaroid {...base} size="lg" caption="Seven Sunlit Days in Lisbon" />);
 
-    expect(container.innerHTML).not.toMatch(/rotate-/);
+    const classes = screen.getByRole("article").className.split(/\s+/);
+    expect(classes).toContain("sm:-rotate-2");
+    expect(classes).toContain("sm:hover:rotate-0");
+    expect(classes).toContain("hover:-translate-y-2");
+    expect(classes).toContain("motion-reduce:transition-none");
+    // Never tilted below sm, where it would overflow the gutter at 390.
+    expect(classes.some((c) => /^-?rotate-[1-9]/.test(c))).toBe(false);
   });
 });
