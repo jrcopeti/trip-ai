@@ -180,41 +180,6 @@ export interface Country {
   flagUrl: string;
 }
 
-export interface ContainerProps {
-  children: React.ReactNode;
-  overflow?: string;
-  height?: string;
-  animationClass?: string;
-}
-
-export interface Gradient1Props {
-  left: string;
-  top: string;
-  color1: string;
-  color2: string;
-  blur: string;
-}
-
-export interface GradientBgProps {
-  position?: string;
-  from?: string;
-  to?: string;
-  blur?: string;
-}
-
-export interface GradientConicProps {
-  left: string;
-  top: string;
-  from: string;
-  to: string;
-}
-
-export interface GridContainerProps {
-  children: React.ReactNode;
-  bg?: string;
-  animationClass?: string;
-}
-
 export interface NotFoundComponentProps {
   message: string;
   path: string;

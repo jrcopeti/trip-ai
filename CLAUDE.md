@@ -145,12 +145,10 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
 - **`docs/PLAN.md`** — the current working plan. Tracked. Read it at the start of a task
   and keep it updated as the work changes shape; churn there is expected.
 
-  It currently carries the **sorbet migration**: numbered steps 0–6 that finish the
-  redesign, each one a branch off `main` with its own PR. If you are picking up a step,
-  read that step's section plus the "Per-step contract" above it — the contract is where
-  the per-step checks, the Playwright MCP pass and the "don't commit" rule live. The
-  polaroid spec for saved trips and the testing approach are also there, and both are
-  binding.
+  It carries the finished **sorbet migration** (steps 0–6, one branch and PR each) and
+  the **follow-ups** it left. The "Per-step contract" there — per-step checks, the
+  Playwright MCP pass, the "don't commit" rule — still applies to any follow-up branch.
+  The polaroid spec and the testing approach are also there, and both are binding.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
 architecture). `PLAN.md` is for work in flight.
@@ -196,30 +194,22 @@ Required in `.env.local`:
 
 ### Styling
 
-**Every route is on the `sorbet` system.** The previous look's leftovers — the old
-palettes, HeroUI's neptune `:root` overrides, the unlayered `.label` rule, and the
-`gsap`/`locomotive-scroll`/`swiper`/`daisyui`/`react-spinners` dependencies — are still
-in the tree until step 6 of `docs/PLAN.md` removes them. Don't use them in new work.
+**Every route is on the `sorbet` system, and it is the only one.** The previous look —
+its palettes, layout panels and the `gsap`/`locomotive-scroll`/`swiper`/`daisyui`/
+`react-spinners` packages — is gone, and `src/test/hygiene.test.ts` keeps it gone.
 
 - **Tailwind CSS v4**, configured CSS-first — design tokens live in the `@theme` block
   of `src/app/globals.css`, not in a JS config. A `tailwind.config.ts` file exists but
   is an empty stub (`const config: Config = {}`) — nothing is configured there, so don't
   add tokens to it expecting them to apply.
 - **HeroUI v3** (`@heroui/react`) for accessible base components, with its stylesheets
-  imported at the top of `globals.css` and its semantic colours overridden in `:root`
-  (`--accent` → neptune teal). There is no `HeroUIProvider`.
-- **`daisyui` is installed but never loaded** — no `@plugin "daisyui"`, no `data-theme`
-  in `src/`. Ignore it; it is a dependency to be removed, not a system in use.
-- **Fonts** — `src/app/layout.tsx`. `Red Hat Display` on `<body>` is the old body font.
-  `Rubik` is the new display face, exposed as `font-sorbet` and opted into per page.
+  imported at the top of `globals.css` and its semantic colours mapped to sorbet on
+  `:root` (`--accent` → ink). There is no `HeroUIProvider`.
+- **Fonts** — `src/app/layout.tsx`. `Rubik` is the face, exposed as `font-sorbet` and
+  set on `<body>`.
   `Caveat` is the handwriting face, exposed as `font-sorbet-hand`, for polaroid captions
   only. Both CSS variables must stay on `<html>` (design-notes explains why).
-- **Motion** — Framer Motion only. GSAP and Locomotive Scroll are no longer imported
-  anywhere (their packages go in step 6).
-
-**Tokens are additive.** The `sorbet` block is appended to `@theme`; the older palettes
-(`gallery`, `neptune`, `tuna`, `shark`, `yellorange`, `deeporange`, `cabaret`, `violay`)
-are load-bearing for unmigrated pages. Add tokens, never change an existing value.
+- **Motion** — Framer Motion only.
 
 For the full system — palette roles, type scale, layout rhythm, the reduced-motion
 rules, and the mistakes already made — see **`docs/design-notes.md`**.
@@ -229,8 +219,7 @@ rules, and the mistakes already made — see **`docs/design-notes.md`**.
 
 ### Image handling
 Remote images from Unsplash (`images.unsplash.com`) are whitelisted in
-`next.config.mjs`. The DALL-E host (`oaidalleapiprodscus.blob.core.windows.net`) is also
-still whitelisted but unused — image generation was removed with the OpenAI migration.
+`next.config.mjs`.
 Plaiceholder generates base64 blur placeholders server-side.
 
 `src/data/index.ts`'s `travelPhotos` is the bundled photo set: `{ src, alt, tripType,

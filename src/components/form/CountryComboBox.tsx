@@ -24,9 +24,7 @@ type Country = { code: string; label: string };
 
 /**
  * A searchable country list, shared by nationality (step 1) and destination
- * country (step 2). The input group is the pill; the popover is a white card
- * and carries `data-sorbet` itself, because it renders in a portal outside the
- * page's sorbet scope.
+ * country (step 2). The input group is the pill; the popover is a white card.
  */
 function CountryComboBox({ label, placeholder, value, onSelect, error }: Props) {
   const { countries, isLoading } = useCountries();
@@ -61,7 +59,6 @@ function CountryComboBox({ label, placeholder, value, onSelect, error }: Props) 
       </ComboBox.InputGroup>
       <FieldError className={fieldError}>{error}</FieldError>
       <ComboBox.Popover
-        data-sorbet
         placement="bottom"
         className="rounded-3xl border border-sorbet-ink/10 bg-white p-2 shadow-[0_18px_40px_-24px_rgba(48,46,45,0.55)]"
       >

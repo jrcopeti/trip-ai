@@ -1,8 +1,8 @@
 /**
  * The form's field vocabulary, shared by all seven steps so a label, an input
  * and an error look the same wherever they appear. HeroUI supplies behaviour
- * and these classes supply the look; colours come from the `[data-sorbet]`
- * scope in globals.css.
+ * and these classes supply the look; HeroUI's semantic colours are mapped to
+ * sorbet on `:root` in globals.css.
  */
 
 /** Meta-label idiom. */

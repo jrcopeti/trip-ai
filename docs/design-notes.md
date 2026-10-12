@@ -17,24 +17,22 @@ code is right and this file needs fixing.
 | --- | --- |
 | `/` landing | Migrated. The reference implementation. |
 | Shared shell — nav, footer, loaders, 404, toasters | Migrated. On every route. |
-| `/form` | Migrated. One white surface on canvas, opted into HeroUI's sorbet colours with `data-sorbet`. |
+| `/form` | Migrated. One white surface on canvas. |
 | `/trips/[tripUrl]` | Migrated. Polaroid title, alternating sections, lime save/discard close. |
 | `/saved-trips` | Migrated. The polaroid grid. |
 | `/saved-trips/[id]` | Migrated. Same sections as the generated trip; back button and a lime back/plan-another close. |
 | `/about` | Migrated. |
 
-Every route is now on sorbet. The old palettes
-(`neptune`, `tuna`, `shark`, `gallery`, `yellorange`, `deeporange`, `cabaret`, `violay`),
-the `:root` HeroUI overrides and the unlayered `.label` rule are still in
-`globals.css` until step 6 removes them — nothing migrated should reach for them.
-
-**The `sorbet` tokens are additive. Never change a value in an older palette** — the
-unmigrated pages depend on them being exactly what they are. Add, don't edit.
+Every route is on sorbet, and it is the only system in the tree: the old palettes,
+the `Container`/`GridContainer`/`GradientBg` panels, the unlayered `.label` rule and the
+GSAP, Locomotive Scroll, Swiper, daisyUI and react-spinners packages are gone, and
+HeroUI's semantic colours are mapped to sorbet on `:root`. `src/test/hygiene.test.ts`
+fails if an old-palette class, a removed package or a `data-sorbet` scope comes back.
 
 ## Colour
 
-Twelve tokens. The name describes the colour, not the job, matching the existing
-convention (`neptune`, `tuna`) so these survive past the landing page.
+Twelve tokens. The name describes the colour, not the job, so they survive any one
+page's use of them.
 
 | Token | Hex | Where it actually goes |
 | --- | --- | --- |
@@ -89,11 +87,10 @@ On the ink footer this inverts: `sorbet-offwhite` at `/80`, `/60`, `/45`.
 **700 is not loaded.** `font-bold` will synthesise a fake bold. Use `font-semibold`
 (600) or `font-extrabold` (800).
 
-The old body face, Red Hat Display, is still on `<body>`; `font-sorbet` is opted into
-on the migrated page's root wrapper. Migrating a page means adding `font-sorbet` to its
-outermost element. Shared pieces that render *outside* any page wrapper — `SiteNav`,
-`SiteFooter`, the toasters, the loaders, `NotFoundComponent` — carry `font-sorbet`
-themselves, because there is no wrapper above them to inherit it from.
+`font-sorbet` is on `<body>`, so everything inherits Rubik — portals and toasters
+included. Pages and the shared pieces (`SiteNav`, `SiteFooter`, the toasters, the
+loaders, `NotFoundComponent`) also set it on their own root; that predates `<body>`
+having it, and is harmless. Rubik is the only Google font loaded.
 
 **One exception to Rubik: `font-sorbet-hand`.** Caveat (variable, 400–700), self-hosted
 from `src/assets/fonts/` with `next/font/local` in `layout.tsx` as `--font-caveat`
@@ -187,12 +184,11 @@ Nav-sized: `px-5 py-2.5 text-sm`.
 
 **A `<button>` needs `cursor-pointer`.** Tailwind v4's preflight resets buttons to the
 default arrow; links keep the pointer on their own. Disabled-while-loading takes
-`disabled:cursor-wait`. (`ButtonBackOutlined` and the form's `DatePicker` trigger still
-lack it — fix them when their steps run.)
+`disabled:cursor-wait`.
 
-**Do not use HeroUI `Button` on migrated pages.** `--accent` is globally overridden to
-neptune teal in `globals.css`, so a HeroUI button fights the system. Style plain
-elements.
+**Do not use HeroUI `Button`.** Its shape, padding and press states are HeroUI's, not
+the system's pills, and overriding all of them is more code than a plain element. Style
+plain elements.
 
 ### The circular arrow
 
@@ -260,8 +256,8 @@ Any element whose `style` takes a `useTransform` output needs `className="parall
 | Parallax | `[0, 90]` slow / `[0, 170]` fast over the hero's scroll |
 | Hover | `scale-[1.03]` buttons, `scale-105` pills, `-translate-y-2` deck cards and polaroids; the trip page's packing cards and Essentials pills drift — a per-item lift and lean (`trips/drift.ts`: `CARD_DRIFT`, and the gentler `PILL_DRIFT`), 0.5s with an overshoot ease `[0.34, 1.56, 0.64, 1]` |
 
-Framer Motion is the only motion library in use. GSAP and Locomotive Scroll left the
-trip pages in step 5 (their hooks are deleted); the packages go in step 6.
+Framer Motion is the only motion library. GSAP and Locomotive Scroll are gone, packages
+and all.
 
 ### The intro
 
@@ -288,8 +284,8 @@ Three directories, and which one a component lives in is the statement about its
 - **`src/components/sorbet/`** — the system's general-purpose pieces. Use these anywhere.
 - **`src/components/ui/`** — the shared shell and the app-wide chrome.
 - **`src/components/landing/`** — the landing page's own sections. Nothing else imports
-  from here. The same goes for each migrated page's directory (`about/`, `saved-trips/`,
-  and the routes still to come).
+  from here. The same goes for each page's directory (`about/`, `saved-trips/`, `form/`,
+  `trips/`).
 
 ### Copy lives in `content.ts`
 
@@ -395,7 +391,8 @@ Each of these was a bug, not a theory.
    on `:root` inside `@theme`. CSS variable substitution happens where the variable is
    *defined*, not where it is used, so if `--font-rubik` is declared one level lower the
    `var()` is unresolvable and the whole declaration is invalid — silently falling back
-   to Red Hat Display.
+   to the browser's default face (it fell back to Red Hat Display, back when `<body>`
+   still loaded it).
 
 2. **Turbopack caches stale CSS.** New tokens appearing to have no effect, while the
    Tailwind CLI generates them correctly, means the dev server is serving an old chunk.
@@ -429,16 +426,14 @@ Each of these was a bug, not a theory.
    photos is identifiable as a particular city, so none claims one — keep it that way
    when adding photos, and regenerate the blur with `node generatePlaceholder.mjs`.
 
-9. **HeroUI form parts need two overrides on a migrated page.** Both bit the
-   `/saved-trips` search.
-   - `globals.css` has an *unlayered* `.label { color: #556074 }` for the unmigrated form.
-     Unlayered CSS beats every layered rule, Tailwind utilities included, so
-     `text-sorbet-ink/45` on a HeroUI `Label` does nothing. Use the important modifier
-     (`text-sorbet-ink/45!`) until step 6 removes the rule.
+9. **HeroUI's input needs its focus put back.** It bit the `/saved-trips` search.
+   (That search also once needed `!` on its `Label` colour, against an *unlayered*
+   `.label` rule for the old form — unlayered CSS beats every layered utility. The rule
+   is gone; keep any new global rule inside a layer for the same reason.)
    - HeroUI's `.input` applies `outline-none`, which in Tailwind v4 sets
      `--tw-outline-style: none`. `focus-visible:outline-2` reads that variable, so the
      focus triad silently draws nothing. Add `focus-visible:outline-solid`. Its focus ring
-     is a Tailwind ring in the neptune `--focus` colour: clear it with `focus:ring-0`, not
+     is a Tailwind ring in the `--focus` colour: clear it with `focus:ring-0`, not
      `shadow-none`.
 
 10. **Caveat cannot come from `next/font/google` under Turbopack.** Google sometimes
@@ -447,13 +442,13 @@ Each of these was a bug, not a theory.
     entry"). `next dev` then drops the font while the webpack build is fine, so the bug
     only shows locally. It is self-hosted with `next/font/local`; keep it that way.
 
-11. **HeroUI on a migrated page: opt in with `data-sorbet`.** `:root` still maps
-    HeroUI's semantic colours (`--accent`, `--focus`, `--field-*`) to neptune for the
-    unmigrated trip pages, so a sorbet page sets `data-sorbet` on its wrapper and a
-    scoped block in `globals.css` remaps them to ink. **Popovers portal out of that
-    wrapper**, so `ComboBox.Popover` and `Popover.Content` carry `data-sorbet`
-    themselves. The old unlayered `.label` colour now skips `[data-sorbet]`, so labels
-    there need no `!`. Step 6 moves the values to `:root` and deletes the scope.
+11. **HeroUI's colours live on `:root`, and must stay there.** `globals.css` maps its
+    semantic variables (`--accent`, `--focus`, `--field-*`) to ink. During the migration
+    they sat on a `[data-sorbet]` wrapper instead, and two things went wrong with a
+    scope: **popovers portal out of the page**, so each one had to carry the attribute
+    itself; and HeroUI computes its derived colours (`--accent-soft`, `--danger-soft`)
+    once, at `:root`, so inside the scope they still mixed from teal. Override the
+    variables on `:root` and both come out right.
 
 12. **Three HeroUI traps the form hit.**
     - `Popover.Trigger` renders its own `role="button"` element. Put the field's look on
@@ -489,16 +484,5 @@ Each of these was a bug, not a theory.
 
 ## Known debt
 
-- `src/components/home/` (`HomepageComponent`, `Preloader`, `SwiperWithThumbs`,
-  `HomepageTitle`) is **entirely unreferenced** since the landing took over `/`. Nothing
-  imports it. It is a deletion candidate, deliberately left for a separate decision.
-- `daisyui` is a dependency but is never loaded — no `@plugin "daisyui"`, no
-  `data-theme` anywhere in `src/`.
 - `tailwind.config.ts` is an empty stub. Tailwind v4 reads the `@theme` block in
   `globals.css`; the file is vestigial and adding config to it would do nothing.
-- `next.config.mjs` still whitelists the DALL-E host
-  (`oaidalleapiprodscus.blob.core.windows.net`) though image generation is gone.
-- HeroUI's semantic overrides in `:root` (`--accent` → neptune) still apply globally;
-  migrated pages opt out with `data-sorbet` (gotcha #11). Step 6 flips `:root`.
-- The global `.label` colour in `globals.css` is unlayered and only serves the old form
-  (gotcha #9). Delete it in step 6, with the old palettes.

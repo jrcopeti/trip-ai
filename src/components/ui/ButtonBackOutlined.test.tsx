@@ -34,4 +34,10 @@ describe("ButtonBackOutlined", () => {
     const button = screen.getByRole("button", { name: "Go back" });
     expect(button.className).toContain("absolute left-0 top-0");
   });
+
+  it("gives the pointer cursor Tailwind's preflight takes off buttons", () => {
+    renderWithProviders(<ButtonBackOutlined position="" />);
+
+    expect(screen.getByRole("button", { name: "Go back" })).toHaveClass("cursor-pointer");
+  });
 });

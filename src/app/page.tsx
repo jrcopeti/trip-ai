@@ -12,9 +12,6 @@ import SiteFooter from "@/components/ui/SiteFooter";
 /**
  * Landing page, in the redesigned visual system.
  *
- * Deliberately does not use Container/GridContainer/GradientBg — those lock the
- * page to a single non-scrolling viewport.
- *
  * The nav and `MotionProvider` both come from the shared shell now (the root
  * layout and `providers.tsx`), which is why neither appears here. `Intro` still
  * finds the nav wordmark it measures through `[data-wordmark]`.
