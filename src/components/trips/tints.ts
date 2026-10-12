@@ -7,4 +7,5 @@ export const CARD_TINTS = [
   "bg-sorbet-lime-punch",
   "bg-sorbet-blush",
   "bg-sorbet-orchid",
+  "bg-sorbet-cyan",
 ] as const;
