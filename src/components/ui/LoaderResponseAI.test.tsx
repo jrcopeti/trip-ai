@@ -10,7 +10,7 @@ vi.mock("@/app/api/anthropicApi", () => ({ fetchResponseAI: vi.fn() }));
 /** The rotation, in the component's order. */
 const messages = [
   "Planning your trip",
-  "Please Wait",
+  "Please wait",
   "Analyzing your preferences",
   "Getting the best tours",
   "Checking the weather",
@@ -19,7 +19,15 @@ const messages = [
   "Thank you for using Trip AI",
 ];
 
-const STEP = 100;
+/**
+ * Fake-clock step. Well under the 2.8s a message stays up, so none can be
+ * skipped; coarse enough that walking all eight messages stays fast now that
+ * every word animates on its own.
+ */
+const STEP = 250;
+/** The full walks are long; a timeout here would strand Framer's frame loop
+ * and fail every later test in the file (see afterEach). */
+const WALK_TIMEOUT = 15_000;
 const GIVE_UP_AFTER = 20_000;
 
 /**
@@ -90,7 +98,7 @@ describe("LoaderResponseAI", () => {
     for (const message of messages) {
       await advanceUntil(message);
     }
-  });
+  }, WALK_TIMEOUT);
 
   it("wraps back to the first message after the last", async () => {
     renderWithProviders(<LoaderResponseAI />);
@@ -99,6 +107,26 @@ describe("LoaderResponseAI", () => {
       await advanceUntil(message);
     }
     await advanceUntil(messages[0]);
+  }, WALK_TIMEOUT);
+
+  it("splits the sentence into words without changing what it reads as", () => {
+    const { container } = renderWithProviders(<LoaderResponseAI />);
+
+    const heading = screen.getByRole("heading");
+    expect(heading).toHaveTextContent(messages[0]);
+    // One animated span per word, so each can arrive on its own.
+    expect(heading.querySelectorAll("span.inline-block")).toHaveLength(
+      messages[0].split(" ").length,
+    );
+    expect(container.querySelectorAll("svg[aria-hidden]").length).toBeGreaterThan(0);
+  });
+
+  it("keeps its decoration out of the accessibility tree", () => {
+    renderWithProviders(<LoaderResponseAI />);
+
+    // The squiggle and the sticker are aria-hidden; only the message is read.
+    const ring = screen.getAllByText(/packing up/i)[0];
+    expect(ring.closest("[aria-hidden]")).not.toBeNull();
   });
 
   it("warns before the page is abandoned mid-generation", () => {

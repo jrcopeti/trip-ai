@@ -93,6 +93,10 @@ jobs:
       # The three "use server" modules answer from fixtures rather than calling
       # Anthropic, Unsplash and OpenWeather, so the run needs no API keys.
       E2E_FIXTURES: "1"
+      # geonames.js throws without a username, which would crash the form's
+      # city check. form.spec stubs the GeoNames requests themselves, so any
+      # value will do; it is inlined at build time, hence job-level.
+      NEXT_PUBLIC_GEONAMES_USERNAME: e2e
 
     steps:
       - uses: actions/checkout@v6

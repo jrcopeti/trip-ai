@@ -1,19 +1,21 @@
 "use client";
 import { useFormData } from "@/hooks/useFormData";
 import { ProgressBar } from "@heroui/react";
+import { steps } from "@/data";
+import { progress } from "./content";
 
 function FormProgressBar() {
-  const { stepValue } = useFormData();
+  const { stepValue, currentStep } = useFormData();
+
   return (
-    <section className="max-w-full">
-      <ProgressBar.Root
-        aria-label="Form progress"
-        value={stepValue}
-        className="w-full"
-      >
-        <ProgressBar.Track className="drop-shadow-md border border-shark-200">
+    <section className="flex flex-col gap-3">
+      <p className="text-sm font-medium uppercase tracking-[0.18em] text-sorbet-ink/50">
+        {progress.step(currentStep + 1, steps.length)}
+      </p>
+      <ProgressBar.Root aria-label={progress.label} value={stepValue} className="w-full">
+        <ProgressBar.Track className="h-2 rounded-full bg-sorbet-ink/15">
           <ProgressBar.Fill
-            className="bg-gradient-to-l from-yellorange-300 to-neptune-400"
+            className="rounded-full bg-sorbet-ink transition-[width] duration-500 motion-reduce:transition-none"
             style={{ width: `${stepValue}%` }}
           />
         </ProgressBar.Track>

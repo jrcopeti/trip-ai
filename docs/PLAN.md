@@ -12,9 +12,15 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Now
 
-**Step 4 — `/form`.** See the step list below.
+**Step 5 — trip pages.** See the step list below.
 
 ## Done
+
+- **Step 4 — `/form`.** ✅ On `sorbet-form`. One white surface on canvas, HeroUI opted
+  into sorbet with `data-sorbet`, copy in `form/content.ts`. 21 new unit tests (320
+  total), 6 new e2e (`form.spec.ts`: premature Next blocked, the seven-step walk at
+  1440 and 390, Back keeps values, choosing a chip moves no chip, the city check
+  moves nothing).
 
 - **Step 3 — `/saved-trips` and the polaroid.** ✅ On `sorbet-saved-trips`. `Polaroid`
   (both sizes) in `sorbet/`, the grid in `saved-trips/`, GSAP and Locomotive gone from
@@ -43,7 +49,7 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Next
 
-Steps 5–6 in order.
+Step 6.
 
 ## Open questions
 
@@ -488,7 +494,70 @@ the grid). `SavedTripsDisplay`: one card per trip, empty state on `[]`, typing i
 updates the query term, error state renders. E2E: grid renders seeded trips, search
 narrows, a polaroid opens its detail page, 390px has no horizontal scroll.
 
-## Step 4 — `/form` · `sorbet-form`
+## Step 4 — `/form` · `sorbet-form` ✅
+
+**Landed.** What the plan did not anticipate, recorded because the later steps inherit it:
+
+- **`data-sorbet` landed here, and popovers need it too.** The scope in `globals.css`
+  remaps `--accent`, `--focus` and the `--field-*` variables to ink. `ComboBox.Popover`
+  and `Popover.Content` portal out of the page wrapper, so each carries `data-sorbet`
+  itself. The old unlayered `.label` colour became `.label:not([data-sorbet] .label)`,
+  so form labels take their own classes without `!` (design-notes, gotcha #11).
+- **Two pre-existing bugs fixed on the way** (design-notes, gotcha #12): the country
+  search never filtered — `items` instead of `defaultItems`, and no `textValue` on the
+  items — so typing "Portu" still listed Afghanistan first; and the date field was a
+  `<button>` inside HeroUI's own `role="button"` trigger, two tab stops for one control.
+  The date picker also gained a visible, associated label (its `label` prop was unused)
+  and a clear button that is a real sibling button rather than an `svg` with `onClick`.
+- **Shared pieces instead of seven copies.** `StepPanel` (title + slide-in, the
+  `motion.div` every step repeated), `CountryComboBox` (steps 1 and 2 had identical
+  ones), `ChoiceGroup` (step 3's five radio groups) and `styles.ts` (label, input,
+  chip and pill classes). The slide is 40px now, not 50%, inside an `overflow-hidden`
+  surface.
+- **A chosen chip's check sits on its corner** (`ChipCheck`, absolutely positioned),
+  not inline. Inline, the check widened the chip and pushed its neighbours onto the next
+  line, then back when unchosen. `form.spec` pins every chip's position across
+  selections, and was checked to fail with the check inline.
+- **Submit moved into `FormButtons`**, which now sits inside the `<form>`: Back (lime)
+  and Next (ink), or Back and "Plan my trip" (ink, `type="submit"`) on step 7. The
+  `next`/`prev`/`isValid` wiring is `FormContext`'s, untouched — its navigation tests pass
+  unchanged.
+- **Step titles moved out of `src/data`.** `formSteps` keeps `fields` and `stepValue`;
+  the titles and subtitles live in `form/content.ts` with every other word. The
+  agreement said the data goes to **OpenAI** — it now says Anthropic.
+- **The step title is the page's h1**, at the section-h2 scale (there is no other
+  heading on `/form`).
+- **CI's e2e job gets `NEXT_PUBLIC_GEONAMES_USERNAME: e2e`.** `geonames.js` throws
+  without a username, which would have crashed step 2 the first time CI walked the
+  form. `form.spec.ts` stubs GeoNames and flagcdn with `page.route`, so the value is a
+  placeholder; it was verified with a build using exactly that value.
+- **Not changed, worth knowing:** a field's error stays up after it is fixed until the
+  next Next, because `FormContext` only validates on `trigger()`. Changing that means
+  changing the context this step promised not to touch.
+- **The generating screen (`LoaderResponseAI`) got a second pass** after the form landed:
+  a looping `SquiggleLoader` replaces the spinner, each message arrives word by word
+  (rise, tilt, un-blur, staggered), and a lime `StickerBadge` ("packing up") turns in
+  the bottom-right corner. The heading keeps the plain sentence as its text — words are
+  inline-block spans with real spaces between — so screen readers and the rotation test
+  read it whole. "Please Wait" became "Please wait". `FormButtons` now keys Next and
+  Submit apart, so React swaps the element on step 7 instead of retyping the button
+  that was just clicked.
+- **`SquiggleLoader` replaced every spinner**: the route `Loader` (both trip pages,
+  which also gained `role="status"` and a name), the saved-trips grid and the form's
+  city check — which now sits inside the City field at its right edge, absolutely
+  positioned: as a block under the fields it pushed the buttons down and back, and a
+  quick check showed only the jump (`form.spec` pins the Next button's position across
+  a slowed check). Nothing imports `react-spinners` now; the dependency goes in step 6 with
+  the others.
+- **`LoaderResponseAI.test` steps its fake clock in 250ms, not 100ms**, with a 15s
+  limit on the two full walks. Per-word animation made each step dearer, and under
+  full-suite load the eight-message walk crossed Vitest's 5s default; a timed-out test
+  strands Framer's frame loop and fails everything after it in the file.
+- **An unexplained local e2e failure:** `landing.spec`'s "logs no console errors" failed
+  all three repeats in the first run after a fresh build, then passed in every run
+  after (87/87 twice). It only visits `/`, which this step does not touch.
+
+The original plan for this step follows.
 
 - `src/app/form/page.tsx` — drop `Container`/`GradientBg`; canvas page with one
   `max-w-3xl` white `rounded-3xl` surface (a narrower inner measure inside the
@@ -578,6 +647,47 @@ Every deletion gated on a grep showing zero uses.
 **Tests** — repo-hygiene specs: a source scan asserting no `gsap` / `locomotive-scroll` /
 `swiper` import and no old-palette class prefix remains in `src/`; `package.json` no
 longer lists the removed deps. Full `npm test` and `npm run test:e2e` green.
+
+## Follow-ups — after step 6
+
+Issues noticed during the migration that predate it or sit outside a step's scope.
+Left alone on purpose so each step stayed a restyle; pick them up once step 6 lands.
+Each wants a test that fails first.
+
+**Form bugs** (from `/code-review` on `sorbet-form`):
+
+- **Re-clicking the selected day clears the date to today.** react-day-picker calls
+  `onSelect(undefined)` when the chosen day is clicked again, and `DatePicker` passes
+  that to `dayjs(undefined)`, which is *now* — so the field silently becomes today
+  rather than empty. Treat `undefined` as a clear (`onChange(undefined)`), or pass
+  `required` so the day cannot be deselected. `src/components/form/DatePicker.tsx`.
+- **Clearing the country keeps the old value.** `handleSelectionAutocomplete` returns
+  early on a `null` key, so emptying the nationality or country input leaves the
+  previous country in the form state, and it passes validation. Clear the field on
+  `null`. `src/context/FormContext.tsx` — the context steps 0–4 promised not to touch,
+  so add a `FormContext` test for it.
+
+**Form behaviour worth deciding:**
+
+- **A fixed field keeps its error until the next Next.** `FormContext` validates only
+  on `trigger()`, so a Zod message stays up after the field is corrected. Revalidate
+  touched fields on change (RHF `mode: "onTouched"`, or `trigger(name)` in the
+  Controllers).
+- **Enter on step 4 with one item submits the whole form.** A form with a single text
+  input submits on Enter; validation then fails on later steps' fields and nothing
+  visible happens. Swallow Enter on steps 1–6, or map it to Next.
+
+**Smaller:**
+
+- **HeroUI's derived soft colours stay teal inside `[data-sorbet]`** (`--accent-soft`,
+  `--danger-soft` are computed once at `:root`). Nothing uses them yet; step 6's
+  `:root` flip fixes it for free — check it did.
+- **Accented cities sort after plain ones** on `/saved-trips` ("málaga" after
+  "munich"): the database collation. Order by `city` with a case/accent-insensitive
+  collation, or sort in the action.
+- **`landing.spec`'s "logs no console errors" failed three repeats once**, in the first
+  local run after a fresh build, and never again (87/87 twice). If it shows up in CI,
+  capture the console text before guessing.
 
 ---
 

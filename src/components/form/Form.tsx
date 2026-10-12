@@ -12,9 +12,9 @@ import FormStep5 from "./FormStep5";
 import FormStep6 from "./FormStep6";
 import FormStep7 from "./FormStep7";
 import FormButtons from "./FormButtons";
-import FormContainer from "./FormContainer";
 import NotFoundComponent from "../ui/NotFoundComponent";
 import LoaderResponseAI from "../ui/LoaderResponseAI";
+import { failure } from "./content";
 
 function Form() {
   const { isPendingResponseAI, errorResponseAI } = useTripResponse();
@@ -27,32 +27,28 @@ function Form() {
   if (errorResponseAI) {
     return (
       <NotFoundComponent
-        message="There was an error generating the trip. Please try again."
-        path="/form"
-        button="Back to Form"
+        message={failure.message}
+        path={failure.path}
+        button={failure.button}
       />
     );
   }
 
   return (
-    <>
-      <FormContainer>
-        <ProgressBar />
-        <form
-          onSubmit={handleSubmit(processForm)}
-          className="z-30 px-4 py-4 lg:p-8"
-        >
-          <FormStep1 />
-          <FormStep2 />
-          <FormStep3 />
-          <FormStep4 />
-          <FormStep5 />
-          <FormStep6 />
-          <FormStep7 />
-        </form>
-      </FormContainer>
-      <FormButtons />
-    </>
+    // `overflow-hidden` contains the step slide; popovers portal out of it.
+    <div className="overflow-hidden rounded-3xl bg-white p-6 sm:p-10">
+      <ProgressBar />
+      <form onSubmit={handleSubmit(processForm)} noValidate className="mt-10">
+        <FormStep1 />
+        <FormStep2 />
+        <FormStep3 />
+        <FormStep4 />
+        <FormStep5 />
+        <FormStep6 />
+        <FormStep7 />
+        <FormButtons />
+      </form>
+    </div>
   );
 }
 

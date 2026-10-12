@@ -17,7 +17,7 @@ code is right and this file needs fixing.
 | --- | --- |
 | `/` landing | Migrated. The reference implementation. |
 | Shared shell — nav, footer, loaders, 404, toasters | Migrated. On every route. |
-| `/form` | Not migrated — previous look |
+| `/form` | Migrated. One white surface on canvas, opted into HeroUI's sorbet colours with `data-sorbet`. |
 | `/trips/[tripUrl]` | Not migrated — previous look |
 | `/saved-trips` | Migrated. The polaroid grid. |
 | `/saved-trips/[id]` | Not migrated — previous look |
@@ -258,6 +258,8 @@ Any element whose `style` takes a `useTransform` output needs `className="parall
 | Reveal | 0.55s |
 | Hero deck | 0.6s, `y 28→0`, delay `0.3 + 0.15i` |
 | Squiggle draw | 1.0s `easeInOut` on `pathLength` |
+| Squiggle loader | 2.4s loop, `pathLength [0,1,1]` + `pathOffset [0,0,1]`, 0.2s rest |
+| Loader sentence | words staggered 0.09s: `y 18→0`, `rotate ±6→0`, `blur 6px→0`, 0.7s; out 0.04s stagger, 0.35s |
 | Sticker spin | `\|spin\|` seconds per turn, `linear`, `Infinity` |
 | Parallax | `[0, 90]` slow / `[0, 170]` fast over the hero's scroll |
 | Hover | `scale-[1.03]` buttons, `scale-105` pills, `-translate-y-2` deck cards |
@@ -321,6 +323,7 @@ text written inline in JSX, and the file should read like copy.
 | `MotionProvider` | `sorbet/` | Mounted once in `providers.tsx`; don't nest another. |
 | `TripCard` | `sorbet/` | Pastel card: title, chip, arrow. Takes `{ card, className, interactive }`. Owns the `ItineraryCard` type. |
 | `Polaroid` | `sorbet/` | White frame, handwritten caption. `card` (default): a link, the traveller's username, arrow, fan tilt by `index` from `sm` up. `lg`: the trip title as h1, no link, no tilt. The caller wraps it in `Reveal`. Never on a white ground: the frame is white paper and only its shadow would show. |
+| `SquiggleLoader` | `sorbet/` | Decorative: the `Squiggle` loop drawn on, carried along and drawn off on repeat — the app's only loading mark: `LoaderResponseAI`, the route `Loader`, the saved-trips grid and the form's city check. `react-spinners` is no longer imported anywhere (step 6 drops the dependency). Keeps running under reduced motion (it animates `pathLength`, not a transform), since it is the only sign the wait is not stuck. |
 | `SquiggleArrow` | `sorbet/` | Decorative: the `Squiggle` hand, a loop dropping into a down arrow; draws on in view. Hangs from the `/saved-trips` search to point at the grid. |
 | `SiteNav` | `ui/` | The nav, on every route. See below. |
 | `SiteFooter` | `ui/` | The ink footer. Rendered per page, not by the layout. |
@@ -447,6 +450,26 @@ Each of these was a bug, not a theory.
     entry"). `next dev` then drops the font while the webpack build is fine, so the bug
     only shows locally. It is self-hosted with `next/font/local`; keep it that way.
 
+11. **HeroUI on a migrated page: opt in with `data-sorbet`.** `:root` still maps
+    HeroUI's semantic colours (`--accent`, `--focus`, `--field-*`) to neptune for the
+    unmigrated trip pages, so a sorbet page sets `data-sorbet` on its wrapper and a
+    scoped block in `globals.css` remaps them to ink. **Popovers portal out of that
+    wrapper**, so `ComboBox.Popover` and `Popover.Content` carry `data-sorbet`
+    themselves. The old unlayered `.label` colour now skips `[data-sorbet]`, so labels
+    there need no `!`. Step 6 moves the values to `:root` and deletes the scope.
+
+12. **Three HeroUI traps the form hit.**
+    - `Popover.Trigger` renders its own `role="button"` element. Put the field's look on
+      the trigger itself; a `<button>` inside it is a button in a button with two tab
+      stops.
+    - `ComboBox` filters `defaultItems` but treats `items` as already filtered, and
+      HeroUI's `ListBoxItem` wraps its label with an indicator, so react-aria cannot
+      read the text. A searchable list needs `defaultItems` **and** `textValue` on each
+      item — with either missing, typing filters nothing.
+    - Radios and checkboxes are a `<label>` around a visually hidden `<input>`. In
+      Playwright, click the label; a forced click on the input does not toggle it.
+      Style the selected state with `data-selected:` on the label.
+
 ## Migrating a page
 
 1. Wrap the outermost element: `font-sorbet text-sorbet-ink` plus a `sorbet` ground.
@@ -478,7 +501,7 @@ Each of these was a bug, not a theory.
   `globals.css`; the file is vestigial and adding config to it would do nothing.
 - `next.config.mjs` still whitelists the DALL-E host
   (`oaidalleapiprodscus.blob.core.windows.net`) though image generation is gone.
-- HeroUI's semantic overrides in `:root` (`--accent` → neptune) still apply globally.
-  They will need revisiting when form and trip pages migrate.
+- HeroUI's semantic overrides in `:root` (`--accent` → neptune) still apply globally;
+  migrated pages opt out with `data-sorbet` (gotcha #11). Step 6 flips `:root`.
 - The global `.label` colour in `globals.css` is unlayered and only serves the old form
   (gotcha #9). Delete it in step 6, with the old palettes.

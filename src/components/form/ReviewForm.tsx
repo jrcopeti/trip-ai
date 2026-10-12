@@ -1,6 +1,11 @@
 import { useFormData } from "@/hooks/useFormData";
 import { durationInDays, displayDuration } from "@/lib/utils";
+import { review } from "./content";
 
+/**
+ * Everything entered, as a definition list: the same thirteen entries in the
+ * same order as before, restyled rather than restructured.
+ */
 function ReviewForm() {
   const { reviewFormData, isWeatherSelected: weather } = useFormData();
 
@@ -22,107 +27,47 @@ function ReviewForm() {
     endDate,
   } = reviewFormData;
 
-  const durationDays = durationInDays(startDate, endDate);
-  const duration = displayDuration(durationDays);
-  const transformedRequiredItems =
-    requiredItems?.map((requiredItem: { item: string }) => requiredItem.item) ??
-    [];
+  const duration = displayDuration(durationInDays(startDate, endDate));
+  const requiredItemList = (
+    requiredItems?.map((requiredItem: { item: string }) => requiredItem.item) ?? []
+  ).filter((item) => item !== "");
+  const { labels, none } = review;
+
+  const entries: { label: string; value: React.ReactNode; asWritten?: boolean }[] = [
+    { label: labels.name, value: userName },
+    { label: labels.age, value: age },
+    { label: labels.nationality, value: nationality },
+    { label: labels.destination, value: `${city}, ${country}` },
+    { label: labels.type, value: type },
+    { label: labels.luggageSize, value: luggageSize },
+    { label: labels.budget, value: budget },
+    { label: labels.transport, value: transport },
+    { label: labels.accommodation, value: accommodation },
+    { label: labels.duration, value: weather ? review.weatherDuration : duration, asWritten: true },
+    { label: labels.interests, value: interests.length ? interests.join(", ") : none },
+    {
+      label: labels.requiredItems,
+      value: requiredItemList.length ? requiredItemList.join(", ") : none,
+    },
+    // Sentences and free text: shown as written, not title-cased like the option values.
+    { label: labels.notes, value: note || none, asWritten: true },
+  ];
 
   return (
-    <>
-      <div className="mt-4 grid grid-cols-2 gap-y-1 lg:mt-10">
-        <div>
-          <small className="text-tuna-600">Name</small>
-          <p className="sm:text-md text-xs uppercase lg:text-lg">{userName}</p>
+    <dl className="grid gap-x-8 gap-y-6 rounded-3xl bg-sorbet-canvas p-6 sm:grid-cols-2 sm:p-8">
+      {entries.map(({ label, value, asWritten }) => (
+        <div key={label} className="min-w-0">
+          <dt className="text-xs font-medium uppercase tracking-[0.12em] text-sorbet-ink/45">
+            {label}
+          </dt>
+          <dd
+            className={`mt-1 break-words text-lg font-medium text-sorbet-ink ${asWritten ? "" : "capitalize"}`}
+          >
+            {value || none}
+          </dd>
         </div>
-
-        <div>
-          <small className="text-tuna-600">Age</small>
-          <p className="sm:text-md text-xs uppercase lg:text-lg">{age}</p>
-        </div>
-
-        <div>
-          <small className="text-tuna-600">Nationality</small>
-          <p className="sm:text-md text-xs uppercase lg:text-lg">
-            {nationality}
-          </p>
-        </div>
-
-        <div>
-          <small className="text-tuna-600">Destination</small>
-          <p className="sm:text-md text-xs uppercase lg:text-lg">
-            {city}, {country}
-          </p>
-        </div>
-
-        <div>
-          <small className="text-tuna-600">Trip Type</small>
-          <p className="sm:text-md text-xs uppercase lg:text-lg">{type}</p>
-        </div>
-
-        <div>
-          <small className="text-tuna-600">Luggage Size</small>
-          <p className="sm:text-md text-xs uppercase lg:text-lg">
-            {luggageSize}
-          </p>
-        </div>
-
-        <div>
-          <small className="text-tuna-600">Budget</small>
-          <p className="sm:text-md text-xs uppercase lg:text-lg">{budget}</p>
-        </div>
-
-        <div>
-          <small className="text-tuna-600">Transport</small>
-          <p className="sm:text-md text-xs uppercase lg:text-lg">{transport}</p>
-        </div>
-
-        <div>
-          <small className="text-tuna-600">Accommodation</small>
-          <p className="sm:text-md text-xs uppercase lg:text-lg">
-            {accommodation}
-          </p>
-        </div>
-
-        <div>
-          <small className="text-tuna-600">Duration</small>
-          <p className="sm:text-md text-xs uppercase lg:text-lg">
-            {weather ? `5 days based on weather` : duration}
-          </p>
-        </div>
-
-        <div>
-          <small className="text-tuna-600">Interests</small>
-          {interests.map((interest: string) => (
-            <p
-              className=" sm:text-md text-xs uppercase lg:text-lg"
-              key={interest}
-            >
-              <span>{interest}</span>
-            </p>
-          ))}
-        </div>
-
-        <div>
-          <small className="text-tuna-600">Required Items</small>
-          {transformedRequiredItems.map((item, i) => (
-            <p className="sm:text-md text-xs uppercase lg:text-lg" key={i}>
-              {item === "" ? "--" : item}
-            </p>
-          ))}
-          {transformedRequiredItems.length === 0 && (
-            <p className="sm:text-md text-xs uppercase lg:text-lg">--</p>
-          )}
-        </div>
-
-        <div className="text-tuna-600">
-          <small>Notes</small>
-          <p className="sm:text-md text-xs uppercase lg:text-lg">
-            {note ? note : "--"}
-          </p>
-        </div>
-      </div>
-    </>
+      ))}
+    </dl>
   );
 }
 

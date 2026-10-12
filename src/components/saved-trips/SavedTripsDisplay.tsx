@@ -10,12 +10,11 @@ import Polaroid from "@/components/sorbet/Polaroid";
 import Reveal from "@/components/sorbet/Reveal";
 import SquiggleArrow from "@/components/sorbet/SquiggleArrow";
 import StickerBadge from "@/components/sorbet/StickerBadge";
-import { SPINNER_INK } from "@/components/ui/Loader";
+import SquiggleLoader from "@/components/sorbet/SquiggleLoader";
 import ErrorComponent from "@/components/ui/NotFoundComponent";
 import { defaultPlaceholder } from "@/lib/constants";
 import { badge, empty, error, header, loading, more } from "./content";
 
-import { PuffLoader } from "react-spinners";
 
 /**
  * How far below the viewport top the search may sit before typing scrolls it up:
@@ -159,7 +158,7 @@ function SavedTripsDisplay() {
               aria-label={loading.label}
               className="grid place-items-center py-10"
             >
-              <PuffLoader size={80} color={SPINNER_INK} />
+              <SquiggleLoader className="h-20 w-32 text-sorbet-ink" />
             </div>
           ) : savedTrips?.length === 0 ? (
             <div className="bg-sorbet-white mx-auto max-w-xl rounded-3xl p-8 text-center md:p-10">

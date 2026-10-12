@@ -1,15 +1,20 @@
 import Form from "@/components/form/Form";
-import Container from "@/components/ui/Container";
-import GradientBg from "@/components/ui/GradientBg";
 
+/**
+ * `/form`, in the sorbet system: one white surface on canvas. `data-sorbet`
+ * switches HeroUI's semantic colours to sorbet for everything inside (see
+ * globals.css). No footer — the form is a task, not a page to browse.
+ */
 function FormPage() {
   return (
-    <>
-      <Container overflow="overflow-hidden" height="h-[calc(100dvh-4rem)]">
-        <GradientBg />
+    <div
+      data-sorbet
+      className="min-h-[calc(100dvh-4rem)] bg-sorbet-canvas px-5 py-10 font-sorbet text-sorbet-ink antialiased sm:px-8 md:py-16"
+    >
+      <div className="mx-auto max-w-3xl">
         <Form />
-      </Container>
-    </>
+      </div>
+    </div>
   );
 }
 
