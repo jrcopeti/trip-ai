@@ -680,8 +680,8 @@ mocked `createTripInDB` with the right `saved` flag. E2E happy path with
   progress bars), so they are not mapped — HeroUI's defaults stand until a real use
   needs a sorbet value.
 - The trip pages' old illustrations in `src/assets/travel/` (`plane`, `suitcase`,
-  three `stamps`, `travelicons`) had no references left and went too. `logo.png` stays,
-  though nothing imports it either.
+  three `stamps`, `travelicons`) had no references left and went too, with the folder.
+  `logo.png` moved up to `src/assets/`; it is kept though nothing imports it either.
 - `body`'s colour moved from tuna to ink; the `/saved-trips` search label lost the `!`
   it needed against the `.label` rule.
 - The old fonts went too: Red Hat Display, Inter and League Spartan are no longer
