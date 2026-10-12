@@ -40,6 +40,34 @@ test.describe("landing page", () => {
     }
   });
 
+  test.describe("hero deck", () => {
+    // Runs against `scripts/seed-e2e.ts`: Lisbon and Kyoto saved, Oslo discarded.
+    // Seeded in one statement, so they share `createdAt` and the higher id leads.
+    test("deals the saved trips as polaroids, newest first", async ({ page }) => {
+      const deck = page.getByRole("list", { name: "Latest saved trips" });
+      const cards = deck.getByRole("link");
+      await expect(cards).toHaveCount(2);
+      await expect(cards.nth(0)).toHaveAccessibleName(/^kyoto, Japan/i);
+      await expect(cards.nth(1)).toHaveAccessibleName(/^lisbon, Portugal/i);
+    });
+
+    test("never deals a discarded trip", async ({ page }) => {
+      const deck = page.getByRole("list", { name: "Latest saved trips" });
+      await expect(deck.getByRole("link")).toHaveCount(2);
+      await expect(deck.getByRole("link", { name: /oslo/i })).toHaveCount(0);
+    });
+
+    test("a polaroid opens its saved trip", async ({ page }) => {
+      const first = page.getByRole("list", { name: "Latest saved trips" }).getByRole("link").first();
+      const href = await first.getAttribute("href");
+      expect(href).toMatch(/^\/saved-trips\/\d+$/);
+
+      await first.click();
+      await expect(page).toHaveURL(new RegExp(`${href}$`));
+      await expect(page.getByRole("heading", { level: 1 })).toContainText(/kyoto/i);
+    });
+  });
+
   test("shows five sample tours under the band, each with its kind", async ({ page }) => {
     const heading = page.getByRole("heading", { level: 2, name: /^What comes back:/ });
     const section = page.locator("section").filter({ has: heading });

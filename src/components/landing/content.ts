@@ -1,6 +1,5 @@
 import type { IconType } from "react-icons";
 import { BsCloudRainFill, BsCloudSun, BsSunFill, BsSunsetFill } from "react-icons/bs";
-import { FaChampagneGlasses, FaHeart, FaPizzaSlice, FaTree } from "react-icons/fa6";
 import { IoWaterOutline } from "react-icons/io5";
 import { LuWind } from "react-icons/lu";
 import {
@@ -15,7 +14,6 @@ import {
 import lake from "@/assets/travel-photos/7.jpg";
 import train from "@/assets/travel-photos/5.jpg";
 import suncloudy from "@/assets/weather/suncloudy.png";
-import type { ItineraryCard } from "@/components/sorbet/TripCard";
 import type { TourKind } from "@/lib/tourKinds";
 
 /**
@@ -27,39 +25,11 @@ import type { TourKind } from "@/lib/tourKinds";
  * generate the blur placeholder on its own.
  */
 
-/** Sample of the shape Trip AI returns: a titled activity plus its category. */
-export const itineraryCards: ItineraryCard[] = [
-  {
-    title: "Dinner at the Eiffel Tower",
-    chip: "Romantic",
-    Icon: FaHeart,
-    tint: "bg-sorbet-lavender",
-  },
-  {
-    title: "Secret parks of Berlin",
-    chip: "Guided tour",
-    Icon: FaTree,
-    tint: "bg-sorbet-lime-punch",
-  },
-  {
-    title: "Da Giuseppe, pizza night",
-    chip: "Gastronomy",
-    Icon: FaPizzaSlice,
-    tint: "bg-sorbet-blush",
-  },
-  {
-    title: "Rex Club until close",
-    chip: "Party",
-    Icon: FaChampagneGlasses,
-    tint: "bg-sorbet-orchid",
-  },
-];
-
-/** The fanned deck in the hero — kept to three so the stack stays readable. */
-export const heroDeck: ItineraryCard[] = itineraryCards.slice(0, 3);
-
 /** The hero's eyebrow, in the meta-label idiom. */
 export const heroEyebrow = "Your new travel friend";
+
+/** The hero deck's accessible name: the latest saved trips, as polaroids. */
+export const heroDeckLabel = "Latest saved trips";
 
 /** The wordmark block: what the product does, one line each. */
 export const features = {

@@ -66,6 +66,33 @@ export const getSavedTripsPage = async (
   return { trips, total };
 };
 
+/** What the landing's hero deck needs of a trip: a polaroid's worth, no more. */
+export type LatestTrip = Pick<
+  Trip,
+  "id" | "city" | "country" | "userName" | "image" | "placeholder"
+>;
+
+/**
+ * The three most recently saved trips, newest first, for the landing's hero.
+ * Fixed at three for the same reason the saved-trips page size is fixed here.
+ */
+export const getLatestSavedTrips = async (): Promise<LatestTrip[]> => {
+  return prisma.trip.findMany({
+    where: { saved: true },
+    // `id` breaks ties: rows written in one statement share a `createdAt`.
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: 3,
+    select: {
+      id: true,
+      city: true,
+      country: true,
+      userName: true,
+      image: true,
+      placeholder: true,
+    },
+  });
+};
+
 export const getSingleSavedTrip = async (id: number | undefined) => {
   return prisma.trip.findUnique({
     where: {
