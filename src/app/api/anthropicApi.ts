@@ -20,7 +20,7 @@ const tripInputSchema: Anthropic.Tool["input_schema"] = {
     title: {
       type: "string",
       description:
-        "A creative title for the trip with 12 (twelve) words, that includes the capitalized userName, city and country",
+        "A creative title for the trip with 12 (twelve) words, that includes the userName, city and country. Write the name as a name, with only its first letter upper case (Marta, not MARTA) — not in all capitals.",
     },
     objectsList: {
       type: "array",

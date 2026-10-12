@@ -49,9 +49,14 @@ function Hero({ trips }: Props) {
   return (
     <section ref={ref} className="relative overflow-hidden bg-sorbet-canvas">
       {/* Stickers — decorative, hidden below md where they would crowd the type. */}
+      {/* This one sits in the left gutter, beside the heading: its right edge is a
+          1rem short of the content column (half of max-w-6xl, less the sm:px-8
+          gutter), so it is placed from the centre, not the viewport edge. The
+          gutter only fits its 104px from 85rem; below that it would sit on
+          "Plan the trip.", so it is hidden. */}
       <motion.div
         style={{ y: slow }}
-        className="parallax-drift absolute left-[4%] top-28 hidden md:block"
+        className="parallax-drift absolute left-[calc(50%-41.5rem)] top-28 hidden min-[85rem]:block"
       >
         <StickerBadge label="go anywhere" icon={<BsCompass />} tint="text-sorbet-cyan" size={104} />
       </motion.div>
@@ -69,7 +74,7 @@ function Hero({ trips }: Props) {
       </motion.div>
       <motion.div
         style={{ y: slow }}
-        className="parallax-drift absolute right-[8%] top-[38%] hidden lg:block"
+        className="parallax-drift absolute right-[8%] top-76 hidden lg:block"
       >
         <StickerBadge
           label="pack light"
@@ -90,11 +95,24 @@ function Hero({ trips }: Props) {
           <span className="block font-medium">Pack for the weather.</span>
         </h1>
 
-        <Squiggle
-          play={introDone}
-          delay={0.35}
-          className="mt-8 h-16 w-24 text-sorbet-ink md:h-20 md:w-32"
-        />
+        <div className="mt-8 flex items-center justify-between">
+          <Squiggle
+            play={introDone}
+            delay={0.35}
+            className="h-16 w-24 text-sorbet-ink md:h-20 md:w-32"
+          />
+          {/* Below md the gutter stickers are hidden, so the phone keeps one here,
+              in the flow beside the squiggle, where a wrapping heading cannot
+              run into it. */}
+          <div data-sticker="phone" className="md:hidden">
+            <StickerBadge
+              label="go anywhere"
+              icon={<BsCompass />}
+              tint="text-sorbet-cyan"
+              size={88}
+            />
+          </div>
+        </div>
 
         <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <p className="max-w-md text-lg leading-relaxed text-sorbet-ink/75 md:text-xl">

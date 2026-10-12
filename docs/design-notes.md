@@ -496,6 +496,16 @@ Each of these was a bug, not a theory.
       Playwright, click the label; a forced click on the input does not toggle it.
       Style the selected state with `data-selected:` on the label.
 
+13. **A sticker in the gutter is placed from the content column, not the viewport.**
+    The hero's cyan sticker sat at `left-[4%]`, on "Plan the trip." at every width
+    below ~1440px, and the orchid one at `top-[38%]` of the hero, under the buttons.
+    Measure from the column (`left-[calc(50%-41.5rem)]` is 1rem outside a
+    `max-w-6xl` with `sm:px-8`), show it only from the width where the gutter fits
+    it, and give a vertical position in rem rather than a percentage of a section
+    whose height the deck changes. Keep one sticker on a phone, in the flow rather
+    than absolute, so a wrapping heading cannot reach it. `landing.spec` measures
+    all three.
+
 ## Building a page
 
 1. Put `text-sorbet-ink` on the page's outermost element and a `sorbet` ground on each

@@ -27,7 +27,8 @@ Decided with the user:
 
 - **Branch 1** · `landing-copy` — merged (#178).
 - **Branch 2** · `landing-polaroids` — merged (#179).
-- **Branch 3** · `sorbet-logo` — staged for review.
+- **Branch 3** · `sorbet-logo` — merged (#180).
+- **Branch 4** · `readme-demo` — staged for review.
 
 ## Branch 1 — `landing-copy` (items 2, 4, 5, 6, 7)
 
@@ -155,6 +156,40 @@ gains: five tour cards render; no horizontal scroll at 390 still holds.
   OpenWeather). Output to `public/demo/`. For an inline README preview, a short GIF
   needs ffmpeg — ask before `brew install ffmpeg`; without it, commit the `.webm` and
   link it.
+- As built: a demo was recorded (a Playwright script, one real generation) and
+  then dropped in review — the user will record one by hand later. GitHub plays a
+  README video only from an uploaded attachment URL on a line of its own, not
+  from a file in the repo, and the attachment limit is 10MB on a free plan. No
+  video and no recording script are committed.
+- The old `desktop/` screenshots could not simply be deleted: `LOCAL_IMAGES` in
+  `src/test/fixtures/trip.ts` (the seed rows, the e2e Unsplash fixture, the unit
+  tests) pointed at them — which is also why the seeded polaroids showed the old
+  UI. They now point at `public/fixtures/trip-{1..5}.jpg`, 1200px copies of five
+  bundled travel photos, and `trip.test.ts` checks each exists under `public/`.
+- Screenshots (Playwright MCP, reduced motion, 1440×900 and 390×844): ten
+  desktop and ten phone, in one README section rather than one per route —
+  trimmed in review from a 41-shot set. Landing, form steps, a real generated
+  Barcelona trip (hero, tours, packing list, weather), saved trips, `/about`;
+  `public/screenshots/{desktop,mobile}-*.png`, about 3.7MB. Tall sections were
+  shot as elements with the nav hidden and after a scroll pass: the fixed nav
+  lands mid-image, and `Reveal` content stays at opacity 0 until scrolled to.
+  `redesign/`, `mobile/` and the root `screenshot.png` are gone.
+- Fixed in review:
+  - Generated titles shouted the name ("MARTA's …"): the tool schema asked for
+    "the capitalized userName". It now asks for the name as a name, not in
+    capitals, with a test on the schema text; a real call came back "Marta's".
+  - The hero's cyan sticker sat at `left-[4%]` of the viewport, on top of "Plan
+    the trip." at every width below ~1440px. It is now placed from the centre,
+    1rem short of the content column, and shown from 85rem, where the gutter fits
+    it.
+  - The orchid sticker, at `top-[38%]` of the hero, tucked under "See saved
+    trips". It is at `top-76` now, clear of the buttons at every `lg+` width.
+  - Below `md` every sticker was hidden. The phone keeps one: the cyan sticker in
+    the flow beside the squiggle (`data-sticker="phone"`), where a wrapping
+    heading cannot reach it.
+  - `landing.spec` pins all three: the cyan sticker clear of the heading and the
+    orchid above the buttons at 768–1920, and the phone sticker visible below
+    the heading at 390.
 
 ## Later — when the intro stops repeating
 

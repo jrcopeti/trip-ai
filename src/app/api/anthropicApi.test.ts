@@ -64,6 +64,15 @@ describe("fetchResponseAI", () => {
     expect(system[0].text).not.toMatch(/\bthree (specific )?activities\b/i);
   });
 
+  // "the capitalized userName" came back as "MARTA's Architectural Soul Journey…".
+  it("asks for the traveller's name in the title as a name, not in capitals", async () => {
+    await fetchResponseAI("a prompt");
+
+    const title = sentTool().input_schema.properties.title.description;
+    expect(title).not.toMatch(/capitali[sz]ed/i);
+    expect(title).toMatch(/not in (all )?capitals/i);
+  });
+
   it("returns null when the tool says the city does not exist", async () => {
     create.mockResolvedValue({
       content: [{ type: "tool_use", name: "tripData", input: { trip: null } }],

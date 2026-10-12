@@ -8,7 +8,7 @@ vi.mock("next/image", async () => ({
 }));
 
 const base = {
-  image: "/screenshots/desktop/1.png",
+  image: "/fixtures/trip-1.jpg",
   placeholder: defaultPlaceholder,
   caption: "lisbon, Portugal",
 };
