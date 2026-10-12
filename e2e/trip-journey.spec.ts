@@ -106,11 +106,18 @@ test.describe("trip journey", () => {
     await noHorizontalScroll(page);
 
     // The tours are a carousel: one at a time, Next brings the second.
-    const tours = tripDataFixture.tours as unknown as string[];
+    const tours = tripDataFixture.tours as unknown as {
+      title: string;
+      kind: string;
+      description: string;
+    }[];
+    const of = (n: number) => `${n} of ${tours.length}`;
     const carousel = page.getByRole("region", { name: "Suggested tours" });
-    await expect(carousel.getByRole("group", { name: "1 of 3" })).toContainText(tours[0]);
-    // No titles from the AI yet: the title slot holds the placeholder.
-    await expect(carousel.getByRole("heading", { level: 3 })).toHaveText("Tour title");
+    await expect(carousel.getByRole("group", { name: of(1) })).toContainText(
+      tours[0].description,
+    );
+    await expect(carousel.getByRole("group", { name: of(1) })).toContainText(tours[0].kind);
+    await expect(carousel.getByRole("heading", { level: 3 })).toHaveText(tours[0].title);
     // The fixture's tours wrap to different heights at 390. The card is sized to
     // the longest, so stepping through them must not change the carousel's
     // height — or move the rest of the page below it.
@@ -119,8 +126,8 @@ test.describe("trip journey", () => {
     const before = await height();
     for (const [i, tour] of tours.slice(1).entries()) {
       await nextTour.click();
-      await expect(carousel.getByRole("group", { name: `${i + 2} of 3` })).toHaveText(
-        new RegExp(tour),
+      await expect(carousel.getByRole("group", { name: of(i + 2) })).toHaveText(
+        new RegExp(`${tour.kind}.*${tour.title}.*${tour.description}`),
       );
       expect(await height()).toBe(before);
     }

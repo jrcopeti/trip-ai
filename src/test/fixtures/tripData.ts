@@ -16,11 +16,34 @@ export const tripDataFixture = {
   requiredItems: ["camera", "walking shoes"],
   description: "Lisbon in May is all tiled facades and long light.",
   tours: [
-    "Walk the Alfama at first light, before the trams fill.",
-    "Take the train to Sintra and climb to the Moorish castle.",
-    // Long on purpose: real tours run to a paragraph, and the tours carousel has
-    // to hold its height when one does (trip-journey.spec measures it).
-    "Spend an afternoon in Belem, pastry in hand: start at the Jeronimos Monastery before the tour buses arrive, walk the riverfront to the Monument to the Discoveries, then climb the Tower of Belem as the light turns gold over the Tagus.",
+    {
+      title: "Alfama at first light",
+      kind: "History",
+      description: "Walk the Alfama at first light, before the trams fill.",
+    },
+    {
+      title: "Sintra's Moorish castle",
+      kind: "Adventure",
+      description: "Take the train to Sintra and climb to the Moorish castle.",
+    },
+    {
+      title: "Fado in the Mouraria",
+      kind: "Nightlife",
+      description: "Find a small fado house in the Mouraria and stay for the late sets.",
+    },
+    {
+      title: "Tiles at the Azulejo museum",
+      kind: "Art",
+      description: "Spend a morning among five centuries of painted tiles.",
+    },
+    {
+      title: "An afternoon in Belem",
+      kind: "Food",
+      // Long on purpose: real tours run to a paragraph, and the tours carousel
+      // has to hold its height when one does (trip-journey.spec measures it).
+      description:
+        "Spend an afternoon in Belem, pastry in hand: start at the Jeronimos Monastery before the tour buses arrive, walk the riverfront to the Monument to the Discoveries, then climb the Tower of Belem as the light turns gold over the Tagus.",
+    },
   ],
   tip: "A carry-on suits the hills; cobblestones punish wheeled luggage.",
 } as unknown as Trip;

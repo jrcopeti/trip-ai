@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { fireEvent, renderWithProviders, screen, waitFor } from "@/test/render";
+import { fireEvent, renderWithProviders, screen, waitFor, within } from "@/test/render";
 import ToursCarousel from "./ToursCarousel";
 import { tours as copy } from "./content";
 import type { Tour } from "./tours";
@@ -10,8 +10,14 @@ const TEXTS = [
   "Take the train to Sintra.",
   "Spend an afternoon in Belem.",
 ];
-/** Untitled, as the AI returns them today. */
-const TOURS: Tour[] = TEXTS.map((description) => ({ description }));
+const TITLES = ["Alfama at dawn", "Sintra's castle", "Belem by the river"];
+const KINDS = ["History", "Nature", "Food"];
+/** Titled and kinded, as the AI returns them. */
+const TOURS: Tour[] = TEXTS.map((description, i) => ({
+  title: TITLES[i],
+  kind: KINDS[i],
+  description,
+}));
 
 /** The tour on screen. Entering and leaving slides overlap briefly, so wait it out. */
 async function expectShowing(tour: string, n: number) {
@@ -36,23 +42,35 @@ describe("ToursCarousel", () => {
     expect(screen.getAllByRole("group")).toHaveLength(1);
   });
 
-  it("holds a placeholder in the title slot until the tour has a title", () => {
+  it("titles each tour above its description", () => {
     renderWithProviders(<ToursCarousel tours={TOURS} />);
 
-    const title = screen.getByRole("heading", { level: 3 });
-    expect(title).toHaveTextContent(copy.untitled);
-    expect(title).toHaveAttribute("data-placeholder");
+    const title = screen.getByRole("heading", { level: 3, name: TITLES[0] });
     expect(title.nextElementSibling).toHaveTextContent(TEXTS[0]);
   });
 
-  it("shows the tour's own title once it has one", () => {
-    renderWithProviders(
-      <ToursCarousel tours={[{ title: "Alfama at dawn", description: TEXTS[0] }]} />,
-    );
+  it("chips the tour's number and its kind, each with an icon", () => {
+    renderWithProviders(<ToursCarousel tours={TOURS} />);
 
-    const title = screen.getByRole("heading", { level: 3, name: "Alfama at dawn" });
-    expect(title).not.toHaveAttribute("data-placeholder");
-    expect(screen.queryByText(copy.untitled)).not.toBeInTheDocument();
+    const slide = screen.getByRole("group", { name: copy.slide(1, 3) });
+    const chips = within(slide).getAllByTestId("tour-chip");
+    expect(chips.map((chip) => chip.textContent)).toEqual([copy.chip(1), "History"]);
+    chips.forEach((chip) => expect(chip.querySelector("svg")).not.toBeNull());
+  });
+
+  it("shows only the number chip for a tour without a kind", () => {
+    renderWithProviders(<ToursCarousel tours={[{ title: TITLES[0], description: TEXTS[0] }]} />);
+
+    const chips = within(screen.getByRole("group")).getAllByTestId("tour-chip");
+    expect(chips.map((chip) => chip.textContent)).toEqual([copy.chip(1)]);
+  });
+
+  it("shows an untitled tour — an older saved trip's — without a title slot", () => {
+    renderWithProviders(<ToursCarousel tours={[{ description: TEXTS[0] }]} />);
+
+    expect(screen.queryByRole("heading", { level: 3 })).not.toBeInTheDocument();
+    expect(screen.getByRole("group", { name: copy.slide(1, 1) })).toHaveTextContent(TEXTS[0]);
+    expect(screen.queryByText("Tour title")).not.toBeInTheDocument();
   });
 
   it("reserves the longest tour's height with copies hidden from assistive tech", () => {

@@ -34,8 +34,6 @@ export const tours = {
   eyebrow: "Tours",
   heading: { claim: "Suggested tours.", qualifier: "Pick a few, skip the rest." },
   chip: (n: number) => `Tour ${String(n).padStart(2, "0")}`,
-  /** Stands in for a tour's title until the AI returns one. */
-  untitled: "Tour title",
   carousel: "Suggested tours",
   slide: (n: number, total: number) => `${n} of ${total}`,
   previous: "Previous tour",

@@ -1,6 +1,7 @@
 "use server";
 import Anthropic from "@anthropic-ai/sdk";
 import type { Trip } from "@prisma/client";
+import { TOUR_KINDS } from "@/lib/tourKinds";
 import { tripDataFixture, useE2EFixtures } from "./e2eFixtures";
 
 const client = new Anthropic({
@@ -8,10 +9,10 @@ const client = new Anthropic({
 });
 
 const systemInstructions =
-  "You are a seasoned tour guide specializing in assisting travelers with packing for their trips, considering their preferences, the destination, the trip's duration, and the weather forecast. Your task is to compile a detailed packing list of 9 (nine) different items, specifying quantities (e.g., 3 T-shirts, 2 pairs of shoes). Also, create a creative trip title incorporating the traveler's name, city, and country. Provide a brief trip description highlighting the journey's essence in up to three paragraphs. Recommend three specific activities to enjoy in the destination city, with each description being up to three paragraphs long.";
+  "You are a seasoned tour guide specializing in assisting travelers with packing for their trips, considering their preferences, the destination, the trip's duration, and the weather forecast. Your task is to compile a detailed packing list of 9 (nine) different items, specifying quantities (e.g., 3 T-shirts, 2 pairs of shoes). Also, create a creative trip title incorporating the traveler's name, city, and country. Provide a brief trip description highlighting the journey's essence in up to three paragraphs. Recommend five specific activities to enjoy in the destination city, each with a short title, the one word for its kind, and a description of up to three paragraphs.";
 
 const tripToolDescription =
-  "The first step in the function is to validate the existence of the specified city within the given country using a reliable data source. If this validation fails due to the city not existing, having a population less than one, or any other critical data mismatch, the function must immediately return { trip: null } without further processing. This ensures the integrity and applicability of the travel planning process. If validation is successful, the function will then proceed to: This function generates a detailed packing list and a comprehensive trip plan based on the tourist's provided trip information. Create a packing list, a creative trip title, a descriptive trip summary, and suggestions for three activities based on the traveler's preferences and the local weather conditions.";
+  "The first step in the function is to validate the existence of the specified city within the given country using a reliable data source. If this validation fails due to the city not existing, having a population less than one, or any other critical data mismatch, the function must immediately return { trip: null } without further processing. This ensures the integrity and applicability of the travel planning process. If validation is successful, the function will then proceed to: This function generates a detailed packing list and a comprehensive trip plan based on the tourist's provided trip information. Create a packing list, a creative trip title, a descriptive trip summary, and suggestions for five activities based on the traveler's preferences and the local weather conditions.";
 
 const tripInputSchema: Anthropic.Tool["input_schema"] = {
   type: "object",
@@ -65,8 +66,31 @@ const tripInputSchema: Anthropic.Tool["input_schema"] = {
     tours: {
       type: "array",
       description:
-        "Three suggested tours or activities in the city or location in maximum of 3 (three) paragraphs each.",
-      items: { type: "string" },
+        "Five suggested tours or activities in the city or location, each with a short title, its kind, and a description of maximum 3 (three) paragraphs.",
+      minItems: 5,
+      maxItems: 5,
+      items: {
+        type: "object",
+        properties: {
+          title: {
+            type: "string",
+            description:
+              "A short title for the tour with maximum 6 (six) words, naming the place or the activity.",
+          },
+          kind: {
+            type: "string",
+            enum: [...TOUR_KINDS],
+            description:
+              "The one word, from this list, that best says what kind of tour it is.",
+          },
+          description: {
+            type: "string",
+            description:
+              "The tour itself, in maximum 3 (three) paragraphs. Do not repeat the title.",
+          },
+        },
+        required: ["title", "kind", "description"],
+      },
     },
     tip: {
       type: "string",
@@ -91,7 +115,9 @@ export const fetchResponseAI = async (prompt: string): Promise<Trip | null> => {
   try {
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 4096,
+      // Five tours of up to three paragraphs, plus the rest: 4096 came close
+      // enough that a cut-off tool call (unparseable input) was a real risk.
+      max_tokens: 8192,
       system: [
         {
           type: "text",

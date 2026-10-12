@@ -12,17 +12,29 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Now
 
-**Follow-ups, one branch per group.** Order: form bugs ✅ → form behaviour →
-rename → tour titles. The sorbet migration is finished (steps 0–6 below).
+**Follow-ups, one branch per group.** Order: form bugs ✅ → form behaviour ✅ →
+tour titles. The rename was dropped (see Follow-ups). The sorbet migration is
+finished (steps 0–6 below).
 
-- **Form behaviour** · `form-behaviour` — staged for review. A field's message goes
+- **Tour titles** · `tour-titles` — staged for review. The `tripData` tool returns
+  each tour as `{ title, description }`, and the carousel shows the title above it.
+  Trips saved before that hold plain strings and show the tour with no title — the
+  "Tour title" placeholder is gone. The fixture tours are titled and the e2e journey
+  asserts a real title. 3 new unit tests in `anthropicApi.test.ts` (the first for
+  that module, with the SDK mocked), carousel and section tests updated (417 total).
+  Then **kinds and five tours**, on the same branch: each tour also carries a
+  one-word `kind` from a fixed list (`src/lib/tourKinds.ts`, the schema's `enum`),
+  shown as a second chip with its own icon beside "Tour 01"; the prompt asks for
+  five tours, and `max_tokens` goes to 8192 to fit them. 8 new unit tests (425).
+
+## Done
+
+- **Form behaviour** · `form-behaviour` ✅ — #175. A field's message goes
   as soon as it is fixed: any value change re-checks the current step's fields that
   show an error (a `watch` in `FormContext`, since the comboboxes and chips never
   blur). Enter in a step-4 item inserts the next item and focuses it; the rows are
   named `requiredItems.${i}.item`, the dotted path RHF focuses by. 6 new unit tests
   (414 total); 44/44 e2e.
-
-## Done
 
 - **Form bugs** · `form-fixes` ✅ — #174. Re-clicking the chosen day keeps it
   (`required` on the `DayPicker`), and clearing a country or nationality clears the
@@ -732,30 +744,11 @@ Issues noticed during the migration that predate it or sit outside a step's scop
 Left alone on purpose so each step stayed a restyle.
 Each wants a test that fails first.
 
-**Tour titles from the AI:**
-
-- **Each tour should come back as `{ title, description }`.** The tours carousel already
-  has the title slot, filled with a muted "Tour title" placeholder
-  (`tours.untitled` in `trips/content.ts`, `data-placeholder` on the `h3`), because
-  the `tripData` tool returns each tour as one string. To finish it:
-  - `src/app/api/anthropicApi.ts` — make `tours` an array of objects with a short
-    `title` and the `description`, and say so in the tool description.
-  - `src/test/fixtures/tripData.ts` — give the fixture tours titles; the e2e journey
-    asserts the placeholder today and should assert a real title instead.
-  - Nothing to change in the components: `toTours` (`trips/tours.ts`) already reads
-    both shapes, and `Trip.tours` is `Json`, so no migration.
-  - Decide what **old saved trips** show — they stay plain strings forever. Keep the
-    placeholder, or hide the slot when `title` is missing (the card is sized by the
-    invisible sizers, so either is shift-free).
-
 **Smaller:**
 
-- **Rename `isTripSaved` to `hasAnswered`.** `useCreateTrip` sets it `true` in both
-  `handleYesAnswer` and `handleNoAnswer`, so it means "the user has answered the save
-  question", not "the trip is saved" — which made `SaveSection`'s "What next?" branch
-  read as dead code in review. Touches `TripContext` (and `src/types/index.ts`),
-  `useCreateTrip`, `useConfirmonPageExit`, `SaveSection`, and the `closing`,
-  `TripContext` and `useCreateTrip` tests. Behaviour unchanged.
+- **Not doing: renaming `isTripSaved`.** It is set on either answer to "save this
+  trip?", but `hasAnswered` reads wrong everywhere outside `SaveSection`, so the name
+  stays.
 - **`landing.spec`'s "logs no console errors" failed three repeats once**, in the first
   local run after a fresh build, and never again (87/87 twice). If it shows up in CI,
   capture the console text before guessing.
