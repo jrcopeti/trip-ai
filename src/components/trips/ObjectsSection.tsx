@@ -1,9 +1,13 @@
 import { useParams } from "next/navigation";
+import { LuPackage } from "react-icons/lu";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useTripResponse } from "@/hooks/useTripResponse";
-import Image from "next/image";
-import suitcase from "@/assets/travel/suitcase.png";
+import Reveal from "@/components/sorbet/Reveal";
+import TripCard from "@/components/sorbet/TripCard";
 import type { ObjectsListType } from "@/types";
+import { Section, SectionHeading } from "./Section";
+import { objects as copy } from "./content";
+import { CARD_TINTS } from "./tints";
 
 function ObjectsSection() {
   const params = useParams();
@@ -11,38 +15,31 @@ function ObjectsSection() {
   const { tripData: response } = useTripResponse();
 
   const objectsList =
-    (trip?.objectsList as ObjectsListType[]) ||
-    (response?.objectsList as ObjectsListType[]);
+    ((trip?.objectsList || response?.objectsList) as ObjectsListType[] | undefined) ?? [];
 
   return (
-    <div className="absolute h-[90%] w-[90%] p-4 lg:p-12">
-      <div className="grid grid-cols-2 items-center justify-items-center gap-2 rounded-sm lg:grid-cols-3 lg:gap-4 lg:p-4">
-        {objectsList?.map((object, i) => (
-          <div
-            className="objects-list flex h-full w-full flex-col items-stretch justify-start gap-y-1 bg-gallery-50/40 p-3 font-semibold leading-loose text-tuna-900 shadow-md lg:p-6"
-            key={i}
-          >
-            <div className="flex items-center justify-start space-x-4 text-xs text-neptune-600 xs:text-sm lg:text-lg">
-              <span className="font-extrabold ">{object.quantity}</span>
-              <span className="text-xs capitalize text-tuna-900 xs:text-sm lg:text-lg">
-                {object.item}
-              </span>
-            </div>
-            <span className="text-[.6rem] text-tuna-600 xs:text-sm md:text-base">
-              {object.description}
-            </span>
-          </div>
+    <Section ground="bg-sorbet-canvas">
+      <SectionHeading eyebrow={copy.eyebrow} heading={copy.heading} />
+      <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 md:mt-16">
+        {objectsList.map((object, i) => (
+          <li key={i}>
+            <Reveal delay={0.06 * (i % 3)} className="h-full">
+              <TripCard
+                card={{
+                  title: object.item,
+                  body: object.description,
+                  chip: copy.chip(object.quantity),
+                  Icon: LuPackage,
+                  tint: CARD_TINTS[i % CARD_TINTS.length],
+                }}
+                interactive={false}
+                className="h-full"
+              />
+            </Reveal>
+          </li>
         ))}
-        <div className="absolute -z-10 h-[200px] w-[200px] translate-x-[80px] translate-y-[200px] xs:translate-x-[90px] xs:translate-y-[300px] lg:h-[250px] lg:w-[350px] lg:translate-x-[350px] lg:translate-y-[100px] xl:h-[300px] xl:w-[400px] xl:translate-x-[450px] xl:translate-y-[100px]">
-          <Image
-            src={suitcase}
-            alt="stamps"
-            fill
-            className="object-contain opacity-60 "
-          />
-        </div>
-      </div>
-    </div>
+      </ul>
+    </Section>
   );
 }
 

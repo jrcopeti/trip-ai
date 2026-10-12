@@ -1,6 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = Number(process.env.PORT ?? 3000);
+// Not 3000: `reuseExistingServer` would pick up a running `npm run dev`, which
+// reads `.env` — the production database — rather than the seeded one, and the
+// trip journey writes trips.
+const PORT = Number(process.env.PORT ?? 3100);
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${PORT}`;
 
 export default defineConfig({
@@ -22,7 +25,23 @@ export default defineConfig({
   },
 
   // Chromium only. The suite guards behaviour, not cross-engine rendering.
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  //
+  // The trip journey is the one spec that writes to the database, so it is its
+  // own project and runs after the rest: `saved-trips.spec` counts the seeded
+  // rows, and a saved trip landing mid-run would make that count flaky.
+  projects: [
+    {
+      name: "chromium",
+      testIgnore: /trip-journey\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "journey",
+      testMatch: /trip-journey\.spec\.ts/,
+      dependencies: ["chromium"],
+      use: { ...devices["Desktop Chrome"] },
+    },
+  ],
 
   // Runs against a production build: `next dev` recompiles per route, which makes
   // the first navigation of each spec slow enough to trip the timeouts above.
@@ -35,6 +54,7 @@ export default defineConfig({
       // The three "use server" modules answer from fixtures instead of calling
       // Anthropic, Unsplash and OpenWeather — see src/app/api/e2eFixtures.ts.
       E2E_FIXTURES: "1",
+      PORT: String(PORT),
     },
   },
 });

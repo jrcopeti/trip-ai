@@ -12,9 +12,14 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Now
 
-**Step 5 — trip pages.** See the step list below.
+**Step 6 — cleanup and docs.** See the step list below.
 
 ## Done
+
+- **Step 5 — trip pages.** ✅ On `sorbet-trip-pages`. Both routes share `TripPage`,
+  the large polaroid title, alternating grounds and a lime close; GSAP and Locomotive
+  are gone from `src/`. 48 new unit tests (368 total), 2 new e2e
+  (`trip-journey.spec.ts`: save → in `/saved-trips` → opens; discard → absent, at 390).
 
 - **Step 4 — `/form`.** ✅ On `sorbet-form`. One white surface on canvas, HeroUI opted
   into sorbet with `data-sorbet`, copy in `form/content.ts`. 21 new unit tests (320
@@ -49,7 +54,7 @@ belongs in `docs/design-notes.md` (visual system) or `CLAUDE.md` (rules), not he
 
 ## Next
 
-Step 6.
+The follow-ups below, once step 6 lands.
 
 ## Open questions
 
@@ -583,7 +588,36 @@ advance; `DatePicker` opens on click and selects a date (`user-event`); the revi
 lists the entered values; buttons expose the right accessible names. E2E: walk all seven
 steps at 1440 and 390, assert validation blocks a premature "next".
 
-## Step 5 — Trip pages · `sorbet-trip-pages`
+## Step 5 — Trip pages · `sorbet-trip-pages` ✅
+
+**Landed.** What the plan did not anticipate:
+
+- **One layout, two closings.** `TripPage` renders the nine shared sections, the footer
+  and the font/ground wrapper; `TripResponse` passes `SaveSection`, the saved route
+  passes `FinalSection` plus the back button. `Section`, `SectionHeading`,
+  `MediaFrame` and `Closing` are the shared parts; copy is in `trips/content.ts`.
+- **`TripCard` grew two optional things**: `card.body` (an object's "why") and
+  `titleClassName` (tours are sentences, and the 14ch cap made them a column of
+  words). The landing is unchanged by default.
+- **Forecast cards are offwhite**, not white: the plan put white cards on the white
+  Forecast ground, where they would have had no edge.
+- **Secondary pills on lime are ink outlines** — a lime secondary vanishes on the lime
+  close.
+- **Photos 3–5 show from `lg` only** (beside copy); stacked, three more full-width
+  frames made the phone page much longer for no information. `MediaFrame` is 16:10
+  stacked, 4:5 beside copy.
+- **Small fixes on the way:** blank required items and interests (the form keeps an
+  empty first row) no longer render as empty pills or a "--"; weather and forecast show
+  a squiggle status while loading instead of "not available"; the flag has a real alt
+  and is not rendered with an empty `src`.
+- **The journey writes, so it is fenced.** Its own Playwright project, after the rest
+  (`saved-trips.spec` counts rows); serial (with a worker per test, one test's cleanup
+  deleted the other's trip mid-search); deletes its own rows; skips unless the
+  database is local. And Playwright now serves on **3100**: on 3000 it silently reused
+  a running `npm run dev` — reading production — and failed 21 specs confusingly.
+- `form.spec`'s walk moved to `e2e/formWalk.ts` so the journey can reuse it.
+
+The original plan for this step follows.
 
 `/trips/[tripUrl]` and `/saved-trips/[id]` share all ten section components, so they
 migrate together — and both get the polaroid title.

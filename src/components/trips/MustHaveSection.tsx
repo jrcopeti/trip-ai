@@ -1,19 +1,57 @@
-import { useRef } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import defaultImage3 from "@/assets/travel-photos/3.jpg";
-import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
+import { FaCheck } from "react-icons/fa6";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { useImage } from "@/hooks/useImage";
-import GridContainer from "../ui/GridContainer";
+import defaultImage3 from "@/assets/travel-photos/3.jpg";
+import Reveal from "@/components/sorbet/Reveal";
 import { defaultPlaceholder } from "@/lib/constants";
-import { FaCheck } from "react-icons/fa6";
+import { MediaFrame, Section, SectionHeading } from "./Section";
+import { mustHave as copy } from "./content";
+
+/** A checklist card in the landing's packing-list idiom: check pills on a pastel. */
+function Checklist({
+  heading,
+  items,
+  tint,
+  empty,
+}: {
+  heading: string;
+  items: string[];
+  tint: string;
+  empty?: string;
+}) {
+  return (
+    <div className={`h-full rounded-[1.75rem] p-6 md:p-8 ${tint}`}>
+      <h3 className="text-2xl font-semibold text-sorbet-ink">{heading}</h3>
+      {items.length > 0 ? (
+        <ul className="mt-6 grid gap-2.5">
+          {items.map((item, i) => (
+            <li
+              key={i}
+              className="flex items-center gap-3 rounded-full bg-white/70 px-4 py-3"
+            >
+              <span
+                aria-hidden
+                className="grid size-5 shrink-0 place-items-center rounded-full bg-sorbet-ink text-sorbet-offwhite"
+              >
+                <FaCheck size={10} />
+              </span>
+              <span className="text-base font-medium text-sorbet-ink first-letter:uppercase">
+                {item}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-6 text-base text-sorbet-ink/70">{empty}</p>
+      )}
+    </div>
+  );
+}
 
 function MustHaveSection() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  useLocomotiveScroll(scrollRef);
-
   const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
   const { tripData: response } = useTripResponse();
@@ -21,97 +59,44 @@ function MustHaveSection() {
 
   const image3 = trip?.image3 || imageData?.tripImage3;
   const placeholder = trip?.placeholder || imageData?.placeholder;
-  const mustHave = trip?.mustHave || response?.mustHave;
-  const requiredItems =
-    (trip?.requiredItems as string[]) || (response?.requiredItems as string[]);
+  const mustHave = trip?.mustHave || response?.mustHave || [];
+  // The form keeps an empty first row when nothing was added, so blanks are dropped.
+  const requiredItems = (
+    ((trip?.requiredItems || response?.requiredItems) as string[] | undefined) ?? []
+  ).filter((item) => item.trim() !== "");
 
   return (
-    <>
-      <GridContainer animationClass="must-have">
-        <div className="relative h-full w-full ">
-          <Image
-            src={image3 ?? defaultImage3}
-            alt="city"
-            blurDataURL={placeholder ?? defaultPlaceholder}
-            placeholder="blur"
-            priority
-            fill
-            className="object-cover"
-          />
+    <Section ground="bg-white">
+      <SectionHeading eyebrow={copy.eyebrow} heading={copy.heading} />
+      <div className="mt-12 grid gap-4 md:mt-16 lg:grid-cols-[1.6fr_1fr]">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Reveal className="h-full">
+            <Checklist heading={copy.mustHave} items={mustHave} tint="bg-sorbet-lavender" />
+          </Reveal>
+          <Reveal delay={0.06} className="h-full">
+            <Checklist
+              heading={copy.required}
+              items={requiredItems}
+              tint="bg-sorbet-blush"
+              empty={copy.noRequired}
+            />
+          </Reveal>
         </div>
-
-        <div
-          ref={scrollRef}
-          className="min-h-full overflow-auto bg-gallery-50/70 px-4 py-3 lg:px-6 lg:py-5"
-        >
-          <div className="ml-2">
-            <h2 className="text-2xl font-bold text-tuna-900 xs:text-3xl sm:mt-3 lg:text-4xl">
-              Your Must Have items
-            </h2>
-            <div className="grid grid-cols-2 gap-x-5 xs:mt-2 sm:grid-cols-3 lg:mt-4 lg:grid-cols-2 lg:gap-y-1">
-              {mustHave?.map((item, i) => (
-                <ul className="py-1" key={i}>
-                  <li className="inline-flex items-center gap-2 text-base font-semibold capitalize text-tuna-600 xs:text-lg lg:text-2xl 2xl:text-3xl">
-                    <span>
-                      <FaCheck color="#4e888c" />
-                    </span>
-                    <p className="">{item}</p>
-                  </li>
-                </ul>
-              ))}
-            </div>
-          </div>
-
-          <div className="ml-2 xs:mt-4 lg:mt-6">
-            <h2 className="text-2xl font-bold text-tuna-900 sm:mt-3 sm:text-3xl lg:text-4xl">
-              And Your Required Items
-            </h2>
-            <div className="mt-2 grid grid-cols-2 gap-x-5 xs:mt-2 sm:grid-cols-3 lg:mt-4 lg:grid-cols-2 lg:gap-y-1">
-              {requiredItems.length > 1 &&
-                requiredItems?.map((item, i) => (
-                  <ul className="py-1" key={i}>
-                    <li className="inline-flex items-center gap-1 text-base font-semibold capitalize text-tuna-600 xs:text-lg lg:text-2xl 2xl:text-3xl">
-                      {item !== "" && (
-                        <>
-                          <span>
-                            <FaCheck color="#4e888c" />
-                          </span>
-                          <p>{item}</p>
-                        </>
-                      )}
-                    </li>
-                  </ul>
-                ))}
-              {requiredItems.length === 1 &&
-                requiredItems?.map((item, i) => (
-                  <ul className="py-1" key={i}>
-                    <li className="inline-flex items-center gap-1 text-base font-semibold capitalize text-tuna-600 xs:text-lg lg:text-2xl 2xl:text-3xl">
-                      {item !== "" ? (
-                        <>
-                          <span>
-                            <FaCheck color="#4e888c" />
-                          </span>
-                          <p>{item}</p>
-                        </>
-                      ) : (
-                        <p className="text-base font-semibold capitalize text-tuna-600 lg:text-xl 2xl:text-2xl">
-                          --
-                        </p>
-                      )}
-                    </li>
-                  </ul>
-                ))}
-              {!requiredItems ||
-                (requiredItems.length === 0 && (
-                  <p className="text-base font-semibold capitalize text-tuna-600 lg:text-xl 2xl:text-2xl">
-                    --
-                  </p>
-                ))}
-            </div>
-          </div>
-        </div>
-      </GridContainer>
-    </>
+        <Reveal delay={0.12} className="hidden lg:block">
+          <MediaFrame>
+            <Image
+              src={image3 ?? defaultImage3}
+              alt=""
+              fill
+              placeholder="blur"
+              blurDataURL={placeholder ?? defaultPlaceholder}
+              sizes="400px"
+              className="object-cover"
+            />
+          </MediaFrame>
+        </Reveal>
+      </div>
+    </Section>
   );
 }
 

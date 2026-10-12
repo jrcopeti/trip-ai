@@ -13,13 +13,19 @@ import { LuWind } from "react-icons/lu";
 import { TbSunrise } from "react-icons/tb";
 import { BsSunsetFill } from "react-icons/bs";
 import { BiMessageSquareError } from "react-icons/bi";
+import Reveal from "@/components/sorbet/Reveal";
+import SquiggleLoader from "@/components/sorbet/SquiggleLoader";
+import { Section, SectionHeading, SectionNotice } from "./Section";
+import { weather as copy } from "./content";
 dayjs.extend(utc);
+
+const toCelsius = (kelvin?: number) => Math.round((kelvin ?? 0) - 273.15);
 
 function WeatherSection() {
   const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
   const { formData } = useFormData();
-  const { generateWeather, weatherData } = useWeather();
+  const { generateWeather, weatherData, isPendingWeather } = useWeather();
 
   const city = trip?.city || formData?.city;
   const country = trip?.country || formData?.country;
@@ -44,103 +50,111 @@ function WeatherSection() {
     formData?.country,
   ]);
 
-  if (!weatherData) {
-    return (
-      <p className="flex items-center gap-2 text-xl font-semibold text-tuna-900">
-        <BiMessageSquareError color="#c2150c" /> Weather data is not available
-      </p>
-    );
-  }
+  return (
+    <Section ground="bg-sorbet-offwhite">
+      <SectionHeading eyebrow={copy.eyebrow} heading={copy.heading} />
+      {weatherData ? (
+        <WeatherCard weatherData={weatherData} place={`${city}, ${country}`} />
+      ) : isPendingWeather ? (
+        <div role="status" aria-label={copy.loading} className="mt-12">
+          <SquiggleLoader className="h-12 w-20" />
+        </div>
+      ) : (
+        <SectionNotice>
+          <BiMessageSquareError aria-hidden className="text-sorbet-alert" />
+          {copy.unavailable}
+        </SectionNotice>
+      )}
+    </Section>
+  );
+}
 
-  const { weatherIconSrc } = weatherData;
-  const main = weatherData?.main;
-  const temperature = Math.round((main?.temp ?? 0) - 273.15 ?? 0);
-  const feelsLike = Math.round((main?.feels_like ?? 0) - 273.15 ?? 0);
-  const tempMin = Math.round((main?.temp_min ?? 0) - 273.15 ?? 0);
-  const tempMax = Math.round((main?.temp_max ?? 0) - 273.15 ?? 0);
-  const humidity = main?.humidity ?? 0;
+/**
+ * The origin of the icon breakout: the weather icon overflows the card's top
+ * edge on mobile and its left edge from `sm` up, via negative margins, so the
+ * card's padding is asymmetric to make room. `WeatherPacking` on the landing
+ * copies this card; keep the two aligned.
+ */
+function WeatherCard({
+  weatherData,
+  place,
+}: {
+  weatherData: NonNullable<ReturnType<typeof useWeather>["weatherData"]>;
+  place: string;
+}) {
+  const { weatherIconSrc, main, sys, wind } = weatherData;
+  const timezone = weatherData.timezone ?? 0;
+  const condition = weatherData.weather?.[0];
 
-  const sys = weatherData?.sys;
-  const timezone = weatherData?.timezone ?? 0;
+  const localTime = (unix?: number) =>
+    dayjs
+      .unix(unix ?? 0)
+      .utc()
+      .add(timezone, "s")
+      .format("HH:mm");
 
-  const sunrise = dayjs
-    .unix(sys?.sunrise ?? 0)
-    .utc()
-    .add(timezone, "s");
-  const formattedSunrise = sunrise.format("HH:mm");
-
-  const sunset = dayjs
-    .unix(sys?.sunset ?? 0)
-    .utc()
-    .add(timezone, "s");
-  const formattedSunset = sunset.format("HH:mm");
-
-  const weather = weatherData?.weather?.[0];
-  const condition = weather?.main;
-  const weatherDescription = weather?.description;
-
-  const wind = weatherData?.wind;
-  const speed = Math.round((wind?.speed ?? 0) * 3.6);
+  const metrics = [
+    { Icon: IoWaterOutline, value: `${main?.humidity ?? 0}%`, label: copy.metrics.humidity },
+    {
+      Icon: LuWind,
+      value: `${Math.round((wind?.speed ?? 0) * 3.6)} km/h`,
+      label: copy.metrics.wind,
+    },
+    { Icon: TbSunrise, value: localTime(sys?.sunrise), label: copy.metrics.sunrise },
+    { Icon: BsSunsetFill, value: localTime(sys?.sunset), label: copy.metrics.sunset },
+  ];
 
   return (
-    <>
-      <div className="weather-card relative mx-0 my-[40px] flex w-[80%] flex-col rounded-sm bg-gallery-50/70  pb-[60px] pl-[50px] pr-[50px] text-center text-tuna-900 shadow-xl sm:max-h-[400px] sm:w-[75vw] sm:max-w-[500px] sm:flex-row sm:items-center sm:pb-[50px] sm:pl-[20px] sm:pr-[100px] sm:pt-[60px] sm:text-start ">
+    <Reveal delay={0.06}>
+      <div className="relative mt-16 flex max-w-3xl flex-col rounded-[1.75rem] bg-white px-6 pb-8 pt-0 sm:flex-row sm:items-center sm:pl-0 sm:pr-8 sm:pt-8 md:mt-20">
         <Image
-          height={400}
-          width={400}
-          alt="weather-icon"
           src={weatherIconSrc ?? suncloudy}
-          className="-mt-[60px] mb-[30px] ml-[10%] h-[40vw] w-[40vw] object-contain saturate-150 filter xs:-mt-[86px] xs:ml-[12%] xs:h-[45vw] xs:w-[45vw] sm:-ml-[145px] sm:-mt-[0px] sm:mb-[30px] sm:h-[300px] sm:w-full md:-ml-[161px] md:-mt-[0] md:mr-[30px] md:h-[300px] md:max-w-full "
+          alt=""
+          aria-hidden
+          width={400}
+          height={400}
+          className="-mt-12 mb-2 h-40 w-40 self-center object-contain saturate-150 sm:-ml-14 sm:-mt-6 sm:mb-0 sm:mr-2 sm:h-56 sm:w-56 md:-ml-16 md:h-64 md:w-64"
         />
-        <div className="text-tuna-900">
-          <p className="mb-4 whitespace-nowrap text-sm uppercase sm:mb-2 sm:text-base">
-            {city}, {country}
-          </p>
-          <section>
-            <h2 className=" mt-0 text-7xl font-semibold sm:mr-0 sm:text-[6rem]">
-              {temperature}ºC
-            </h2>
-            <p className="mb-4 ml-1">Feels like {feelsLike}ºC</p>
 
-            <h3 className="text-3xl font-semibold text-tuna-600 sm:text-4xl">
-              {condition}
-            </h3>
-          </section>
-          <p className="mb-3 ml-1 text-xs first-letter:uppercase">
-            {weatherDescription}
+        <div className="min-w-0">
+          <p className="text-sm font-medium uppercase tracking-[0.12em] text-sorbet-ink/50">
+            {place}
           </p>
-          <section className="text-md mb-3 flex items-center justify-center gap-x-2 text-xl font-semibold text-tuna-400 sm:justify-start">
-            <p>
-              <small>Low</small> {tempMin}ºC
-            </p>
-            <p>
-              <small>High</small> {tempMax}ºC
-            </p>
-          </section>
-          <section className="flex items-center justify-center gap-x-[30px] text-sm font-semibold sm:justify-start">
-            <div className="flex flex-col items-center">
-              <IoWaterOutline size={20} />
-              <span>{humidity}%</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <LuWind size={20} />
-              <span className="whitespace-nowrap">
-                {speed.toFixed(0)}
-                <small>km/h</small>
-              </span>
-            </div>
-            <div className="flex flex-col items-center">
-              <TbSunrise size={20} />
-              <span>{formattedSunrise}</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <BsSunsetFill size={20} />
-              <span>{formattedSunset}</span>
-            </div>
-          </section>
+
+          <p className="mt-1 text-6xl font-extrabold leading-none tracking-[-0.04em] text-sorbet-ink md:text-7xl">
+            {toCelsius(main?.temp)}
+            <span className="align-top text-3xl md:text-4xl">ºC</span>
+          </p>
+          <p className="mt-1 text-sm text-sorbet-ink/60">
+            {copy.feelsLike(toCelsius(main?.feels_like))}
+          </p>
+
+          <p className="mt-4 text-2xl font-semibold text-sorbet-ink">{condition?.main}</p>
+          <p className="text-sm text-sorbet-ink/60 first-letter:uppercase">
+            {condition?.description}
+          </p>
+
+          <p className="mt-3 text-sm font-semibold text-sorbet-ink/70">
+            <span className="font-medium text-sorbet-ink/45">{copy.low}</span>{" "}
+            {toCelsius(main?.temp_min)}ºC
+            <span className="ml-3 font-medium text-sorbet-ink/45">{copy.high}</span>{" "}
+            {toCelsius(main?.temp_max)}ºC
+          </p>
+
+          <ul className="mt-6 flex flex-wrap items-start gap-x-7 gap-y-3">
+            {metrics.map(({ Icon, value, label }) => (
+              <li key={label} className="flex flex-col items-center gap-1">
+                <Icon size={20} className="text-sorbet-ink/70" aria-hidden />
+                <span className="whitespace-nowrap text-sm font-semibold text-sorbet-ink">
+                  {value}
+                </span>
+                <span className="sr-only">{label}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
-    </>
+    </Reveal>
   );
 }
 

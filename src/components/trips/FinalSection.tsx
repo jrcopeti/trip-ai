@@ -1,66 +1,36 @@
 "use client";
-import { useRef } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
-import { useLocomotiveScroll } from "@/hooks/useLocomotiveScroll";
-import { Button, ButtonGroup } from "@heroui/react";
 import defaultImage5 from "@/assets/travel-photos/9.jpg";
-import GridContainer from "../ui/GridContainer";
 import { defaultPlaceholder } from "@/lib/constants";
+import Closing, { buttonExtras, primaryPill, secondaryPill } from "./Closing";
+import { closing as copy } from "./content";
 
+/** The saved route's last section: back to where you came from, or a new trip. */
 function FinalSection() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  useLocomotiveScroll(scrollRef);
-
   const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
   const router = useRouter();
 
   return (
-    <>
-      <GridContainer animationClass="final-card">
-        <div className="relative h-full w-full">
-          <Image
-            src={trip?.image5 ?? defaultImage5}
-            alt="city"
-            blurDataURL={trip?.placeholder ?? defaultPlaceholder}
-            placeholder="blur"
-            priority
-            fill
-            className="object-cover"
-          />
-        </div>
-
-        <div
-          ref={scrollRef}
-          className="min-h-full overflow-auto bg-gallery-50/70 p-6 lg:p-8"
-        >
-          <div className="flex flex-col gap-3">
-            <h2 className="text-2xl font-bold text-tuna-900 lg:text-3xl">
-              Good to know!
-            </h2>
-            <p className="text-sm font-semibold text-tuna-600 xs:text-base sm:text-lg lg:text-xl">
-              {trip?.tip}{" "}
-            </p>
-          </div>
-          <ButtonGroup>
-            <Button
-              onPress={router.back}
-              className="mt-2 bg-neptune-500 text-base font-semibold text-gallery-50 xs:mt-10 xs:p-6 xs:text-xl"
-            >
-              Back
-            </Button>
-            <Button
-              onPress={() => router.push("/form")}
-              className="mt-2 bg-neptune-600 text-base text-gallery-50 xs:mt-10 xs:p-6 xs:text-xl"
-            >
-              Get another trip
-            </Button>
-          </ButtonGroup>
-        </div>
-      </GridContainer>
-    </>
+    <Closing
+      image={trip?.image5 ?? defaultImage5}
+      placeholder={trip?.placeholder ?? defaultPlaceholder}
+      tip={trip?.tip}
+      heading={copy.final.heading}
+    >
+      <button
+        type="button"
+        onClick={() => router.back()}
+        className={`${primaryPill} ${buttonExtras}`}
+      >
+        {copy.final.back}
+      </button>
+      <Link href={copy.final.another.href} className={secondaryPill}>
+        {copy.final.another.label}
+      </Link>
+    </Closing>
   );
 }
 
