@@ -44,7 +44,7 @@ function SlideBody({ n, tour }: { n: number; tour: Tour }) {
           {copy.chip(n)}
         </span>
         {KindIcon && (
-          <span data-testid="tour-chip" className={`${chip} first-letter:uppercase`}>
+          <span data-testid="tour-chip" className={chip}>
             <KindIcon size={13} aria-hidden />
             {tour.kind}
           </span>
