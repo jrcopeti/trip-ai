@@ -1,15 +1,15 @@
 # Design notes — the `sorbet` system
 
-How the redesigned Trip AI looks and behaves, written down so the rest of the app can
-be migrated without re-deriving it. Everything here is taken from the shipped landing
-page, not from a mockup.
+How Trip AI looks and behaves, written down so new work matches it without re-deriving
+it. Every route is on this system; the landing page was the first and is still the
+reference.
 
 **Read this before styling any page.** If something here disagrees with the code, the
 code is right and this file needs fixing.
 
 - The reference: `src/app/page.tsx` and `src/components/landing/*`
 - The tokens: the `sorbet` block at the end of `@theme` in `src/app/globals.css`
-- Current plans: `docs/PLAN.md`
+- Plans: `docs/<topic>/PLAN.md` — the migration's is `docs/sorbet-migration/PLAN.md`
 
 ## Status
 
@@ -330,6 +330,38 @@ Server components by default. Only these are `"use client"`: `Hero`, `Intro`,
 `IntroContext`, `MotionProvider`, `Reveal`, `SiteNav`, `Squiggle`, `SquiggleArrow`, `StickerBadge`,
 `LoaderResponseAI`, `ButtonBackOutlined` — i.e. only what needs hooks or motion.
 
+### The polaroid
+
+`Polaroid` (`sorbet/`) is the one component with a fixed spec — change it here first.
+It is a photo on white paper with a fat bottom lip and a handwritten caption.
+
+- **Frame** — `rounded-2xl bg-white p-3 pb-0` plus the system's one shadow
+  (`shadow-[0_18px_40px_-24px_rgba(48,46,45,0.55)]`).
+- **Photo** — `relative aspect-square overflow-hidden rounded-xl`, a radius tier below
+  the frame.
+- **Lip** — `px-1 pb-4 pt-3`.
+- **Caption** — `font-sorbet-hand`, ink, `leading-none`. Never below `text-xl`: Caveat's
+  x-height is small.
+- **Tilt** — `POLAROID_TILT`, the Hero deck's angles
+  (`sm:-rotate-2`, `sm:rotate-1`, `sm:-rotate-1`, `sm:rotate-2`), by index. **Never
+  below `sm`** — a rotated card overflows the gutter at 390px.
+- **Hover** — `hover:-translate-y-2 sm:hover:rotate-0`, `duration-300`,
+  `motion-reduce:transition-none`.
+- **Entrance** — the caller's: wrap it in `Reveal`, `delay={0.06 * i}` in a grid.
+
+Two sizes:
+
+- **`card`** (default), the `/saved-trips` tile. The whole card is a `<Link>` around an
+  `<article>`, with an explicit `aria-label` (gotcha in Accessibility) and the
+  focus-visible outline at `outline-offset-4`. Caption `text-2xl capitalize` as an h2:
+  `{city}, {country}`. Under it the username in the meta-label idiom
+  (`text-xs font-medium uppercase tracking-[0.12em] text-sorbet-ink/45`), and a `size-8`
+  ink arrow disc, `aria-hidden`, bottom-right of the lip. Tilt by `index`.
+- **`lg`**, the trip title on both trip routes. Same frame at `max-w-md`; the caption is
+  the trip title, the page's h1, at `text-[clamp(1.75rem,4vw,2.75rem)] text-balance`.
+  No link, no username, no arrow; rests on the first tilt and straightens on hover.
+  `TitleSection` renders it unconditionally — no variant prop, no fork.
+
 ### The shared shell
 
 `SiteNav` is rendered once by `src/app/layout.tsx`, so it is on every route and there is
@@ -462,25 +494,23 @@ Each of these was a bug, not a theory.
       Playwright, click the label; a forced click on the input does not toggle it.
       Style the selected state with `data-selected:` on the label.
 
-## Migrating a page
+## Building a page
 
-1. Wrap the outermost element: `font-sorbet text-sorbet-ink` plus a `sorbet` ground.
+1. Put `text-sorbet-ink` on the page's outermost element and a `sorbet` ground on each
+   section. The face is already set on `<body>`.
 2. Nothing to do for motion — `MotionProvider` is already above you, from `providers.tsx`.
-3. Replace old palette classes with `sorbet` equivalents. Secondary text becomes
-   `text-sorbet-ink/70`, not a grey.
-4. Drop `Container`/`GridContainer`/`GradientBg`; use the section/measure/gutter pattern.
-5. Replace HeroUI `Button` with plain pill elements.
-6. Alternate the ground against the section above it.
-7. Wrap entrances in `Reveal`; stagger with `delay={0.06 * i}`.
-8. Add the focus-visible triad to everything interactive.
-9. Move every word on the page into the page's `content.ts` (see "Copy lives in
+3. Use the section/measure/gutter pattern (see Layout). Secondary text is
+   `text-sorbet-ink/70`, never a grey.
+4. Buttons are plain pill elements, not HeroUI `Button`.
+5. Alternate the ground against the section above it.
+6. Wrap entrances in `Reveal`; stagger with `delay={0.06 * i}`.
+7. Add the focus-visible triad to everything interactive.
+8. Move every word on the page into the page's `content.ts` (see "Copy lives in
    `content.ts`" above).
-10. `priority` on a `next/image` only when it is above the fold on first paint — never
-    inside a `Reveal`, which starts it at opacity 0, so the preload buys nothing.
-11. Check it at 390px — the custom `xs` breakpoint is there for a reason.
-12. Verify with `npx tsc --noEmit`, `npm test` and `npm run build` (`npm run lint` is
-    broken — see CLAUDE.md). Write the step's tests in the same PR; the testing
-    conventions are in CLAUDE.md.
+9. `priority` on a `next/image` only when it is above the fold on first paint — never
+   inside a `Reveal`, which starts it at opacity 0, so the preload buys nothing.
+10. Check it at 390px — the custom `xs` breakpoint is there for a reason.
+11. Verify and test as CLAUDE.md's per-branch checklist says.
 
 ## Known debt
 
