@@ -24,8 +24,8 @@ const CARD =
 
 /**
  * A slide's content: chip, title, then the tour. Shared by the visible card and
- * the invisible sizers. Until the AI returns tour titles, the title slot holds a
- * muted placeholder so the card already has its final shape.
+ * the invisible sizers. Trips saved before the AI titled its tours have none,
+ * and show the tour without a title rather than a stand-in.
  */
 function SlideBody({ n, tour }: { n: number; tour: Tour }) {
   return (
@@ -35,15 +35,12 @@ function SlideBody({ n, tour }: { n: number; tour: Tour }) {
         {copy.chip(n)}
       </span>
       <div>
-        <h3
-          data-placeholder={tour.title ? undefined : ""}
-          className={`max-w-5xl text-xl leading-snug font-semibold tracking-[-0.01em] first-letter:uppercase md:text-2xl lg:text-[1.75rem] lg:leading-[1.3] ${
-            tour.title ? "text-sorbet-ink" : "text-sorbet-ink/35"
-          }`}
-        >
-          {tour.title ?? copy.untitled}
-        </h3>
-        <p className="text-sorbet-ink/75 mt-3 max-w-5xl text-justify text-lg leading-relaxed first-letter:uppercase md:text-xl">
+        {tour.title && (
+          <h3 className="text-sorbet-ink mb-3 max-w-5xl text-xl leading-snug font-semibold tracking-[-0.01em] first-letter:uppercase md:text-2xl lg:text-[1.75rem] lg:leading-[1.3]">
+            {tour.title}
+          </h3>
+        )}
+        <p className="text-sorbet-ink/75 max-w-5xl text-justify text-lg leading-relaxed first-letter:uppercase md:text-xl">
           {tour.description}
         </p>
       </div>

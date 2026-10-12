@@ -65,8 +65,23 @@ const tripInputSchema: Anthropic.Tool["input_schema"] = {
     tours: {
       type: "array",
       description:
-        "Three suggested tours or activities in the city or location in maximum of 3 (three) paragraphs each.",
-      items: { type: "string" },
+        "Three suggested tours or activities in the city or location, each with a short title and a description of maximum 3 (three) paragraphs.",
+      items: {
+        type: "object",
+        properties: {
+          title: {
+            type: "string",
+            description:
+              "A short title for the tour with maximum 6 (six) words, naming the place or the activity.",
+          },
+          description: {
+            type: "string",
+            description:
+              "The tour itself, in maximum 3 (three) paragraphs. Do not repeat the title.",
+          },
+        },
+        required: ["title", "description"],
+      },
     },
     tip: {
       type: "string",

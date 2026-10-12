@@ -1,11 +1,9 @@
 /**
  * One suggested tour as the carousel shows it.
  *
- * The AI returns each tour as a single string today, so `title` is empty and the
- * card shows a placeholder in its place. Once the `tripData` tool schema returns
- * `{ title, description }` per tour (see the follow-up in docs/PLAN.md), only
- * the schema changes: `toTours` already reads that shape, and old saved trips
- * keep reading as strings.
+ * The `tripData` tool returns each tour as `{ title, description }`. Trips saved
+ * before it did hold plain strings, and `Trip.tours` is `Json`, so both shapes
+ * are read here; a string becomes an untitled tour.
  */
 export type Tour = { title?: string; description: string };
 
