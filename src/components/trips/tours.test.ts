@@ -11,13 +11,26 @@ describe("toTours", () => {
 
   it("reads the future { title, description } shape", () => {
     expect(toTours([{ title: "Alfama at dawn", description: "Walk the Alfama." }])).toEqual([
-      { title: "Alfama at dawn", description: "Walk the Alfama." },
+      { title: "Alfama at dawn", kind: undefined, description: "Walk the Alfama." },
+    ]);
+  });
+
+  it("reads the tour's kind", () => {
+    expect(
+      toTours([{ title: "Alfama at dawn", kind: "History", description: "Walk the Alfama." }]),
+    ).toEqual([{ title: "Alfama at dawn", kind: "History", description: "Walk the Alfama." }]);
+  });
+
+  it("treats a blank or missing kind as no kind", () => {
+    expect(toTours([{ title: "A", kind: " ", description: "B." }, { description: "C." }])).toEqual([
+      { title: "A", kind: undefined, description: "B." },
+      { description: "C." },
     ]);
   });
 
   it("treats a blank title as no title", () => {
     expect(toTours([{ title: "  ", description: "Walk the Alfama." }])).toEqual([
-      { title: undefined, description: "Walk the Alfama." },
+      { title: undefined, kind: undefined, description: "Walk the Alfama." },
     ]);
   });
 

@@ -4,6 +4,7 @@ import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa6";
 import { LuMapPin } from "react-icons/lu";
 import { tours as copy } from "./content";
+import { kindIcon } from "./kinds";
 import { CARD_TINTS } from "./tints";
 import type { Tour } from "./tours";
 
@@ -22,18 +23,33 @@ const disc =
 const CARD =
   "col-start-1 row-start-1 flex flex-col gap-5 rounded-3xl p-6 sm:p-8 md:gap-6 md:p-10";
 
+const chip =
+  "text-sorbet-ink inline-flex w-fit items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-sm font-medium";
+
 /**
- * A slide's content: chip, title, then the tour. Shared by the visible card and
+ * A slide's content: chips, title, then the tour. The number chip always; the
+ * kind chip, with that kind's icon as on the landing's itinerary cards, when
+ * the tour has one. Shared by the visible card and
  * the invisible sizers. Trips saved before the AI titled its tours have none,
  * and show the tour without a title rather than a stand-in.
  */
 function SlideBody({ n, tour }: { n: number; tour: Tour }) {
+  const KindIcon = tour.kind ? kindIcon(tour.kind) : null;
+
   return (
     <>
-      <span className="text-sorbet-ink inline-flex w-fit items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-sm font-medium">
-        <LuMapPin size={14} aria-hidden />
-        {copy.chip(n)}
-      </span>
+      <div className="flex flex-wrap items-center gap-2">
+        <span data-testid="tour-chip" className={chip}>
+          <LuMapPin size={14} aria-hidden />
+          {copy.chip(n)}
+        </span>
+        {KindIcon && (
+          <span data-testid="tour-chip" className={`${chip} first-letter:uppercase`}>
+            <KindIcon size={13} aria-hidden />
+            {tour.kind}
+          </span>
+        )}
+      </div>
       <div>
         {tour.title && (
           <h3 className="text-sorbet-ink mb-3 max-w-5xl text-xl leading-snug font-semibold tracking-[-0.01em] first-letter:uppercase md:text-2xl lg:text-[1.75rem] lg:leading-[1.3]">

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { fireEvent, renderWithProviders, screen, waitFor } from "@/test/render";
+import { fireEvent, renderWithProviders, screen, waitFor, within } from "@/test/render";
 import ToursCarousel from "./ToursCarousel";
 import { tours as copy } from "./content";
 import type { Tour } from "./tours";
@@ -11,8 +11,13 @@ const TEXTS = [
   "Spend an afternoon in Belem.",
 ];
 const TITLES = ["Alfama at dawn", "Sintra's castle", "Belem by the river"];
-/** Titled, as the AI returns them. */
-const TOURS: Tour[] = TEXTS.map((description, i) => ({ title: TITLES[i], description }));
+const KINDS = ["History", "Nature", "Food"];
+/** Titled and kinded, as the AI returns them. */
+const TOURS: Tour[] = TEXTS.map((description, i) => ({
+  title: TITLES[i],
+  kind: KINDS[i],
+  description,
+}));
 
 /** The tour on screen. Entering and leaving slides overlap briefly, so wait it out. */
 async function expectShowing(tour: string, n: number) {
@@ -42,6 +47,22 @@ describe("ToursCarousel", () => {
 
     const title = screen.getByRole("heading", { level: 3, name: TITLES[0] });
     expect(title.nextElementSibling).toHaveTextContent(TEXTS[0]);
+  });
+
+  it("chips the tour's number and its kind, each with an icon", () => {
+    renderWithProviders(<ToursCarousel tours={TOURS} />);
+
+    const slide = screen.getByRole("group", { name: copy.slide(1, 3) });
+    const chips = within(slide).getAllByTestId("tour-chip");
+    expect(chips.map((chip) => chip.textContent)).toEqual([copy.chip(1), "History"]);
+    chips.forEach((chip) => expect(chip.querySelector("svg")).not.toBeNull());
+  });
+
+  it("shows only the number chip for a tour without a kind", () => {
+    renderWithProviders(<ToursCarousel tours={[{ title: TITLES[0], description: TEXTS[0] }]} />);
+
+    const chips = within(screen.getByRole("group")).getAllByTestId("tour-chip");
+    expect(chips.map((chip) => chip.textContent)).toEqual([copy.chip(1)]);
   });
 
   it("shows an untitled tour — an older saved trip's — without a title slot", () => {

@@ -22,6 +22,10 @@ finished (steps 0–6 below).
   "Tour title" placeholder is gone. The fixture tours are titled and the e2e journey
   asserts a real title. 3 new unit tests in `anthropicApi.test.ts` (the first for
   that module, with the SDK mocked), carousel and section tests updated (417 total).
+  Then **kinds and five tours**, on the same branch: each tour also carries a
+  one-word `kind` from a fixed list (`src/lib/tourKinds.ts`, the schema's `enum`),
+  shown as a second chip with its own icon beside "Tour 01"; the prompt asks for
+  five tours, and `max_tokens` goes to 8192 to fit them. 8 new unit tests (425).
 
 ## Done
 

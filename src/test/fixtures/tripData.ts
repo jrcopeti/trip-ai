@@ -18,14 +18,27 @@ export const tripDataFixture = {
   tours: [
     {
       title: "Alfama at first light",
+      kind: "History",
       description: "Walk the Alfama at first light, before the trams fill.",
     },
     {
       title: "Sintra's Moorish castle",
+      kind: "Adventure",
       description: "Take the train to Sintra and climb to the Moorish castle.",
     },
     {
+      title: "Fado in the Mouraria",
+      kind: "Nightlife",
+      description: "Find a small fado house in the Mouraria and stay for the late sets.",
+    },
+    {
+      title: "Tiles at the Azulejo museum",
+      kind: "Art",
+      description: "Spend a morning among five centuries of painted tiles.",
+    },
+    {
       title: "An afternoon in Belem",
+      kind: "Food",
       // Long on purpose: real tours run to a paragraph, and the tours carousel
       // has to hold its height when one does (trip-journey.spec measures it).
       description:

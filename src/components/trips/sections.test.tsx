@@ -42,7 +42,7 @@ vi.mock("next/image", async () => ({
 
 const generatedObjects = tripDataFixture.objectsList as ObjectsListType[];
 const savedObjects = tripFixture.objectsList as ObjectsListType[];
-const generatedTours = tripDataFixture.tours as { title: string; description: string }[];
+const generatedTours = tripDataFixture.tours as { title: string; kind: string; description: string }[];
 
 describe("TitleSection", () => {
   it("captions the large polaroid with the generated trip's title, as the h1", () => {
@@ -134,8 +134,9 @@ describe("ToursSection", () => {
   it("shows the generated trip's first tour, titled", () => {
     renderGeneratedTrip(<ToursSection />);
 
-    const slide = screen.getByRole("group", { name: "1 of 3" });
+    const slide = screen.getByRole("group", { name: `1 of ${generatedTours.length}` });
     expect(slide).toHaveTextContent(generatedTours[0].description);
+    expect(slide).toHaveTextContent(generatedTours[0].kind);
     expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent(generatedTours[0].title);
   });
 
