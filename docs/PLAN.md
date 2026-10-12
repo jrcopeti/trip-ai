@@ -20,8 +20,8 @@ _Nothing in flight._ The sorbet migration is finished (steps 0–6 below).
   `Container`/`GridContainer`/`GradientBg`/`Gradient1`/`GradientConic` panels and
   their types, `src/components/home/`, `SwiperComponent`, the unlayered `.label` rule,
   the DALL-E host and six packages are gone; HeroUI's colours are sorbet on `:root`
-  and the `[data-sorbet]` scope is deleted. 4 new unit tests (403 total,
-  `src/test/hygiene.test.ts`); all 44 e2e green against the local throwaway Postgres.
+  and the `[data-sorbet]` scope is deleted. 6 new unit tests (405 total: 5 in
+  `src/test/hygiene.test.ts`, 1 for `ButtonBackOutlined`'s cursor); all 44 e2e green against the local throwaway Postgres.
 
 - **Step 5 — trip pages.** ✅ On `sorbet-trip-pages`. Both routes share `TripPage`,
   the large polaroid title, alternating grounds and a lime close; GSAP and Locomotive
@@ -679,6 +679,9 @@ mocked `createTripInDB` with the right `saved` flag. E2E happy path with
   variants we never render read them (`secondary` inputs and checkboxes, coloured
   progress bars), so they are not mapped — HeroUI's defaults stand until a real use
   needs a sorbet value.
+- The trip pages' old illustrations in `src/assets/travel/` (`plane`, `suitcase`,
+  three `stamps`, `travelicons`) had no references left and went too. `logo.png` stays,
+  though nothing imports it either.
 - `body`'s colour moved from tuna to ink; the `/saved-trips` search label lost the `!`
   it needed against the `.label` rule.
 - The old fonts went too: Red Hat Display, Inter and League Spartan are no longer

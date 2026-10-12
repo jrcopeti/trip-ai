@@ -50,8 +50,9 @@ const OLD_PALETTES = [
 
 describe("the old look is gone", () => {
   it("imports none of the removed packages", () => {
+    // `from "x"`, a bare `import "x/css"`, and `import("x")` / `require("x")`.
     const imports = new RegExp(
-      `from ["'](${REMOVED_DEPS.map((d) => d.replace("/", "\\/")).join("|")})(\\/[^"']*)?["']`,
+      `(from|import\\(?|require\\()\\s*["'](${REMOVED_DEPS.map((d) => d.replace("/", "\\/")).join("|")})(\\/[^"']*)?["']`,
     );
 
     expect(offenders(imports)).toEqual([]);
