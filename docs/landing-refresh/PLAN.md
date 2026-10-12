@@ -129,6 +129,13 @@ gains: five tour cards render; no horizontal scroll at 390 still holds.
   blackens transparent corners. Glyph inset a sixth each side, as the lockup's `p-4`.
   Nav and lockup tests assert the glyph is present and adds no text: the home link's
   name is still "trip ai", and the lockup no longer repeats it.
+- Favicon changed in review. A lime tile with the ink glyph was unreadable at
+  16px; a vector redraw (suitcase centred, no wave or passport) was tried and
+  rejected, and so were a white glyph with no tile and a white glyph on the
+  lime tile, and a lime glyph with no tile. The favicons are now `logo.png` in
+  its original colours (the teal gradient), no tile, transparent ground:
+  `icon.png` 512px, `apple-icon.png` 180px. The page's `Logo` keeps the ink
+  glyph on lime.
 
 ## Branch 4 — `readme-demo` (item 8, last, once the look is final)
 
