@@ -88,7 +88,12 @@ gains: five tour cards render; no horizontal scroll at 390 still holds.
 - As built: the action `select`s only the polaroid's fields (`LatestTrip`), so the
   client component is not handed whole rows. The catch lives in
   `landing/loadLatestTrips.ts`, which logs the error and returns `[]` — a pure
-  helper, since RTL cannot render the async page. Below `md` the deck still
+  helper, since RTL cannot render the async page. It also gives up after 1.5s
+  (`LATEST_TRIPS_TIMEOUT_MS`): the page awaits the deck before sending anything,
+  and Prisma's own limits (5s connect, 10s pool) would hold the landing blank.
+  A `<Suspense>` deck with a loader was considered and passed over — more
+  restructuring for a decorative deck. The cost: a Neon wake-up slower than 1.5s
+  means that one visitor gets no deck. Below `md` the deck still
   overlaps, but each card sits *under* the one before (`z-30/20/10`): stacked the
   other way, the overlap hid the caption on the card above. The deck is a `<ul>`
   named "Latest saved trips".
@@ -132,6 +137,25 @@ gains: five tour cards render; no horizontal scroll at 390 still holds.
   OpenWeather). Output to `public/demo/`. For an inline README preview, a short GIF
   needs ffmpeg — ask before `brew install ffmpeg`; without it, commit the `.webm` and
   link it.
+
+## Later — when the intro stops repeating
+
+Not part of this plan's branches; recorded so it is not lost.
+
+- **Planned:** remember a visitor's first view so the intro plays once.
+- **Then move the hero deck to `<Suspense>`.** The 1.5s timeout (branch 2) holds the
+  whole landing blank while the query runs, because the page awaits it before
+  sending any HTML — the intro never hid that wait, since it starts only once the
+  HTML arrives. Without the intro, the better shape is: the deck as its own
+  server component fetching `getLatestSavedTrips`, passed into `Hero` inside
+  `<Suspense>` with a `SquiggleLoader` fallback in a box of the deck's height. The
+  page then renders at once and the loader shows only when the database is slow.
+  Keep the 1.5s limit inside it, so a down database cannot spin the loader for
+  Prisma's 5–10s.
+- **Use a cookie for "intro seen", not localStorage.** The server cannot read
+  localStorage, so it would render the intro overlay and the client would remove
+  it after hydration — a flash on every repeat visit. A cookie lets the server
+  skip the overlay.
 
 ## Verification (each branch)
 
