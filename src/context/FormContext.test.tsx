@@ -288,12 +288,39 @@ describe("FormContext — country autocomplete", () => {
     expect(ctx.reviewFormData.flagUrl).toBe("");
   });
 
-  it("ignores a null selection", async () => {
+  it("clears the country and its flag when the selection is cleared", async () => {
     renderForm();
+    await act(async () => {
+      ctx.handleSelectionAutocomplete("pt", "country");
+    });
     await act(async () => {
       ctx.handleSelectionAutocomplete(null, "country");
     });
     expect(ctx.reviewFormData.country).toBe("");
+    expect(ctx.reviewFormData.flagUrl).toBe("");
+  });
+
+  it("clears the nationality when the selection is cleared", async () => {
+    renderForm();
+    await act(async () => {
+      ctx.handleSelectionAutocomplete("pt", "nationality");
+      ctx.handleSelectionAutocomplete(null, "nationality");
+      // Re-render so `reviewFormData` is read again (see above).
+      ctx.setValue("city", "Lisbon");
+    });
+    expect(ctx.reviewFormData.nationality).toBe("");
+  });
+
+  it("fails step 0 again once a chosen nationality is cleared", async () => {
+    renderForm();
+    await fillStep(0);
+    await act(async () => {
+      ctx.handleSelectionAutocomplete(null, "nationality");
+    });
+    await act(async () => {
+      await ctx.next();
+    });
+    expect(ctx.currentStep).toBe(0);
   });
 
   it("derives the uppercase country code for the GeoNames lookup", async () => {

@@ -47,6 +47,24 @@ describe("DatePicker", () => {
     );
   });
 
+  it("keeps the date when the selected day is clicked again", async () => {
+    const user = userEvent.setup();
+    const { onChange } = renderPicker({ value: new Date(2030, 3, 15).toISOString() });
+
+    await user.click(screen.getByRole("button", { name: /^start date/i }));
+    await user.click(await screen.findByRole("button", { name: /April 15th, 2030/i }));
+
+    // react-day-picker deselects a re-clicked day unless `required`, and
+    // `dayjs(undefined)` is now — so the field used to become today.
+    for (const [value] of onChange.mock.calls) {
+      const picked = new Date(value);
+      expect([picked.getFullYear(), picked.getMonth(), picked.getDate()]).toEqual([2030, 3, 15]);
+    }
+    expect(screen.getByRole("button", { name: /^start date/i })).toHaveAccessibleName(
+      expect.stringMatching(/15/),
+    );
+  });
+
   it("offers a separate clear button once a date is set", async () => {
     const user = userEvent.setup();
     const { onChange } = renderPicker({ value: new Date(2030, 3, 15).toISOString() });

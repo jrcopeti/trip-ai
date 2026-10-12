@@ -132,7 +132,15 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     selectedKey: string | number | null,
     fieldName: FieldName,
   ) => {
-    if (selectedKey === null) return;
+    // Emptying the input selects `null`: clear the field, or the previous
+    // country would stay in the form and pass validation.
+    if (selectedKey === null) {
+      setValue(fieldName, "");
+      if (fieldName === "country") {
+        setValue("flagUrl", "");
+      }
+      return;
+    }
     const selectedCountry = countries.find(
       (country) => country.code === selectedKey,
     );

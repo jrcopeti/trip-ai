@@ -80,6 +80,9 @@ function DatePicker({ label, id, placeholder, onChange, value, ref, invalid }: D
                   today: "font-semibold",
                 }}
                 mode="single"
+                // Without it a re-clicked day deselects to `undefined`, and
+                // `dayjs(undefined)` is now. Clearing is the separate button.
+                required
                 selected={date ? dayjs(date).toDate() : undefined}
                 onSelect={(_val) => {
                   const formattedDate = dayjs(_val).toISOString();
