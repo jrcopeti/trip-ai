@@ -8,13 +8,12 @@
  *   npm run seed:e2e
  *
  * Because it deletes everything, it refuses to run against a non-local host.
- * `.env` here points at the production Neon database, and an exported
- * DATABASE_URL would otherwise be one command away from wiping it. Set
- * ALLOW_REMOTE_E2E_SEED=1 to override, deliberately.
+ * It seeds `E2E_DATABASE_URL` (the local container by default), never `.env`'s
+ * production database. Set ALLOW_REMOTE_E2E_SEED=1 to seed a remote one, deliberately.
  */
 import { PrismaClient } from "@prisma/client";
 import { tripCreateInput, tripFixture, tripFixture2 } from "../src/test/fixtures/trip";
-import { mayWriteToDatabase } from "./localDatabase";
+import { E2E_DATABASE_URL, mayWriteToDatabase } from "./localDatabase";
 
 /** The rows `saved-trips.spec.ts` asserts against. */
 const seeds = [
@@ -33,22 +32,17 @@ const seeds = [
 ];
 
 async function main() {
-  // Checked before the client is constructed, so a missing variable reports
-  // this rather than a Prisma initialisation error.
-  const url = process.env.DATABASE_URL;
-  if (!url) {
-    throw new Error("DATABASE_URL is required to seed the e2e database");
-  }
+  const url = E2E_DATABASE_URL;
 
   const host = new URL(url).hostname;
   if (!mayWriteToDatabase(url)) {
     throw new Error(
-      `Refusing to seed ${host}: this deletes every trip. Point DATABASE_URL at a ` +
+      `Refusing to seed ${host}: this deletes every trip. Point E2E_DATABASE_URL at a ` +
         `throwaway database, or set ALLOW_REMOTE_E2E_SEED=1 if you really mean it.`,
     );
   }
 
-  const prisma = new PrismaClient();
+  const prisma = new PrismaClient({ datasources: { db: { url } } });
   try {
     await prisma.trip.deleteMany();
     await prisma.trip.createMany({ data: seeds });
