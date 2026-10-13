@@ -11,12 +11,12 @@ function WordmarkBlock() {
             {features.eyebrow}
           </p>
 
-          {/* Logo lockup: the wordmark with the app tile tucked under its tail. */}
-          <div data-logo-lockup className="flex flex-wrap items-end gap-x-2">
+          {/* Logo lockup: the wordmark, then the app tile, as in the nav and footer. */}
+          <div data-logo-lockup className="flex flex-wrap items-center gap-x-3">
             <span className="text-[clamp(3.5rem,12vw,9rem)] font-extrabold leading-[0.8] tracking-[-0.05em] text-sorbet-ink">
               trip ai
             </span>
-            <Logo size="lockup" className="shrink-0 -translate-y-[0.04em]" />
+            <Logo size="lockup" className="shrink-0" />
           </div>
 
           <p className="mt-12 max-w-xl text-lg leading-relaxed text-sorbet-ink/75 md:text-xl">

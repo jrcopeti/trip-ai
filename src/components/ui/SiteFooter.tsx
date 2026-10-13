@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import Logo from "@/components/sorbet/Logo";
+
 const columns = [
   {
     heading: "Plan",
@@ -26,7 +28,10 @@ function SiteFooter() {
     <footer className="bg-sorbet-ink px-5 py-16 font-sorbet text-sorbet-offwhite antialiased sm:px-8">
       <div className="mx-auto flex max-w-6xl flex-col gap-12 md:flex-row md:justify-between">
         <div>
-          <p className="text-3xl font-extrabold tracking-[-0.03em]">trip ai</p>
+          <div className="flex items-center gap-3">
+            <p className="text-3xl font-extrabold tracking-[-0.03em]">trip ai</p>
+            <Logo size="footer" />
+          </div>
           <p className="mt-3 max-w-xs text-sm text-sorbet-offwhite/60">
             The travel guide powered by AI.
           </p>

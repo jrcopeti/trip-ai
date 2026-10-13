@@ -24,14 +24,16 @@ describe("Logo", () => {
     );
   });
 
-  it("is small in the nav and large in the lockup", () => {
+  it("is small in the nav, a step up in the footer, and large in the lockup", () => {
     const nav = render(<Logo size="nav" />).container.firstElementChild!;
+    const footer = render(<Logo size="footer" />).container.firstElementChild!;
     const lockup = render(<Logo size="lockup" />).container.firstElementChild!;
 
     expect(nav.className).toContain("size-8");
-    // Fluid, at two-thirds of the wordmark's own clamp.
-    expect(lockup.className).toContain("text-[clamp(2.33rem,8vw,6rem)]");
-    expect(lockup.className).toContain("size-[1em]");
+    expect(footer.className).toContain("size-10");
+    // Sized off the wordmark's own clamp.
+    expect(lockup.className).toContain("text-[clamp(3.5rem,12vw,9rem)]");
+    expect(lockup.className).toContain("size-[0.9em]");
   });
 
   it("takes extra classes", () => {
