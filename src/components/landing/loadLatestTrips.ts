@@ -1,36 +1,20 @@
 import { getLatestSavedTrips, type LatestTrip } from "@/db/actions";
 
 /**
- * How long the landing waits for its deck before rendering without it. The page
- * awaits the query before anything is sent, and Prisma's own limits (5s to
- * connect, 10s for a pooled connection) are far too long to hold the front door
- * blank for a decorative deck. Long enough for most of a Neon wake-up.
- */
-export const LATEST_TRIPS_TIMEOUT_MS = 1500;
-
-/**
- * The hero deck's trips, or none if the database cannot be read in time: the
- * landing is the front door and must render without it. The failure is logged,
- * not hidden.
+ * The hero deck's trips, or none if the database cannot be read: the landing is
+ * the front door and must render without them. The failure is logged, not
+ * hidden.
+ *
+ * No time limit of its own. The deck streams in inside a `<Suspense>`, so a slow
+ * query holds only the deck's loader, never the page; how long to wait is left to
+ * Prisma's defaults (5s to connect, 10s for a pooled connection).
  */
 async function loadLatestTrips(): Promise<LatestTrip[]> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(
-      () => reject(new Error(`timed out after ${LATEST_TRIPS_TIMEOUT_MS}ms`)),
-      LATEST_TRIPS_TIMEOUT_MS,
-    );
-  });
-
   try {
-    // A query that loses the race carries on and settles unobserved; `race`
-    // has already attached its handlers, so a late rejection is not unhandled.
-    return await Promise.race([getLatestSavedTrips(), timeout]);
+    return await getLatestSavedTrips();
   } catch (error) {
     console.error("Landing: could not load the latest saved trips", error);
     return [];
-  } finally {
-    clearTimeout(timer);
   }
 }
 

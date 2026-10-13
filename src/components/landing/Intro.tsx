@@ -4,10 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { useIntro } from "./IntroContext";
+import { introSeenCookie } from "./introCookie";
 
 /**
  * Landing intro: three beats that set up the headline, then the wordmark, which
  * flies into its place in the nav as the ink panel lifts away.
+ *
+ * Plays once per browser: it sets `INTRO_COOKIE` when it starts, and the page
+ * does not render it for a browser that carries the cookie (see introCookie.ts).
  *
  * It overlays the server-rendered page rather than gating it, so the hero is in
  * the DOM from the first byte. Reduced motion and a JS-failure safety net are
@@ -35,6 +39,12 @@ function Intro() {
   const [flight, setFlight] = useState<Flight | null>(null);
   const wordmarkRef = useRef<HTMLSpanElement>(null);
   const { finish } = useIntro();
+
+  // Seen as soon as it starts: the page leaves it out next time. Written on
+  // mount rather than at the end, so leaving mid-curtain doesn't replay it.
+  useEffect(() => {
+    document.cookie = introSeenCookie;
+  }, []);
 
   // The CSS hides the intro under reduced motion; this makes the hero's own
   // entrances start right away instead of waiting out an intro nobody sees.

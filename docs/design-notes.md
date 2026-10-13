@@ -261,8 +261,14 @@ and all.
 
 ### The intro
 
-`Intro` plays once per visit: `Plan.` (450ms) → `Pack.` (350) → `Go.` (450) → wordmark
-(850) → curtain exit (750), all constants at the top of the file.
+`Intro` plays at most once a day per browser: `Plan.` (450ms) → `Pack.` (350) → `Go.`
+(450) → wordmark (850) → curtain exit (750), all constants at the top of the file.
+
+It sets the `trip-ai-intro-seen` cookie (`landing/introCookie.ts`, 24 hours) when it
+starts, and the landing reads it on the server: a browser carrying it gets no `Intro`
+in the HTML at all, and `IntroProvider skip` starts `done`, so the hero plays at once.
+Keep it a cookie — with localStorage the server can't know, sends the curtain, and the
+client pulls it down after hydration: a flash of ink on every repeat visit.
 
 It overlays the server-rendered page rather than gating it, so the hero is in the DOM
 from the first byte. Two consequences:
@@ -271,8 +277,11 @@ from the first byte. Two consequences:
   attribute on the nav wordmark.**
 - Anything in the hero that animates on mount would play behind the curtain and finish
   unseen. `IntroContext` exists for this: `useIntro().done` flips when the curtain
-  lifts, and the hero gates the deck and the squiggle on it. `done` starts `false` on
-  both server and client so hydration stays clean.
+  lifts, and the hero gates the deck and the squiggle on it. `done` starts the same on
+  server and client (`false`, or `true` under `skip`) so hydration stays clean.
+- The hero's deck streams in: the page wraps `LatestTripsDeck` in `<Suspense>` with
+  `HeroDeckFallback` (a `SquiggleLoader`, one polaroid tall) and hands it to `Hero` as
+  its `deck` slot, so the landing is sent without waiting on the database.
 
 Reduced motion and JS failure are both handled in CSS on `.landing-intro`
 (`display: none` under reduce; a failsafe keyframe hides it at 4.5s).
@@ -322,13 +331,14 @@ text written inline in JSX, and the file should read like copy.
 | `NotFoundComponent`, `Loader`, `LoaderResponseAI`, `CustomToaster`, `ErrorToaster`, `ButtonBackOutlined` | `ui/` | Shell pieces, in the system. |
 | `StickerBadge` | `sorbet/` | Decorative: circular text on `<textPath>`, slow spin. Takes `icon: ReactNode`. On the landing and the `/saved-trips` header. |
 | `Squiggle` | `landing/` | Decorative: ink loop, draws on. Optional `play` gate. |
-| `Intro`, `IntroContext` | `landing/` | |
-| `Hero`, `WordmarkBlock`, `TripTypePills`, `PhotoBand`, `HowItWorks`, `WeatherPacking`, `ClosingCta` | `landing/` | Sections. The page renders per request (`connection()`): `PhotoBand` takes a photo picked by `pickTravelPhoto` (`src/lib/`), as `/about` does, then shows five sample tours as `TripCard`s with their kind chips. `Hero` deals the three latest saved trips (`getLatestSavedTrips`) as `Polaroid` cards; a database error, a query slower than 1.5s (`LATEST_TRIPS_TIMEOUT_MS`), or nothing saved, means no deck — the hero just ends after its buttons. Below `md` the cards overlap in a column, each *under* the one before, so the overlap hides a photo's top rather than the caption above it. |
+| `Intro`, `IntroContext` | `landing/` | Once a day per browser, by cookie (`introCookie.ts`). See "The intro". |
+| `HeroDeck`, `LatestTripsDeck`, `HeroDeckFallback` | `landing/` | The hero's polaroid deck; the server half fetches, the page streams it in `<Suspense>`. |
+| `Hero`, `WordmarkBlock`, `TripTypePills`, `PhotoBand`, `HowItWorks`, `WeatherPacking`, `ClosingCta` | `landing/` | Sections. The page renders per request (`connection()`): `PhotoBand` takes a photo picked by `pickTravelPhoto` (`src/lib/`), as `/about` does, then shows five sample tours as `TripCard`s with their kind chips. `Hero` deals the three latest saved trips (`getLatestSavedTrips`, through its `deck` slot, streamed) as `Polaroid` cards; a database error (Prisma's own timeouts included; there is no app-side limit, since only the deck's loader waits) or nothing saved means no deck — the hero just ends after its buttons. Below `md` the cards overlap in a column, each *under* the one before, so the overlap hides a photo's top rather than the caption above it. |
 | `kindIcon`, `CARD_TINTS` | `sorbet/` (`kinds.ts`, `tints.ts`) | A tour kind's icon (compass off the list), and the five pastel card grounds cycled by index. Shared by the trip pages' tours and packing cards and the landing's sample tours. |
 | `TripPage`, `Section`, `SectionHeading`, `MediaFrame`, `Closing` and the sections | `trips/` | Both trip routes. `TripPage` lays out the shared sections and takes the route's closing; `PhotoSection` is the trip's third photo between Tours and Packing, centred in a 4:3 frame at `max-w-4xl` (Unsplash photos are mostly 3:2, sometimes portrait; a full-width band cropped most of them away); Essentials has a spinning sticker in place of a photo; `Closing` is the lime last section (tip, then the route's pills — ink primary, ink-outline secondary, because a lime secondary vanishes on lime). `MediaFrame` is 16:10 when stacked, 4:5 beside copy from `lg`. |
 | `ToursCarousel` | `trips/` | The suggested tours, one wide pastel card at a time. Controls **above** the card (counter, dots, previous/next ink discs, wrapping) so they never move; arrow keys and swipe too. WAI carousel semantics — named `carousel` region, `slide` groups labelled "n of total", a polite live region. Chips, title (`text-xl` → `lg:text-[1.75rem]`) and description (`text-lg md:text-xl`, ink/75) sit at the top of the card, so a short tour reads at once. Two chips: the number ("Tour 01", map pin) and the tour's kind with its own icon, as on the landing's itinerary cards. The AI returns five tours as `{ title, kind, description }`, `kind` one word from `TOUR_KINDS` (`src/lib/tourKinds.ts`), icons in `sorbet/kinds.ts` with a compass for anything off the list. Older saved trips may lack the kind (no kind chip) or the title too (plain strings: no title, no stand-in); `toTours` reads every shape. **Every tour is also rendered invisibly in the same grid cell**, so the card is as tall as the longest tour and the page below never shifts; `trip-journey.spec` pins the height with a deliberately long fixture tour. HeroUI v3 has no carousel. |
 
-Server components by default. Only these are `"use client"`: `Hero`, `Intro`,
+Server components by default. Only these are `"use client"`: `Hero`, `HeroDeck`, `Intro`,
 `IntroContext`, `MotionProvider`, `Reveal`, `SiteNav`, `Squiggle`, `SquiggleArrow`, `StickerBadge`,
 `LoaderResponseAI`, `ButtonBackOutlined` — i.e. only what needs hooks or motion.
 

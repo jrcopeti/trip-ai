@@ -31,6 +31,9 @@ export const heroEyebrow = "Your new travel friend";
 /** The hero deck's accessible name: the latest saved trips, as polaroids. */
 export const heroDeckLabel = "Latest saved trips";
 
+/** Screen-reader text while the deck streams in. */
+export const heroDeckLoading = "Loading the latest saved trips";
+
 /** The wordmark block: what the product does, one line each. */
 export const features = {
   eyebrow: "What it does",

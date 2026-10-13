@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type BrowserContext } from "@playwright/test";
 
 test.describe("landing page", () => {
   test.beforeEach(async ({ page }) => {
@@ -10,6 +10,47 @@ test.describe("landing page", () => {
     // DOM from the first byte. If that regresses, this fails before the curtain
     // would have lifted.
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  });
+
+  test.describe("intro", () => {
+    // The intro writes its cookie on mount, after hydration: wait for it.
+    const introCookie = async (context: BrowserContext) => {
+      await expect
+        .poll(async () => (await context.cookies()).some((c) => c.name === "trip-ai-intro-seen"))
+        .toBe(true);
+      return (await context.cookies()).find((c) => c.name === "trip-ai-intro-seen")!;
+    };
+
+    // Asserted on the server's HTML, not the live DOM: the intro removes itself
+    // after ~3s, which a loaded runner can pass before the first assertion.
+    test("is sent to a first-time visitor, who is then remembered for a day", async ({
+      context,
+      request,
+    }) => {
+      // `request` carries no cookies: a first visit.
+      expect(await (await request.get("/")).text()).toContain("landing-intro");
+
+      const cookie = await introCookie(context);
+      expect(cookie.value).toBe("1");
+      // A day, so a visitor coming back tomorrow is greeted again.
+      const lifetime = cookie.expires - Date.now() / 1000;
+      expect(lifetime).toBeGreaterThan(24 * 60 * 60 - 60);
+      expect(lifetime).toBeLessThanOrEqual(24 * 60 * 60);
+    });
+
+    test("is left out of the HTML on a repeat visit", async ({ page, context }) => {
+      await introCookie(context);
+      // The cookie is read on the server, so the curtain is never sent rather
+      // than sent and pulled down after hydration. `page.request` carries the
+      // cookie the first visit set.
+      expect(await (await page.request.get("/")).text()).not.toContain("landing-intro");
+
+      await page.reload();
+      await expect(page.locator(".landing-intro")).toHaveCount(0);
+      // Without the intro to wait for, the hero's deck deals straight away.
+      const deck = page.getByRole("list", { name: "Latest saved trips" });
+      await expect(deck.getByRole("link").first()).toBeVisible();
+    });
   });
 
   test("shows the nav wordmark", async ({ page }) => {
