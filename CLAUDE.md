@@ -23,6 +23,11 @@ seen yet. So:
 If you believe something genuinely has to be committed before it can be reviewed, say so
 and wait for an answer instead of committing.
 
+**Code review findings are reported, not fixed.** After a review (`/code-review` or any
+other), present each finding with its severity and scenario, propose a fix for each, and
+stop. The user decides which findings to fix and how; only then make the change. "Commit
+and review" authorises the commit and the review — not fixes for what the review finds.
+
 **Work in the main working tree, on the branch, so the diff is visible.** Create the
 branch with `git checkout -b <name>` in the repository root — the directory the editor is
 open on — rather than in a separate worktree. Work done in a detached worktree (under
