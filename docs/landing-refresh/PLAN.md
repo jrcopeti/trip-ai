@@ -1,5 +1,9 @@
 # PLAN — the landing refresh
 
+**Finished.** All six branches are merged (#178–#181, #184, #186), plus the logo
+placement (#185, `docs/logo-lockup/`). A record now: what still binds lives in
+`docs/design-notes.md`.
+
 ## Context
 
 The sorbet migration is done, but the landing page still carries placeholders from
@@ -23,14 +27,14 @@ Decided with the user:
 - Section 7 heading: "Three steps. That's the app."
 - Demo video: recorded walkthrough with a **real** API call.
 
-## Now
+## Status
 
 - **Branch 1** · `landing-copy` — merged (#178).
 - **Branch 2** · `landing-polaroids` — merged (#179).
 - **Branch 3** · `sorbet-logo` — merged (#180).
 - **Branch 4** · `readme-demo` — merged (#181).
 - **Branch 5** · `intro-once` — merged (#184).
-- **Branch 6** · `landing-content` — in review: every word on the landing in `content.ts`. Rebased on main after #184 and #185 (the logo after the wordmark, `docs/logo-lockup/`).
+- **Branch 6** · `landing-content` — merged (#186).
 
 ## Branch 1 — `landing-copy` (items 2, 4, 5, 6, 7)
 
@@ -266,9 +270,6 @@ data and four headings were already in `content.ts`.
 - Gaps the copy guard leaves: words in template strings or `a ? "x" : "y"`, words
   in plain objects (the old `BEATS`), attributes outside its list (`placeholder`).
   None on the landing today.
-- Next, its own PR: raise the hero stickers' parallax ranges (`[0, 90]` and
-  `[0, 170]` over a ~1030px hero barely show), checked against `landing.spec`'s
-  sticker-clearance tests.
 
 ## Verification (each branch)
 
