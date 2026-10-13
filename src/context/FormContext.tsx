@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { steps } from "@/data";
 import { FormDataSchema } from "@/lib/schema";
 import { transformInputsToFinalData } from "@/lib/formData";
+import { toTripRequest } from "@/lib/agent/request";
 
 const defaultFormData: Inputs = {
   userName: "",
@@ -205,25 +206,7 @@ function FormProvider({ children }: { children: React.ReactNode }) {
   };
 
   const processForm: SubmitHandler<Inputs> = (data) => {
-    const {
-      userName,
-      travellers,
-      ageRanges,
-      passport,
-      pace,
-      city,
-      country,
-      type,
-      startDate,
-      endDate,
-      requiredItems,
-      accommodation,
-      interests,
-      note,
-      transport,
-      luggageSize,
-      budget,
-    } = data;
+    const { userName, city, note, requiredItems } = data;
 
     const transformedRequiredItems =
       requiredItems?.map((requiredItem) =>
@@ -235,17 +218,19 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     const formattedNote = note?.trim().toLowerCase();
     const forecastDataString = JSON.stringify(forecastData);
 
-    // Bridge until grounded-agent 1c moves the prompt to the server.
-    const promptModel = `${formattedUserName} (travelling ${travellers}, ages ${ageRanges.join(", ")}${passport ? `, ${passport} passport` : ""}) is planning a ${type} trip at a ${pace} pace to ${formattedCity}, ${country} with a ${budget} budget. The trip is scheduled from ${startDate} to ${endDate}. ${formattedUserName} prefers to travel by ${transport}, with a ${luggageSize} lugagge size and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. (If there is no required items, return an empty array). Staying in a ${accommodation}, he/she is interested in ${interests}. Additionally, he/she has noted he/she would specifically like to have: ${formattedNote} (If there is no note, skip this part). Based on ${formattedUserName}'s preferences and trip details, plus the average weather for ${formattedCity}, ${country} during the trip, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${formattedUserName}, ${formattedCity}, and ${country}, a brief description highlighting the essence of their journey, and three must-do activities with maximum three paragraphs each. Finally, especify a tip taking in consideration the transport, luggage size, weather and notes.`;
-
-    const promptModelWeather = `${formattedUserName} (travelling ${travellers}, ages ${ageRanges.join(", ")}${passport ? `, ${passport} passport` : ""}) is planning a ${type} trip at a ${pace} pace to ${formattedCity}, ${country} with a ${budget} budget. ${userName} prefers to travel by ${transport}, with a ${luggageSize} luggage size and wants to ensure he/she packs everything needed. For that, he/she requires the following items: ${transformedRequiredItems}. (If there is no required items, return an empty array). Staying in a ${accommodation}, he/she is interested in ${interests}. Additionally, he/she has noted he/she would specifically like to have: ${formattedNote} (If there is no note, skip this part). Based on ${userName}'s preferences and trip details, plus the weather forecast that is in the end of the prompt, provide a detailed packing list specifying the quantity of each item. Also, create a creative trip title that includes ${userName}, ${formattedCity}, and ${country}, a brief description highlighting the essence of their journey, and three must-do activities with maximum three paragraphs each. Finally, especify a tip taking in consideration the transport, luggage size, weather and notes. Weather forecast for ${formattedCity}, ${country}: ${forecastDataString}.`;
-
     if (isWeatherSelected) {
       setValue("weatherForecast", forecastDataString);
-      generateResponseAI(promptModelWeather);
-    } else {
-      generateResponseAI(promptModel);
     }
+    // From the submitted country, so the code always matches the data it travels with.
+    const submittedCode =
+      countries.find((c) => c.value === data.country)?.code.toUpperCase() ?? "";
+    generateResponseAI(
+      toTripRequest(
+        data,
+        submittedCode,
+        isWeatherSelected ? forecastData : undefined,
+      ),
+    );
 
     const finalData: FinalDataTypes = {
       ...data,

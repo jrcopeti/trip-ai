@@ -47,7 +47,7 @@ The must-haves are the few essentials the trip cannot do without, such as docume
 - Tours: exactly five, each a specific place or experience in or near the city.
   - Title: up to six words, naming the place or the activity.
   - Kind: one word from this list: ${TOUR_KINDS.join(", ")}.
-  - Description: one paragraph of three to five sentences, saying what it is and why it suits this trip, without repeating the title. Keep the five about the same length, since they are shown one at a time on cards of the same size.
+  - Description: one paragraph of 100 to 120 words, saying what it is, what to see or do there, and why it suits this trip, without repeating the title. Keep the five about the same length, since they are shown one at a time on cards of the same size.
 - Tip: up to two short paragraphs of practical advice that weighs how they get around, their luggage, the weather and their note.
   - When a passport is given, end the tip by reminding them to check the entry requirements for that passport with the destination's official sources before booking: visa, passport validity, and any forms to fill in ahead. Do not state the rules yourself, since they change. When no passport is given, leave this out.
 

@@ -4,15 +4,16 @@ import { renderWithProviders, screen } from "@/test/render";
 import { FormProvider } from "@/context/FormContext";
 import { useFormData } from "@/hooks/useFormData";
 import { steps } from "@/data";
-import { validInputs } from "@/test/fixtures";
-import type { FieldName, FormContextType, Inputs } from "@/types";
+import { validInputs, validTripRequest } from "@/test/fixtures";
+import type { FieldName, FormContextType, Inputs, SelectedForecastDataTypes } from "@/types";
 
 const generateForecast = vi.fn();
+let forecastData: SelectedForecastDataTypes[] | undefined;
 const generateImage = vi.fn();
 const generateResponseAI = vi.fn();
 
 vi.mock("@/hooks/useWeather", () => ({
-  useWeather: () => ({ generateForecast, forecastData: undefined }),
+  useWeather: () => ({ generateForecast, forecastData }),
 }));
 vi.mock("@/hooks/useImage", () => ({
   useImage: () => ({ generateImage }),
@@ -76,6 +77,7 @@ beforeEach(() => {
   generateForecast.mockClear();
   generateImage.mockClear();
   generateResponseAI.mockClear();
+  forecastData = undefined;
   return () => vi.useRealTimers();
 });
 
@@ -361,22 +363,16 @@ describe("FormContext — processForm", () => {
     });
   }
 
-  it("sends a prompt to the AI", async () => {
+  it("sends the trip request, with the submitted country's code", async () => {
     await submitWith();
     expect(generateResponseAI).toHaveBeenCalledTimes(1);
-    expect(generateResponseAI.mock.calls[0][0]).toContain("lisbon");
+    expect(generateResponseAI.mock.calls[0][0]).toEqual(validTripRequest);
   });
 
-  it("puts who's going, their ages, the passport and the pace in the prompt", async () => {
-    await submitWith();
-    const prompt = generateResponseAI.mock.calls[0][0];
-    expect(prompt).toContain("travelling couple, ages 25-30, Brazil passport");
-    expect(prompt).toContain("at a balanced pace");
-  });
-
-  it("leaves the passport out of the prompt when there is none", async () => {
-    await submitWith({ passport: "" });
-    expect(generateResponseAI.mock.calls[0][0]).not.toContain("passport");
+  it("keeps the traveller's own spelling in the request", async () => {
+    await submitWith({ userName: "  Ana  ", city: " Lisbon ", note: "  Sintra, please " });
+    const request = generateResponseAI.mock.calls[0][0];
+    expect(request).toMatchObject({ userName: "Ana", city: "Lisbon", note: "Sintra, please" });
   });
 
   it("lowercases and trims the name, city and note into formData", async () => {
@@ -411,7 +407,15 @@ describe("FormContext — processForm", () => {
     expect(ctx.isWeatherSelected).toBe(false);
   });
 
-  it("uses the weather-aware prompt when weather is selected", async () => {
+  it("sends the forecast days when weather is selected", async () => {
+    forecastData = [
+      {
+        dt_txt: "2030-05-01 12:00:00",
+        formattedTemp: "21°C",
+        condition: "Clear",
+        description: "clear sky",
+      },
+    ];
     renderForm();
     await act(async () => {
       ctx.setIsWeatherSelected(true);
@@ -419,11 +423,13 @@ describe("FormContext — processForm", () => {
     await act(async () => {
       ctx.processForm(validInputs, undefined);
     });
-    expect(generateResponseAI.mock.calls[0][0]).toContain("Weather forecast for");
+    expect(generateResponseAI.mock.calls[0][0].forecast).toEqual([
+      { date: "2030-05-01", temp: "21°C", condition: "Clear", description: "clear sky" },
+    ]);
   });
 
-  it("uses the plain prompt when weather is not selected", async () => {
+  it("sends no forecast when weather is not selected", async () => {
     await submitWith();
-    expect(generateResponseAI.mock.calls[0][0]).not.toContain("Weather forecast for");
+    expect(generateResponseAI.mock.calls[0][0].forecast).toBeUndefined();
   });
 });

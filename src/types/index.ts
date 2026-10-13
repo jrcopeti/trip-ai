@@ -2,6 +2,7 @@ import z from "zod";
 import { FormDataSchema } from "@/lib/schema";
 import { Control, FieldErrors, SubmitHandler } from "react-hook-form";
 import { Trip } from "@prisma/client";
+import type { TripRequest } from "@/lib/agent/request";
 
 export type Inputs = z.infer<typeof FormDataSchema>;
 export type FieldName = keyof Inputs;
@@ -143,7 +144,7 @@ export interface FinalDataTypes extends Omit<Inputs, "requiredItems"> {
 
 export interface TripContextType {
   tripData: Trip | null;
-  generateResponseAI: (prompt: string) => void;
+  generateResponseAI: (request: TripRequest) => void;
   isPendingResponseAI: boolean;
   errorResponseAI: unknown;
   isTripSaved: boolean;

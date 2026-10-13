@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LIMITS } from "@/lib/schema";
 import { TripRequestSchema, toTripRequest, type TripRequest } from "@/lib/agent/request";
-import { validInputs, validTripRequest } from "@/test/fixtures";
+import { familyTripRequest, validInputs, validTripRequest } from "@/test/fixtures";
 import type { Inputs } from "@/types";
 
 function withField<K extends keyof TripRequest>(key: K, value: unknown) {
@@ -30,6 +30,10 @@ describe("TripRequestSchema", () => {
 
   it("accepts a complete, valid request", () => {
     expect(accepts(validTripRequest)).toBe(true);
+  });
+
+  it("accepts the family fixture, forecast and all", () => {
+    expect(accepts(familyTripRequest)).toBe(true);
   });
 
   it("drops flagUrl, agreement and weatherForecast rather than passing them on", () => {

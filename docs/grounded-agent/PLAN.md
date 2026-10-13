@@ -170,6 +170,22 @@ Request schema, prompt, model call and the form's wiring are too much for one PR
   reasons, the Zod-parsed output), then `processForm` and `TripContext` send a `TripRequest`. This
   removes 1a's bridge (the prompt strings in `processForm`). It also updates the `tripData`
   fixture and the architecture notes in CLAUDE.md.
+  **Status: done, in review.** As built: `fetchResponseAI(prompt)` is now `generateTrip(input:
+  unknown)`, which parses `TripRequestSchema`, calls `resolvePlace` and only then takes the e2e
+  fixture branch, so the journey spec runs the real validation and resolve. The tool and
+  `TripDataSchema` live in `src/lib/agent/submitTrip.ts`, since a `"use server"` module may only export
+  async functions. Strict mode rejects `minItems`/`maxItems`, so the counts (6–15 items, exactly 5
+  tours) are in the descriptions and checked by Zod. Every failure (invalid request, place not
+  found, `refusal`, `max_tokens`, no `submit_trip` call, invalid output) throws, and the form shows
+  its existing error toast; typed errors wait for branch 3's rate limit. No retry when the model
+  skips the tool. `MustHaveSection` reads the traveller's items from `formData`, since the model
+  no longer echoes them. `processForm` takes the country code from the submitted country rather
+  than the watched one. Effort is left at Sonnet 5.5's default (`high`), and `max_tokens` is
+  16000 to leave room for thinking. Both are worth revisiting with branch 3's latency numbers.
+  One real run (local DB): $0.027, 26s, no thinking tokens, valid on the first call. Its tours
+  came back at ~68 words (the prompt said three to five sentences), too short beside older trips
+  (~140–200 words), so a tour was set to 140 to 180 words; at 390px those cards were too tall, so it is one paragraph of 100 to 120 words. It stays one paragraph
+  because the carousel renders a description as a single `<p>`.
 
 Decided at the split:
 - **The request carries `countryCode`** (the form already derives it from the country list), since

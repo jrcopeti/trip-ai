@@ -1,7 +1,7 @@
 /**
  * One suggested tour as the carousel shows it.
  *
- * The `tripData` tool returns each tour as `{ title, kind, description }`. Trips
+ * The `submit_trip` tool returns each tour as `{ title, kind, description }`. Trips
  * saved before it did hold plain strings, or objects without a kind, and
  * `Trip.tours` is `Json`, so every shape is read here; a string becomes an
  * untitled tour, and a missing kind no kind chip.

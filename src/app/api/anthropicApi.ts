@@ -1,161 +1,44 @@
 "use server";
 import Anthropic from "@anthropic-ai/sdk";
 import type { Trip } from "@prisma/client";
-import { TOUR_KINDS } from "@/lib/tourKinds";
+import { buildSystemPrompt, buildTripMessage } from "@/lib/agent/prompt";
+import { TripRequestSchema } from "@/lib/agent/request";
+import { TripDataSchema, submitTripTool } from "@/lib/agent/submitTrip";
+import { resolvePlace } from "./geoNamesApi";
 import { tripDataFixture, useE2EFixtures } from "./e2eFixtures";
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-const systemInstructions =
-  "You are a seasoned tour guide specializing in assisting travelers with packing for their trips, considering their preferences, the destination, the trip's duration, and the weather forecast. Your task is to compile a detailed packing list of 9 (nine) different items, specifying quantities (e.g., 3 T-shirts, 2 pairs of shoes). Also, create a creative trip title incorporating the traveler's name, city, and country. Provide a brief trip description highlighting the journey's essence in up to three paragraphs. Recommend five specific activities to enjoy in the destination city, each with a short title, the one word for its kind, and a description of up to three paragraphs.";
+/**
+ * A server action is a public endpoint, so the request is checked again here
+ * and the city resolved again, whatever the browser already did.
+ */
+export async function generateTrip(input: unknown): Promise<Trip> {
+  const request = TripRequestSchema.safeParse(input);
+  if (!request.success) {
+    console.error("generateTrip: invalid request", request.error.flatten());
+    throw new Error("The trip request was not valid");
+  }
+  const req = request.data;
 
-const tripToolDescription =
-  "The first step in the function is to validate the existence of the specified city within the given country using a reliable data source. If this validation fails due to the city not existing, having a population less than one, or any other critical data mismatch, the function must immediately return { trip: null } without further processing. This ensures the integrity and applicability of the travel planning process. If validation is successful, the function will then proceed to: This function generates a detailed packing list and a comprehensive trip plan based on the tourist's provided trip information. Create a packing list, a creative trip title, a descriptive trip summary, and suggestions for five activities based on the traveler's preferences and the local weather conditions.";
+  const resolved = await resolvePlace(req.city, req.countryCode);
+  if (!resolved.ok) throw new Error(`The city could not be resolved: ${resolved.error}`);
 
-const tripInputSchema: Anthropic.Tool["input_schema"] = {
-  type: "object",
-  properties: {
-    title: {
-      type: "string",
-      description:
-        "A creative title for the trip with 12 (twelve) words, that includes the userName, city and country. Write the name as a name, with only its first letter upper case (Marta, not MARTA) — not in all capitals.",
-    },
-    objectsList: {
-      type: "array",
-      description:
-        "A detailed list of 9 items to pack, specifying the quantity, the item, and a brief description for each. Do not repeat the required items.",
-      items: {
-        type: "object",
-        properties: {
-          quantity: {
-            type: "number",
-            description: "The quantity of each item to pack.",
-          },
-          item: {
-            type: "string",
-            description: "The name of the item to pack.",
-          },
-          description: {
-            type: "string",
-            description:
-              "A short description or reason why this item is recommended with maximum 10 (ten) words.",
-          },
-        },
-        required: ["quantity", "item", "description"],
-      },
-    },
-    mustHave: {
-      type: "array",
-      description:
-        "A list of four must-have items for the trip. Do not repeat the required items.",
-      items: { type: "string" },
-    },
-    requiredItems: {
-      type: "array",
-      description:
-        "Include the items the user has written in the required items field. If there is no item, return an empty array. It's very important to return an empty array in case there is no item in the required items field for the integrity of the application.",
-      items: { type: "string" },
-    },
-    description: {
-      type: "string",
-      description:
-        "A brief description of the trip, capturing its essence in a maximum of 3 (three) paragraphs.",
-    },
-    tours: {
-      type: "array",
-      description:
-        "Five suggested tours or activities in the city or location, each with a short title, its kind, and a description of maximum 3 (three) paragraphs.",
-      minItems: 5,
-      maxItems: 5,
-      items: {
-        type: "object",
-        properties: {
-          title: {
-            type: "string",
-            description:
-              "A short title for the tour with maximum 6 (six) words, naming the place or the activity.",
-          },
-          kind: {
-            type: "string",
-            enum: [...TOUR_KINDS],
-            description:
-              "The one word, from this list, that best says what kind of tour it is.",
-          },
-          description: {
-            type: "string",
-            description:
-              "The tour itself, in maximum 3 (three) paragraphs. Do not repeat the title.",
-          },
-        },
-        required: ["title", "kind", "description"],
-      },
-    },
-    tip: {
-      type: "string",
-      description:
-        "A brief tip of maximum 2 paragraphs, taking in consideration the transport, accommodation and luggage size from the user's prompt, and also the weather from forecast data or the average for the time of the year.",
-    },
-  },
-  required: [
-    "title",
-    "objectsList",
-    "mustHave",
-    "requiredItems",
-    "description",
-    "tours",
-    "tip",
-  ],
-};
-
-export const fetchResponseAI = async (prompt: string): Promise<Trip | null> => {
   if (useE2EFixtures) return tripDataFixture;
 
+  let response: Anthropic.Message;
   try {
-    const response = await client.messages.create({
-      model: "claude-sonnet-4-6",
-      // Five tours of up to three paragraphs, plus the rest: 4096 came close
-      // enough that a cut-off tool call (unparseable input) was a real risk.
-      max_tokens: 8192,
-      system: [
-        {
-          type: "text",
-          text: systemInstructions,
-          cache_control: { type: "ephemeral" },
-        },
-      ],
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      tools: [
-        {
-          name: "tripData",
-          description: tripToolDescription,
-          input_schema: tripInputSchema,
-        },
-      ],
-      tool_choice: { type: "tool", name: "tripData" },
+    response = await client.messages.create({
+      model: "claude-sonnet-5-5",
+      max_tokens: 16000,
+      system: [{ type: "text", text: buildSystemPrompt(), cache_control: { type: "ephemeral" } }],
+      messages: [{ role: "user", content: buildTripMessage(req, resolved.place) }],
+      tools: [submitTripTool],
+      // Sonnet 5.5 rejects a forced tool choice; the prompt asks for submit_trip and `strict` keeps its shape.
+      tool_choice: { type: "auto" },
     });
-
-    const toolUseBlock = response.content.find(
-      (block): block is Anthropic.ToolUseBlock => block.type === "tool_use",
-    );
-    const parsedData = toolUseBlock?.input ?? null;
-
-    if (parsedData === null) {
-      return null;
-    }
-
-    const data = parsedData as Record<string, unknown>;
-    if (data.trip === null) {
-      return null;
-    }
-
-    return parsedData as unknown as Trip;
   } catch (error: unknown) {
     if (error instanceof Anthropic.APIError) {
       console.error(`Anthropic API error ${error.status}:`, error.message);
@@ -164,4 +47,31 @@ export const fetchResponseAI = async (prompt: string): Promise<Trip | null> => {
     }
     throw new Error("Error in generating response from AI");
   }
-};
+
+  // Both can cut a tool call off mid-input, so neither turn's input is read.
+  if (response.stop_reason === "refusal") {
+    console.error("generateTrip: refused", response.stop_details);
+    throw new Error("The model declined to plan this trip");
+  }
+  if (response.stop_reason === "max_tokens") {
+    console.error("generateTrip: ran out of tokens", response.usage);
+    throw new Error("The trip was cut off before it was finished");
+  }
+
+  const call = response.content.find(
+    (block): block is Anthropic.ToolUseBlock =>
+      block.type === "tool_use" && block.name === submitTripTool.name,
+  );
+  if (!call) {
+    console.error("generateTrip: no submit_trip call", response.stop_reason);
+    throw new Error("The model did not return a trip");
+  }
+
+  const trip = TripDataSchema.safeParse(call.input);
+  if (!trip.success) {
+    console.error("generateTrip: invalid trip", trip.error.flatten());
+    throw new Error("The model returned an invalid trip");
+  }
+  // The trip page reads the generated fields off a `Trip`; the rest is merged from the form.
+  return trip.data as unknown as Trip;
+}

@@ -34,7 +34,7 @@ The must-haves are the few essentials the trip cannot do without, such as docume
 - Tours: exactly five, each a specific place or experience in or near the city.
   - Title: up to six words, naming the place or the activity.
   - Kind: one word from this list: Food, History, Culture, Art, Nature, Adventure, Nightlife, Romantic, Shopping, Relaxation, Sightseeing, Family.
-  - Description: one paragraph of three to five sentences, saying what it is and why it suits this trip, without repeating the title. Keep the five about the same length, since they are shown one at a time on cards of the same size.
+  - Description: one paragraph of 100 to 120 words, saying what it is, what to see or do there, and why it suits this trip, without repeating the title. Keep the five about the same length, since they are shown one at a time on cards of the same size.
 - Tip: up to two short paragraphs of practical advice that weighs how they get around, their luggage, the weather and their note.
   - When a passport is given, end the tip by reminding them to check the entry requirements for that passport with the destination's official sources before booking: visa, passport validity, and any forms to fill in ahead. Do not state the rules yourself, since they change. When no passport is given, leave this out.
 
@@ -65,5 +65,32 @@ Weather forecast:
 <traveller_note>
 Already bringing: camera, walking shoes
 Note: Wants a day trip to Sintra
+</traveller_note>"
+`;
+
+exports[`buildTripMessage — a family, with a forecast > matches the snapshot 1`] = `
+"Plan this trip.
+
+Trip details:
+- Traveller's name: Jonas
+- Who's going: Family, ages 2–5, 6–12, 36–40
+- Destination: Munich, Germany
+- Dates: Wed 10 Jul 2030 to Sun 14 Jul 2030 (4 nights)
+- Kind of trip: Holiday
+- Pace: Relaxed
+- Budget: Low Budget
+- Getting around: Car
+- Luggage: Large
+- Staying in: Apartment
+- Interests: Nature, Kids' Fun
+
+Weather forecast:
+- Wed 10 Jul: 24°C, Clear (clear sky)
+- Thu 11 Jul: 19°C, Rain (light rain)
+- Fri 12 Jul: 22°C, Clouds (scattered clouds)
+
+<traveller_note>
+Already bringing: nothing listed
+Note: Our youngest naps after lunch please plan around it
 </traveller_note>"
 `;

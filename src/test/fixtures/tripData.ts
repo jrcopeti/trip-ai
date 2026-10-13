@@ -1,19 +1,21 @@
 import type { Trip } from "@prisma/client";
 
 /**
- * What `fetchResponseAI` resolves to: the `tripData` tool's input, cast to `Trip`
- * by the API module. Only the seven tool fields are present — the rest of the row
- * is merged in from the form data by `useCreateTrip`.
+ * What `generateTrip` resolves to: the `submit_trip` tool's input, cast to `Trip`
+ * by the API module. Only the six tool fields are present — the rest of the row,
+ * the traveller's own items included, is merged in from the form data by `useCreateTrip`.
  */
 export const tripDataFixture = {
   title: "Ana's Seven Sunlit Days Across Lisbon, Portugal",
   objectsList: [
     { quantity: 3, item: "linen shirt", description: "Breathable in coastal heat" },
     { quantity: 1, item: "light jacket", description: "Evenings by the river turn cool" },
-    { quantity: 2, item: "walking shoes", description: "Cobblestones all week" },
+    { quantity: 2, item: "sandals", description: "For the evenings after the hills" },
+    { quantity: 1, item: "sun hat", description: "Little shade on the miradouros" },
+    { quantity: 1, item: "power bank", description: "Maps all day; keep it in your hand luggage" },
+    { quantity: 1, item: "travel toiletries", description: "Liquids in 100 ml bottles for the carry-on" },
   ],
   mustHave: ["passport", "sunscreen", "adapter", "water bottle"],
-  requiredItems: ["camera", "walking shoes"],
   description: "Lisbon in May is all tiled facades and long light.",
   tours: [
     {

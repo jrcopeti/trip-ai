@@ -1,12 +1,13 @@
 "use client";
 
 import { createContext, useEffect, useState } from "react";
-import { fetchResponseAI } from "@/app/api/anthropicApi";
+import { generateTrip } from "@/app/api/anthropicApi";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import ErrorToaster from "@/components/ui/ErrorToaster";
 import CustomToaster from "@/components/ui/CustomToaster";
+import type { TripRequest } from "@/lib/agent/request";
 import type { TripContextType } from "@/types";
 
 const defaultContextValue: TripContextType = {
@@ -36,7 +37,7 @@ function TripProvider({ children }: { children: React.ReactNode }) {
     isPending: isPendingResponseAI,
     error: errorResponseAI,
   } = useMutation({
-    mutationFn: (prompt: string) => fetchResponseAI(prompt),
+    mutationFn: (request: TripRequest) => generateTrip(request),
 
     onSuccess: () => {
       toast.custom(<CustomToaster message="Your trip has been generated!" />);
