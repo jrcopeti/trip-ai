@@ -11,7 +11,7 @@ import { LuTreePalm } from "react-icons/lu";
 import { useIntro } from "./IntroContext";
 import StickerBadge from "@/components/sorbet/StickerBadge";
 import Squiggle from "./Squiggle";
-import { heroEyebrow } from "./content";
+import { hero } from "./content";
 
 type Props = {
   /** The hero deck, or a fallback while it streams in; nothing on its own. */
@@ -47,14 +47,14 @@ function Hero({ deck }: Props) {
         style={{ y: slow }}
         className="parallax-drift absolute left-[calc(50%-41.5rem)] top-28 hidden min-[85rem]:block"
       >
-        <StickerBadge label="go anywhere" icon={<BsCompass />} tint="text-sorbet-cyan" size={104} />
+        <StickerBadge label={hero.stickers.goAnywhere} icon={<BsCompass />} tint="text-sorbet-cyan" size={104} />
       </motion.div>
       <motion.div
         style={{ y: fast }}
         className="parallax-drift absolute right-[6%] top-20 hidden md:block"
       >
         <StickerBadge
-          label="take it easy"
+          label={hero.stickers.takeItEasy}
           icon={<LuTreePalm />}
           tint="text-sorbet-lime"
           size={120}
@@ -66,7 +66,7 @@ function Hero({ deck }: Props) {
         className="parallax-drift absolute right-[8%] top-76 hidden lg:block"
       >
         <StickerBadge
-          label="pack light"
+          label={hero.stickers.packLight}
           icon={<TbBackpack />}
           tint="text-sorbet-orchid"
           size={92}
@@ -76,12 +76,12 @@ function Hero({ deck }: Props) {
 
       <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-10 sm:px-8 md:pt-16">
         <p className="mb-6 text-sm font-medium uppercase tracking-[0.18em] text-sorbet-ink/50">
-          {heroEyebrow}
+          {hero.eyebrow}
         </p>
 
         <h1 className="max-w-5xl text-[clamp(2.75rem,7vw,5.5rem)] leading-[0.96] tracking-[-0.03em] text-sorbet-ink">
-          <span className="block font-extrabold">Plan the trip.</span>
-          <span className="block font-medium">Pack for the weather.</span>
+          <span className="block font-extrabold">{hero.heading.claim}</span>
+          <span className="block font-medium">{hero.heading.qualifier}</span>
         </h1>
 
         <div className="mt-8 flex items-center justify-between">
@@ -95,7 +95,7 @@ function Hero({ deck }: Props) {
               run into it. */}
           <div data-sticker="phone" className="md:hidden">
             <StickerBadge
-              label="go anywhere"
+              label={hero.stickers.goAnywhere}
               icon={<BsCompass />}
               tint="text-sorbet-cyan"
               size={88}
@@ -105,23 +105,21 @@ function Hero({ deck }: Props) {
 
         <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <p className="max-w-md text-lg leading-relaxed text-sorbet-ink/75 md:text-xl">
-            Describe where you are headed. Trip AI writes the itinerary, the
-            tours worth doing, and a packing list that already knows the
-            forecast.
+            {hero.lead}
           </p>
 
           <div className="flex flex-wrap items-center gap-3">
             <Link
-              href="/form"
+              href={hero.primary.href}
               className="rounded-full bg-sorbet-ink px-7 py-4 text-base font-semibold text-sorbet-offwhite transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sorbet-ink"
             >
-              Plan a trip
+              {hero.primary.label}
             </Link>
             <Link
-              href="/saved-trips"
+              href={hero.secondary.href}
               className="rounded-full bg-sorbet-lime px-7 py-4 text-base font-semibold text-sorbet-ink transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sorbet-ink"
             >
-              See saved trips
+              {hero.secondary.label}
             </Link>
           </div>
         </div>

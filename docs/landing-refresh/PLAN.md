@@ -29,7 +29,8 @@ Decided with the user:
 - **Branch 2** · `landing-polaroids` — merged (#179).
 - **Branch 3** · `sorbet-logo` — merged (#180).
 - **Branch 4** · `readme-demo` — merged (#181).
-- **Branch 5** · `intro-once` — staged for review: the intro once a day, and the hero deck in `<Suspense>`.
+- **Branch 5** · `intro-once` — merged (#184).
+- **Branch 6** · `landing-content` — in review: every word on the landing in `content.ts`. Rebased on main after #184 and #185 (the logo after the wordmark, `docs/logo-lockup/`).
 
 ## Branch 1 — `landing-copy` (items 2, 4, 5, 6, 7)
 
@@ -234,6 +235,40 @@ deck only makes sense once the intro no longer plays over the wait.
   overlap (`-mt-20`, `z-30/20/10`) to a column with a `mt-8` gap, in `Hero.tsx`.
   The deck lives in `HeroDeck.tsx` here, so the gap moved with it; without it the
   overlap comes back on phones, and #183's `landing.spec` test catches it.
+
+## Branch 6 — `landing-content` (copy out of the JSX)
+
+An audit of `landing/` found copy written inline, against design-notes' "Copy lives
+in `content.ts`": the hero's heading, lead, buttons and sticker labels; the intro's
+beats and wordmark; the lockup's wordmark and lead; the trip-type heading; the
+weather card's labels and the packing card's headings; the closing section. Sample
+data and four headings were already in `content.ts`.
+
+- Moved, shaped as `about/` and `saved-trips/` do: `intro`, `hero` (the old
+  `heroEyebrow`, `heroDeckLabel` and `heroDeckLoading` folded into it, as
+  `hero.eyebrow` and `hero.deck`), `features.wordmark`/`lead`, `tripTypes`,
+  `weatherPacking` (`feelsLike` a function, as in `trips/content.ts`), `closing`.
+  Link targets moved with their labels.
+- `Intro` keeps its timings in `landing/introBeats.ts` (`BEAT_HOLDS`, one per word
+  in `intro.beats`), not in `Intro.tsx`, so that file exports only the component
+  and Fast Refresh can hot-swap it. The wordmark is one constant behind `intro.wordmark` and
+  `features.wordmark`, since the flight to the nav scales by its width.
+- Left alone: `ºC` beside its number (the trip pages do the same), and the
+  polaroid captions, which are built from each trip's row.
+- Test first: `landing/copy.test.ts` parses each landing component with the
+  TypeScript compiler and fails on JSX text with a letter in it, or a literal
+  copy attribute (`label`, `alt`, `title`, `aria-label`, `caption`, `href`). It
+  failed on six files before the move. The words on the page are unchanged, so
+  the existing unit tests and `landing.spec` still match them.
+- From review: a word added to `intro.beats` without a timing holds for
+  `DEFAULT_HOLD` instead of flashing past (`Intro.test` mocks a fourth word);
+  `SiteNav.test` checks the nav's wordmark spells `intro.wordmark`.
+- Gaps the copy guard leaves: words in template strings or `a ? "x" : "y"`, words
+  in plain objects (the old `BEATS`), attributes outside its list (`placeholder`).
+  None on the landing today.
+- Next, its own PR: raise the hero stickers' parallax ranges (`[0, 90]` and
+  `[0, 170]` over a ~1030px hero barely show), checked against `landing.spec`'s
+  sticker-clearance tests.
 
 ## Verification (each branch)
 

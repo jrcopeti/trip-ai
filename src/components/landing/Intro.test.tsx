@@ -1,8 +1,15 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, renderHook } from "@testing-library/react";
 import Intro from "./Intro";
+import { BEATS } from "./introBeats";
 import { IntroProvider, useIntro } from "./IntroContext";
 import { INTRO_COOKIE } from "./introCookie";
+
+// One more word than `BEAT_HOLDS` has timings for.
+vi.mock("./content", async (importOriginal) => {
+  const content = await importOriginal<typeof import("./content")>();
+  return { ...content, intro: { ...content.intro, beats: ["Plan.", "Pack.", "Go.", "Again."] } };
+});
 
 function clearIntroCookie() {
   document.cookie = `${INTRO_COOKIE}=; Path=/; Max-Age=0`;
@@ -21,6 +28,13 @@ describe("Intro", () => {
     );
 
     expect(document.cookie).toContain(`${INTRO_COOKIE}=1`);
+  });
+});
+
+describe("Intro beats", () => {
+  it("holds a word with no timing of its own for the default, not zero", () => {
+    expect(BEATS).toHaveLength(4);
+    expect(BEATS[3].hold).toBeGreaterThan(0);
   });
 });
 

@@ -2,7 +2,7 @@ import Image from "next/image";
 import { BsCloudRainFill } from "react-icons/bs";
 import { FaCheck } from "react-icons/fa6";
 
-import { currentWeather, forecast, packing } from "./content";
+import { currentWeather, forecast, packing, weatherPacking } from "./content";
 import Reveal from "@/components/sorbet/Reveal";
 import StickerBadge from "@/components/sorbet/StickerBadge";
 
@@ -16,13 +16,13 @@ function WeatherPacking() {
         <Reveal>
           <div className="flex flex-wrap items-center gap-6">
             <h2 className="max-w-2xl text-[clamp(2rem,5vw,3.5rem)] leading-[1.02] tracking-[-0.03em] text-sorbet-ink">
-              <span className="font-extrabold">The packing list</span>{" "}
+              <span className="font-extrabold">{weatherPacking.heading.claim}</span>{" "}
               <span className="font-medium text-sorbet-ink/60">
-                reads the forecast first.
+                {weatherPacking.heading.qualifier}
               </span>
             </h2>
             <StickerBadge
-              label="check the sky"
+              label={weatherPacking.badge}
               icon={<BsCloudRainFill />}
               tint="text-sorbet-lime-punch"
               size={96}
@@ -59,7 +59,7 @@ function WeatherPacking() {
                   <span className="align-top text-3xl md:text-4xl">ºC</span>
                 </p>
                 <p className="mt-1 text-sm text-sorbet-ink/60">
-                  Feels like {feelsLike}ºC
+                  {weatherPacking.feelsLike(feelsLike)}
                 </p>
 
                 <p className="mt-4 text-2xl font-semibold text-sorbet-ink">
@@ -70,8 +70,8 @@ function WeatherPacking() {
                 </p>
 
                 <p className="mt-3 text-sm font-semibold text-sorbet-ink/70">
-                  <span className="font-medium text-sorbet-ink/45">Low</span> {tempMin}ºC
-                  <span className="ml-3 font-medium text-sorbet-ink/45">High</span> {tempMax}ºC
+                  <span className="font-medium text-sorbet-ink/45">{weatherPacking.low}</span> {tempMin}ºC
+                  <span className="ml-3 font-medium text-sorbet-ink/45">{weatherPacking.high}</span> {tempMax}ºC
                 </p>
 
                 <ul className="mt-6 flex flex-wrap items-start gap-x-7 gap-y-3">
@@ -111,10 +111,10 @@ function WeatherPacking() {
           <Reveal delay={0.1}>
             <div className="h-full rounded-[1.75rem] bg-sorbet-lavender p-6 md:p-8">
               <p className="text-sm font-medium text-sorbet-ink/55">
-                Because two of those days are wet
+                {weatherPacking.packing.eyebrow}
               </p>
               <h3 className="mt-1 text-2xl font-semibold text-sorbet-ink">
-                Pack these
+                {weatherPacking.packing.heading}
               </h3>
 
               <ul className="mt-6 grid gap-2.5">
