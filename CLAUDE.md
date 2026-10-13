@@ -58,6 +58,13 @@ Every piece of work is one branch off `main`, one PR:
 7. **Stage the work and stop.** No commit, no push, no PR — see the working agreement.
    Leave the branch checked out.
 
+## Code comments
+
+Keep them short: one or two lines, saying *why* — a constraint, a trap, a decision.
+Not what the code already says, and not how it got there (that is the commit message
+and the plan). No multi-paragraph docblocks: if it needs a paragraph, write it in
+`docs/design-notes.md` or the plan and leave a one-line pointer in the code.
+
 ## Commands
 
 ```bash

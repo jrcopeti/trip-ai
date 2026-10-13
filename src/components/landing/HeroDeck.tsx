@@ -9,13 +9,6 @@ import Polaroid from "@/components/sorbet/Polaroid";
 import { useIntro } from "./IntroContext";
 import { heroDeckLabel } from "./content";
 
-/**
- * Stacking for the deck below `md`, where the cards overlap in a column: each
- * sits *under* the one before, so the overlap hides the top of a photo rather
- * than the caption on the lip above it.
- */
-const stack = ["z-30", "z-20", "z-10"];
-
 type Props = {
   /** The latest saved trips, newest first; up to three, and possibly none. */
   trips: LatestTrip[];
@@ -42,7 +35,7 @@ function HeroDeck({ trips }: Props) {
           initial={{ opacity: 0, y: 28 }}
           animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
           transition={{ duration: 0.6, delay: 0.3 + 0.15 * i, ease: [0.22, 1, 0.36, 1] }}
-          className={`relative ${stack[i]} ${i > 0 ? "-mt-20 md:ml-5 md:mt-0" : ""} w-60 md:w-64`}
+          className={`relative ${i > 0 ? "mt-8 md:ml-5 md:mt-0" : ""} w-60 md:w-64`}
         >
           <Polaroid
             href={`/saved-trips/${trip.id}`}

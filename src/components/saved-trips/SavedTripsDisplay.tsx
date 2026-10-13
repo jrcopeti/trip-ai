@@ -141,6 +141,19 @@ function SavedTripsDisplay() {
             spin={28}
             className="absolute right-0 -bottom-24 z-10 hidden md:block lg:right-8"
           />
+
+          {/* Below `md` the one above has no room, so the phone keeps a smaller
+              one opposite the arrow: hung from the search the same way, on the
+              right, so the heading can never wrap into it. */}
+          <div data-sticker="phone" className="absolute top-full right-2 z-10 mt-3 md:hidden">
+            <StickerBadge
+              label={badge.label}
+              icon={<LuCamera />}
+              tint="text-sorbet-orchid"
+              size={88}
+              spin={28}
+            />
+          </div>
         </div>
       </section>
 

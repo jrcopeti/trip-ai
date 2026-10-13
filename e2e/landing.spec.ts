@@ -63,6 +63,35 @@ test.describe("landing page", () => {
     await expect(page.locator("[data-wordmark]")).toHaveCount(1);
   });
 
+  // The tile had two fixed sizes while the word is fluid, so on a phone it
+  // stood taller than "trip ai". It scales with the word now: two-thirds of
+  // its font size, and never above its line.
+  for (const width of [390, 768, 1440]) {
+    test(`the lockup tile follows the wordmark's size at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/");
+
+      const row = page.locator("[data-logo-lockup]");
+      await row.scrollIntoViewIfNeeded();
+
+      // Both boxes in one call: `Reveal` is still sliding the block up, and two
+      // separate reads would land on different frames.
+      const { fontSize, wordTop, tileTop, tileHeight } = await row.evaluate((el) => {
+        const word = el.firstElementChild!;
+        const tile = el.querySelector("span[aria-hidden]")!;
+        const [w, t] = [word.getBoundingClientRect(), tile.getBoundingClientRect()];
+        return {
+          fontSize: parseFloat(getComputedStyle(word).fontSize),
+          wordTop: w.top,
+          tileTop: t.top,
+          tileHeight: t.height,
+        };
+      });
+      expect(Math.abs(tileHeight - (fontSize * 2) / 3)).toBeLessThanOrEqual(2);
+      expect(tileTop).toBeGreaterThanOrEqual(wordTop);
+    });
+  }
+
   test("the primary call to action reaches the form", async ({ page }) => {
     await page.getByRole("link", { name: "Plan a trip" }).first().click();
     await expect(page).toHaveURL(/\/form$/);
@@ -96,6 +125,16 @@ test.describe("landing page", () => {
       const deck = page.getByRole("list", { name: "Latest saved trips" });
       await expect(deck.getByRole("link")).toHaveCount(2);
       await expect(deck.getByRole("link", { name: /oslo/i })).toHaveCount(0);
+    });
+
+    test("separates the polaroids on a phone instead of overlapping them", async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto("/");
+
+      const cards = page.getByRole("list", { name: "Latest saved trips" }).getByRole("listitem");
+      await expect(cards).toHaveCount(2);
+      const [a, b] = [(await cards.nth(0).boundingBox())!, (await cards.nth(1).boundingBox())!];
+      expect(b.y).toBeGreaterThanOrEqual(a.y + a.height);
     });
 
     test("a polaroid opens its saved trip", async ({ page }) => {

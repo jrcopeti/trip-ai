@@ -230,6 +230,10 @@ deck only makes sense once the intro no longer plays over the wait.
   deals on a repeat visit. Asserted on the server's HTML, not the live DOM: the
   intro removes itself after ~3s, which a loaded runner passed before the first
   assertion (it failed that way under the parallel run).
+- **Main merged in after #183**: #183 changed the phone deck from an
+  overlap (`-mt-20`, `z-30/20/10`) to a column with a `mt-8` gap, in `Hero.tsx`.
+  The deck lives in `HeroDeck.tsx` here, so the gap moved with it; without it the
+  overlap comes back on phones, and #183's `landing.spec` test catches it.
 
 ## Verification (each branch)
 

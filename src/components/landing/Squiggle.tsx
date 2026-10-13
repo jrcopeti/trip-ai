@@ -30,11 +30,24 @@ function Squiggle({ className = "", play, delay = 0 }: Props) {
         stroke="currentColor"
         strokeWidth={3}
         strokeLinecap="round"
-        initial={{ pathLength: 0 }}
-        animate={gated ? { pathLength: play ? 1 : 0 } : undefined}
-        whileInView={gated ? undefined : { pathLength: 1 }}
+        // Opacity too: an undrawn path is a zero-length dash, which round caps
+        // still paint as a dot (see SquiggleArrow).
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={
+          gated
+            ? play
+              ? { pathLength: 1, opacity: 1 }
+              : { pathLength: 0, opacity: 0 }
+            : undefined
+        }
+        whileInView={gated ? undefined : { pathLength: 1, opacity: 1 }}
         viewport={{ once: true }}
-        transition={{ duration: 1.0, ease: "easeInOut", delay: play ? delay : 0 }}
+        transition={{
+          duration: 1.0,
+          ease: "easeInOut",
+          delay: play ? delay : 0,
+          opacity: { duration: 0.01, delay: play ? delay : 0 },
+        }}
       />
     </svg>
   );
