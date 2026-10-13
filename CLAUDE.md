@@ -79,10 +79,11 @@ going one way.
 
 ## Code comments
 
-Keep them short: one or two lines, saying *why* — a constraint, a trap, a decision.
-Not what the code already says, and not how it got there (that is the commit message
-and the plan). No multi-paragraph docblocks: if it needs a paragraph, write it in
-`docs/design-notes.md` or the plan and leave a one-line pointer in the code.
+Up to three lines, saying *why* — a constraint, a trap, a decision — with enough context
+that a reader doesn't have to go and look it up. Not what the code already says, and not
+how it got there (that is the commit message and the plan). No multi-paragraph docblocks:
+if it needs more than three lines, write it in `docs/design-notes.md` or the plan and leave
+a one-line pointer in the code.
 
 ## Commands
 
