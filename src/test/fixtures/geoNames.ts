@@ -45,6 +45,34 @@ export const saoPauloGeoName: GeoNamesResult = {
   timezone: { timeZoneId: "America/Sao_Paulo" },
 };
 
+export const londonGeoName: GeoNamesResult = {
+  geonameId: 2643743,
+  name: "London",
+  toponymName: "London",
+  asciiName: "London",
+  countryCode: "GB",
+  countryName: "United Kingdom",
+  adminCode1: "ENG",
+  lat: "51.50853",
+  lng: "-0.12574",
+  population: 8961989,
+  timezone: { timeZoneId: "Europe/London" },
+};
+
+export const glasgowGeoName: GeoNamesResult = {
+  geonameId: 2648579,
+  name: "Glasgow",
+  toponymName: "Glasgow",
+  asciiName: "Glasgow",
+  countryCode: "GB",
+  countryName: "United Kingdom",
+  adminCode1: "SCT",
+  lat: "55.86515",
+  lng: "-4.25763",
+  population: 626410,
+  timezone: { timeZoneId: "Europe/London" },
+};
+
 /** What `searchJSON` answers for "Lisbon" in PT — also the e2e fixture. */
 export const geoNamesSearchFixture = {
   totalResultsCount: 1,

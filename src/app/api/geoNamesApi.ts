@@ -6,12 +6,17 @@ export type ResolvePlaceResult =
   | { ok: true; place: Place }
   | { ok: false; error: "not-found" | "unavailable" };
 
-async function searchGeoNames(city: string, countryCode: string): Promise<GeoNamesResult[]> {
+async function searchGeoNames(
+  city: string,
+  countryCode: string,
+  adminCode1?: string,
+): Promise<GeoNamesResult[]> {
   if (useE2EFixtures) return geoNamesSearchFixture.geonames;
 
   const params = new URLSearchParams({
     q: city,
     country: countryCode,
+    ...(adminCode1 && { adminCode1 }),
     featureClass: "P",
     maxRows: "10",
     style: "FULL",
@@ -31,12 +36,15 @@ async function searchGeoNames(city: string, countryCode: string): Promise<GeoNam
 /** The city as GeoNames knows it, checked on the server so the username stays private. */
 export async function resolvePlace(city: string, countryCode: string): Promise<ResolvePlaceResult> {
   const trimmed = city.trim();
-  if (trimmed.length < 3 || trimmed.length > 100 || !/^[A-Za-z]{2}$/.test(countryCode)) {
+  // A UK nation comes as GB-SCT: GeoNames has its cities under GB, with SCT as adminCode1.
+  const [, country, nation] = /^([A-Za-z]{2})(?:-([A-Za-z]{3}))?$/.exec(countryCode) ?? [];
+  if (trimmed.length < 3 || trimmed.length > 100 || !country) {
     return { ok: false, error: "not-found" };
   }
 
   try {
-    const place = matchCity(trimmed, await searchGeoNames(trimmed, countryCode), countryCode);
+    const results = await searchGeoNames(trimmed, country, nation);
+    const place = matchCity(trimmed, results, country, nation);
     return place ? { ok: true, place } : { ok: false, error: "not-found" };
   } catch (error) {
     console.error(error);

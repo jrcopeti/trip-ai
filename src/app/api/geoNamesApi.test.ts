@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { geoNamesSearchFixture } from "@/test/fixtures";
+import { geoNamesSearchFixture, glasgowGeoName, londonGeoName } from "@/test/fixtures";
 
 const fetchMock = vi.fn();
 const { resolvePlace } = await import("./geoNamesApi");
@@ -52,6 +52,45 @@ describe("resolvePlace", () => {
     });
   });
 
+  describe("a UK nation (GB-ENG, GB-SCT…)", () => {
+    const uk = { totalResultsCount: 2, geonames: [londonGeoName, glasgowGeoName] };
+    const query = () => Object.fromEntries(new URL(fetchMock.mock.calls[0][0]).searchParams);
+
+    it("searches GB within the nation", async () => {
+      answer(uk);
+      await expect(resolvePlace("London", "GB-ENG")).resolves.toMatchObject({
+        ok: true,
+        place: { name: "London", country: "United Kingdom" },
+      });
+      expect(query()).toMatchObject({ country: "GB", adminCode1: "ENG" });
+    });
+
+    it("rejects a city in another nation", async () => {
+      answer(uk);
+      await expect(resolvePlace("Glasgow", "GB-ENG")).resolves.toEqual({
+        ok: false,
+        error: "not-found",
+      });
+    });
+
+    it("finds the city in its own nation", async () => {
+      answer(uk);
+      await expect(resolvePlace("Glasgow", "GB-SCT")).resolves.toMatchObject({
+        ok: true,
+        place: { name: "Glasgow" },
+      });
+    });
+
+    it("finds any nation's city under the United Kingdom", async () => {
+      answer(uk);
+      await expect(resolvePlace("Glasgow", "GB")).resolves.toMatchObject({
+        ok: true,
+        place: { name: "Glasgow" },
+      });
+      expect(query()).not.toHaveProperty("adminCode1");
+    });
+  });
+
   it("returns not-found when nothing matches", async () => {
     answer({ totalResultsCount: 0, geonames: [] });
     await expect(resolvePlace("Atlantis", "PT")).resolves.toEqual({
@@ -63,6 +102,10 @@ describe("resolvePlace", () => {
   it("rejects bad input without calling GeoNames", async () => {
     await expect(resolvePlace("Li", "PT")).resolves.toEqual({ ok: false, error: "not-found" });
     await expect(resolvePlace("Lisbon", "Portugal")).resolves.toEqual({
+      ok: false,
+      error: "not-found",
+    });
+    await expect(resolvePlace("Lisbon", "GB-ENGLAND")).resolves.toEqual({
       ok: false,
       error: "not-found",
     });

@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { matchCity, normalise } from "@/lib/place";
-import { lisbonGeoName, munichGeoName, saoPauloGeoName } from "@/test/fixtures";
+import {
+  glasgowGeoName,
+  lisbonGeoName,
+  londonGeoName,
+  munichGeoName,
+  saoPauloGeoName,
+} from "@/test/fixtures";
 
 describe("normalise", () => {
   it("trims, lowercases and strips accents", () => {
@@ -45,6 +51,17 @@ describe("matchCity", () => {
 
   it("rejects a city in the wrong country", () => {
     expect(matchCity("Lisbon", [lisbonGeoName], "BR")).toBeNull();
+  });
+
+  it("rejects a city in another UK nation when one is given", () => {
+    expect(matchCity("Glasgow", [glasgowGeoName], "GB", "ENG")).toBeNull();
+    expect(matchCity("Glasgow", [glasgowGeoName], "GB", "SCT")?.name).toBe("Glasgow");
+  });
+
+  it("matches any nation under plain GB", () => {
+    const uk = [londonGeoName, glasgowGeoName];
+    expect(matchCity("Glasgow", uk, "GB")?.name).toBe("Glasgow");
+    expect(matchCity("London", uk, "GB")?.name).toBe("London");
   });
 
   it("prefers the most populous match", () => {

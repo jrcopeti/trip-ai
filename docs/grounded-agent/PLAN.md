@@ -110,12 +110,17 @@ country before the city (in the markup, so tab and mobile order follow), and the
 disabled until a country is chosen, with "Pick a country first." visible under it (and in its
 description) until then, since the check needs both. Clearing the country disables it again and
 keeps the typed city. A changed city or country shows the check as loading at once, so Next
-can't pass on the previous spelling's result during the debounce.
+can't pass on the previous spelling's result during the debounce. The country list drops flagcdn's
+US states and the EU and UN but keeps England, Scotland, Wales and Northern Ireland; `resolvePlace`
+splits `GB-SCT` into `country=GB&adminCode1=SCT`, and `matchCity` checks the nation too, so England +
+Glasgow fails while United Kingdom matches any nation.
 Left for later: `.env.example` (added by 1d) still lists `NEXT_PUBLIC_GEONAMES_USERNAME` — rename
 it once 1d merges, along with CLAUDE.md's "the three `"use server"` modules" line, which 1d's diff
 also touches. `useGeoNames` is mounted twice (step 2 and `FormButtons`), so each check is two
 GeoNames calls, as it was before. Parked: tabbing into `CountryComboBox` opens its list at once
 (on step 1 it covers the age chips), and HeroUI's popover still fades out under reduced motion.
+Weather still geocodes the country *name*, so a UK nation sends OpenWeather `q=London,England`;
+1c or 2 should pass `resolvePlace`'s lat/lng instead.
 **`GEONAMES_USERNAME` must be set in `.env.local` and Vercel
 before this deploys.**
 

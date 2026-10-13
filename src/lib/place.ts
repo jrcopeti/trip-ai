@@ -7,6 +7,8 @@ export interface GeoNamesResult {
   alternateNames?: { name: string; lang?: string }[];
   countryCode: string;
   countryName: string;
+  /** For UK places, the nation: ENG, SCT, WLS or NIR. */
+  adminCode1?: string;
   lat: string;
   lng: string;
   population: number;
@@ -41,6 +43,7 @@ export function matchCity(
   input: string,
   results: GeoNamesResult[],
   countryCode: string,
+  adminCode1?: string,
 ): Place | null {
   const wanted = normalise(input);
   if (!wanted) return null;
@@ -50,6 +53,7 @@ export function matchCity(
       (result) =>
         result.population > 0 &&
         result.countryCode.toUpperCase() === countryCode.toUpperCase() &&
+        (!adminCode1 || result.adminCode1?.toUpperCase() === adminCode1.toUpperCase()) &&
         names(result).some((name) => normalise(name) === wanted),
     )
     .sort((a, b) => b.population - a.population)[0];
