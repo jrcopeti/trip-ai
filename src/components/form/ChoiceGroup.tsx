@@ -24,7 +24,9 @@ type Props = {
 function ChoiceGroup({ label, options, value, onChange, tint, error }: Props) {
   return (
     <RadioGroup
-      value={value ?? null}
+      // The form's empty value is "": react-aria takes it as a selection matching no radio
+      // and gives every radio tabIndex -1, so Tab skipped the group.
+      value={value || null}
       onChange={onChange}
       isInvalid={!!error}
       isRequired

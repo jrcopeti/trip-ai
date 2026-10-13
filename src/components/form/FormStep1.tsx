@@ -1,8 +1,9 @@
 "use client";
 import { useFormData } from "@/hooks/useFormData";
 import { TextField, Label, Input, FieldError } from "@heroui/react";
-import { Controller } from "react-hook-form";
+import { Controller, useController } from "react-hook-form";
 import { ageRanges, travellers } from "@/data";
+import { AGE_RANGE_RULES, fitsGroup } from "@/lib/schema";
 import StepPanel from "./StepPanel";
 import ChoiceGroup from "./ChoiceGroup";
 import ChipCheckGroup from "./ChipCheckGroup";
@@ -12,8 +13,21 @@ import { field, fieldError, fieldInput, fieldLabel, tints } from "./styles";
 
 function FormStep1() {
   const { currentStep, control, errors, handleSelectionAutocomplete } = useFormData();
+  const { field: group } = useController({ name: "travellers", control });
+  const { field: ages } = useController({ name: "ageRanges", control });
 
   if (currentStep !== 0) return null;
+
+  const ageOptions = ageRanges.filter((option) => fitsGroup(option.value, group.value));
+
+  // A new group keeps the youngest picks that fit it, up to its cap.
+  const fitAges = (next: string) => {
+    const kept = ageRanges
+      .map((option) => option.value as string)
+      .filter((range) => ages.value.includes(range) && fitsGroup(range, next))
+      .slice(0, AGE_RANGE_RULES[next]?.max);
+    if (kept.length !== ages.value.length) ages.onChange(kept);
+  };
 
   return (
     <StepPanel>
@@ -32,33 +46,26 @@ function FormStep1() {
           />
         </div>
 
-        <Controller
-          name="travellers"
-          control={control}
-          render={({ field: { value, onChange } }) => (
-            <ChoiceGroup
-              label={personal.travellers}
-              options={travellers}
-              value={value}
-              onChange={onChange}
-              tint={tints.lavender}
-              error={errors.travellers?.message}
-            />
-          )}
+        <ChoiceGroup
+          label={personal.travellers}
+          options={travellers}
+          value={group.value}
+          onChange={(next) => {
+            group.onChange(next);
+            fitAges(next);
+          }}
+          tint={tints.lavender}
+          error={errors.travellers?.message}
         />
 
-        <Controller
-          name="ageRanges"
-          control={control}
-          render={({ field: { value, onChange } }) => (
-            <ChipCheckGroup
-              label={personal.ageRanges}
-              options={ageRanges}
-              value={value}
-              onChange={onChange}
-              error={errors.ageRanges?.message}
-            />
-          )}
+        <ChipCheckGroup
+          label={personal.ageRanges}
+          options={ageOptions}
+          value={ages.value}
+          onChange={ages.onChange}
+          max={AGE_RANGE_RULES[group.value]?.max}
+          description={personal.ageRangesHint[group.value]}
+          error={errors.ageRanges?.message}
         />
 
         <div className="max-w-xl">

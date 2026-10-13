@@ -4,7 +4,7 @@ import type { FinalDataTypes, Inputs } from "@/types";
 export const validInputs: Inputs = {
   userName: "Ana",
   travellers: "couple",
-  ageRanges: ["18-34"],
+  ageRanges: ["25-30"],
   passport: "Brazil",
   type: "cultural",
   pace: "balanced",

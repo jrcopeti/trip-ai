@@ -97,6 +97,21 @@ only; **Neon still needs it, with permission, before this deploys**.
   trip page shows whatever is stored. **Ask before `prisma db push` against Neon.** Update the seed and
   fixtures.
 
+#### 1a-a · `agent-ages`: finer age ranges, capped by who's going
+**Status: done, in review.** Follow-up to 1a, from using the form.
+- Age ranges: 0–1, 2–5, 6–12, 13–17, 18–24, 25–30, 31–35, 36–40, 41–45, 46–50, 51–59, 60–69, 70+.
+  No schema change (`String[]`); old rows keep their old values and the trip page still shows them.
+- Caps by who's going: Solo exactly one age (a second pick replaces the first), Couple at most two
+  (a couple can share a range), Family, Friends and Colleagues any number. Switching to Solo or
+  Couple keeps the first ages (youngest first) up to the cap. A hint under the ages states the cap.
+- Ages each group can pick: Solo and Friends from 13–17 up, Couple and Colleagues from 18–24 up,
+  Family any (even children only). Ranges a group can't pick are hidden; switching group drops
+  picks that no longer fit. `fitsGroup(range, group)` reads a range's lower bound from its value.
+  `AGE_RANGE_RULES` in `src/lib/schema.ts` holds the caps, floors and messages; `FormDataSchema` enforces them in
+  a `superRefine`, which 1c's request schema must apply too, since it derives from `FormFieldsSchema`.
+- Tab skipped every `ChoiceGroup`: the form's default `""` reached react-aria as a selected value
+  matching no radio, so every radio got `tabIndex=-1`. `ChoiceGroup` passes `value || null`.
+
 #### 1b · `agent-geonames`: the city check on the server
 **Status: merged (#191).** As built: `matchCity(input, results, countryCode)` takes the country
 too, so a wrong-country match is rejected in the pure helper. `resolvePlace` lives in

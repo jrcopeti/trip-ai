@@ -131,11 +131,90 @@ describe("Form", () => {
     const user = userEvent.setup();
     renderForm();
 
-    await user.click(screen.getByText("0–5"));
-    await user.click(screen.getByText("35–64"));
+    await user.click(screen.getByText("Family"));
+    await user.click(screen.getByText("2–5"));
+    await user.click(screen.getByText("36–40"));
+    await user.click(screen.getByText("70+"));
 
-    expect(screen.getByRole("checkbox", { name: "0–5" })).toBeChecked();
-    expect(screen.getByRole("checkbox", { name: "35–64" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "2–5" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "36–40" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "70+" })).toBeChecked();
+  });
+
+  it("tabs from the name to who's going while nothing is chosen", async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.click(screen.getByRole("textbox", { name: /name/i }));
+    await user.tab();
+
+    expect(screen.getByRole("radio", { name: "Solo" })).toHaveFocus();
+  });
+
+  it("keeps a solo trip to one age range, a second pick replacing the first", async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.click(screen.getByText("Solo"));
+    await user.click(screen.getByText("25–30"));
+    await user.click(screen.getByText("31–35"));
+
+    expect(screen.getByRole("checkbox", { name: "25–30" })).not.toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "31–35" })).toBeChecked();
+    expect(screen.getByText(personal.ageRangesHint.solo!)).toBeInTheDocument();
+  });
+
+  it("keeps a couple to two age ranges", async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.click(screen.getByText("Couple"));
+    await user.click(screen.getByText("25–30"));
+    await user.click(screen.getByText("31–35"));
+
+    expect(screen.getByRole("checkbox", { name: "36–40" })).toBeDisabled();
+    expect(screen.getByRole("checkbox", { name: "25–30" })).toBeChecked();
+    expect(screen.getByText(personal.ageRangesHint.couple!)).toBeInTheDocument();
+  });
+
+  it("keeps the youngest ages that fit when the group shrinks", async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.click(screen.getByText("Family"));
+    await user.click(screen.getByText("41–45"));
+    await user.click(screen.getByText("2–5"));
+    await user.click(screen.getByText("36–40"));
+    await user.click(screen.getByText("Couple"));
+
+    expect(screen.getByRole("checkbox", { name: "36–40" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "41–45" })).toBeChecked();
+
+    await user.click(screen.getByText("Solo"));
+
+    expect(screen.getByRole("checkbox", { name: "36–40" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "41–45" })).not.toBeChecked();
+  });
+
+  it("offers child ages only to a family", async () => {
+    const user = userEvent.setup();
+    renderForm();
+    const shown = () => screen.getAllByRole("checkbox").map((box) => box.closest("label")?.textContent);
+
+    await user.click(screen.getByText("Solo"));
+    expect(shown()).not.toContain("6–12");
+    expect(shown()).toContain("13–17");
+
+    await user.click(screen.getByText("Couple"));
+    expect(shown()).not.toContain("13–17");
+    expect(shown()).toContain("18–24");
+
+    await user.click(screen.getByText("Colleagues"));
+    expect(shown()).not.toContain("13–17");
+    expect(shown()).toContain("18–24");
+
+    await user.click(screen.getByText("Family"));
+    expect(shown()).toHaveLength(13);
   });
 
   it("clears a field's message as soon as the field is fixed, and only that one", async () => {
@@ -320,7 +399,7 @@ describe("Form", () => {
     expect(within(list).getByText(validInputs.userName)).toBeInTheDocument();
     expect(within(list).getByText("Art, Food")).toBeInTheDocument();
     expect(within(list).getByText("Couple")).toBeInTheDocument();
-    expect(within(list).getByText("18–34")).toBeInTheDocument();
+    expect(within(list).getByText("25–30")).toBeInTheDocument();
     expect(within(list).getByText("Cultural")).toBeInTheDocument();
     expect(within(list).getByText("Balanced")).toBeInTheDocument();
     expect(within(list).getByText("Brazil")).toBeInTheDocument();

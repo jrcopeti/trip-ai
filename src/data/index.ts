@@ -27,12 +27,19 @@ const travellers = [
 
 /** Every age in the group, youngest first — the order a person reads them. */
 const ageRanges = [
-  { value: "0-5", label: "0–5" },
+  { value: "0-1", label: "0–1" },
+  { value: "2-5", label: "2–5" },
   { value: "6-12", label: "6–12" },
   { value: "13-17", label: "13–17" },
-  { value: "18-34", label: "18–34" },
-  { value: "35-64", label: "35–64" },
-  { value: "65+", label: "65+" },
+  { value: "18-24", label: "18–24" },
+  { value: "25-30", label: "25–30" },
+  { value: "31-35", label: "31–35" },
+  { value: "36-40", label: "36–40" },
+  { value: "41-45", label: "41–45" },
+  { value: "46-50", label: "46–50" },
+  { value: "51-59", label: "51–59" },
+  { value: "60-69", label: "60–69" },
+  { value: "70+", label: "70+" },
 ] as const;
 
 /** What the trip is about. Family and Solo moved to `travellers`; Holiday, City break and Celebration are new. */

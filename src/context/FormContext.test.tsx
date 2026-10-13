@@ -370,7 +370,7 @@ describe("FormContext — processForm", () => {
   it("puts who's going, their ages, the passport and the pace in the prompt", async () => {
     await submitWith();
     const prompt = generateResponseAI.mock.calls[0][0];
-    expect(prompt).toContain("travelling couple, ages 18-34, Brazil passport");
+    expect(prompt).toContain("travelling couple, ages 25-30, Brazil passport");
     expect(prompt).toContain("at a balanced pace");
   });
 

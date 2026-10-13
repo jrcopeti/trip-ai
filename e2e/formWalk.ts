@@ -39,7 +39,7 @@ export async function noHorizontalScroll(page: Page) {
 export async function fillStepOne(page: Page, name = "Ana") {
   await page.getByRole("textbox", { name: /name/i }).fill(name);
   await chip(page, "Couple");
-  await chip(page, "18–34");
+  await chip(page, "25–30");
   await pickCountry(page, /passport/i, "Brazil");
 }
 

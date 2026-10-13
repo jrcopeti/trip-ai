@@ -23,7 +23,7 @@ export const tripFixture: Trip = {
   age: null,
   nationality: null,
   travellers: "couple",
-  ageRanges: ["18-34"],
+  ageRanges: ["25-30"],
   passport: "Brazil",
   pace: "balanced",
   type: "cultural",

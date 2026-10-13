@@ -117,7 +117,7 @@ test.describe("/form", () => {
     await expect(heading(page)).toHaveText("Personal information");
     await expect(page.getByRole("textbox", { name: /name/i })).toHaveValue("Ana");
     await expect(page.getByRole("radio", { name: "Couple" })).toBeChecked();
-    await expect(page.getByRole("checkbox", { name: "18–34" })).toBeChecked();
+    await expect(page.getByRole("checkbox", { name: "25–30" })).toBeChecked();
     await expect(page.getByRole("combobox", { name: /passport/i })).toHaveValue("Brazil");
   });
 });
