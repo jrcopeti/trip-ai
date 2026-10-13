@@ -64,7 +64,7 @@ function FormStep1() {
           value={ages.value}
           onChange={ages.onChange}
           max={AGE_RANGE_RULES[group.value]?.max}
-          description={(personal.ageRangesHint as Partial<Record<string, string>>)[group.value]}
+          description={personal.ageRangesHint[group.value]}
           error={errors.ageRanges?.message}
         />
 
