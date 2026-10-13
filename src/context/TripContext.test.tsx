@@ -123,6 +123,27 @@ describe("TripContext", () => {
     expect(screen.getByTestId("title")).toHaveTextContent("none");
   });
 
+  it("runs the caller's onSuccess once the trip is back", async () => {
+    mockFetch.mockResolvedValue(tripDataFixture);
+    const onSuccess = vi.fn();
+    renderTrip();
+
+    ctx.generateResponseAI(validTripRequest, { onSuccess });
+
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1));
+  });
+
+  it("skips the caller's onSuccess when the call fails", async () => {
+    mockFetch.mockRejectedValue(new Error("The city could not be resolved: unavailable"));
+    const onSuccess = vi.fn();
+    renderTrip();
+
+    ctx.generateResponseAI(validTripRequest, { onSuccess });
+
+    await waitFor(() => expect(ctx.errorResponseAI).toBeInstanceOf(Error));
+    expect(onSuccess).not.toHaveBeenCalled();
+  });
+
   it("lets the save flag be flipped", async () => {
     renderTrip();
     ctx.setIsTripSaved(true);

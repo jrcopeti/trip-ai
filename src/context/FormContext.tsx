@@ -224,12 +224,21 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     // From the submitted country, so the code always matches the data it travels with.
     const submittedCode =
       countries.find((c) => c.value === data.country)?.code.toUpperCase() ?? "";
+    // The form clears only once the trip is back, so a failed generation
+    // leaves everything filled in for another try.
     generateResponseAI(
       toTripRequest(
         data,
         submittedCode,
         isWeatherSelected ? forecastData : undefined,
       ),
+      {
+        onSuccess: () => {
+          reset();
+          setCurrentStep(0);
+          setIsWeatherSelected(false);
+        },
+      },
     );
 
     const finalData: FinalDataTypes = {
@@ -241,9 +250,6 @@ function FormProvider({ children }: { children: React.ReactNode }) {
       weatherForecast: forecastDataString,
     };
     setFormData(finalData);
-    reset();
-    setCurrentStep(0);
-    setIsWeatherSelected(false);
   };
 
   return (

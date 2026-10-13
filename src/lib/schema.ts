@@ -3,6 +3,7 @@ import { z } from "zod";
 
 /** Caps the form shows and the server's request schema (grounded-agent 1c) enforces again. */
 export const LIMITS = {
+  name: 100,
   note: 500,
   requiredItems: 10,
   requiredItem: 60,
@@ -36,7 +37,13 @@ export function fitsGroup(range: string, group: string) {
 
 /** The fields alone, so the request schema can derive from them; the form uses `FormDataSchema`. */
 export const FormFieldsSchema = z.object({
-  userName: z.string().min(1, "Name is required"),
+  // The server's request schema refuses the same names, so the error shows on step 1.
+  userName: z
+    .string()
+    .trim()
+    .min(1, "Name is required")
+    .max(LIMITS.name, `Keep the name under ${LIMITS.name} characters`)
+    .regex(/^[^\r\n<>]*$/, "Leave out < and >"),
   travellers: z.string().min(1, "Who's going is required"),
   ageRanges: z.string().array().nonempty("Pick at least one age range"),
   passport: z.string().optional(),

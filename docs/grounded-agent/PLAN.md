@@ -186,6 +186,10 @@ Request schema, prompt, model call and the form's wiring are too much for one PR
   came back at ~68 words (the prompt said three to five sentences), too short beside older trips
   (~140–200 words), so a tour was set to 140 to 180 words; at 390px those cards were too tall, so it is one paragraph of 100 to 120 words. It stays one paragraph
   because the carousel renders a description as a single `<p>`.
+  From review: the form clears (`reset`, step 0, weather choice) only in the mutation's
+  per-call `onSuccess`, so a failed generation keeps every answer for another try; and the
+  form's `userName` rule matches the server's (trimmed, `LIMITS.name` = 100, no `<` or `>`), so a
+  name the server would refuse is flagged on step 1.
 
 Decided at the split:
 - **The request carries `countryCode`** (the form already derives it from the country list), since

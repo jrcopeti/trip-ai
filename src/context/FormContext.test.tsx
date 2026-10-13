@@ -76,7 +76,7 @@ beforeEach(() => {
   vi.setSystemTime(new Date(2030, 3, 1, 12, 0, 0));
   generateForecast.mockClear();
   generateImage.mockClear();
-  generateResponseAI.mockClear();
+  generateResponseAI.mockReset();
   forecastData = undefined;
   return () => vi.useRealTimers();
 });
@@ -387,7 +387,13 @@ describe("FormContext — processForm", () => {
     expect(ctx.formData.requiredItems).toEqual(["camera", "shoes"]);
   });
 
-  it("resets back to step 0", async () => {
+  /** The trip came back: the mutation runs the per-call `onSuccess`. */
+  function generationSucceeds() {
+    generateResponseAI.mockImplementation((_, options) => options?.onSuccess?.());
+  }
+
+  it("resets back to step 0 once the trip is back", async () => {
+    generationSucceeds();
     renderForm();
     await advanceTo(2);
     await act(async () => {
@@ -396,7 +402,8 @@ describe("FormContext — processForm", () => {
     expect(screen.getByTestId("step")).toHaveTextContent("0");
   });
 
-  it("clears the weather selection", async () => {
+  it("clears the weather selection once the trip is back", async () => {
+    generationSucceeds();
     renderForm();
     await act(async () => {
       ctx.setIsWeatherSelected(true);
@@ -405,6 +412,21 @@ describe("FormContext — processForm", () => {
       ctx.processForm(validInputs, undefined);
     });
     expect(ctx.isWeatherSelected).toBe(false);
+  });
+
+  // A failed generation only shows a toast: the traveller can press "Plan my trip" again.
+  it("keeps the step, the answers and the weather choice until the trip is back", async () => {
+    renderForm();
+    await advanceTo(2);
+    await act(async () => {
+      ctx.setIsWeatherSelected(true);
+    });
+    await act(async () => {
+      ctx.processForm(validInputs, undefined);
+    });
+    expect(screen.getByTestId("step")).toHaveTextContent("2");
+    expect(ctx.isWeatherSelected).toBe(true);
+    expect(ctx.reviewFormData.userName).toBe(validInputs.userName);
   });
 
   it("sends the forecast days when weather is selected", async () => {

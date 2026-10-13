@@ -32,6 +32,24 @@ describe("FormDataSchema", () => {
     expect(FormDataSchema.safeParse(validInputs).success).toBe(true);
   });
 
+  describe("the name", () => {
+    it("rejects a name of only spaces", () => {
+      expect(messagesFor(withField("userName", "   "), "userName")).toContain("Name is required");
+    });
+
+    it(`rejects a name over ${LIMITS.name} characters`, () => {
+      expect(FormDataSchema.safeParse(withField("userName", "a".repeat(LIMITS.name + 1))).success).toBe(false);
+    });
+
+    it("rejects < and >, which the server refuses too", () => {
+      expect(messagesFor(withField("userName", "Ana <3"), "userName")).toContain("Leave out < and >");
+    });
+
+    it("accepts the name the server's request schema accepts", () => {
+      expect(FormDataSchema.safeParse(withField("userName", " Ana ")).success).toBe(true);
+    });
+  });
+
   describe("required text fields", () => {
     it.each([
       ["userName", "Name is required"],
