@@ -59,6 +59,24 @@ describe("useCountries", () => {
     ]);
   });
 
+  it("drops US states, the EU and the UN, but keeps the UK's nations", async () => {
+    mockGet.mockResolvedValue({
+      data: {
+        pt: "Portugal",
+        "gb-eng": "England",
+        gb: "United Kingdom",
+        "us-ny": "New York",
+        us: "United States",
+        eu: "European Union",
+        un: "United Nations",
+      },
+    });
+    renderWithProviders(<Probe />);
+
+    await waitFor(() => expect(hook.isLoading).toBe(false));
+    expect(hook.countries.map((c) => c.code)).toEqual(["gb-eng", "pt", "gb", "us"]);
+  });
+
   it("truncates a label past 25 characters, leaving the value intact", async () => {
     const long = "United Kingdom of Great Britain and Northern Ireland";
     mockGet.mockResolvedValue({ data: { gb: long } });

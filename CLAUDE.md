@@ -224,7 +224,7 @@ architecture). A plan is for work in flight.
 - `ANTHROPIC_API_KEY` — used in `src/app/api/anthropicApi.ts`
 - `UNSPLASH_API_KEY` — used in `src/app/api/unsplashApi.ts`
 - `OPEN_WEATHER_KEY` — used in `src/app/api/openWeatherApi.ts`
-- `NEXT_PUBLIC_GEONAMES_USERNAME` — used in `useGeoNames`
+- `GEONAMES_USERNAME` — server-only, used in `src/app/api/geoNamesApi.ts`
 
 ## Architecture
 
@@ -244,6 +244,7 @@ architecture). A plan is for work in flight.
 - `src/app/api/anthropicApi.ts` — calls Claude (claude-sonnet-4-6) via tool use with a `tripData` tool schema; returns structured JSON (title, objectsList, mustHave, requiredItems, description, tours, tip).
 - `src/app/api/unsplashApi.ts` — fetches 5 city photos + generates a base64 plaiceholder blur for the first image.
 - `src/app/api/openWeatherApi.ts` — fetches current weather and forecast from OpenWeather.
+- `src/app/api/geoNamesApi.ts` — `resolvePlace(city, countryCode)`: GeoNames search plus `matchCity` (`src/lib/place.ts`); returns the canonical place or a typed `not-found`/`unavailable`.
 - `src/db/actions.ts` — Prisma server actions: `createTripInDB`, `getSavedTripsPage` (18 saved trips per page plus the total, for the "Show more" grid), `getSingleSavedTrip`, `getLatestSavedTrips` (the landing hero's three newest).
 - `src/db/index.ts` — singleton Prisma client.
 
@@ -254,7 +255,7 @@ architecture). A plan is for work in flight.
 - `useCreateTrip` — assembles the final DB payload and calls `createTripInDB`; `handleYesAnswer`/`handleNoAnswer` set `saved: true/false`
 - `useFormData`, `useTripResponse`, `useImage` — context consumers
 - `useCountries` — fetches country list (flag URLs, ISO codes) for the autocomplete
-- `useGeoNames` — validates city existence via GeoNames API
+- `useGeoNames` — debounced city check on step 2, through the `resolvePlace` server action
 
 ### Styling
 

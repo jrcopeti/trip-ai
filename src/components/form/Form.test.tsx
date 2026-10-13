@@ -7,7 +7,15 @@ import { useFormData } from "@/hooks/useFormData";
 import Form from "@/components/form/Form";
 import { steps } from "@/data";
 import { validInputs } from "@/test/fixtures";
-import { buttons, items, personal, progress, review, stepCopy } from "@/components/form/content";
+import {
+  buttons,
+  destination,
+  items,
+  personal,
+  progress,
+  review,
+  stepCopy,
+} from "@/components/form/content";
 import { LIMITS } from "@/lib/schema";
 import type { FieldName, FormContextType } from "@/types";
 
@@ -272,6 +280,33 @@ describe("Form", () => {
       await screen.findByRole("heading", { level: 1, name: stepCopy[0].title }),
     ).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: /name/i })).toHaveValue(validInputs.userName);
+  });
+
+  it("asks for the country before the city", async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await walkTo(1, user);
+
+    const country = screen.getByRole("combobox", { name: destination.country.label });
+    const city = screen.getByRole("textbox", { name: destination.city.label });
+    expect(country.compareDocumentPosition(city) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("disables the city, with a hint, until a country is chosen", async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await walkTo(1, user);
+
+    const city = screen.getByRole("textbox", { name: destination.city.label });
+    expect(city).toBeDisabled();
+    expect(city).toHaveAccessibleDescription(destination.city.hint);
+
+    await act(async () => {
+      ctx.setValue("country", "Portugal");
+    });
+
+    expect(city).toBeEnabled();
+    expect(screen.queryByText(destination.city.hint)).not.toBeInTheDocument();
   });
 
   it("reviews the entered values and holds Submit until the agreement", async () => {

@@ -98,6 +98,33 @@ only; **Neon still needs it, with permission, before this deploys**.
   fixtures.
 
 #### 1b · `agent-geonames`: the city check on the server
+**Status: done, in review.** As built: `matchCity(input, results, countryCode)` takes the country
+too, so a wrong-country match is rejected in the pure helper. `resolvePlace` lives in
+`src/app/api/geoNamesApi.ts`, calls `searchJSON` with `fetch` (`geonames.js` is uninstalled) and
+returns `{ ok: true, place }` or `{ ok: false, error: "not-found" | "unavailable" }`; GeoNames'
+200-with-`status` errors count as unavailable. Step 2's toast reads "Found Lisbon, Portugal"; copy
+in `content.ts`. The hook drops a stale answer when the spelling changed mid-request. In e2e the
+fixture is the GeoNames search response, so `matchCity` still runs ("Atlantis" fails), and the
+layout spec holds the server action's POST instead of a GeoNames route. Step 2 asks for the
+country before the city (in the markup, so tab and mobile order follow), and the city field is
+disabled until a country is chosen, with "Pick a country first." visible under it (and in its
+description) until then, since the check needs both. Clearing the country disables it again and
+keeps the typed city. A changed city or country shows the check as loading at once, so Next
+can't pass on the previous spelling's result during the debounce. The country list drops flagcdn's
+US states and the EU and UN but keeps England, Scotland, Wales and Northern Ireland; `resolvePlace`
+splits `GB-SCT` into `country=GB&adminCode1=SCT`, and `matchCity` checks the nation too, so England +
+Glasgow fails while United Kingdom matches any nation. `matchCity` skips GeoNames' pseudo-language
+alternates (postal, airport and UN/LOCODE codes, Wikidata ids, links), so "LIS" or "1100" isn't Lisbon.
+Left for later: `.env.example` (added by 1d) still lists `NEXT_PUBLIC_GEONAMES_USERNAME` — rename
+it once 1d merges, along with CLAUDE.md's "the three `"use server"` modules" line, which 1d's diff
+also touches. `useGeoNames` is mounted twice (step 2 and `FormButtons`), so each check is two
+GeoNames calls, as it was before. Parked: tabbing into `CountryComboBox` opens its list at once
+(on step 1 it covers the age chips), and HeroUI's popover still fades out under reduced motion.
+Weather still geocodes the country *name*, so a UK nation sends OpenWeather `q=London,England`;
+1c or 2 should pass `resolvePlace`'s lat/lng instead.
+**`GEONAMES_USERNAME` must be set in `.env.local` and Vercel
+before this deploys.**
+
 - **City check: keep GeoNames, fix it, run it on the server** (decided). Today it runs only in the
   browser (`useGeoNames`, gating Next in `FormButtons.tsx:44`), matches the name exactly
   (`name`/`toponymName === input`, so "Lisboa", "Munchen" and "Sao Paulo" fail), and exposes the

@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useFormData } from "@/hooks/useFormData";
 import { useGeoNames } from "@/hooks/useGeoNames";
 
-import { TextField, Label, Input, FieldError } from "@heroui/react";
+import { TextField, Label, Input, Description, FieldError } from "@heroui/react";
 import { Controller } from "react-hook-form";
 import toast from "react-hot-toast";
 
@@ -45,20 +45,42 @@ function FormStep2() {
     <StepPanel>
       <div className="grid gap-8 sm:grid-cols-2">
         <Controller
+          name="country"
+          control={control}
+          render={({ field: { value } }) => (
+            <CountryComboBox
+              label={destination.country.label}
+              placeholder={destination.country.placeholder}
+              value={value}
+              onSelect={(key) => handleSelectionAutocomplete(key, "country")}
+              error={errors.country?.message}
+            />
+          )}
+        />
+
+        <Controller
           name="city"
           control={control}
           render={({ field: { ref, ...fieldProps } }) => (
-            <TextField {...fieldProps} isInvalid={!!errors.city} isRequired className={field}>
+            <TextField
+              {...fieldProps}
+              isInvalid={!!errors.city}
+              isRequired
+              // The check needs a country, so the city waits for one; the hint below says why.
+              isDisabled={!countryCode}
+              className={field}
+            >
               <Label className={fieldLabel}>{destination.city.label}</Label>
               {/* The city check shows inside the field, at its right edge, and
                   is positioned absolutely: as a block under the fields it pushed
                   the buttons down and back, and a quick check was only a jump. */}
-              <div className="relative">
+              {/* HeroUI gives a disabled input pointer-events: none, so the cursor goes on its wrapper. */}
+              <div className={`relative ${countryCode ? "" : "cursor-not-allowed"}`}>
                 <Input
                   ref={ref}
                   type="text"
                   placeholder={destination.city.placeholder}
-                  className={`${fieldInput} pr-16`}
+                  className={`${fieldInput} pr-16 disabled:opacity-45 disabled:hover:border-sorbet-ink/15`}
                 />
                 {isLoadingCityValid && (
                   <div
@@ -70,22 +92,12 @@ function FormStep2() {
                   </div>
                 )}
               </div>
+              {/* Always rendered, so its line stays when the hint clears and Next doesn't jump. */}
+              <Description className="min-h-5 text-sm text-sorbet-ink/70">
+                {!countryCode && destination.city.hint}
+              </Description>
               <FieldError className={fieldError}>{errors.city?.message}</FieldError>
             </TextField>
-          )}
-        />
-
-        <Controller
-          name="country"
-          control={control}
-          render={({ field: { value } }) => (
-            <CountryComboBox
-              label={destination.country.label}
-              placeholder={destination.country.placeholder}
-              value={value}
-              onSelect={(key) => handleSelectionAutocomplete(key, "country")}
-              error={errors.country?.message}
-            />
           )}
         />
       </div>

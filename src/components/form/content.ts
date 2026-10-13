@@ -45,9 +45,12 @@ export const personal = {
 };
 
 export const destination = {
-  city: { label: "City", placeholder: "Where are you going?" },
+  city: { label: "City", placeholder: "Where are you going?", hint: "Pick a country first." },
   country: { label: "Country", placeholder: "Select a country" },
   checking: "Checking the city",
+  found: (name: string, country: string) => `Found ${name}, ${country}`,
+  notFound: "We couldn't find that city in this country. Check the spelling?",
+  unavailable: "We couldn't check the city just now. Please try again.",
 };
 
 export const details = {

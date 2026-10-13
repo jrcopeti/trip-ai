@@ -1,22 +1,17 @@
 import { expect, type Page } from "@playwright/test";
 
 /**
- * The seven-step form, shared by `form.spec` and the trip journey. The form's two
- * browser-side lookups are stubbed so a walk needs no network and no keys: the
- * country list (flagcdn) and the city check (GeoNames).
+ * The seven-step form, shared by `form.spec` and the trip journey. The country list
+ * (flagcdn) is stubbed here; the city check runs on the server, which answers from
+ * the GeoNames fixture under `E2E_FIXTURES=1`.
  */
 
 export const COUNTRIES = { br: "Brazil", pt: "Portugal", es: "Spain" };
-export const LISBON = {
-  totalResultsCount: 1,
-  geonames: [{ name: "Lisbon", toponymName: "Lisboa", population: 517802 }],
-};
 
 export async function stubLookups(page: Page) {
   await page.route("https://flagcdn.com/en/codes.json", (route) =>
     route.fulfill({ json: COUNTRIES }),
   );
-  await page.route("https://secure.geonames.org/**", (route) => route.fulfill({ json: LISBON }));
 }
 
 export const heading = (page: Page) => page.getByRole("heading", { level: 1 });
@@ -57,10 +52,11 @@ export async function walkAllSteps(page: Page, name = "Ana") {
   await next(page);
 
   await expect(heading(page)).toHaveText("Destination");
-  await page.getByRole("textbox", { name: /city/i }).fill("Lisbon");
   await pickCountry(page, /country/i, "Portugal");
-  // Next waits for the (stubbed) city check, debounced by a second.
+  await page.getByRole("textbox", { name: /city/i }).fill("Lisbon");
+  // Next waits for the city check, debounced by a second.
   await expect(page.getByRole("button", { name: "Next" })).toBeEnabled({ timeout: 10_000 });
+  await expect(page.getByText("Found Lisbon, Portugal")).toBeVisible();
   await noHorizontalScroll(page);
   await next(page);
 
@@ -91,7 +87,8 @@ export async function walkAllSteps(page: Page, name = "Ana") {
 
   await expect(heading(page)).toHaveText("Review and submit");
   await expect(page.getByText("Step 7 of 7")).toBeVisible();
-  await expect(page.getByText("Lisbon, Portugal")).toBeVisible();
+  // Exact, or it also matches the city check's toast if that is still up.
+  await expect(page.getByText("Lisbon, Portugal", { exact: true })).toBeVisible();
   const submit = page.getByRole("button", { name: "Plan my trip" });
   await expect(submit).toBeDisabled();
   await page.locator("label", { hasText: /I agree/ }).click();

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import type { Country } from "@/types";
 
 const COUNTRY_MAX_LENGTH = 25;
+const NOT_COUNTRIES = new Set(["eu", "un"]);
 
 export function useCountries() {
   const [countries, setCountries] = useState<Country[]>([]);
@@ -16,7 +17,10 @@ export function useCountries() {
           "https://flagcdn.com/en/codes.json",
         );
 
-        const countryOptions: Country[] = Object.entries(data).map(
+        // flagcdn also lists US states and the EU and UN; the UK's nations stay.
+        const countryOptions: Country[] = Object.entries(data)
+          .filter(([code]) => !code.startsWith("us-") && !NOT_COUNTRIES.has(code))
+          .map(
           ([code, name]) => ({
             value: name,
             label:

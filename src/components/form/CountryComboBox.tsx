@@ -60,7 +60,7 @@ function CountryComboBox({
       className={`group ${field}`}
     >
       <Label className={fieldLabel}>{label}</Label>
-      <ComboBox.InputGroup className="flex w-full items-center rounded-full border border-sorbet-ink/15 bg-white pr-2 shadow-none hover:border-sorbet-ink/35 focus-within:border-sorbet-ink group-data-invalid:border-sorbet-alert">
+      <ComboBox.InputGroup className="flex w-full items-center rounded-full border border-sorbet-ink/15 bg-white pr-2 shadow-none hover:border-sorbet-ink/35 focus-within:border-sorbet-ink group-data-invalid:border-sorbet-alert has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-solid has-[input:focus-visible]:outline-offset-2 has-[input:focus-visible]:outline-sorbet-ink">
         <Input
           placeholder={placeholder}
           className="w-full rounded-full border-0 bg-transparent px-5 py-3.5 text-base text-sorbet-ink shadow-none outline-none placeholder:text-sorbet-ink/45 focus:ring-0 sm:text-base"
