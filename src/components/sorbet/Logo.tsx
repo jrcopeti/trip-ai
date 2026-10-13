@@ -3,7 +3,9 @@ import logo from "@/assets/logo.png";
 
 const SIZES = {
   nav: "size-8 rounded-lg p-1",
-  lockup: "size-16 rounded-2xl p-2.5 md:size-24 md:rounded-3xl md:p-4",
+  // Two-thirds of the wordmark beside it (`clamp(3.5rem,12vw,9rem)`), so it scales
+  // with the word. Corners and inset in `em`, so they keep their proportions.
+  lockup: "text-[clamp(2.33rem,8vw,6rem)] size-[1em] rounded-[0.25em] p-[0.1667em]",
 } as const;
 
 /**
