@@ -149,7 +149,7 @@ passes here and fails in CI. Use `vi.setSystemTime` with a *local* `Date`, and
 server: not a `npm run dev` on 3000, which reads the production database from `.env`, and
 not one already on 3100, which fails the run (stop it first). With `PLAYWRIGHT_BASE_URL`
 set, no server starts and the trip journey skips, since that site's database is unknown. The one production concession to
-testing: the three `"use server"` modules return a fixture when `E2E_FIXTURES=1`
+testing: the four `"use server"` modules return a fixture when `E2E_FIXTURES=1`
 (`src/app/api/e2eFixtures.ts`) — those calls are server-side, so `page.route` cannot
 reach them, and the alternative is live API keys in CI.
 
