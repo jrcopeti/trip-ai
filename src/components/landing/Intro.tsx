@@ -5,6 +5,8 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { useIntro } from "./IntroContext";
 import { introSeenCookie } from "./introCookie";
+import { intro } from "./content";
+import { BEATS } from "./introBeats";
 
 /**
  * Landing intro: three beats that set up the headline, then the wordmark, which
@@ -19,12 +21,8 @@ import { introSeenCookie } from "./introCookie";
  * server and client trees identical.
  */
 
-// Beat durations, ms. Tune here.
-const BEATS = [
-  { text: "Plan.", hold: 450 },
-  { text: "Pack.", hold: 350 },
-  { text: "Go.", hold: 450 },
-];
+// Beat durations live in introBeats.ts: this file exports only the component,
+// so Fast Refresh can hot-swap it.
 const WORDMARK_HOLD = 850;
 const EXIT_MS = 750;
 
@@ -145,7 +143,7 @@ function Intro() {
                 animate={{ opacity: exiting ? 0 : 1 }}
                 transition={{ duration: 0.2 }}
               >
-                with
+                {intro.with}
               </motion.span>
               <motion.span
                 ref={wordmarkRef}
@@ -157,7 +155,7 @@ function Intro() {
                 }
                 transition={{ duration: EXIT_MS / 1000, ease: EASE }}
               >
-                trip ai
+                {intro.wordmark}
               </motion.span>
             </motion.div>
           )}

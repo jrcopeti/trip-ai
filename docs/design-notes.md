@@ -317,6 +317,13 @@ What does *not* go in it:
 Keep strings as plain text (`you're`, not `you&apos;re`): JSX escaping only applies to
 text written inline in JSX, and the file should read like copy.
 
+`landing/copy.test.ts` holds the landing to this: it parses each component and fails
+on JSX text with a letter in it, or a literal `label`, `alt`, `title`, `aria-label`,
+`caption` or `href`. Units beside a number (`ºC`) stay inline, as on the trip pages.
+The landing's wordmark is one constant in `content.ts` shared by the intro and the
+lockup. `SiteNav` keeps its own (shell copy), and `SiteNav.test.tsx` checks the two
+spell the same, since the intro's flight to the nav scales by the word's width.
+
 | Component | Where | Notes |
 | --- | --- | --- |
 | `Reveal` | `sorbet/` | Use for every scroll entrance. |

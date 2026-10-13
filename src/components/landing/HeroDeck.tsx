@@ -7,7 +7,7 @@ import type { LatestTrip } from "@/db/actions";
 import { defaultPlaceholder } from "@/lib/constants";
 import Polaroid from "@/components/sorbet/Polaroid";
 import { useIntro } from "./IntroContext";
-import { heroDeckLabel } from "./content";
+import { hero } from "./content";
 
 type Props = {
   /** The latest saved trips, newest first; up to three, and possibly none. */
@@ -26,7 +26,7 @@ function HeroDeck({ trips }: Props) {
 
   return (
     <ul
-      aria-label={heroDeckLabel}
+      aria-label={hero.deck.label}
       className="mt-16 flex flex-col items-center md:mt-20 md:flex-row md:items-end md:justify-center"
     >
       {trips.map((trip, i) => (

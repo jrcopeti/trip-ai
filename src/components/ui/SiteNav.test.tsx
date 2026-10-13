@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { renderWithProviders, screen, waitFor, within } from "@/test/render";
 import SiteNav from "@/components/ui/SiteNav";
+import { intro } from "@/components/landing/content";
 import { resetNextStubs, routerState } from "@/test/stubs/next";
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
@@ -33,6 +34,12 @@ describe("SiteNav", () => {
 
     const word = container.querySelector("[data-wordmark]")!;
     expect(word.nextElementSibling?.querySelector("[data-logo-glyph]")).toBeInTheDocument();
+  });
+
+  it("spells the wordmark as the landing intro does, which flies its own into it", () => {
+    const { container } = renderWithProviders(<SiteNav />);
+
+    expect(container.querySelector("[data-wordmark]")?.textContent?.trim()).toBe(intro.wordmark);
   });
 
   describe("active route", () => {

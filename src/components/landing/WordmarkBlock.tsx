@@ -14,15 +14,13 @@ function WordmarkBlock() {
           {/* Logo lockup: the wordmark, then the app tile, as in the nav and footer. */}
           <div data-logo-lockup className="flex flex-wrap items-center gap-x-3">
             <span className="text-[clamp(3.5rem,12vw,9rem)] font-extrabold leading-[0.8] tracking-[-0.05em] text-sorbet-ink">
-              trip ai
+              {features.wordmark}
             </span>
             <Logo size="lockup" className="shrink-0" />
           </div>
 
           <p className="mt-12 max-w-xl text-lg leading-relaxed text-sorbet-ink/75 md:text-xl">
-            One form, one answer. Trip AI turns a handful of details into a full
-            itinerary, then checks it against the forecast so you know what to
-            put in the bag before you leave.
+            {features.lead}
           </p>
         </Reveal>
 

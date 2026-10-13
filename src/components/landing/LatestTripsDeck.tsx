@@ -1,7 +1,7 @@
 import SquiggleLoader from "@/components/sorbet/SquiggleLoader";
 import HeroDeck from "./HeroDeck";
 import loadLatestTrips from "./loadLatestTrips";
-import { heroDeckLoading } from "./content";
+import { hero } from "./content";
 
 /**
  * The hero deck's data, fetched on its own so the landing does not wait for
@@ -22,7 +22,7 @@ export function HeroDeckFallback() {
   return (
     <div role="status" className="mt-16 flex h-80 items-center justify-center md:mt-20">
       <SquiggleLoader className="h-16 w-24 text-sorbet-ink/40" />
-      <span className="sr-only">{heroDeckLoading}</span>
+      <span className="sr-only">{hero.deck.loading}</span>
     </div>
   );
 }

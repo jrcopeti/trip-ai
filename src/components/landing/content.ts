@@ -17,7 +17,9 @@ import suncloudy from "@/assets/weather/suncloudy.png";
 import type { TourKind } from "@/lib/tourKinds";
 
 /**
- * Content for the landing page.
+ * Content for the landing page. Every word on it lives here; the components hold
+ * only layout and styling. The saved trips in the hero's deck are not here: they
+ * are rows from the database, captioned with their own city and country.
  *
  * The photos are picked and captioned here for the landing's own sections. The
  * captions describe what is actually in frame and make no place claims, the same
@@ -25,18 +27,35 @@ import type { TourKind } from "@/lib/tourKinds";
  * generate the blur placeholder on its own.
  */
 
-/** The hero's eyebrow, in the meta-label idiom. */
-export const heroEyebrow = "Your new travel friend";
+/**
+ * Must match `SiteNav`'s: the intro flies it into the nav, scaled by the width
+ * ratio of the two.
+ */
+const wordmark = "trip ai";
 
-/** The hero deck's accessible name: the latest saved trips, as polaroids. */
-export const heroDeckLabel = "Latest saved trips";
+/** The curtain over a first visit: three beats, then the name. */
+export const intro = {
+  beats: ["Plan.", "Pack.", "Go."],
+  with: "with",
+  wordmark,
+};
 
-/** Screen-reader text while the deck streams in. */
-export const heroDeckLoading = "Loading the latest saved trips";
+export const hero = {
+  eyebrow: "Your new travel friend",
+  heading: { claim: "Plan the trip.", qualifier: "Pack for the weather." },
+  lead: "Describe where you are headed. Trip AI writes the itinerary, the tours worth doing, and a packing list that already knows the forecast.",
+  primary: { label: "Plan a trip", href: "/form" },
+  secondary: { label: "See saved trips", href: "/saved-trips" },
+  /** The polaroids: the latest saved trips. `loading` is read while they stream in. */
+  deck: { label: "Latest saved trips", loading: "Loading the latest saved trips" },
+  stickers: { goAnywhere: "go anywhere", takeItEasy: "take it easy", packLight: "pack light" },
+};
 
-/** The wordmark block: what the product does, one line each. */
+/** The wordmark block: the name, then what the product does, one line each. */
 export const features = {
   eyebrow: "What it does",
+  wordmark,
+  lead: "One form, one answer. Trip AI turns a handful of details into a full itinerary, then checks it against the forecast so you know what to put in the bag before you leave.",
   items: [
     {
       title: "Checks the weather",
@@ -55,6 +74,12 @@ export const features = {
       body: "Saved trips stay, with the weather they were planned for.",
     },
   ],
+};
+
+export const tripTypes = {
+  heading: "Twelve kinds of trip.",
+  lead: "Pick one in the form and the itinerary changes shape around it.",
+  href: "/form",
 };
 
 /** The photo band's heading: what an answer actually holds. */
@@ -130,6 +155,15 @@ export const steps = [
   },
 ];
 
+export const weatherPacking = {
+  heading: { claim: "The packing list", qualifier: "reads the forecast first." },
+  badge: "check the sky",
+  feelsLike: (t: number) => `Feels like ${t}ºC`,
+  low: "Low",
+  high: "High",
+  packing: { eyebrow: "Because two of those days are wet", heading: "Pack these" },
+};
+
 /**
  * Sample current conditions, shaped like the fields WeatherSection reads from
  * the OpenWeather response so the card mirrors the real one.
@@ -166,3 +200,10 @@ export const packing: { label: string; Icon: IconType }[] = [
   { label: "Sunglasses", Icon: TbSunglasses },
   { label: "Day pack", Icon: TbBackpack },
 ];
+
+export const closing = {
+  heading: "Where are you going next?",
+  body: "Seven questions. One itinerary. No account needed.",
+  cta: { label: "Start planning", href: "/form" },
+  badge: "go anywhere",
+};
