@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { FormDataSchema, LIMITS } from "@/lib/schema";
+import { FormDataSchema, LIMITS, fitsGroup } from "@/lib/schema";
 import { validInputs } from "@/test/fixtures";
 import type { Inputs } from "@/types";
 
@@ -123,7 +123,72 @@ describe("FormDataSchema", () => {
     });
 
     it("accepts several ranges — a family spans more than one", () => {
-      expect(FormDataSchema.safeParse(withField("ageRanges", ["0-5", "35-64"])).success).toBe(true);
+      const family = { ...validInputs, travellers: "family", ageRanges: ["2-5", "36-40"] };
+      expect(FormDataSchema.safeParse(family).success).toBe(true);
+    });
+
+    it("allows one range for a solo trip", () => {
+      const solo = { ...validInputs, travellers: "solo" };
+      expect(FormDataSchema.safeParse({ ...solo, ageRanges: ["25-30"] }).success).toBe(true);
+      expect(messagesFor({ ...solo, ageRanges: ["25-30", "31-35"] }, "ageRanges")).toContain(
+        "A solo trip has one age range",
+      );
+    });
+
+    it("allows up to two ranges for a couple", () => {
+      const couple = { ...validInputs, travellers: "couple" };
+      expect(FormDataSchema.safeParse({ ...couple, ageRanges: ["25-30", "31-35"] }).success).toBe(
+        true,
+      );
+      expect(
+        messagesFor({ ...couple, ageRanges: ["25-30", "31-35", "36-40"] }, "ageRanges"),
+      ).toContain("A couple has up to two age ranges");
+    });
+
+    it("allows any number for a family", () => {
+      const family = { ...validInputs, travellers: "family", ageRanges: ["2-5", "6-12", "36-40", "70+"] };
+      expect(FormDataSchema.safeParse(family).success).toBe(true);
+    });
+
+    it("keeps children to a family", () => {
+      const withGroup = (travellers: string, ageRanges: string[]) => ({
+        ...validInputs,
+        travellers,
+        ageRanges,
+      });
+      expect(messagesFor(withGroup("solo", ["6-12"]), "ageRanges")).toContain(
+        "A solo trip starts at 13",
+      );
+      expect(messagesFor(withGroup("couple", ["2-5", "31-35"]), "ageRanges")).toContain(
+        "A couple starts at 18",
+      );
+      expect(messagesFor(withGroup("colleagues", ["13-17"]), "ageRanges")).toContain(
+        "Colleagues start at 18",
+      );
+      expect(messagesFor(withGroup("couple", ["13-17"]), "ageRanges")).toContain(
+        "A couple starts at 18",
+      );
+      expect(FormDataSchema.safeParse(withGroup("solo", ["13-17"])).success).toBe(true);
+      expect(FormDataSchema.safeParse(withGroup("friends", ["13-17", "18-24"])).success).toBe(true);
+      expect(FormDataSchema.safeParse(withGroup("family", ["0-1"])).success).toBe(true);
+    });
+  });
+
+  describe("fitsGroup", () => {
+    it.each([
+      ["0-1", "family", true],
+      ["0-1", "solo", false],
+      ["6-12", "friends", false],
+      ["13-17", "solo", true],
+      ["13-17", "couple", false],
+      ["18-24", "couple", true],
+      ["13-17", "friends", true],
+      ["13-17", "colleagues", false],
+      ["18-24", "colleagues", true],
+      ["70+", "solo", true],
+      ["0-1", "", true],
+    ])("%s for %s → %s", (range, group, fits) => {
+      expect(fitsGroup(range, group)).toBe(fits);
     });
   });
 

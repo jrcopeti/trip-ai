@@ -411,7 +411,7 @@ describe("FormDetailsSection", () => {
     expect(value(details.labels.passport)).toHaveTextContent("Brazil");
     expect(value(details.labels.name)).toHaveTextContent("ana");
     expect(value(details.labels.travellers)).toHaveTextContent("Couple");
-    expect(value(details.labels.ageRanges)).toHaveTextContent("18–34");
+    expect(value(details.labels.ageRanges)).toHaveTextContent("25–30");
     expect(value(details.labels.type)).toHaveTextContent("Cultural");
     expect(value(details.labels.pace)).toHaveTextContent("Balanced");
     expect(value(details.labels.luggage)).toHaveTextContent("carry-on");

@@ -51,7 +51,7 @@ describe("transformInputsToFinalData", () => {
     expect(result).toMatchObject({
       userName: "Ana",
       travellers: "couple",
-      ageRanges: ["18-34"],
+      ageRanges: ["25-30"],
       passport: "Brazil",
       type: "cultural",
       pace: "balanced",

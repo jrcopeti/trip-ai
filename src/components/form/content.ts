@@ -33,10 +33,19 @@ export const buttons = {
   submit: "Plan my trip",
 };
 
+/** Keyed by any group, so step 1 can look up the chosen one; Family has no hint. */
+const ageRangesHint: Partial<Record<string, string>> = {
+  solo: "One age range, 13 and up.",
+  couple: "Up to two, 18 and up, or one if you're both in the same range.",
+  friends: "13 and up.",
+  colleagues: "18 and up.",
+};
+
 export const personal = {
   name: { label: "Name", placeholder: "What's your name?" },
   travellers: "Who's going?",
   ageRanges: "Ages in the group",
+  ageRangesHint,
   passport: {
     label: "Passport (optional)",
     placeholder: "Select a country",
