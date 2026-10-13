@@ -26,7 +26,6 @@ function FormStep1() {
       .map((option) => option.value as string)
       .filter((range) => ages.value.includes(range) && fitsGroup(range, next))
       .slice(0, AGE_RANGE_RULES[next]?.max);
-      console.log("fitAges", { next, kept, ages: ages.value });
     if (kept.length !== ages.value.length) ages.onChange(kept);
   };
 
@@ -65,7 +64,7 @@ function FormStep1() {
           value={ages.value}
           onChange={ages.onChange}
           max={AGE_RANGE_RULES[group.value]?.max}
-          description={personal.ageRangesHint[group.value]}
+          description={(personal.ageRangesHint as Partial<Record<string, string>>)[group.value]}
           error={errors.ageRanges?.message}
         />
 
