@@ -153,7 +153,38 @@ Weather still geocodes the country *name*, so a UK nation sends OpenWeather `q=L
     shows the canonical name it found ("Lisbon, Portugal").
   - e2e: `resolvePlace` returns a fixture under `E2E_FIXTURES=1`, like the other server modules.
 
-#### 1c · `agent-prompt`: the prompt on the server, the new model
+#### 1c · the prompt on the server, the new model — split into 1c-a, 1c-b
+Request schema, prompt, model call and the form's wiring are too much for one PR. 1c-b needs 1c-a.
+- **1c-a · `agent-prompt`**: the pure modules, with no call site yet. `src/lib/agent/request.ts`
+  (`TripRequestSchema`, plus `toTripRequest(inputs, countryCode, forecast)`, the browser-side
+  builder) and `src/lib/agent/prompt.ts` (`buildSystemPrompt`, `buildTripMessage`), a
+  `validTripRequest` fixture, and unit tests. `schema.ts` exports its end-date and age-range checks
+  so both schemas apply the same ones.
+  **Status: done, in review.** As built: `buildTripMessage(req, place)` also takes the resolved
+  `{name, country}`, so the prompt names GeoNames' place and never the typed spelling. The message
+  uses the form's labels ("Carry-on", "Couple, ages 25–30") and counts nights ("7 nights", "a day
+  trip"). It strips `<` and `>` from the note and items so they can't close `<traveller_note>`. The
+  system prompt already names `submit_trip`, which 1c-b defines. The prompt and message are
+  snapshot-tested, and the request and prompt tests pass under UTC−10 and UTC+14 too.
+- **1c-b · `agent-generate`**: `generateTrip` (with `resolvePlace`, `submit_trip`, `strict`, stop
+  reasons, the Zod-parsed output), then `processForm` and `TripContext` send a `TripRequest`. This
+  removes 1a's bridge (the prompt strings in `processForm`). It also updates the `tripData`
+  fixture and the architecture notes in CLAUDE.md.
+
+Decided at the split:
+- **The request carries `countryCode`** (the form already derives it from the country list), since
+  `resolvePlace` needs one. The server resolves it and writes the *canonical* place into the prompt,
+  so a wrong code fails the resolve rather than misleading the model.
+- **Dates are calendar days (`YYYY-MM-DD`)**, taken in the browser's timezone. The form stores local
+  midnight as an ISO instant, which a UTC server would read as the day before.
+- **The chosen forecast travels as structured days** (`{date, temp, condition, description}`), not
+  the JSON dump; branch 4's `get_forecast` replaces it.
+- **Choice fields must be one of `src/data`'s values**, and free text is capped. Once the prompt is
+  built on the server, an unbounded `type` would be an open channel into it.
+- `formData` keeps its lowercasing in 1c. It is what the trip page and the saved row read, and the
+  journey spec's cleanup matches the lowercase name. Only the prompt stops lowercasing.
+
+The original 1c scope, which the two sub-branches cover:
 - `src/lib/agent/request.ts`: a Zod `TripRequestSchema`, derived from `FormDataSchema` minus `flagUrl`
   and `agreement`, with caps: note ≤ 500 chars, ≤ 10 required items of ≤ 60 chars, ≤ 3 interests.
 - `generateTrip` calls `resolvePlace` (1b) again and never trusts the client. Every tool takes these
