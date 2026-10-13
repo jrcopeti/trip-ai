@@ -1,8 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
+import { E2E_DATABASE_URL } from "./scripts/localDatabase";
 
-// Not 3000: `reuseExistingServer` would pick up a running `npm run dev`, which
-// reads `.env` — the production database — rather than the seeded one, and the
-// trip journey writes trips.
+// Before anything reads it: the server and the journey spec's own Prisma client both
+// use the e2e database, not `.env`'s production one. Real env beats `.env` files in Next.
+process.env.DATABASE_URL = E2E_DATABASE_URL;
+
+// Not 3000, where `npm run dev` runs on `.env` — the production database.
 const PORT = Number(process.env.PORT ?? 3100);
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${PORT}`;
 
@@ -45,16 +48,22 @@ export default defineConfig({
 
   // Runs against a production build: `next dev` recompiles per route, which makes
   // the first navigation of each spec slow enough to trip the timeouts above.
-  webServer: {
-    command: "npm run start",
-    url: baseURL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-    env: {
-      // The three "use server" modules answer from fixtures instead of calling
-      // Anthropic, Unsplash and OpenWeather — see src/app/api/e2eFixtures.ts.
-      E2E_FIXTURES: "1",
-      PORT: String(PORT),
-    },
-  },
+  // Only a server this run starts is known to use the e2e database, so none is reused:
+  // a stray one on the port fails the run. Against PLAYWRIGHT_BASE_URL nothing starts,
+  // and the trip journey skips itself.
+  webServer: process.env.PLAYWRIGHT_BASE_URL
+    ? undefined
+    : {
+        command: "npm run start",
+        url: baseURL,
+        reuseExistingServer: false,
+        timeout: 120_000,
+        env: {
+          // The three "use server" modules answer from fixtures instead of calling
+          // Anthropic, Unsplash and OpenWeather — see src/app/api/e2eFixtures.ts.
+          E2E_FIXTURES: "1",
+          PORT: String(PORT),
+          DATABASE_URL: E2E_DATABASE_URL,
+        },
+      },
 });

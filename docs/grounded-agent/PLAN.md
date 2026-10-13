@@ -72,7 +72,7 @@ The field decisions above, end to end through the form and the database. The pro
 built in the browser here; `processForm`'s string only swaps the old fields for the new ones,
 and 1c replaces it.
 
-**Status: committed (`2016c43`), PR to open.** As built: a shared `ChipCheckGroup` (ages and interests), the
+**Status: merged (#189).** As built: a shared `ChipCheckGroup` (ages and interests), the
 passport through `CountryComboBox` with `isRequired={false}` and a description, `LIMITS` in
 `src/lib/schema.ts` with `FormFieldsSchema` exported for 1c to derive from, step 4 stops
 offering "Add" at 10 items.
@@ -156,18 +156,22 @@ only; **Neon still needs it, with permission, before this deploys**.
   before writing the call.
 
 #### 1d · `e2e-database-env`: the e2e suite never reads `.env`'s database
-Split out of 1a, where it started. `.env` points at the production Neon database, and
+Split out of 1a, where it started. **Status: done, in review.** `.env` points at the production Neon database, and
 `npm run test:e2e` runs `npm run start`, which loads it — so a local run needed
 `DATABASE_URL` exported by hand. (`.env.production` would not help: `next start` is
 production mode and loads it too.)
 
 - `E2E_DATABASE_URL` in `scripts/localDatabase.ts`, defaulting to the local
-  `trip-ai-e2e-pg` container at CI's address. `playwright.config.ts` sets `DATABASE_URL` to it
+  `trip-ai-e2e-pg` container at CI's address. It loads the `.env` files as Next does (`@next/env`),
+  so the variable can live in `.env.local` like the others. `playwright.config.ts` sets `DATABASE_URL` to it
   for the server and the journey spec; real env beats `.env` files in Next.
 - The seed script uses it too, and a new `npm run db:push:e2e` (`scripts/push-e2e.ts`) pushes
   the schema there. Both keep the local-only guard.
 - `.env.example` lists every variable; CLAUDE.md gets the one-time `docker run` and the
   push → seed → build → test sequence.
+- Only a server the run starts is used (`reuseExistingServer: false`), and the trip journey skips
+  under `PLAYWRIGHT_BASE_URL`: with `DATABASE_URL` forced local, its own database check could no
+  longer see where a reused or remote server writes (found in review).
 - Verified by running the suite with no `DATABASE_URL` exported: the journey spec (which
   skips on a non-local database) runs.
 

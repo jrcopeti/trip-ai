@@ -1,3 +1,9 @@
+import { loadEnvConfig } from "@next/env";
+
+// `.env.local` and friends, as Next reads them, so E2E_DATABASE_URL can live there like
+// every other variable. Never overrides the real environment.
+loadEnvConfig(process.cwd());
+
 /**
  * Whether a connection string points at a database on this machine (or CI's
  * `postgres` service container) rather than a hosted one.
@@ -15,3 +21,10 @@ export function isLocalDatabase(url: string) {
 export function mayWriteToDatabase(url: string | undefined) {
   return !!url && (isLocalDatabase(url) || process.env.ALLOW_REMOTE_E2E_SEED === "1");
 }
+
+/**
+ * The database the e2e suite uses — the local `trip-ai-e2e-pg` container, at the same
+ * address as CI's service container. Set explicitly so `.env`'s production URL never wins.
+ */
+export const E2E_DATABASE_URL =
+  process.env.E2E_DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/trip_ai_e2e";

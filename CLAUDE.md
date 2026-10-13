@@ -88,6 +88,7 @@ npx tsc --noEmit     # the type check — use this, not lint
 npm test             # vitest run — the unit suite
 npm run test:watch   # vitest in watch mode
 npm run test:e2e     # playwright test (chromium); needs a seeded DB
+npm run db:push:e2e  # push the Prisma schema to the e2e database
 npm run seed:e2e     # seed the e2e database — DESTRUCTIVE, see below
 ```
 
@@ -145,19 +146,32 @@ passes here and fails in CI. Use `vi.setSystemTime` with a *local* `Date`, and
 
 **E2E — `@playwright/test`**, chromium only, specs in `e2e/`. `webServer` runs
 `npm run start` on **port 3100**, so it tests a production build — and never reuses a
-`npm run dev` on 3000, which would be reading the production database from `.env`. The one production concession to
+server: not a `npm run dev` on 3000, which reads the production database from `.env`, and
+not one already on 3100, which fails the run (stop it first). With `PLAYWRIGHT_BASE_URL`
+set, no server starts and the trip journey skips, since that site's database is unknown. The one production concession to
 testing: the three `"use server"` modules return a fixture when `E2E_FIXTURES=1`
 (`src/app/api/e2eFixtures.ts`) — those calls are server-side, so `page.route` cannot
 reach them, and the alternative is live API keys in CI.
 
+**The e2e database is `E2E_DATABASE_URL`**, defaulting to the local `trip-ai-e2e-pg`
+container at CI's address (`scripts/localDatabase.ts`, which loads the `.env` files the way
+Next does, so it can be set in `.env.local`). The Playwright config, the seed and the push
+script all use it, so `.env`'s `DATABASE_URL` (production) never reaches a run.
+Once per machine, then after each schema change:
+
+```bash
+docker run -d --name trip-ai-e2e-pg -p 5432:5432 -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=trip_ai_e2e postgres:16
+npm run db:push:e2e && npm run seed:e2e && npm run build && npm run test:e2e
+```
+
 `saved-trips.spec.ts` asserts against the rows in `scripts/seed-e2e.ts`.
 `trip-journey.spec.ts` (form → trip → save/discard) is the one spec that **writes**: it
 runs as its own Playwright project after the rest, serially, deletes its own rows before
-and after, and skips unless DATABASE_URL — resolved the way Next resolves it — is local
-(`scripts/localDatabase.ts`, shared with the seed script). **That script
-deletes every trip before seeding**, so it refuses any host but localhost unless
-`ALLOW_REMOTE_E2E_SEED=1` — `.env` here points at the production Neon database. Run the
-e2e suite against a throwaway Postgres, never the real one.
+and after, and skips unless the database is local (`scripts/localDatabase.ts`). **The
+seed script deletes every trip before seeding**, so it and the push script refuse any host
+but localhost unless `ALLOW_REMOTE_E2E_SEED=1`. Run the e2e suite against a throwaway
+Postgres, never the real one.
 
 E2E assertions are behavioural; there are no visual snapshot baselines.
 
@@ -205,7 +219,7 @@ architecture). A plan is for work in flight.
 
 ## Environment Variables
 
-Required in `.env.local`:
+`.env.example` lists them all. Required in `.env.local`:
 - `DATABASE_URL` — PostgreSQL connection string
 - `ANTHROPIC_API_KEY` — used in `src/app/api/anthropicApi.ts`
 - `UNSPLASH_API_KEY` — used in `src/app/api/unsplashApi.ts`

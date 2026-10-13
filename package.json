@@ -10,6 +10,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "seed:e2e": "tsx scripts/seed-e2e.ts",
+    "db:push:e2e": "tsx scripts/push-e2e.ts",
     "lint": "next lint"
   },
   "dependencies": {

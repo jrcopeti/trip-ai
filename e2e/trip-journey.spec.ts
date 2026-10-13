@@ -16,9 +16,10 @@ import { noHorizontalScroll, stubLookups, walkAllSteps } from "./formWalk";
  * - It runs in its own project, after every other spec, so `saved-trips.spec`
  *   counts the seeded rows and nothing else. And it deletes its own rows before
  *   and after, so a second run against the same seed starts clean too.
- * - It refuses a remote database, like the seed script. The server reads
- *   DATABASE_URL the way Next does — the environment, then `.env.local`, then
- *   `.env`, which points at production — so the same lookup is done here.
+ * - It writes only through the server this run starts, which `playwright.config.ts`
+ *   points at `E2E_DATABASE_URL`. Against PLAYWRIGHT_BASE_URL that database is
+ *   unknown — the deployed site writes to production — so it skips; and like the
+ *   seed script it refuses a non-local e2e database.
  */
 
 loadEnvConfig(process.cwd());
@@ -28,8 +29,12 @@ const SAVER = "Journeysave";
 const DISCARDER = "Journeydiscard";
 
 test.skip(
+  !!process.env.PLAYWRIGHT_BASE_URL,
+  "Writes trips: only through the server this run starts, never PLAYWRIGHT_BASE_URL",
+);
+test.skip(
   !mayWriteToDatabase(process.env.DATABASE_URL),
-  "Writes trips: needs a local DATABASE_URL (or ALLOW_REMOTE_E2E_SEED=1)",
+  "Writes trips: needs a local E2E_DATABASE_URL (or ALLOW_REMOTE_E2E_SEED=1)",
 );
 
 async function deleteOwnRows() {
