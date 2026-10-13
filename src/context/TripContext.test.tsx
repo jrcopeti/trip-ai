@@ -2,15 +2,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, screen, waitFor } from "@/test/render";
 import { TripProvider } from "@/context/TripContext";
 import { useTripResponse } from "@/hooks/useTripResponse";
-import { fetchResponseAI } from "@/app/api/anthropicApi";
-import { tripDataFixture } from "@/test/fixtures";
+import { generateTrip } from "@/app/api/anthropicApi";
+import { tripDataFixture, validTripRequest } from "@/test/fixtures";
 import { replace, resetNextStubs, prefetch } from "@/test/stubs/next";
 import type { TripContextType } from "@/types";
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
-vi.mock("@/app/api/anthropicApi", () => ({ fetchResponseAI: vi.fn() }));
+vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 
-const mockFetch = vi.mocked(fetchResponseAI);
+const mockFetch = vi.mocked(generateTrip);
 
 let ctx: TripContextType;
 
@@ -56,7 +56,7 @@ describe("TripContext", () => {
     mockFetch.mockResolvedValue(tripDataFixture);
     renderTrip();
 
-    ctx.generateResponseAI("a prompt");
+    ctx.generateResponseAI(validTripRequest);
 
     await waitFor(() => {
       expect(screen.getByTestId("title")).toHaveTextContent(
@@ -65,14 +65,14 @@ describe("TripContext", () => {
     });
   });
 
-  it("passes the prompt straight through to the API module", async () => {
+  it("passes the request straight through to the API module", async () => {
     mockFetch.mockResolvedValue(tripDataFixture);
     renderTrip();
 
-    ctx.generateResponseAI("plan me a trip to lisbon");
+    ctx.generateResponseAI(validTripRequest);
 
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith("plan me a trip to lisbon");
+      expect(mockFetch).toHaveBeenCalledWith(validTripRequest);
     });
   });
 
@@ -80,7 +80,7 @@ describe("TripContext", () => {
     mockFetch.mockResolvedValue(tripDataFixture);
     renderTrip();
 
-    ctx.generateResponseAI("a prompt");
+    ctx.generateResponseAI(validTripRequest);
 
     await waitFor(() => {
       expect(replace).toHaveBeenCalledWith(expect.stringMatching(/^\/trips\/.{5}$/));
@@ -97,7 +97,7 @@ describe("TripContext", () => {
     );
     renderTrip();
 
-    ctx.generateResponseAI("a prompt");
+    ctx.generateResponseAI(validTripRequest);
 
     await waitFor(() => {
       expect(screen.getByTestId("pending")).toHaveTextContent("true");
@@ -114,7 +114,7 @@ describe("TripContext", () => {
     mockFetch.mockRejectedValue(new Error("Error in generating response from AI"));
     renderTrip();
 
-    ctx.generateResponseAI("a prompt");
+    ctx.generateResponseAI(validTripRequest);
 
     await waitFor(() => {
       expect(ctx.errorResponseAI).toBeInstanceOf(Error);
@@ -123,16 +123,36 @@ describe("TripContext", () => {
     expect(screen.getByTestId("title")).toHaveTextContent("none");
   });
 
-  it("keeps tripData null when the AI returns null", async () => {
-    mockFetch.mockResolvedValue(null);
+  it("runs the caller's onSuccess once the trip is back", async () => {
+    mockFetch.mockResolvedValue(tripDataFixture);
+    const onSuccess = vi.fn();
     renderTrip();
 
-    ctx.generateResponseAI("a prompt");
+    ctx.generateResponseAI(validTripRequest, { onSuccess });
 
-    await waitFor(() => {
-      expect(replace).toHaveBeenCalled();
-    });
-    expect(ctx.tripData).toBeNull();
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1));
+  });
+
+  it("skips the caller's onSuccess when the call fails", async () => {
+    mockFetch.mockRejectedValue(new Error("The city could not be resolved: unavailable"));
+    const onSuccess = vi.fn();
+    renderTrip();
+
+    ctx.generateResponseAI(validTripRequest, { onSuccess });
+
+    await waitFor(() => expect(ctx.errorResponseAI).toBeInstanceOf(Error));
+    expect(onSuccess).not.toHaveBeenCalled();
+  });
+
+  it("clears the error on reset, so the form can show again", async () => {
+    mockFetch.mockRejectedValue(new Error("The model did not return a trip"));
+    renderTrip();
+
+    ctx.generateResponseAI(validTripRequest);
+    await waitFor(() => expect(ctx.errorResponseAI).toBeInstanceOf(Error));
+
+    ctx.resetResponseAI();
+    await waitFor(() => expect(ctx.errorResponseAI).toBeNull());
   });
 
   it("lets the save flag be flipped", async () => {

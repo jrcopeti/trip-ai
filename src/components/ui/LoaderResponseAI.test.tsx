@@ -5,7 +5,7 @@ import LoaderResponseAI from "@/components/ui/LoaderResponseAI";
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 // `useConfirmOnPageExit` reaches TripContext, which constructs the Anthropic
 // client at module scope — mocked at the boundary so nothing is constructed.
-vi.mock("@/app/api/anthropicApi", () => ({ fetchResponseAI: vi.fn() }));
+vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 
 /** The rotation, in the component's order. */
 const messages = [

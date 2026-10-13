@@ -32,7 +32,7 @@ import {
 } from "./content";
 import type { ObjectsListType } from "@/types";
 
-vi.mock("@/app/api/anthropicApi", () => ({ fetchResponseAI: vi.fn() }));
+vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("@/app/api/unsplashApi", () => ({ fetchTripImage: vi.fn() }));
 vi.mock("@/app/api/openWeatherApi", () => ({ fetchWeather: vi.fn(), fetchForecast: vi.fn() }));
 vi.mock("@/db/actions", () => ({ getSingleSavedTrip: vi.fn(), createTripInDB: vi.fn() }));

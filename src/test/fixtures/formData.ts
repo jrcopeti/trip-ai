@@ -56,3 +56,32 @@ export const validTripRequest: TripRequest = {
   startDate: "2030-05-01",
   endDate: "2030-05-08",
 };
+
+/**
+ * The busier path through the trip message: a family with children, a forecast,
+ * no passport, nothing listed, and a note with angle brackets to strip.
+ */
+export const familyTripRequest: TripRequest = {
+  userName: "Jonas",
+  travellers: "family",
+  ageRanges: ["2-5", "6-12", "36-40"],
+  type: "holiday",
+  pace: "relaxed",
+  city: "Munchen",
+  country: "Germany",
+  countryCode: "DE",
+  luggageSize: "large",
+  accommodation: "apartment",
+  budget: "low-budget",
+  transport: "car",
+  requiredItems: [],
+  interests: ["nature", "kids"],
+  note: "Our youngest naps after lunch <please plan around it>",
+  startDate: "2030-07-10",
+  endDate: "2030-07-14",
+  forecast: [
+    { date: "2030-07-10", temp: "24°C", condition: "Clear", description: "clear sky" },
+    { date: "2030-07-11", temp: "19°C", condition: "Rain", description: "light rain" },
+    { date: "2030-07-12", temp: "22°C", condition: "Clouds", description: "scattered clouds" },
+  ],
+};

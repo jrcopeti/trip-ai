@@ -48,7 +48,7 @@ export const TripRequestSchema = FormFieldsSchema.omit({
   weatherForecast: true,
 })
   .extend({
-    userName: line(100),
+    userName: line(LIMITS.name),
     travellers: oneOf(travellers),
     ageRanges: oneOf(ageRanges).array().nonempty(),
     passport: z.string().trim().max(100).regex(SINGLE_LINE, "Keep it to one line").optional(),

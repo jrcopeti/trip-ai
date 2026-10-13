@@ -1,6 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { tripDataFixture } from "@/test/fixtures";
-import { TOUR_KINDS } from "@/lib/tourKinds";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { tripDataFixture, validTripRequest } from "@/test/fixtures";
+import { buildSystemPrompt, buildTripMessage } from "@/lib/agent/prompt";
+import { resolvePlace } from "./geoNamesApi";
 
 const create = vi.fn();
 
@@ -14,70 +15,134 @@ vi.mock("@anthropic-ai/sdk", () => {
   }
   return { default: Anthropic };
 });
+vi.mock("./geoNamesApi", () => ({ resolvePlace: vi.fn() }));
 
-const { fetchResponseAI } = await import("./anthropicApi");
+const { generateTrip } = await import("./anthropicApi");
 
-/** The `tripData` tool as the last call sent it. */
-function sentTool() {
-  const [{ tools }] = create.mock.calls.at(-1)!;
-  return tools[0];
+const lisbon = {
+  name: "Lisbon",
+  country: "Portugal",
+  lat: 38.72,
+  lng: -9.13,
+  timezone: "Europe/Lisbon",
+  geonameId: 2267057,
+};
+
+/** A response whose only block is a `submit_trip` call with `input`. */
+function submits(input: unknown, stop_reason = "tool_use") {
+  create.mockResolvedValue({
+    stop_reason,
+    stop_details: null,
+    usage: {},
+    content: [{ type: "tool_use", id: "toolu_1", name: "submit_trip", input }],
+  });
+}
+
+function sent() {
+  return create.mock.calls.at(-1)![0];
 }
 
 beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date(2030, 3, 1, 12, 0, 0));
+  vi.spyOn(console, "error").mockImplementation(() => {});
   create.mockReset();
-  create.mockResolvedValue({
-    content: [{ type: "tool_use", name: "tripData", input: tripDataFixture }],
+  vi.mocked(resolvePlace).mockResolvedValue({ ok: true, place: lisbon });
+  submits(tripDataFixture);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+describe("generateTrip — the request", () => {
+  it("rejects a request that fails the schema, before any call", async () => {
+    await expect(generateTrip({ ...validTripRequest, type: "anything goes" })).rejects.toThrow();
+    await expect(generateTrip("plan me a trip")).rejects.toThrow();
+
+    expect(resolvePlace).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it("resolves the city again on the server, and stops when it can't", async () => {
+    vi.mocked(resolvePlace).mockResolvedValue({ ok: false, error: "not-found" });
+
+    await expect(generateTrip(validTripRequest)).rejects.toThrow();
+    expect(resolvePlace).toHaveBeenCalledWith("Lisbon", "PT");
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it("sends the cached system prompt and the trip message with the resolved place", async () => {
+    vi.mocked(resolvePlace).mockResolvedValue({
+      ok: true,
+      place: { ...lisbon, name: "Lisboa Canonical" },
+    });
+    await generateTrip(validTripRequest);
+
+    expect(sent().model).toBe("claude-sonnet-5-5");
+    expect(sent().system).toEqual([
+      { type: "text", text: buildSystemPrompt(), cache_control: { type: "ephemeral" } },
+    ]);
+    const message = buildTripMessage(validTripRequest, {
+      name: "Lisboa Canonical",
+      country: "Portugal",
+    });
+    expect(sent().messages).toEqual([{ role: "user", content: message }]);
+    expect(message).toContain("Lisboa Canonical, Portugal");
+  });
+
+  it("offers submit_trip, strict, without forcing it", async () => {
+    await generateTrip(validTripRequest);
+
+    expect(sent().tool_choice).toEqual({ type: "auto" });
+    expect(sent().tools).toHaveLength(1);
+    expect(sent().tools[0]).toMatchObject({ name: "submit_trip", strict: true });
   });
 });
 
-describe("fetchResponseAI", () => {
-  it("forces the tripData tool and returns its input", async () => {
-    await expect(fetchResponseAI("a prompt")).resolves.toEqual(tripDataFixture);
-
-    expect(create.mock.calls.at(-1)![0].tool_choice).toEqual({ type: "tool", name: "tripData" });
+describe("generateTrip — the answer", () => {
+  it("returns the submitted trip", async () => {
+    await expect(generateTrip(validTripRequest)).resolves.toEqual(tripDataFixture);
   });
 
-  it("asks for each tour as a title, a one-word kind from the list, and a description", async () => {
-    await fetchResponseAI("a prompt");
+  it("drops anything the model adds beyond the trip", async () => {
+    submits({ ...tripDataFixture, requiredItems: ["camera"] });
 
-    const tours = sentTool().input_schema.properties.tours;
-    expect(tours.items).toMatchObject({
-      type: "object",
-      properties: {
-        title: { type: "string" },
-        kind: { type: "string", enum: [...TOUR_KINDS] },
-        description: { type: "string" },
-      },
-      required: ["title", "kind", "description"],
-    });
-    TOUR_KINDS.forEach((kind) => expect(kind).toMatch(/^[A-Z][a-z]+$/));
+    const trip = await generateTrip(validTripRequest);
+    expect(trip).not.toHaveProperty("requiredItems");
   });
 
-  it("asks for five tours", async () => {
-    await fetchResponseAI("a prompt");
-
-    const { system } = create.mock.calls.at(-1)![0];
-    const tours = sentTool().input_schema.properties.tours;
-    expect(tours).toMatchObject({ minItems: 5, maxItems: 5 });
-    expect(tours.description).toMatch(/\bfive\b/i);
-    expect(system[0].text).toMatch(/\bfive\b/i);
-    expect(system[0].text).not.toMatch(/\bthree (specific )?activities\b/i);
+  it("fails on a refusal", async () => {
+    submits(tripDataFixture, "refusal");
+    await expect(generateTrip(validTripRequest)).rejects.toThrow(/declined/);
   });
 
-  // "the capitalized userName" came back as "MARTA's Architectural Soul Journey…".
-  it("asks for the traveller's name in the title as a name, not in capitals", async () => {
-    await fetchResponseAI("a prompt");
-
-    const title = sentTool().input_schema.properties.title.description;
-    expect(title).not.toMatch(/capitali[sz]ed/i);
-    expect(title).toMatch(/not in (all )?capitals/i);
+  it("fails when cut off at max_tokens, even with a tool call", async () => {
+    submits(tripDataFixture, "max_tokens");
+    await expect(generateTrip(validTripRequest)).rejects.toThrow(/cut off/);
   });
 
-  it("returns null when the tool says the city does not exist", async () => {
+  it("fails when the model answers without calling submit_trip", async () => {
     create.mockResolvedValue({
-      content: [{ type: "tool_use", name: "tripData", input: { trip: null } }],
+      stop_reason: "end_turn",
+      stop_details: null,
+      usage: {},
+      content: [{ type: "text", text: "Here is your trip…" }],
     });
+    await expect(generateTrip(validTripRequest)).rejects.toThrow(/did not return/);
+  });
 
-    await expect(fetchResponseAI("a prompt")).resolves.toBeNull();
+  it.each([
+    ["four tours", { tours: (tripDataFixture.tours as unknown[]).slice(0, 4) }],
+    ["a kind off the list", { tours: [{ title: "x", kind: "Spa", description: "y" }] }],
+    ["too short a packing list", { objectsList: [] }],
+  ])("fails on %s", async (_, change) => {
+    submits({ ...tripDataFixture, ...change });
+    await expect(generateTrip(validTripRequest)).rejects.toThrow(/invalid trip/);
+  });
+
+  it("fails when the API call itself fails", async () => {
+    create.mockRejectedValue(new Error("network"));
+    await expect(generateTrip(validTripRequest)).rejects.toThrow(/generating/);
   });
 });

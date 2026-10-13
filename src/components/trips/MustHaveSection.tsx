@@ -1,6 +1,7 @@
 import { useParams } from "next/navigation";
 import { FaCheck } from "react-icons/fa6";
 import { LuBackpack } from "react-icons/lu";
+import { useFormData } from "@/hooks/useFormData";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import Reveal from "@/components/sorbet/Reveal";
@@ -54,11 +55,13 @@ function MustHaveSection() {
   const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
   const { tripData: response } = useTripResponse();
+  const { formData } = useFormData();
 
   const mustHave = trip?.mustHave || response?.mustHave || [];
-  // The form keeps an empty first row when nothing was added, so blanks are dropped.
+  // The traveller's own items come from the form, not the model. The form keeps
+  // an empty first row when nothing was added, so blanks are dropped.
   const requiredItems = (
-    ((trip?.requiredItems || response?.requiredItems) as string[] | undefined) ?? []
+    ((trip?.requiredItems || formData.requiredItems) as string[] | undefined) ?? []
   ).filter((item) => item.trim() !== "");
 
   return (

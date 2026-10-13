@@ -119,6 +119,5 @@ export const review = {
 
 export const failure = {
   message: "There was an error generating the trip. Please try again.",
-  path: "/form",
-  button: "Back to the form",
+  button: "Try again",
 };

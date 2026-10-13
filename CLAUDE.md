@@ -112,7 +112,7 @@ Shared helpers in `src/test/`:
 
 - `render.tsx` — `renderWithProviders`, wrapping `QueryClientProvider` (retries off) and
   `MotionProvider`. Use it for anything that touches a query or a motion component.
-- `fixtures/` — `Trip` rows, the Anthropic `tripData` response, OpenWeather payloads,
+- `fixtures/` — `Trip` rows, the `submit_trip` trip (`tripDataFixture`), a valid `TripRequest`, OpenWeather payloads,
   an Unsplash payload, and valid form inputs. One source of truth; extend rather than
   inventing a local literal.
 - `stubs/next.tsx` — `next/navigation` spies and a passthrough `next/image`.
@@ -242,12 +242,12 @@ architecture). A plan is for work in flight.
 
 ### State management: four Context providers (nested in `src/app/providers.tsx`, inside `MotionProvider`)
 - **`FormContext`** (`src/context/FormContext.tsx`) — owns the entire multi-step form: RHF instance, Zod validation (`FormDataSchema`), step navigation (`next`/`prev`), and triggers weather/image fetches on the appropriate steps.
-- **`TripContext`** (`src/context/TripContext.tsx`) — holds the Anthropic API response (`tripData`) and the TanStack Query mutation that calls `fetchResponseAI`. Redirects to `/trips/[tripUrl]` on success.
+- **`TripContext`** (`src/context/TripContext.tsx`) — holds the Anthropic API response (`tripData`) and the TanStack Query mutation that sends a `TripRequest` to `generateTrip`. Redirects to `/trips/[tripUrl]` on success.
 - **`WeatherContext`** (`src/context/WeatherContext.tsx`) — three separate TanStack Query mutations: current weather, 5-day forecast, and daily forecast.
 - **`ImageContext`** (`src/context/ImageContext.tsx`) — TanStack Query mutation calling `fetchTripImage` (Unsplash).
 
 ### Server-side modules (all marked `"use server"`)
-- `src/app/api/anthropicApi.ts` — calls Claude (claude-sonnet-4-6) via tool use with a `tripData` tool schema; returns structured JSON (title, objectsList, mustHave, requiredItems, description, tours, tip).
+- `src/app/api/anthropicApi.ts` — `generateTrip(request)`: re-validates the `TripRequest` (`src/lib/agent/request.ts`), resolves the city again with `resolvePlace`, builds the prompt on the server (`src/lib/agent/prompt.ts`) and calls `claude-sonnet-5-5` with the strict `submit_trip` tool (`src/lib/agent/submitTrip.ts`) and `tool_choice: auto`. A refusal, `max_tokens`, a missing call or output that fails `TripDataSchema` all throw. Returns title, objectsList, mustHave, description, tours, tip; the traveller's own `requiredItems` come from the form.
 - `src/app/api/unsplashApi.ts` — fetches 5 city photos + generates a base64 plaiceholder blur for the first image.
 - `src/app/api/openWeatherApi.ts` — fetches current weather and forecast from OpenWeather.
 - `src/app/api/geoNamesApi.ts` — `resolvePlace(city, countryCode)`: GeoNames search plus `matchCity` (`src/lib/place.ts`); returns the canonical place or a typed `not-found`/`unavailable`.
@@ -255,7 +255,7 @@ architecture). A plan is for work in flight.
 - `src/db/index.ts` — singleton Prisma client.
 
 ### Form data lifecycle
-`Inputs` (RHF shape, `requiredItems` as `{item: string}[]`) → `FinalDataTypes` (flattened to `string[]`) via `transformInputsToFinalData`. Both types are derived from/extend the Zod schema in `src/lib/schema.ts`. The trip is assembled in `useCreateTrip` by merging `formData` + `tripData` (AI response) + `imageData`.
+`Inputs` (RHF shape, `requiredItems` as `{item: string}[]`) → `FinalDataTypes` (flattened to `string[]`) via `transformInputsToFinalData`; on submit, `processForm` also sends `toTripRequest(inputs, countryCode, forecast)` — the original spelling, calendar-day dates — to `generateTrip`. Both types are derived from/extend the Zod schema in `src/lib/schema.ts`. The trip is assembled in `useCreateTrip` by merging `formData` + `tripData` (AI response) + `imageData`.
 
 ### Key custom hooks
 - `useCreateTrip` — assembles the final DB payload and calls `createTripInDB`; `handleYesAnswer`/`handleNoAnswer` set `saved: true/false`

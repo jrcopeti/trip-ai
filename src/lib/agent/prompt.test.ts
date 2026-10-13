@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildSystemPrompt, buildTripMessage } from "@/lib/agent/prompt";
 import { TOUR_KINDS } from "@/lib/tourKinds";
-import { validTripRequest } from "@/test/fixtures";
+import { familyTripRequest, validTripRequest } from "@/test/fixtures";
 
 const lisbon = { name: "Lisbon", country: "Portugal" };
 
@@ -29,7 +29,7 @@ describe("buildSystemPrompt", () => {
   // The carousel renders a description as one <p>, as tall as the longest tour.
   it("sizes each tour for the carousel: a short title and one even paragraph", () => {
     expect(prompt).toContain("Title: up to six words");
-    expect(prompt).toContain("one paragraph of three to five sentences");
+    expect(prompt).toContain("one paragraph of 100 to 120 words");
     expect(prompt).toContain("Keep the five about the same length");
   });
 
@@ -149,5 +149,13 @@ describe("buildTripMessage", () => {
 
   it("never refers to the traveller as he or she", () => {
     expect(message).not.toMatch(/\bhe\/she\b|\bhis\/her\b/i);
+  });
+});
+
+describe("buildTripMessage — a family, with a forecast", () => {
+  const message = buildTripMessage(familyTripRequest, { name: "Munich", country: "Germany" });
+
+  it("matches the snapshot", () => {
+    expect(message).toMatchSnapshot();
   });
 });

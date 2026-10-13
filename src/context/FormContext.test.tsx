@@ -4,15 +4,18 @@ import { renderWithProviders, screen } from "@/test/render";
 import { FormProvider } from "@/context/FormContext";
 import { useFormData } from "@/hooks/useFormData";
 import { steps } from "@/data";
-import { validInputs } from "@/test/fixtures";
-import type { FieldName, FormContextType, Inputs } from "@/types";
+import { validInputs, validTripRequest } from "@/test/fixtures";
+import { resetNextStubs, routerState } from "@/test/stubs/next";
+import type { FieldName, FormContextType, Inputs, SelectedForecastDataTypes } from "@/types";
 
 const generateForecast = vi.fn();
+let forecastData: SelectedForecastDataTypes[] | undefined;
 const generateImage = vi.fn();
 const generateResponseAI = vi.fn();
 
+vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("@/hooks/useWeather", () => ({
-  useWeather: () => ({ generateForecast, forecastData: undefined }),
+  useWeather: () => ({ generateForecast, forecastData }),
 }));
 vi.mock("@/hooks/useImage", () => ({
   useImage: () => ({ generateImage }),
@@ -42,12 +45,16 @@ function Probe() {
   return <div data-testid="step">{ctx.currentStep}</div>;
 }
 
-function renderForm() {
-  return renderWithProviders(
+function formTree() {
+  return (
     <FormProvider>
       <Probe />
-    </FormProvider>,
+    </FormProvider>
   );
+}
+
+function renderForm() {
+  return renderWithProviders(formTree());
 }
 
 /** Fills every field a given step validates, so `next()` is allowed through. */
@@ -75,7 +82,9 @@ beforeEach(() => {
   vi.setSystemTime(new Date(2030, 3, 1, 12, 0, 0));
   generateForecast.mockClear();
   generateImage.mockClear();
-  generateResponseAI.mockClear();
+  generateResponseAI.mockReset();
+  forecastData = undefined;
+  resetNextStubs("/form");
   return () => vi.useRealTimers();
 });
 
@@ -361,22 +370,16 @@ describe("FormContext — processForm", () => {
     });
   }
 
-  it("sends a prompt to the AI", async () => {
+  it("sends the trip request, with the submitted country's code", async () => {
     await submitWith();
     expect(generateResponseAI).toHaveBeenCalledTimes(1);
-    expect(generateResponseAI.mock.calls[0][0]).toContain("lisbon");
+    expect(generateResponseAI.mock.calls[0][0]).toEqual(validTripRequest);
   });
 
-  it("puts who's going, their ages, the passport and the pace in the prompt", async () => {
-    await submitWith();
-    const prompt = generateResponseAI.mock.calls[0][0];
-    expect(prompt).toContain("travelling couple, ages 25-30, Brazil passport");
-    expect(prompt).toContain("at a balanced pace");
-  });
-
-  it("leaves the passport out of the prompt when there is none", async () => {
-    await submitWith({ passport: "" });
-    expect(generateResponseAI.mock.calls[0][0]).not.toContain("passport");
+  it("keeps the traveller's own spelling in the request", async () => {
+    await submitWith({ userName: "  Ana  ", city: " Lisbon ", note: "  Sintra, please " });
+    const request = generateResponseAI.mock.calls[0][0];
+    expect(request).toMatchObject({ userName: "Ana", city: "Lisbon", note: "Sintra, please" });
   });
 
   it("lowercases and trims the name, city and note into formData", async () => {
@@ -391,16 +394,86 @@ describe("FormContext — processForm", () => {
     expect(ctx.formData.requiredItems).toEqual(["camera", "shoes"]);
   });
 
-  it("resets back to step 0", async () => {
-    renderForm();
+  /** The trip came back: the mutation runs the per-call `onSuccess`. */
+  function generationSucceeds() {
+    generateResponseAI.mockImplementation((_, options) => options?.onSuccess?.());
+  }
+
+  /** Submits from step 2 with the weather on, and the trip comes back. */
+  async function succeedFromStepTwo() {
+    generationSucceeds();
+    const view = renderForm();
+    await advanceTo(2);
+    await act(async () => {
+      ctx.setIsWeatherSelected(true);
+    });
+    await act(async () => {
+      ctx.processForm(validInputs, undefined);
+    });
+    return view;
+  }
+
+  // router.replace only starts the navigation: clearing now would draw an empty step 1.
+  it("keeps the form as it is while still on /form after the trip is back", async () => {
+    await succeedFromStepTwo();
+    expect(screen.getByTestId("step")).toHaveTextContent("2");
+    expect(ctx.isWeatherSelected).toBe(true);
+    expect(ctx.reviewFormData.userName).toBe(validInputs.userName);
+  });
+
+  it("clears the answers, the step and the weather choice once the traveller leaves /form", async () => {
+    const view = await succeedFromStepTwo();
+
+    routerState.pathname = "/trips/ab12c";
+    await act(async () => {
+      view.rerender(formTree());
+    });
+
+    expect(screen.getByTestId("step")).toHaveTextContent("0");
+    expect(ctx.isWeatherSelected).toBe(false);
+    expect(ctx.reviewFormData.userName).toBe("");
+  });
+
+  it("leaves the form alone on a path change when no trip came back", async () => {
+    const view = renderForm();
     await advanceTo(2);
     await act(async () => {
       ctx.processForm(validInputs, undefined);
     });
-    expect(screen.getByTestId("step")).toHaveTextContent("0");
+
+    routerState.pathname = "/about";
+    await act(async () => {
+      view.rerender(formTree());
+    });
+
+    expect(screen.getByTestId("step")).toHaveTextContent("2");
+    expect(ctx.reviewFormData.userName).toBe(validInputs.userName);
   });
 
-  it("clears the weather selection", async () => {
+  // A failed generation only shows a toast: the traveller can press "Plan my trip" again.
+  it("keeps the step, the answers and the weather choice until the trip is back", async () => {
+    renderForm();
+    await advanceTo(2);
+    await act(async () => {
+      ctx.setIsWeatherSelected(true);
+    });
+    await act(async () => {
+      ctx.processForm(validInputs, undefined);
+    });
+    expect(screen.getByTestId("step")).toHaveTextContent("2");
+    expect(ctx.isWeatherSelected).toBe(true);
+    expect(ctx.reviewFormData.userName).toBe(validInputs.userName);
+  });
+
+  it("sends the forecast days when weather is selected", async () => {
+    forecastData = [
+      {
+        dt_txt: "2030-05-01 12:00:00",
+        formattedTemp: "21°C",
+        condition: "Clear",
+        description: "clear sky",
+      },
+    ];
     renderForm();
     await act(async () => {
       ctx.setIsWeatherSelected(true);
@@ -408,22 +481,13 @@ describe("FormContext — processForm", () => {
     await act(async () => {
       ctx.processForm(validInputs, undefined);
     });
-    expect(ctx.isWeatherSelected).toBe(false);
+    expect(generateResponseAI.mock.calls[0][0].forecast).toEqual([
+      { date: "2030-05-01", temp: "21°C", condition: "Clear", description: "clear sky" },
+    ]);
   });
 
-  it("uses the weather-aware prompt when weather is selected", async () => {
-    renderForm();
-    await act(async () => {
-      ctx.setIsWeatherSelected(true);
-    });
-    await act(async () => {
-      ctx.processForm(validInputs, undefined);
-    });
-    expect(generateResponseAI.mock.calls[0][0]).toContain("Weather forecast for");
-  });
-
-  it("uses the plain prompt when weather is not selected", async () => {
+  it("sends no forecast when weather is not selected", async () => {
     await submitWith();
-    expect(generateResponseAI.mock.calls[0][0]).not.toContain("Weather forecast for");
+    expect(generateResponseAI.mock.calls[0][0].forecast).toBeUndefined();
   });
 });

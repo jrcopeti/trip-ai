@@ -2,6 +2,7 @@ import z from "zod";
 import { FormDataSchema } from "@/lib/schema";
 import { Control, FieldErrors, SubmitHandler } from "react-hook-form";
 import { Trip } from "@prisma/client";
+import type { TripRequest } from "@/lib/agent/request";
 
 export type Inputs = z.infer<typeof FormDataSchema>;
 export type FieldName = keyof Inputs;
@@ -143,9 +144,10 @@ export interface FinalDataTypes extends Omit<Inputs, "requiredItems"> {
 
 export interface TripContextType {
   tripData: Trip | null;
-  generateResponseAI: (prompt: string) => void;
+  generateResponseAI: (request: TripRequest, options?: { onSuccess?: () => void }) => void;
   isPendingResponseAI: boolean;
   errorResponseAI: unknown;
+  resetResponseAI: () => void;
   isTripSaved: boolean;
   setIsTripSaved: (value: boolean) => void;
 }
@@ -181,11 +183,11 @@ export interface Country {
   flagUrl: string;
 }
 
-export interface NotFoundComponentProps {
-  message: string;
-  path: string;
-  button: string;
-}
+/** The button either links somewhere (`path`) or acts in place (`onAction`). */
+export type NotFoundComponentProps = { message: string; button: string } & (
+  | { path: string; onAction?: never }
+  | { onAction: () => void; path?: never }
+);
 export interface useGeoNamesProps {
   city: string;
   countryCode?: string;
