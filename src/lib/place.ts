@@ -29,12 +29,17 @@ export function normalise(text: string) {
   return text.normalize("NFD").replace(/\p{M}/gu, "").trim().toLowerCase();
 }
 
+// GeoNames' pseudo-languages: codes and links, not names, so "LIS" or "1100" never match Lisbon.
+const NOT_NAMES = new Set(["post", "iata", "icao", "faac", "abbr", "link", "wkdt", "unlc"]);
+
 function names(result: GeoNamesResult) {
   return [
     result.name,
     result.toponymName,
     result.asciiName,
-    ...(result.alternateNames ?? []).map((alt) => alt.name),
+    ...(result.alternateNames ?? [])
+      .filter((alt) => !alt.lang || !NOT_NAMES.has(alt.lang))
+      .map((alt) => alt.name),
   ].filter((name): name is string => !!name);
 }
 

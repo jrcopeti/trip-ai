@@ -9,6 +9,14 @@ export const lisbonGeoName: GeoNamesResult = {
   alternateNames: [
     { name: "Lisboa", lang: "pt" },
     { name: "Lissabon", lang: "de" },
+    { name: "Olisipo" },
+    // Not names: style=FULL mixes codes and links into alternateNames.
+    { name: "LIS", lang: "iata" },
+    { name: "LPPT", lang: "icao" },
+    { name: "1100", lang: "post" },
+    { name: "PTLIS", lang: "unlc" },
+    { name: "Q597", lang: "wkdt" },
+    { name: "https://en.wikipedia.org/wiki/Lisbon", lang: "link" },
   ],
   countryCode: "PT",
   countryName: "Portugal",

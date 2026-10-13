@@ -40,6 +40,16 @@ describe("matchCity", () => {
     });
   });
 
+  it("matches an alternate name with no language", () => {
+    expect(matchCity("Olisipo", [lisbonGeoName], "PT")?.name).toBe("Lisbon");
+  });
+
+  it("rejects alternates that are codes or links, not names", () => {
+    for (const code of ["LIS", "LPPT", "1100", "PTLIS", "Q597", "https://en.wikipedia.org/wiki/Lisbon"]) {
+      expect(matchCity(code, [lisbonGeoName], "PT")).toBeNull();
+    }
+  });
+
   it("rejects a name that is not the city's", () => {
     expect(matchCity("Porto", [lisbonGeoName], "PT")).toBeNull();
     expect(matchCity("   ", [lisbonGeoName], "PT")).toBeNull();

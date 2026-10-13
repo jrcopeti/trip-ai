@@ -113,7 +113,8 @@ keeps the typed city. A changed city or country shows the check as loading at on
 can't pass on the previous spelling's result during the debounce. The country list drops flagcdn's
 US states and the EU and UN but keeps England, Scotland, Wales and Northern Ireland; `resolvePlace`
 splits `GB-SCT` into `country=GB&adminCode1=SCT`, and `matchCity` checks the nation too, so England +
-Glasgow fails while United Kingdom matches any nation.
+Glasgow fails while United Kingdom matches any nation. `matchCity` skips GeoNames' pseudo-language
+alternates (postal, airport and UN/LOCODE codes, Wikidata ids, links), so "LIS" or "1100" isn't Lisbon.
 Left for later: `.env.example` (added by 1d) still lists `NEXT_PUBLIC_GEONAMES_USERNAME` — rename
 it once 1d merges, along with CLAUDE.md's "the three `"use server"` modules" line, which 1d's diff
 also touches. `useGeoNames` is mounted twice (step 2 and `FormButtons`), so each check is two
