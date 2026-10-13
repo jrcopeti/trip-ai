@@ -1,10 +1,18 @@
 import { useFormData } from "@/hooks/useFormData";
 import { durationInDays, displayDuration } from "@/lib/utils";
+import {
+  ageRanges as ageRangeOptions,
+  interests as interestOptions,
+  optionLabel,
+  paces,
+  travellers as travellerOptions,
+  types,
+} from "@/data";
 import { review } from "./content";
 
 /**
- * Everything entered, as a definition list: the same thirteen entries in the
- * same order as before, restyled rather than restructured.
+ * Everything entered, as a definition list. Chosen options show their labels,
+ * as the chips did; typed values show as written.
  */
 function ReviewForm() {
   const { reviewFormData, isWeatherSelected: weather } = useFormData();
@@ -13,9 +21,11 @@ function ReviewForm() {
     userName,
     city,
     country,
-    nationality,
+    travellers,
+    ageRanges,
+    passport,
     type,
-    age,
+    pace,
     budget,
     luggageSize,
     transport,
@@ -35,16 +45,28 @@ function ReviewForm() {
 
   const entries: { label: string; value: React.ReactNode; asWritten?: boolean }[] = [
     { label: labels.name, value: userName },
-    { label: labels.age, value: age },
-    { label: labels.nationality, value: nationality },
+    { label: labels.travellers, value: optionLabel(travellerOptions, travellers), asWritten: true },
+    {
+      label: labels.ageRanges,
+      value: ageRanges.map((range) => optionLabel(ageRangeOptions, range)).join(", "),
+      asWritten: true,
+    },
+    { label: labels.passport, value: passport || none, asWritten: true },
     { label: labels.destination, value: `${city}, ${country}` },
-    { label: labels.type, value: type },
+    { label: labels.type, value: optionLabel(types, type), asWritten: true },
+    { label: labels.pace, value: optionLabel(paces, pace), asWritten: true },
     { label: labels.luggageSize, value: luggageSize },
     { label: labels.budget, value: budget },
     { label: labels.transport, value: transport },
     { label: labels.accommodation, value: accommodation },
     { label: labels.duration, value: weather ? review.weatherDuration : duration, asWritten: true },
-    { label: labels.interests, value: interests.length ? interests.join(", ") : none },
+    {
+      label: labels.interests,
+      value: interests.length
+        ? interests.map((interest) => optionLabel(interestOptions, interest)).join(", ")
+        : none,
+      asWritten: true,
+    },
     {
       label: labels.requiredItems,
       value: requiredItemList.length ? requiredItemList.join(", ") : none,

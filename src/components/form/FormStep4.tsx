@@ -3,6 +3,7 @@ import { useFormData } from "@/hooks/useFormData";
 import { Controller } from "react-hook-form";
 import { TextField, Label, Input } from "@heroui/react";
 import { FaPlus, FaXmark } from "react-icons/fa6";
+import { LIMITS } from "@/lib/schema";
 import StepPanel from "./StepPanel";
 import { items } from "./content";
 import { field, fieldInput, fieldLabel, focusTriad, limePill } from "./styles";
@@ -36,8 +37,11 @@ function FormStep4() {
                       onKeyDown={(e) => {
                         if (e.key !== "Enter" || e.nativeEvent.isComposing) return;
                         e.preventDefault();
-                        if (fieldProps.value?.trim()) insert(index + 1, { item: "" });
+                        if (fieldProps.value?.trim() && fields.length < LIMITS.requiredItems) {
+                          insert(index + 1, { item: "" });
+                        }
                       }}
+                      maxLength={LIMITS.requiredItem}
                       className={fieldInput}
                     />
                   </TextField>
@@ -55,10 +59,14 @@ function FormStep4() {
           ))}
         </ol>
       )}
-      <button type="button" onClick={() => append({ item: "" })} className={`mt-8 ${limePill}`}>
-        <FaPlus size={13} aria-hidden />
-        {items.add}
-      </button>
+      {fields.length < LIMITS.requiredItems ? (
+        <button type="button" onClick={() => append({ item: "" })} className={`mt-8 ${limePill}`}>
+          <FaPlus size={13} aria-hidden />
+          {items.add}
+        </button>
+      ) : (
+        <p className="mt-8 text-lg text-sorbet-ink/70">{items.full(LIMITS.requiredItems)}</p>
+      )}
     </StepPanel>
   );
 }

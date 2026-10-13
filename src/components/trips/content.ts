@@ -8,12 +8,13 @@
 export const title = {
   /**
    * The opening line on both routes: what kind of trip, and how long. "A road
-   * trip", not "a road trip trip"; "an" before a vowel; a same-day trip is "1 day".
+   * trip" and "A city break", not "a road trip trip"; "an" before a vowel; a
+   * same-day trip is "1 day".
    */
   kind: (type: string | undefined, days: number) => {
     const name = type?.trim().toLowerCase();
     const what = name
-      ? `${/^[aeiou]/.test(name) ? "An" : "A"} ${name}${name.endsWith("trip") ? "" : " trip"}`
+      ? `${/^[aeiou]/.test(name) ? "An" : "A"} ${name}${/(trip|break)$/.test(name) ? "" : " trip"}`
       : "A trip";
     const n = Math.max(days, 1);
     const length = `${n} ${n > 1 ? "days" : "day"}`;
@@ -94,8 +95,12 @@ export const details = {
   labels: {
     destination: "Destination",
     nationality: "Nationality",
+    passport: "Passport",
     name: "Name",
+    travellers: "Who's going",
+    ageRanges: "Ages",
     type: "Trip type",
+    pace: "Pace",
     age: "Age",
     budget: "Budget",
     transport: "Transport",

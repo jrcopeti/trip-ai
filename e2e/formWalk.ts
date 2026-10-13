@@ -40,13 +40,19 @@ export async function noHorizontalScroll(page: Page) {
   expect(overflows).toBe(false);
 }
 
+/** Step 1: the name, who's going, one age range and a passport. */
+export async function fillStepOne(page: Page, name = "Ana") {
+  await page.getByRole("textbox", { name: /name/i }).fill(name);
+  await chip(page, "Couple");
+  await chip(page, "18–34");
+  await pickCountry(page, /passport/i, "Brazil");
+}
+
 /** Fills every step and stops at an enabled "Plan my trip". */
 export async function walkAllSteps(page: Page, name = "Ana") {
   await expect(heading(page)).toHaveText("Personal information");
   await expect(page.getByText("Step 1 of 7")).toBeVisible();
-  await page.getByRole("textbox", { name: /name/i }).fill(name);
-  await page.getByRole("textbox", { name: /age/i }).fill("31");
-  await pickCountry(page, /nationality/i, "Brazil");
+  await fillStepOne(page, name);
   await noHorizontalScroll(page);
   await next(page);
 
@@ -59,7 +65,7 @@ export async function walkAllSteps(page: Page, name = "Ana") {
   await next(page);
 
   await expect(heading(page)).toHaveText("Travel details");
-  for (const option of ["Cultural", "Hotel", "Carry-on", "Plane", "Comfort"]) {
+  for (const option of ["Cultural", "Balanced", "Hotel", "Carry-on", "Plane", "Comfort"]) {
     await chip(page, option);
   }
   await expect(page.getByRole("radio", { name: "Cultural" })).toBeChecked();

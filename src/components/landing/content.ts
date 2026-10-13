@@ -77,7 +77,7 @@ export const features = {
 };
 
 export const tripTypes = {
-  heading: "Twelve kinds of trip.",
+  heading: "Thirteen kinds of trip.",
   lead: "Pick one in the form and the itinerary changes shape around it.",
   href: "/form",
 };

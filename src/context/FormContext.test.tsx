@@ -122,7 +122,8 @@ describe("FormContext — step navigation", () => {
     // Blank out exactly the fields this step owns, then try to leave.
     await act(async () => {
       (fields as FieldName[]).forEach((field) => {
-        ctx.setValue(field, (field === "interests" ? [] : "") as never);
+        const isList = field === "interests" || field === "ageRanges";
+        ctx.setValue(field, (isList ? [] : "") as never);
       });
     });
     await act(async () => {
@@ -278,13 +279,13 @@ describe("FormContext — country autocomplete", () => {
   it("writes no flag for a non-country field", async () => {
     renderForm();
     await act(async () => {
-      ctx.handleSelectionAutocomplete("pt", "nationality");
+      ctx.handleSelectionAutocomplete("pt", "passport");
       // `reviewFormData` is `getValues()`, read at render time. Only `city` and
-      // `country` are watched, so writing to `nationality` alone re-renders
+      // `country` are watched, so writing to `passport` alone re-renders
       // nothing and the context the test holds would still be the old one.
       ctx.setValue("city", "Lisbon");
     });
-    expect(ctx.reviewFormData.nationality).toBe("Portugal");
+    expect(ctx.reviewFormData.passport).toBe("Portugal");
     expect(ctx.reviewFormData.flagUrl).toBe("");
   });
 
@@ -300,27 +301,27 @@ describe("FormContext — country autocomplete", () => {
     expect(ctx.reviewFormData.flagUrl).toBe("");
   });
 
-  it("clears the nationality when the selection is cleared", async () => {
+  it("clears the passport when the selection is cleared", async () => {
     renderForm();
     await act(async () => {
-      ctx.handleSelectionAutocomplete("pt", "nationality");
-      ctx.handleSelectionAutocomplete(null, "nationality");
+      ctx.handleSelectionAutocomplete("pt", "passport");
+      ctx.handleSelectionAutocomplete(null, "passport");
       // Re-render so `reviewFormData` is read again (see above).
       ctx.setValue("city", "Lisbon");
     });
-    expect(ctx.reviewFormData.nationality).toBe("");
+    expect(ctx.reviewFormData.passport).toBe("");
   });
 
-  it("fails step 0 again once a chosen nationality is cleared", async () => {
+  it("passes step 0 with no passport — it is optional", async () => {
     renderForm();
     await fillStep(0);
     await act(async () => {
-      ctx.handleSelectionAutocomplete(null, "nationality");
+      ctx.handleSelectionAutocomplete(null, "passport");
     });
     await act(async () => {
       await ctx.next();
     });
-    expect(ctx.currentStep).toBe(0);
+    expect(ctx.currentStep).toBe(1);
   });
 
   it("derives the uppercase country code for the GeoNames lookup", async () => {
@@ -364,6 +365,18 @@ describe("FormContext — processForm", () => {
     await submitWith();
     expect(generateResponseAI).toHaveBeenCalledTimes(1);
     expect(generateResponseAI.mock.calls[0][0]).toContain("lisbon");
+  });
+
+  it("puts who's going, their ages, the passport and the pace in the prompt", async () => {
+    await submitWith();
+    const prompt = generateResponseAI.mock.calls[0][0];
+    expect(prompt).toContain("travelling couple, ages 18-34, Brazil passport");
+    expect(prompt).toContain("at a balanced pace");
+  });
+
+  it("leaves the passport out of the prompt when there is none", async () => {
+    await submitWith({ passport: "" });
+    expect(generateResponseAI.mock.calls[0][0]).not.toContain("passport");
   });
 
   it("lowercases and trims the name, city and note into formData", async () => {

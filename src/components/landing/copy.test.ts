@@ -50,3 +50,15 @@ describe("landing copy", () => {
     expect(literals(join(dir, name))).toEqual([]);
   });
 });
+
+describe("tripTypes.heading", () => {
+  // It names the count in words, so it goes stale whenever `types` changes.
+  it("counts the trip types the pills show", async () => {
+    const { tripTypes } = await import("./content");
+    const { sortedTypes } = await import("@/data");
+    const words = ["ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"];
+
+    const named = tripTypes.heading.split(" ")[0].toLowerCase();
+    expect(words.indexOf(named) + 10).toBe(sortedTypes.length);
+  });
+});

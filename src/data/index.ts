@@ -16,11 +16,32 @@ import image13 from "@/assets/travel-photos/13.jpg";
 import image14 from "@/assets/travel-photos/14.jpg";
 import image15 from "@/assets/travel-photos/15.jpg";
 import image16 from "@/assets/travel-photos/16.jpg";
-const types = [
+/** Who's going: one answer. Replaces the old age field and the who-answers in `types`. */
+const travellers = [
+  { value: "solo", label: "Solo" },
+  { value: "couple", label: "Couple" },
   { value: "family", label: "Family" },
+  { value: "friends", label: "Friends" },
+  { value: "colleagues", label: "Colleagues" },
+] as const;
+
+/** Every age in the group, youngest first — the order a person reads them. */
+const ageRanges = [
+  { value: "0-5", label: "0–5" },
+  { value: "6-12", label: "6–12" },
+  { value: "13-17", label: "13–17" },
+  { value: "18-34", label: "18–34" },
+  { value: "35-64", label: "35–64" },
+  { value: "65+", label: "65+" },
+] as const;
+
+/** What the trip is about. Family and Solo moved to `travellers`; Holiday, City break and Celebration are new. */
+const types = [
+  { value: "holiday", label: "Holiday" },
+  { value: "city break", label: "City break" },
+  { value: "celebration", label: "Celebration" },
   { value: "adventure", label: "Adventure" },
   { value: "romantic", label: "Romantic" },
-  { value: "solo", label: "Solo" },
   { value: "business", label: "Business" },
   { value: "cultural", label: "Cultural" },
   { value: "festival", label: "Festival" },
@@ -33,6 +54,13 @@ const types = [
 const sortedTypes = [...types].sort((a, b) => a.label.localeCompare(b.label));
 
 type TripTypeValue = (typeof types)[number]["value"];
+
+/** How much fits in a day, slowest first. */
+const paces = [
+  { value: "relaxed", label: "Relaxed" },
+  { value: "balanced", label: "Balanced" },
+  { value: "packed", label: "Packed" },
+] as const;
 
 type TravelPhoto = {
   src: StaticImageData;
@@ -70,6 +98,10 @@ const budgets = [
   { value: "luxury", label: "Luxury" },
 ];
 
+/**
+ * Every interest offered, each mapped to a tour kind in `lib/interests.ts`. The values
+ * are the stored ones, so old rows still find their label.
+ */
 const interests = [
   { value: "mountain", label: "Mountain" },
   { value: "city", label: "City" },
@@ -81,7 +113,7 @@ const interests = [
   { value: "art", label: "Art" },
   { value: "wildlife", label: "Wildlife" },
   { value: "beach", label: "Beach" },
-  { value: "nightlife", label: "Nighlife" },
+  { value: "nightlife", label: "Nightlife" },
   { value: "photography", label: "Photography" },
   { value: "museums", label: "Museums" },
   { value: "wine", label: "Wine" },
@@ -109,14 +141,22 @@ const interests = [
   { value: "skiing", label: "Skiing" },
   { value: "camping", label: "Camping" },
   { value: "backpacking", label: "Backpacking" },
-  { value: "LGBT", label: "LGBT" },
+  { value: "LGBT", label: "LGBTQ+" },
   { value: "beer", label: "Beer" },
   { value: "languages", label: "Languages" },
   { value: "volunteering", label: "Volunteering" },
-];
-const sortedInterest = [
-  ...interests.sort((a, b) => a.label.localeCompare(b.label)),
-];
+  { value: "local life", label: "Local Life" },
+  { value: "kids", label: "Kids' Fun" },
+  { value: "markets", label: "Markets" },
+  { value: "street art", label: "Street Art" },
+  { value: "theatre", label: "Theatre" },
+  { value: "festivals", label: "Festivals" },
+  { value: "gardens", label: "Gardens" },
+  { value: "street food", label: "Street Food" },
+] as const;
+const sortedInterest = [...interests].sort((a, b) => a.label.localeCompare(b.label));
+
+type InterestValue = (typeof interests)[number]["value"];
 
 const transports = [
   { value: "car", label: "Car" },
@@ -213,7 +253,7 @@ const travelPhotos: TravelPhoto[] = [
   {
     src: image11,
     alt: "Small boats moored in turquoise water off a white-sand beach, seen from above",
-    tripType: "family",
+    tripType: "nature",
     placeholder:
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAM0lEQVR4nAEoANf/AB42LBEaHgAHCABV19CJvLaem5sAaPPzkfPo//jiAGn195vy5f/u10KGFcKWGkYiAAAAAElFTkSuQmCC",
   },
@@ -248,7 +288,7 @@ const travelPhotos: TravelPhoto[] = [
   {
     src: image16,
     alt: "A hiker writing in a notebook on a summit, snowy peaks behind",
-    tripType: "solo",
+    tripType: "adventure",
     placeholder:
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAECAIAAADETxJQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAM0lEQVR4nAEoANf/AFi96HTV/3LK9gC///+e0eKn7/8AUWhqFhYBAA4eAPTn1qeqn7atoNtGFjvgJjQHAAAAAElFTkSuQmCC",
   },
@@ -262,7 +302,7 @@ const formSteps = [
   {
     id: "step 1",
     stepValue: 0,
-    fields: ["userName", "age", "nationality"],
+    fields: ["userName", "travellers", "ageRanges", "passport"],
   },
   {
     id: "step 2",
@@ -272,7 +312,7 @@ const formSteps = [
   {
     id: "step 3",
     stepValue: 32,
-    fields: ["type", "luggageSize", "accommodation", "budget", "transport"],
+    fields: ["type", "pace", "luggageSize", "accommodation", "budget", "transport"],
   },
   {
     id: "step 4",
@@ -296,10 +336,24 @@ const formSteps = [
   },
 ];
 
-export type { TravelPhoto, TripTypeValue };
+/** The label for a stored value, or undefined for a value no list offers (an old row's). */
+function optionLabel(
+  options: readonly { value: string; label: string }[],
+  value: string | null | undefined,
+) {
+  return options.find((option) => option.value === value)?.label;
+}
+
+export type { TravelPhoto, TripTypeValue, InterestValue };
 
 export {
+  travellers,
+  ageRanges,
+  types,
   sortedTypes,
+  paces,
+  interests,
+  optionLabel,
   luggageSizes,
   sortedAccommodations,
   budgets,

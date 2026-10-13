@@ -8,10 +8,22 @@ import defaultImage4 from "@/assets/travel-photos/4.jpg";
 import Reveal from "@/components/sorbet/Reveal";
 import { defaultPlaceholder } from "@/lib/constants";
 import { displayDuration, durationInDays } from "@/lib/utils";
+import {
+  ageRanges as ageRangeOptions,
+  interests as interestOptions,
+  optionLabel,
+  paces,
+  travellers as travellerOptions,
+  types,
+} from "@/data";
 import { MediaFrame, Section, SectionHeading } from "./Section";
 import { details as copy } from "./content";
 
-/** What the traveller entered, as the `<dl>` it is. Restyled, not restructured. */
+/**
+ * What the traveller entered, as the `<dl>` it is. A row shows only what was stored: a
+ * trip saved before the grounded agent has an age and a nationality, a newer one has
+ * who's going, ages, pace and maybe a passport. Known options show their label.
+ */
 function FormDetailsSection() {
   const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
@@ -34,13 +46,32 @@ function FormDetailsSection() {
   const image4 = trip?.image4 || imageData?.tripImage4;
   const placeholder = trip?.placeholder || imageData?.placeholder;
 
+  const travellers = trip?.travellers || formData?.travellers;
+  const ageRanges = trip?.ageRanges?.length ? trip.ageRanges : (formData?.ageRanges ?? []);
+  const pace = trip?.pace || formData?.pace;
+  const passport = trip?.passport || formData?.passport;
+  const type = trip?.type || formData?.type;
+
   const { labels } = copy;
-  const rows = [
+  type Row = { label: string; value: string | null | undefined; sentence?: boolean; asLabel?: boolean };
+  const rows: Row[] = [
     { label: labels.destination, value: `${city}, ${country}` },
-    { label: labels.nationality, value: trip?.nationality || formData?.nationality },
+    { label: labels.passport, value: passport },
+    { label: labels.nationality, value: trip?.nationality },
     { label: labels.name, value: trip?.userName || formData?.userName },
-    { label: labels.type, value: trip?.type || formData?.type },
-    { label: labels.age, value: trip?.age || formData?.age },
+    { label: labels.travellers, value: optionLabel(travellerOptions, travellers), asLabel: true },
+    {
+      label: labels.ageRanges,
+      value: ageRanges.map((range) => optionLabel(ageRangeOptions, range) ?? range).join(", "),
+      asLabel: true,
+    },
+    { label: labels.age, value: trip?.age },
+    {
+      label: labels.type,
+      value: optionLabel(types, type) ?? type,
+      asLabel: optionLabel(types, type) !== undefined,
+    },
+    { label: labels.pace, value: optionLabel(paces, pace), asLabel: true },
     { label: labels.budget, value: trip?.budget || formData?.budget },
     { label: labels.transport, value: trip?.transport || formData?.transport },
     { label: labels.luggage, value: trip?.luggageSize || formData?.luggageSize },
@@ -66,13 +97,13 @@ function FormDetailsSection() {
               />
             )}
             <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-6 border-t border-sorbet-ink/15 pt-8 sm:grid-cols-3">
-              {rows.map(({ label, value, sentence }) => (
+              {rows.filter((row) => row.value).map(({ label, value, sentence, asLabel }) => (
                 <div key={label}>
                   <dt className="text-xs font-medium uppercase tracking-[0.12em] text-sorbet-ink/45">
                     {label}
                   </dt>
                   <dd
-                    className={`mt-1 text-lg font-semibold text-sorbet-ink ${sentence ? "first-letter:uppercase" : "capitalize"}`}
+                    className={`mt-1 text-lg font-semibold text-sorbet-ink ${sentence ? "first-letter:uppercase" : asLabel ? "" : "capitalize"}`}
                   >
                     {value}
                   </dd>
@@ -86,14 +117,17 @@ function FormDetailsSection() {
                 <dd className="mt-2">
                   {interests.length > 0 ? (
                     <ul className="flex flex-wrap gap-2">
-                      {interests.map((interest) => (
-                        <li
-                          key={interest}
-                          className="rounded-full bg-white px-3 py-1.5 text-sm font-medium capitalize text-sorbet-ink"
-                        >
-                          {interest}
-                        </li>
-                      ))}
+                      {interests.map((interest) => {
+                        const label = optionLabel(interestOptions, interest);
+                        return (
+                          <li
+                            key={interest}
+                            className={`rounded-full bg-white px-3 py-1.5 text-sm font-medium text-sorbet-ink ${label ? "" : "capitalize"}`}
+                          >
+                            {label ?? interest}
+                          </li>
+                        );
+                      })}
                     </ul>
                   ) : (
                     <span className="text-lg font-semibold text-sorbet-ink">{copy.none}</span>

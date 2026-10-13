@@ -7,7 +7,8 @@ import { useFormData } from "@/hooks/useFormData";
 import Form from "@/components/form/Form";
 import { steps } from "@/data";
 import { validInputs } from "@/test/fixtures";
-import { buttons, items, progress, review, stepCopy } from "@/components/form/content";
+import { buttons, items, personal, progress, review, stepCopy } from "@/components/form/content";
+import { LIMITS } from "@/lib/schema";
 import type { FieldName, FormContextType } from "@/types";
 
 vi.mock("@/hooks/useWeather", () => ({
@@ -105,9 +106,28 @@ describe("Form", () => {
     await user.click(screen.getByRole("button", { name: buttons.next }));
 
     expect(await screen.findByText("Name is required")).toBeInTheDocument();
-    expect(screen.getByText("Age is required")).toBeInTheDocument();
-    expect(screen.getByText("Nationality is required")).toBeInTheDocument();
+    expect(screen.getByText("Who's going is required")).toBeInTheDocument();
+    expect(screen.getByText("Pick at least one age range")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: stepCopy[0].title })).toBeInTheDocument();
+  });
+
+  it("asks for the passport without requiring it", () => {
+    renderForm();
+
+    const passport = screen.getByRole("combobox", { name: /passport/i });
+    expect(passport).not.toBeRequired();
+    expect(screen.getByText(personal.passport.description)).toBeInTheDocument();
+  });
+
+  it("takes several age ranges, as a family has", async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.click(screen.getByText("0–5"));
+    await user.click(screen.getByText("35–64"));
+
+    expect(screen.getByRole("checkbox", { name: "0–5" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "35–64" })).toBeChecked();
   });
 
   it("clears a field's message as soon as the field is fixed, and only that one", async () => {
@@ -119,7 +139,7 @@ describe("Form", () => {
     await user.type(screen.getByRole("textbox", { name: /^name/i }), "Ana");
 
     await waitFor(() => expect(screen.queryByText("Name is required")).not.toBeInTheDocument());
-    expect(screen.getByText("Age is required")).toBeInTheDocument();
+    expect(screen.getByText("Who's going is required")).toBeInTheDocument();
   });
 
   it("shows no message on a field before Next is pressed", async () => {
@@ -141,6 +161,7 @@ describe("Form", () => {
 
     expect(await screen.findByText("Type of travel is required")).toBeInTheDocument();
     expect(screen.getByText("Accommodation is required")).toBeInTheDocument();
+    expect(screen.getByText("Pace is required")).toBeInTheDocument();
     expect(screen.getByText("Budget is required")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: stepCopy[2].title })).toBeInTheDocument();
   });
@@ -215,6 +236,20 @@ describe("Form", () => {
     expect(screen.getByRole("textbox", { name: items.label(3) })).toHaveValue("Charger");
   });
 
+  it(`stops offering to add once there are ${LIMITS.requiredItems} items`, async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await walkTo(3, user);
+
+    for (let n = 2; n <= LIMITS.requiredItems; n++) {
+      await user.click(screen.getByRole("button", { name: items.add }));
+    }
+
+    expect(screen.getByRole("textbox", { name: items.label(LIMITS.requiredItems) })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: items.add })).not.toBeInTheDocument();
+    expect(screen.getByText(items.full(LIMITS.requiredItems))).toBeInTheDocument();
+  });
+
   it("adds nothing on Enter in an empty item", async () => {
     const user = userEvent.setup();
     renderForm();
@@ -248,7 +283,12 @@ describe("Form", () => {
     expect(within(list).getByText(review.labels.destination)).toBeInTheDocument();
     expect(within(list).getByText("Lisbon, Portugal")).toBeInTheDocument();
     expect(within(list).getByText(validInputs.userName)).toBeInTheDocument();
-    expect(within(list).getByText("art, food")).toBeInTheDocument();
+    expect(within(list).getByText("Art, Food")).toBeInTheDocument();
+    expect(within(list).getByText("Couple")).toBeInTheDocument();
+    expect(within(list).getByText("18–34")).toBeInTheDocument();
+    expect(within(list).getByText("Cultural")).toBeInTheDocument();
+    expect(within(list).getByText("Balanced")).toBeInTheDocument();
+    expect(within(list).getByText("Brazil")).toBeInTheDocument();
 
     const submit = screen.getByRole("button", { name: buttons.submit });
     expect(submit).toHaveAttribute("type", "submit");

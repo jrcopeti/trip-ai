@@ -20,8 +20,12 @@ datasource db {
 model Trip {
   id Int @id @default(autoincrement())
   userName String
-  age String
-  nationality String
+  age String?
+  nationality String?
+  travellers String?
+  ageRanges String[]
+  pace String?
+  passport String?
   type String
   city String
   country String

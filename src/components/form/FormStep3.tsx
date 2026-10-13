@@ -11,11 +11,13 @@ import {
   sortedTransports,
   budgets,
   sortedTypes,
+  paces,
 } from "@/data";
 
-/** Five questions, the pastel rotating so neighbouring groups read apart. */
+/** Six questions, the pastel rotating so neighbouring groups read apart. */
 const questions = [
   { name: "type", label: details.type, options: sortedTypes, tint: tints.lavender },
+  { name: "pace", label: details.pace, options: paces, tint: tints.lime },
   { name: "accommodation", label: details.accommodation, options: sortedAccommodations, tint: tints.blush },
   { name: "luggageSize", label: details.luggageSize, options: luggageSizes, tint: tints.lime },
   { name: "transport", label: details.transport, options: sortedTransports, tint: tints.lavender },

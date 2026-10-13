@@ -50,9 +50,11 @@ describe("transformInputsToFinalData", () => {
     const result = transformInputsToFinalData(validInputs);
     expect(result).toMatchObject({
       userName: "Ana",
-      age: "31",
-      nationality: "Brazilian",
+      travellers: "couple",
+      ageRanges: ["18-34"],
+      passport: "Brazil",
       type: "cultural",
+      pace: "balanced",
       city: "Lisbon",
       country: "Portugal",
       luggageSize: "carry-on",
