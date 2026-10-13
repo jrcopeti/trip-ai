@@ -109,4 +109,40 @@ test.describe("/saved-trips", () => {
     );
     expect(overflows).toBe(false);
   });
+
+  test.describe("at 390px", () => {
+    test.beforeEach(async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto("/saved-trips");
+    });
+
+    // The arrow was reported missing on a phone. Its draw-on is triggered from
+    // the <svg>'s own box, not from the paths inside it: both paths must end
+    // fully drawn (dash offset 0 on a dash of the whole length).
+    test("draws the squiggle arrow under the search", async ({ page }) => {
+      const arrow = page.locator("[data-squiggle-arrow]");
+      await expect(arrow).toBeVisible();
+      const paths = arrow.locator("path");
+      await expect(paths).toHaveCount(2);
+      for (const path of await paths.all()) {
+        await expect(path).toHaveAttribute("stroke-dasharray", "1 1");
+        await expect(path).toHaveAttribute("stroke-dashoffset", "0");
+      }
+    });
+
+    test("keeps one sticker on a phone, clear of the search and inside the screen", async ({
+      page,
+    }) => {
+      const sticker = page.locator('[data-sticker="phone"]');
+      await expect(sticker).toBeVisible();
+      const s = (await sticker.boundingBox())!;
+      const search = (await page.getByRole("searchbox").boundingBox())!;
+      expect(s.y).toBeGreaterThanOrEqual(search.y + search.height);
+      expect(s.x + s.width).toBeLessThanOrEqual(390);
+
+      // And clear of the arrow it shares the row with.
+      const arrow = (await page.locator("[data-squiggle-arrow]").boundingBox())!;
+      expect(s.x).toBeGreaterThanOrEqual(arrow.x + arrow.width);
+    });
+  });
 });
