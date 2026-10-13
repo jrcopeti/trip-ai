@@ -79,13 +79,21 @@ export const FormFieldsSchema = z.object({
   flagUrl: z.string(),
 });
 
-export const FormDataSchema = FormFieldsSchema.refine(
-  (data) => !dayjs(data.endDate).isBefore(dayjs(data.startDate)),
-  {
-    message: "End date must be after start date",
-    path: ["endDate"],
-  },
-).superRefine((data, ctx) => {
+/** Shared with the request schema, whose dates are calendar days rather than instants. */
+export function checkEndDate(data: { startDate: string; endDate: string }, ctx: z.RefinementCtx) {
+  if (dayjs(data.endDate).isBefore(dayjs(data.startDate))) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "End date must be after start date",
+      path: ["endDate"],
+    });
+  }
+}
+
+export function checkAgeRanges(
+  data: { travellers: string; ageRanges: string[] },
+  ctx: z.RefinementCtx,
+) {
   const rule = AGE_RANGE_RULES[data.travellers];
   if (!rule) return;
   const issue = (message: string) =>
@@ -94,4 +102,8 @@ export const FormDataSchema = FormFieldsSchema.refine(
     issue(rule.tooMany);
   }
   if (data.ageRanges.some((range) => !fitsGroup(range, data.travellers))) issue(rule.tooYoung);
-});
+}
+
+export const FormDataSchema = FormFieldsSchema.superRefine(checkEndDate).superRefine(
+  checkAgeRanges,
+);
