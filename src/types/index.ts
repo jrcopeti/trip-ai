@@ -190,11 +190,6 @@ export interface useGeoNamesProps {
   city: string;
   countryCode?: string;
 }
-export interface GeoName {
-  name: string;
-  toponymName: string;
-  population: number;
-}
 export interface ToggleActions {
   setVisible: (visible: boolean) => void;
   onHidden: () => void;

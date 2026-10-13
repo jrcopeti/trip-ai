@@ -118,7 +118,7 @@ The following environment variables are required in `.env.local`:
 | `ANTHROPIC_API_KEY` | Itinerary generation |
 | `UNSPLASH_API_KEY` | Destination photography |
 | `OPEN_WEATHER_KEY` | Weather and forecast |
-| `NEXT_PUBLIC_GEONAMES_USERNAME` | City validation |
+| `GEONAMES_USERNAME` | City validation (server-only) |
 
 ## Tests
 

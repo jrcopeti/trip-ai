@@ -2,12 +2,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
 import { renderWithProviders, waitFor } from "@/test/render";
 import { useGeoNames } from "@/hooks/useGeoNames";
+import { destination } from "@/components/form/content";
+import { matchCity } from "@/lib/place";
+import { lisbonGeoName } from "@/test/fixtures";
 
-const search = vi.fn();
+const resolvePlace = vi.fn();
 
-vi.mock("geonames.js", () => ({
-  default: () => ({ search }),
+vi.mock("@/app/api/geoNamesApi", () => ({
+  resolvePlace: (...args: unknown[]) => resolvePlace(...args),
 }));
+
+const lisbon = matchCity("Lisbon", [lisbonGeoName], "PT")!;
 
 let hook: ReturnType<typeof useGeoNames>;
 
@@ -23,14 +28,9 @@ async function runDebounce() {
   });
 }
 
-function geoname(overrides: Record<string, unknown> = {}) {
-  return { name: "Lisbon", toponymName: "Lisbon", population: 517_802, ...overrides };
-}
-
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
-  search.mockReset();
-  vi.spyOn(console, "error").mockImplementation(() => {});
+  resolvePlace.mockReset();
 });
 
 afterEach(() => {
@@ -42,11 +42,12 @@ describe("useGeoNames — when it does not search", () => {
     renderWithProviders(<Probe city="Li" countryCode="PT" />);
     await runDebounce();
 
-    expect(search).not.toHaveBeenCalled();
+    expect(resolvePlace).not.toHaveBeenCalled();
     expect(hook).toEqual({
       isLoadingCityValid: false,
       isCityValid: false,
       message: "",
+      place: null,
     });
   });
 
@@ -54,119 +55,112 @@ describe("useGeoNames — when it does not search", () => {
     renderWithProviders(<Probe city="Lisbon" countryCode={undefined} />);
     await runDebounce();
 
-    expect(search).not.toHaveBeenCalled();
+    expect(resolvePlace).not.toHaveBeenCalled();
     expect(hook.isCityValid).toBe(false);
   });
 
   it("does not fire before the debounce elapses", () => {
-    search.mockResolvedValue({ totalResultsCount: 1, geonames: [geoname()] });
+    resolvePlace.mockResolvedValue({ ok: true, place: lisbon });
     renderWithProviders(<Probe city="Lisbon" countryCode="PT" />);
 
     act(() => {
       vi.advanceTimersByTime(900);
     });
-    expect(search).not.toHaveBeenCalled();
+    expect(resolvePlace).not.toHaveBeenCalled();
   });
 });
 
-describe("useGeoNames — a valid city", () => {
-  it("queries GeoNames with the city and country", async () => {
-    search.mockResolvedValue({ totalResultsCount: 1, geonames: [geoname()] });
-    renderWithProviders(<Probe city="Lisbon" countryCode="PT" />);
+describe("useGeoNames — a city that resolves", () => {
+  it("asks the server with the city and country", async () => {
+    resolvePlace.mockResolvedValue({ ok: true, place: lisbon });
+    renderWithProviders(<Probe city="Lisboa" countryCode="PT" />);
     await runDebounce();
 
-    expect(search).toHaveBeenCalledWith({
-      q: "Lisbon",
-      country: "PT",
-      maxRows: 5,
-      featureClass: "P",
-    });
+    expect(resolvePlace).toHaveBeenCalledWith("Lisboa", "PT");
   });
 
-  it("reports the city as found", async () => {
-    search.mockResolvedValue({ totalResultsCount: 1, geonames: [geoname()] });
-    renderWithProviders(<Probe city="Lisbon" countryCode="PT" />);
+  it("reports the canonical name it found", async () => {
+    resolvePlace.mockResolvedValue({ ok: true, place: lisbon });
+    renderWithProviders(<Probe city="Lisboa" countryCode="PT" />);
     await runDebounce();
 
     await waitFor(() => {
       expect(hook.isCityValid).toBe(true);
     });
-    expect(hook.message).toBe("Location has been found");
+    expect(hook.message).toBe("Found Lisbon, Portugal");
+    expect(hook.place).toEqual(lisbon);
     expect(hook.isLoadingCityValid).toBe(false);
   });
 
-  it("matches case-insensitively and ignores surrounding whitespace", async () => {
-    search.mockResolvedValue({ totalResultsCount: 1, geonames: [geoname()] });
-    renderWithProviders(<Probe city="  lisbon  " countryCode="PT" />);
+  it.each([
+    ["the city", { city: "Lisbonx", countryCode: "PT" }],
+    ["the country", { city: "Lisbon", countryCode: "ES" }],
+  ])("drops the last result at once when %s changes", async (_, next) => {
+    resolvePlace.mockResolvedValue({ ok: true, place: lisbon });
+    const { rerender } = renderWithProviders(<Probe city="Lisbon" countryCode="PT" />);
     await runDebounce();
-
     await waitFor(() => {
       expect(hook.isCityValid).toBe(true);
     });
+
+    rerender(<Probe {...next} />);
+    expect(hook.isCityValid).toBe(false);
+    expect(hook.isLoadingCityValid).toBe(true);
+    expect(hook.place).toBeNull();
   });
 
-  it("accepts a match on toponymName rather than name", async () => {
-    search.mockResolvedValue({
-      totalResultsCount: 1,
-      geonames: [geoname({ name: "Lisboa", toponymName: "Lisbon" })],
-    });
-    renderWithProviders(<Probe city="Lisbon" countryCode="PT" />);
+  it("ignores an answer for a spelling that has since changed", async () => {
+    let answerFirst!: (value: unknown) => void;
+    resolvePlace
+      .mockReturnValueOnce(new Promise((resolve) => (answerFirst = resolve)))
+      .mockResolvedValueOnce({ ok: false, error: "not-found" });
+    const { rerender } = renderWithProviders(<Probe city="Lisbon" countryCode="PT" />);
     await runDebounce();
 
+    rerender(<Probe city="Lisbonx" countryCode="PT" />);
+    await runDebounce();
     await waitFor(() => {
-      expect(hook.isCityValid).toBe(true);
+      expect(hook.message).toBe(destination.notFound);
     });
+
+    await act(async () => answerFirst({ ok: true, place: lisbon }));
+    expect(hook.isCityValid).toBe(false);
+    expect(hook.message).toBe(destination.notFound);
   });
 });
 
-describe("useGeoNames — an invalid city", () => {
-  it("reports nothing found when the result set is empty", async () => {
-    search.mockResolvedValue({ totalResultsCount: 0, geonames: [] });
+describe("useGeoNames — a city that does not", () => {
+  it("says it found nothing", async () => {
+    resolvePlace.mockResolvedValue({ ok: false, error: "not-found" });
     renderWithProviders(<Probe city="Atlantis" countryCode="PT" />);
     await runDebounce();
 
     await waitFor(() => {
-      expect(hook.message).toBe("No location has been found. Please try again.");
+      expect(hook.message).toBe(destination.notFound);
     });
     expect(hook.isCityValid).toBe(false);
+    expect(hook.place).toBeNull();
   });
 
-  it("rejects a name that does not match the query", async () => {
-    search.mockResolvedValue({
-      totalResultsCount: 1,
-      geonames: [geoname({ name: "Porto", toponymName: "Porto" })],
-    });
+  it("says the check is unavailable when GeoNames is", async () => {
+    resolvePlace.mockResolvedValue({ ok: false, error: "unavailable" });
     renderWithProviders(<Probe city="Lisbon" countryCode="PT" />);
     await runDebounce();
 
     await waitFor(() => {
-      expect(hook.message).toBe("Location is not valid. Please try again.");
+      expect(hook.message).toBe(destination.unavailable);
     });
     expect(hook.isCityValid).toBe(false);
   });
 
-  it("rejects a match with no population — the API returns uninhabited places too", async () => {
-    search.mockResolvedValue({
-      totalResultsCount: 1,
-      geonames: [geoname({ population: 0 })],
-    });
+  it("treats a failed server call as unavailable", async () => {
+    resolvePlace.mockRejectedValue(new Error("network down"));
     renderWithProviders(<Probe city="Lisbon" countryCode="PT" />);
     await runDebounce();
 
     await waitFor(() => {
-      expect(hook.message).toBe("Location is not valid. Please try again.");
+      expect(hook.message).toBe(destination.unavailable);
     });
-  });
-
-  it("surfaces a request failure as its message", async () => {
-    search.mockRejectedValue(new Error("geonames unreachable"));
-    renderWithProviders(<Probe city="Lisbon" countryCode="PT" />);
-    await runDebounce();
-
-    await waitFor(() => {
-      expect(hook.message).toBe("geonames unreachable");
-    });
-    expect(hook.isCityValid).toBe(false);
     expect(hook.isLoadingCityValid).toBe(false);
   });
 });

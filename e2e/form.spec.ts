@@ -1,6 +1,5 @@
 import { expect, test } from "@playwright/test";
 import {
-  LISBON,
   chip,
   fillStepOne,
   heading,
@@ -54,8 +53,8 @@ test.describe("/form", () => {
     await page.goto("/form");
     await fillStepOne(page);
     await next(page);
-    await page.getByRole("textbox", { name: /city/i }).fill("Lisbon");
     await pickCountry(page, /country/i, "Portugal");
+    await page.getByRole("textbox", { name: /city/i }).fill("Lisbon");
     await expect(page.getByRole("button", { name: "Next" })).toBeEnabled({ timeout: 10_000 });
     await next(page);
     await expect(heading(page)).toHaveText("Travel details");
@@ -81,10 +80,10 @@ test.describe("/form", () => {
   test("the city check does not move the layout", async ({ page }) => {
     // The check's squiggle used to be a block under the fields: it pushed the
     // buttons down while checking and back after, so a quick check was a jump.
-    await page.unroute("https://secure.geonames.org/**");
-    await page.route("https://secure.geonames.org/**", async (route) => {
-      await new Promise((r) => setTimeout(r, 1500));
-      await route.fulfill({ json: LISBON });
+    // The check is a server action: a POST to the page. Hold it so the squiggle shows.
+    await page.route("**/form", async (route) => {
+      if (route.request().method() === "POST") await new Promise((r) => setTimeout(r, 1500));
+      await route.continue();
     });
     await page.goto("/form");
     await fillStepOne(page);
