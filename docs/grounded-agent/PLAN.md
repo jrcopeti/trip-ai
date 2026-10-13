@@ -34,7 +34,7 @@ the interests list grows rather than shrinks (revised 2026-10-13; an earlier dra
 |---|---|---|
 | `travellers` (one) | Solo · Couple · Family · Friends · Colleagues | `age`, and Family/Solo in type |
 | `ageRanges` (many) | 0–5 · 6–12 · 13–17 · 18–34 · 35–64 · 65+ | `age` |
-| `type` (one) | The current ten, values unchanged: Adventure · Romantic · Business · Cultural · Festival · Gastronomy · Nature · Urban · Party · Road Trip | Family and Solo, now in `travellers` |
+| `type` (one) | The current ten, values unchanged — Adventure · Romantic · Business · Cultural · Festival · Gastronomy · Nature · Urban · Party · Road Trip — plus Holiday · City break · Celebration | Family and Solo, now in `travellers` |
 | `pace` (one) | Relaxed · Balanced · Packed | new; sets how much fits in a day |
 | `interests` (≤3) | All 42 current ones, values unchanged (so old rows keep their labels; "Nighlife" fixed, "LGBT" shown as "LGBTQ+"), plus Local Life, Kids' Fun, Markets, Street Art, Theatre, Festivals, Gardens and Street Food — each mapped to a `TOUR_KINDS` value | — |
 
@@ -65,15 +65,14 @@ starts, per CLAUDE.md's "Keep PRs small"; 2 and 4 will certainly need it.
 ### 1 · the prompt on the server, new fields, new model — split into 1a, 1b, 1c
 
 Too much for one reviewable PR (data model, form UI, GeoNames, prompt and model in one diff),
-so it ships as three branches, in this order. 1a and 1b are independent of each other; 1c
-needs both.
+so it ships as four branches. 1a, 1b and 1d are independent of each other; 1c needs 1a and 1b.
 
 #### 1a · `agent-fields`: the new form fields and columns
 The field decisions above, end to end through the form and the database. The prompt is still
 built in the browser here; `processForm`'s string only swaps the old fields for the new ones,
 and 1c replaces it.
 
-**Status: done, in review.** As built: a shared `ChipCheckGroup` (ages and interests), the
+**Status: committed (`2016c43`), PR to open.** As built: a shared `ChipCheckGroup` (ages and interests), the
 passport through `CountryComboBox` with `isRequired={false}` and a description, `LIMITS` in
 `src/lib/schema.ts` with `FormFieldsSchema` exported for 1c to derive from, step 4 stops
 offering "Add" at 10 items.
@@ -81,7 +80,8 @@ Bridge for 1c to remove: the `promptModel` strings in `FormContext.processForm`,
 lowercase the name, city and note. `prisma db push` has run against the local e2e database
 only; **Neon still needs it, with permission, before this deploys**.
 
-- Option lists in `src/data`: `travellers`, `ageRanges`, `types` without Family and Solo, `paces`,
+- Option lists in `src/data`: `travellers`, `ageRanges`, `types` without Family and Solo but with
+  Holiday, City break and Celebration, `paces`,
   the extended `interests`, and `optionLabel` so the review and the trip page show labels. The two
   photos tagged Family and Solo are retagged.
 - `src/lib/interests.ts`: the `interest → TOUR_KINDS` map, unit-tested so every interest maps.
@@ -154,6 +154,22 @@ only; **Neon still needs it, with permission, before this deploys**.
   `TripRequest`.
 - Read `shared/tool-use-concepts.md` and `typescript/claude-api/tool-use.md` from the claude-api skill
   before writing the call.
+
+#### 1d · `e2e-database-env`: the e2e suite never reads `.env`'s database
+Split out of 1a, where it started. `.env` points at the production Neon database, and
+`npm run test:e2e` runs `npm run start`, which loads it — so a local run needed
+`DATABASE_URL` exported by hand. (`.env.production` would not help: `next start` is
+production mode and loads it too.)
+
+- `E2E_DATABASE_URL` in `scripts/localDatabase.ts`, defaulting to the local
+  `trip-ai-e2e-pg` container at CI's address. `playwright.config.ts` sets `DATABASE_URL` to it
+  for the server and the journey spec; real env beats `.env` files in Next.
+- The seed script uses it too, and a new `npm run db:push:e2e` (`scripts/push-e2e.ts`) pushes
+  the schema there. Both keep the local-only guard.
+- `.env.example` lists every variable; CLAUDE.md gets the one-time `docker run` and the
+  push → seed → build → test sequence.
+- Verified by running the suite with no `DATABASE_URL` exported: the journey spec (which
+  skips on a non-local database) runs.
 
 ### 2 · `trip-on-server`: the context refactor (server owns the trip)
 

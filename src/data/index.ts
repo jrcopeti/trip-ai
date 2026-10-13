@@ -35,8 +35,11 @@ const ageRanges = [
   { value: "65+", label: "65+" },
 ] as const;
 
-/** What the trip is about. Family and Solo moved to `travellers`; the rest are as before. */
+/** What the trip is about. Family and Solo moved to `travellers`; Holiday, City break and Celebration are new. */
 const types = [
+  { value: "holiday", label: "Holiday" },
+  { value: "city break", label: "City break" },
+  { value: "celebration", label: "Celebration" },
   { value: "adventure", label: "Adventure" },
   { value: "romantic", label: "Romantic" },
   { value: "business", label: "Business" },

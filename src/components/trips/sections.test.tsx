@@ -495,8 +495,9 @@ describe("title.kind", () => {
     expect(title.kind("family", 3)).toBe("A family trip · 3 days");
   });
 
-  it("does not say trip twice", () => {
+  it("does not say trip twice, nor after a city break", () => {
     expect(title.kind("road trip", 10)).toBe("A road trip · 10 days");
+    expect(title.kind("city break", 3)).toBe("A city break · 3 days");
   });
 
   it("calls a same-day or one-day trip 1 day", () => {
