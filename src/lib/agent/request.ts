@@ -24,6 +24,10 @@ const oneOf = (options: Options) =>
 
 const text = (max: number) => z.string().trim().min(1).max(max);
 
+// These sit in the prompt's trusted facts, so they can't add a line or open a tag there.
+const SINGLE_LINE = /^[^\r\n<>]*$/;
+const line = (max: number) => text(max).regex(SINGLE_LINE, "Keep it to one line");
+
 const calendarDay = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD");
 
 export const ForecastDaySchema = z.object({
@@ -40,14 +44,14 @@ export const TripRequestSchema = FormFieldsSchema.omit({
   weatherForecast: true,
 })
   .extend({
-    userName: text(100),
+    userName: line(100),
     travellers: oneOf(travellers),
     ageRanges: oneOf(ageRanges).array().nonempty(),
-    passport: z.string().trim().max(100).optional(),
+    passport: z.string().trim().max(100).regex(SINGLE_LINE, "Keep it to one line").optional(),
     type: oneOf(types),
     pace: oneOf(paces),
-    city: text(100),
-    country: text(100),
+    city: line(100),
+    country: line(100),
     // `resolvePlace`'s format: ISO 3166-1, or a UK nation's subdivision ("GB-SCT").
     countryCode: z.string().regex(/^[A-Z]{2}(-[A-Z]{3})?$/),
     luggageSize: oneOf(luggageSizes),
