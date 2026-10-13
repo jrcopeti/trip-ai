@@ -182,6 +182,9 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
   one branch and PR each) and the **follow-ups** it left. A record now: what it set
   that still binds lives in this file (the per-branch checklist, the testing rules)
   and in `design-notes.md` (the polaroid).
+- **`docs/landing-refresh/PLAN.md`** — the finished **landing refresh** (branches
+  1–6): real saved trips, features and logo on the landing, the once-a-day intro,
+  and its copy in `content.ts`. A record now; what binds is in `design-notes.md`.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
 architecture). A plan is for work in flight.
