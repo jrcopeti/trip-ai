@@ -28,7 +28,8 @@ Decided with the user:
 - **Branch 1** · `landing-copy` — merged (#178).
 - **Branch 2** · `landing-polaroids` — merged (#179).
 - **Branch 3** · `sorbet-logo` — merged (#180).
-- **Branch 4** · `readme-demo` — staged for review.
+- **Branch 4** · `readme-demo` — merged (#181).
+- **Branch 5** · `intro-once` — staged for review: the intro once a day, and the hero deck in `<Suspense>`.
 
 ## Branch 1 — `landing-copy` (items 2, 4, 5, 6, 7)
 
@@ -191,24 +192,48 @@ gains: five tour cards render; no horizontal scroll at 390 still holds.
     orchid above the buttons at 768–1920, and the phone sticker visible below
     the heading at 390.
 
-## Later — when the intro stops repeating
+## Branch 5 — `intro-once` (the two follow-ups that were parked as "Later")
 
-Not part of this plan's branches; recorded so it is not lost.
+Parked while branches 1–4 were in flight; done together, because streaming the
+deck only makes sense once the intro no longer plays over the wait.
 
-- **Planned:** remember a visitor's first view so the intro plays once.
-- **Then move the hero deck to `<Suspense>`.** The 1.5s timeout (branch 2) holds the
-  whole landing blank while the query runs, because the page awaits it before
-  sending any HTML — the intro never hid that wait, since it starts only once the
-  HTML arrives. Without the intro, the better shape is: the deck as its own
-  server component fetching `getLatestSavedTrips`, passed into `Hero` inside
-  `<Suspense>` with a `SquiggleLoader` fallback in a box of the deck's height. The
-  page then renders at once and the loader shows only when the database is slow.
-  Keep the 1.5s limit inside it, so a down database cannot spin the loader for
-  Prisma's 5–10s.
-- **Use a cookie for "intro seen", not localStorage.** The server cannot read
-  localStorage, so it would render the intro overlay and the client would remove
-  it after hydration — a flash on every repeat visit. A cookie lets the server
-  skip the overlay.
+- **The intro plays once a day.** `Intro` writes `trip-ai-intro-seen=1`
+  (`landing/introCookie.ts`, `Max-Age` 24 hours, `Path=/`, `SameSite=Lax`) on
+  mount, so leaving mid-curtain doesn't replay it. `src/app/page.tsx` reads it
+  with `cookies()` and, when it is set, renders no `Intro` and starts
+  `IntroProvider` with `skip` (`done: true`), so the hero's squiggle and deck play
+  at once. A cookie, not localStorage: the server leaves the curtain out of the
+  HTML, rather than sending it for the client to pull down after hydration.
+  24 hours, not a year, was the user's call: a visitor coming back the next day is
+  greeted again.
+- **The hero deck streams in.** `Hero` takes the deck as a `deck` slot. The page
+  passes `<Suspense fallback={<HeroDeckFallback />}><LatestTripsDeck /></Suspense>`:
+  `LatestTripsDeck` (server) awaits `loadLatestTrips` and renders `HeroDeck`
+  (client, the polaroid `<ul>` moved out of `Hero`). The fallback is
+  a `SquiggleLoader` in an `h-80` box (about one polaroid) with a `role="status"`
+  label; when no trips come back it collapses. Measured with an unreachable
+  database: first byte 16ms (was 1.5s).
+- **The 1.5s limit is gone** (changed in review). It existed because the page
+  awaited the deck before sending anything; inside `<Suspense>` only the deck's
+  loader waits, so `loadLatestTrips` no longer races a timer and Prisma's defaults
+  (5s connect, 10s pool) decide when an unreachable database gives up. The cost it
+  had — a Neon wake-up slower than 1.5s losing that visitor's deck — goes with it.
+  The other side: with the database down, the loader spins and the stream stays
+  open until Prisma gives up — measured with an unreachable host: first byte
+  39ms, the stream closes at 5.0s (Prisma's connect timeout) with no deck and
+  the error logged.
+- Tests: `introCookie` (value, 24h lifetime), `Intro` (writes the cookie),
+  `IntroProvider` (`skip` starts done), `HeroDeck` (the old deck tests, moved),
+  `LatestTripsDeck` (loads and deals; nothing on `[]`; the fallback's status),
+  `Hero` (renders the slot). `landing.spec`: the HTML has the curtain for a
+  first visit and not for a repeat one, the cookie lasts a day, the deck still
+  deals on a repeat visit. Asserted on the server's HTML, not the live DOM: the
+  intro removes itself after ~3s, which a loaded runner passed before the first
+  assertion (it failed that way under the parallel run).
+- **Main merged in after #183**: #183 changed the phone deck from an
+  overlap (`-mt-20`, `z-30/20/10`) to a column with a `mt-8` gap, in `Hero.tsx`.
+  The deck lives in `HeroDeck.tsx` here, so the gap moved with it; without it the
+  overlap comes back on phones, and #183's `landing.spec` test catches it.
 
 ## Verification (each branch)
 

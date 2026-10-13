@@ -1,29 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
+import { useRef, type ReactNode } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
 import { BsCompass } from "react-icons/bs";
 import { TbBackpack } from "react-icons/tb";
 import { LuTreePalm } from "react-icons/lu";
 
-import image1 from "@/assets/travel-photos/1.jpg";
-import type { LatestTrip } from "@/db/actions";
-import { defaultPlaceholder } from "@/lib/constants";
 import { useIntro } from "./IntroContext";
-import Polaroid from "@/components/sorbet/Polaroid";
 import StickerBadge from "@/components/sorbet/StickerBadge";
 import Squiggle from "./Squiggle";
-import { heroDeckLabel, heroEyebrow } from "./content";
-
+import { heroEyebrow } from "./content";
 
 type Props = {
-  /** The latest saved trips, newest first; up to three, and possibly none. */
-  trips: LatestTrip[];
+  /** The hero deck, or a fallback while it streams in; nothing on its own. */
+  deck?: ReactNode;
 };
 
-function Hero({ trips }: Props) {
+function Hero({ deck }: Props) {
   const ref = useRef<HTMLElement>(null);
   const { done: introDone } = useIntro();
   const { scrollYProgress } = useScroll({
@@ -131,32 +126,9 @@ function Hero({ trips }: Props) {
           </div>
         </div>
 
-        {/* The deck is the product's output: the latest trips people kept. */}
-        {trips.length > 0 && (
-          <ul
-            aria-label={heroDeckLabel}
-            className="mt-16 flex flex-col items-center md:mt-20 md:flex-row md:items-end md:justify-center"
-          >
-            {trips.map((trip, i) => (
-              <motion.li
-                key={trip.id}
-                initial={{ opacity: 0, y: 28 }}
-                animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
-                transition={{ duration: 0.6, delay: 0.3 + 0.15 * i, ease: [0.22, 1, 0.36, 1] }}
-                className={`relative ${i > 0 ? "mt-8 md:ml-5 md:mt-0" : ""} w-60 md:w-64`}
-              >
-                <Polaroid
-                  href={`/saved-trips/${trip.id}`}
-                  image={trip.image ?? image1}
-                  placeholder={trip.placeholder ?? defaultPlaceholder}
-                  caption={`${trip.city.trim()}, ${trip.country}`}
-                  username={trip.userName}
-                  index={i}
-                />
-              </motion.li>
-            ))}
-          </ul>
-        )}
+        {/* The deck is the product's output: the latest trips people kept. The
+            page streams it in, inside a <Suspense>, so it is a slot here. */}
+        {deck}
       </div>
     </section>
   );

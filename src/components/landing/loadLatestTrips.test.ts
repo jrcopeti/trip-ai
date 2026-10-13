@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { getLatestSavedTrips } from "@/db/actions";
 import { tripFixture, tripFixture2 } from "@/test/fixtures";
-import loadLatestTrips, { LATEST_TRIPS_TIMEOUT_MS } from "./loadLatestTrips";
+import loadLatestTrips from "./loadLatestTrips";
 
 vi.mock("@/db/actions", () => ({ getLatestSavedTrips: vi.fn() }));
 
@@ -27,34 +27,19 @@ describe("loadLatestTrips", () => {
     expect(log).toHaveBeenCalledWith(expect.any(String), failure);
   });
 
-  it("gives up on a slow database after the limit, and logs it", async () => {
+  // No limit of its own: the deck is in a <Suspense>, so a slow database holds
+  // only the deck's loader, and Prisma's own timeouts decide when to give up.
+  it("waits out a slow database rather than giving up", async () => {
     vi.useFakeTimers();
     const log = vi.spyOn(console, "error").mockImplementation(() => {});
-    // A query that never answers: a sleeping or unreachable database.
-    vi.mocked(getLatestSavedTrips).mockReturnValue(new Promise(() => {}));
-
-    const result = loadLatestTrips();
-    await vi.advanceTimersByTimeAsync(LATEST_TRIPS_TIMEOUT_MS);
-
-    await expect(result).resolves.toEqual([]);
-    expect(log).toHaveBeenCalledOnce();
-  });
-
-  it("still deals the trips when they arrive just inside the limit", async () => {
-    vi.useFakeTimers();
     vi.mocked(getLatestSavedTrips).mockReturnValue(
-      new Promise((resolve) =>
-        setTimeout(() => resolve([tripFixture]), LATEST_TRIPS_TIMEOUT_MS - 1),
-      ),
+      new Promise((resolve) => setTimeout(() => resolve([tripFixture]), 8000)),
     );
 
     const result = loadLatestTrips();
-    await vi.advanceTimersByTimeAsync(LATEST_TRIPS_TIMEOUT_MS);
+    await vi.advanceTimersByTimeAsync(8000);
 
     await expect(result).resolves.toEqual([tripFixture]);
-  });
-
-  it("sets the limit at a second and a half", () => {
-    expect(LATEST_TRIPS_TIMEOUT_MS).toBe(1500);
+    expect(log).not.toHaveBeenCalled();
   });
 });
