@@ -28,13 +28,17 @@ const text = (max: number) => z.string().trim().min(1).max(max);
 const SINGLE_LINE = /^[^\r\n<>]*$/;
 const line = (max: number) => text(max).regex(SINGLE_LINE, "Keep it to one line");
 
-const calendarDay = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD");
+// The round trip rejects days that don't exist: dayjs rolls "2030-02-31" over to 3 March.
+const calendarDay = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD")
+  .refine((day) => dayjs(day).format("YYYY-MM-DD") === day, { message: "Not a real date" });
 
 export const ForecastDaySchema = z.object({
   date: calendarDay,
-  temp: z.string().max(10),
-  condition: z.string().max(40),
-  description: z.string().max(80),
+  temp: line(10),
+  condition: line(40),
+  description: line(80),
 });
 
 /** What the browser sends `generateTrip`: the form minus `flagUrl` and `agreement`, checked again. */
