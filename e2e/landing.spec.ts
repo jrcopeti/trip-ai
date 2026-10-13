@@ -63,11 +63,10 @@ test.describe("landing page", () => {
     await expect(page.locator("[data-wordmark]")).toHaveCount(1);
   });
 
-  // The tile had two fixed sizes while the word is fluid, so on a phone it
-  // stood taller than "trip ai". It scales with the word now: two-thirds of
-  // its font size, and never above its line.
+  // As in the nav and footer: centred beside the word, a touch taller than its
+  // line. At two-thirds of the word it read too small on a phone.
   for (const width of [390, 768, 1440]) {
-    test(`the lockup tile follows the wordmark's size at ${width}px`, async ({ page }) => {
+    test(`the lockup tile sits beside the wordmark at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
 
@@ -76,19 +75,21 @@ test.describe("landing page", () => {
 
       // Both boxes in one call: `Reveal` is still sliding the block up, and two
       // separate reads would land on different frames.
-      const { fontSize, wordTop, tileTop, tileHeight } = await row.evaluate((el) => {
+      const { fontSize, word, tile } = await row.evaluate((el) => {
+        const box = (e: Element) => {
+          const r = e.getBoundingClientRect();
+          return { right: r.right, left: r.left, middle: r.top + r.height / 2, height: r.height };
+        };
         const word = el.firstElementChild!;
-        const tile = el.querySelector("span[aria-hidden]")!;
-        const [w, t] = [word.getBoundingClientRect(), tile.getBoundingClientRect()];
         return {
           fontSize: parseFloat(getComputedStyle(word).fontSize),
-          wordTop: w.top,
-          tileTop: t.top,
-          tileHeight: t.height,
+          word: box(word),
+          tile: box(el.querySelector("span[aria-hidden]")!),
         };
       });
-      expect(Math.abs(tileHeight - (fontSize * 2) / 3)).toBeLessThanOrEqual(2);
-      expect(tileTop).toBeGreaterThanOrEqual(wordTop);
+      expect(Math.abs(tile.height - fontSize * 0.9)).toBeLessThanOrEqual(2);
+      expect(tile.left).toBeGreaterThan(word.right);
+      expect(Math.abs(tile.middle - word.middle)).toBeLessThanOrEqual(2);
     });
   }
 

@@ -3,9 +3,10 @@ import logo from "@/assets/logo.png";
 
 const SIZES = {
   nav: "size-8 rounded-lg p-1",
-  // Two-thirds of the wordmark beside it (`clamp(3.5rem,12vw,9rem)`), so it scales
-  // with the word. Corners and inset in `em`, so they keep their proportions.
-  lockup: "text-[clamp(2.33rem,8vw,6rem)] size-[1em] rounded-[0.25em] p-[0.1667em]",
+  footer: "size-10 rounded-xl p-1.5",
+  // The word's own clamp, so `em` is its font size: a touch taller than its
+  // `leading-[0.8]` line, as the footer's tile is beside its word.
+  lockup: "text-[clamp(3.5rem,12vw,9rem)] size-[0.9em] rounded-[0.225em] p-[0.11em]",
 } as const;
 
 /**

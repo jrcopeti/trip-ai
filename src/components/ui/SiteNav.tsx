@@ -62,7 +62,6 @@ function SiteNav() {
           href="/"
           className="flex items-center gap-2 rounded-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sorbet-ink"
         >
-          <Logo />
           {/* data-wordmark: the intro measures this to know where to fly to. */}
           <span
             data-wordmark
@@ -70,6 +69,7 @@ function SiteNav() {
           >
             trip ai
           </span>
+          <Logo />
         </Link>
 
         <ul className="ml-auto hidden items-center gap-1 md:flex">

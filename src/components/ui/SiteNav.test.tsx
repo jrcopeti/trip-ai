@@ -28,6 +28,13 @@ describe("SiteNav", () => {
     expect(home.querySelector("[data-logo-glyph]")).toBeInTheDocument();
   });
 
+  it("tucks the tile after the word, as the landing's lockup does", () => {
+    const { container } = renderWithProviders(<SiteNav />);
+
+    const word = container.querySelector("[data-wordmark]")!;
+    expect(word.nextElementSibling?.querySelector("[data-logo-glyph]")).toBeInTheDocument();
+  });
+
   describe("active route", () => {
     it("marks the link for the current route", () => {
       resetNextStubs("/form");
