@@ -29,8 +29,9 @@ describe("Logo", () => {
     const lockup = render(<Logo size="lockup" />).container.firstElementChild!;
 
     expect(nav.className).toContain("size-8");
-    expect(lockup.className).toContain("size-16");
-    expect(lockup.className).toContain("md:size-24");
+    // Fluid, at two-thirds of the wordmark's own clamp.
+    expect(lockup.className).toContain("text-[clamp(2.33rem,8vw,6rem)]");
+    expect(lockup.className).toContain("size-[1em]");
   });
 
   it("takes extra classes", () => {
