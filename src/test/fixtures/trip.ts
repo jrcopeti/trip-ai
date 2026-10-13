@@ -20,8 +20,12 @@ export const LOCAL_IMAGES = [
 export const tripFixture: Trip = {
   id: 1,
   userName: "ana",
-  age: "31",
-  nationality: "Brazilian",
+  age: null,
+  nationality: null,
+  travellers: "couple",
+  ageRanges: ["18-34"],
+  passport: "Brazil",
+  pace: "balanced",
   type: "cultural",
   city: "lisbon",
   country: "Portugal",
@@ -74,6 +78,17 @@ export const tripFixture2: Trip = {
   title: "Bruno's Quiet Week Among the Temples of Kyoto, Japan",
   image: LOCAL_IMAGES[1],
 };
+
+/** A row saved before the grounded agent: an age, a nationality, and a trip type since moved to who's going. */
+export const legacyTripFields = {
+  age: "31",
+  nationality: "Brazilian",
+  travellers: null,
+  ageRanges: [],
+  passport: null,
+  pace: null,
+  type: "family",
+} satisfies Partial<Trip>;
 
 export function makeTrip(overrides: Partial<Trip> = {}): Trip {
   return { ...tripFixture, ...overrides };

@@ -1,10 +1,11 @@
 "use client";
 import { useFormData } from "@/hooks/useFormData";
-import { CheckboxGroup, Label, FieldError, TextField, TextArea } from "@heroui/react";
+import { Label, FieldError, TextField, TextArea } from "@heroui/react";
 import { Controller } from "react-hook-form";
 import StepPanel from "./StepPanel";
-import CustomCheckbox from "./CustomCheckbox";
+import ChipCheckGroup from "./ChipCheckGroup";
 import { sortedInterest } from "@/data";
+import { LIMITS } from "@/lib/schema";
 import { interests } from "./content";
 import { field, fieldError, fieldLabel, fieldTextArea } from "./styles";
 
@@ -20,26 +21,14 @@ function FormStep6() {
           name="interests"
           control={control}
           render={({ field: { value, onChange } }) => (
-            <CheckboxGroup
+            <ChipCheckGroup
+              label={interests.label}
+              options={sortedInterest}
               value={value}
               onChange={onChange}
-              isInvalid={!!errors.interests}
-              className="flex flex-col gap-3"
-            >
-              <Label className={fieldLabel}>{interests.label}</Label>
-              <div className="flex flex-wrap gap-2">
-                {sortedInterest.map((interest) => (
-                  <CustomCheckbox
-                    key={interest.value}
-                    value={interest.value}
-                    isDisabled={value.length >= 3 && !value.includes(interest.value)}
-                  >
-                    {interest.label}
-                  </CustomCheckbox>
-                ))}
-              </div>
-              <FieldError className={fieldError}>{errors.interests?.message}</FieldError>
-            </CheckboxGroup>
+              max={LIMITS.interests}
+              error={errors.interests?.message}
+            />
           )}
         />
 
@@ -47,13 +36,15 @@ function FormStep6() {
           name="note"
           control={control}
           render={({ field: { ref, ...fieldProps } }) => (
-            <TextField {...fieldProps} className={`max-w-xl ${field}`}>
+            <TextField {...fieldProps} isInvalid={!!errors.note} className={`max-w-xl ${field}`}>
               <Label className={fieldLabel}>{interests.notes.label}</Label>
               <TextArea
                 ref={ref}
                 placeholder={interests.notes.placeholder}
+                maxLength={LIMITS.note}
                 className={`min-h-32 ${fieldTextArea}`}
               />
+              <FieldError className={fieldError}>{errors.note?.message}</FieldError>
             </TextField>
           )}
         />

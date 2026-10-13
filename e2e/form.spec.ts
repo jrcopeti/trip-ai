@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import {
   LISBON,
   chip,
+  fillStepOne,
   heading,
   next,
   pickCountry,
@@ -25,7 +26,8 @@ test.describe("/form", () => {
     await next(page);
 
     await expect(page.getByText("Name is required")).toBeVisible();
-    await expect(page.getByText("Nationality is required")).toBeVisible();
+    await expect(page.getByText("Who's going is required")).toBeVisible();
+    await expect(page.getByText("Pick at least one age range")).toBeVisible();
     await expect(heading(page)).toHaveText("Personal information");
     await expect(page.getByText("Step 1 of 7")).toBeVisible();
   });
@@ -50,9 +52,7 @@ test.describe("/form", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/form");
-    await page.getByRole("textbox", { name: /name/i }).fill("Ana");
-    await page.getByRole("textbox", { name: /age/i }).fill("31");
-    await pickCountry(page, /nationality/i, "Brazil");
+    await fillStepOne(page);
     await next(page);
     await page.getByRole("textbox", { name: /city/i }).fill("Lisbon");
     await pickCountry(page, /country/i, "Portugal");
@@ -72,7 +72,7 @@ test.describe("/form", () => {
       });
     const before = await boxes();
 
-    for (const option of ["Adventure", "Business", "Cultural", "Bed and Breakfast"]) {
+    for (const option of ["Adventure", "Business", "Cultural", "Relaxed", "Bed and Breakfast"]) {
       await chip(page, option);
       expect(await boxes()).toEqual(before);
     }
@@ -87,9 +87,7 @@ test.describe("/form", () => {
       await route.fulfill({ json: LISBON });
     });
     await page.goto("/form");
-    await page.getByRole("textbox", { name: /name/i }).fill("Ana");
-    await page.getByRole("textbox", { name: /age/i }).fill("31");
-    await pickCountry(page, /nationality/i, "Brazil");
+    await fillStepOne(page);
     await next(page);
     await expect(heading(page)).toHaveText("Destination");
 
@@ -111,9 +109,7 @@ test.describe("/form", () => {
 
   test("Back keeps what was entered", async ({ page }) => {
     await page.goto("/form");
-    await page.getByRole("textbox", { name: /name/i }).fill("Ana");
-    await page.getByRole("textbox", { name: /age/i }).fill("31");
-    await pickCountry(page, /nationality/i, "Brazil");
+    await fillStepOne(page);
     await next(page);
     await expect(heading(page)).toHaveText("Destination");
 
@@ -121,6 +117,8 @@ test.describe("/form", () => {
 
     await expect(heading(page)).toHaveText("Personal information");
     await expect(page.getByRole("textbox", { name: /name/i })).toHaveValue("Ana");
-    await expect(page.getByRole("combobox", { name: /nationality/i })).toHaveValue("Brazil");
+    await expect(page.getByRole("radio", { name: "Couple" })).toBeChecked();
+    await expect(page.getByRole("checkbox", { name: "18–34" })).toBeChecked();
+    await expect(page.getByRole("combobox", { name: /passport/i })).toHaveValue("Brazil");
   });
 });

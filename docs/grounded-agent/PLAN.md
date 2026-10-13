@@ -26,22 +26,22 @@ returns the same trip page with sources, and can revise a trip on request. It sh
    makes the model repeat input the app already has.
 6. **Nothing is measured:** no record of tokens, cost or latency, and no evals.
 
-Field decisions (agreed): today's trip `type` list mixes three questions (who: Family, Solo; why:
-Business, Festival, Road trip, Party, Romantic; likes: Adventure, Cultural, Gastronomy, Nature, Urban,
-which duplicate interests). They split into three axes plus pace:
+Field decisions (agreed): today's trip `type` list mixes in who's going (Family, Solo), which moves
+to its own field. Everything else in `type` and `interests` stays: a wide choice is the point, and
+the interests list grows rather than shrinks (revised 2026-10-13; an earlier draft cut both lists).
 
 | Field | Values | Replaces |
 |---|---|---|
-| `travellers` (one) | Solo · Couple · Family · Friends · Colleagues | `age`, and Family/Solo/Romantic in type |
+| `travellers` (one) | Solo · Couple · Family · Friends · Colleagues | `age`, and Family/Solo in type |
 | `ageRanges` (many) | 0–5 · 6–12 · 13–17 · 18–34 · 35–64 · 65+ | `age` |
-| `type` (one) | Holiday · City break · Road trip · Business (with free time) · Event or festival · Celebration (honeymoon, birthday, bachelor) | old `types` |
+| `type` (one) | The current ten, values unchanged: Adventure · Romantic · Business · Cultural · Festival · Gastronomy · Nature · Urban · Party · Road Trip | Family and Solo, now in `travellers` |
 | `pace` (one) | Relaxed · Balanced · Packed | new; sets how much fits in a day |
-| `interests` (≤3) | About 20, deduplicated and each mapped to a `TOUR_KINDS` value: Food, Drinks (wine/beer/coffee), History, Culture, Art & museums, Architecture, Music, Nightlife, Nature, Beach, Mountains & hiking, Adventure sports, Wildlife, Shopping, Wellness, Photography, Sightseeing, Local life, LGBTQ+, Kids' fun | the 42 current ones (with the "Nighlife" typo) |
+| `interests` (≤3) | All 42 current ones, values unchanged (so old rows keep their labels; "Nighlife" fixed, "LGBT" shown as "LGBTQ+"), plus Local Life, Kids' Fun, Markets, Street Art, Theatre, Festivals, Gardens and Street Food — each mapped to a `TOUR_KINDS` value | — |
 
 The group field is named `travellers` ("Who's going"), not "party", which clashed with the old
 "Party" trip type. `nationality` becomes an optional **passport**, used only for the entry-requirements
 lookup. `userName` is used only in the title. `flagUrl` and `agreement` never reach the prompt.
-`travelPhotos`' `tripType` tags (16 photos) are retagged to the new `type` values, with
+`travelPhotos`' two photos tagged Family and Solo are retagged (Nature, Adventure), with
 `src/data/index.test.ts` and `pickTravelPhoto` kept green.
 
 ### Decided with the user
@@ -59,11 +59,45 @@ lookup. `userName` is used only in the title. `flagUrl` and `agreement` never re
 ## Branches (one PR each, per CLAUDE.md's checklist; stage and stop)
 
 This plan lives in `docs/grounded-agent/PLAN.md` and is updated as each
-branch lands.
+branch lands. Each numbered branch is split into reviewable sub-branches (1a, 1b, …) when it
+starts, per CLAUDE.md's "Keep PRs small"; 2 and 4 will certainly need it.
 
-### 1 · `agent-request`: the prompt on the server, new fields, new model
-- `src/lib/agent/request.ts`: a Zod `TripRequestSchema`, derived from `FormDataSchema` minus `flagUrl`
-  and `agreement`, with caps: note ≤ 500 chars, ≤ 10 required items of ≤ 60 chars, ≤ 3 interests.
+### 1 · the prompt on the server, new fields, new model — split into 1a, 1b, 1c
+
+Too much for one reviewable PR (data model, form UI, GeoNames, prompt and model in one diff),
+so it ships as three branches, in this order. 1a and 1b are independent of each other; 1c
+needs both.
+
+#### 1a · `agent-fields`: the new form fields and columns
+The field decisions above, end to end through the form and the database. The prompt is still
+built in the browser here; `processForm`'s string only swaps the old fields for the new ones,
+and 1c replaces it.
+
+**Status: done, in review.** As built: a shared `ChipCheckGroup` (ages and interests), the
+passport through `CountryComboBox` with `isRequired={false}` and a description, `LIMITS` in
+`src/lib/schema.ts` with `FormFieldsSchema` exported for 1c to derive from, step 4 stops
+offering "Add" at 10 items.
+Bridge for 1c to remove: the `promptModel` strings in `FormContext.processForm`, which still
+lowercase the name, city and note. `prisma db push` has run against the local e2e database
+only; **Neon still needs it, with permission, before this deploys**.
+
+- Option lists in `src/data`: `travellers`, `ageRanges`, `types` without Family and Solo, `paces`,
+  the extended `interests`, and `optionLabel` so the review and the trip page show labels. The two
+  photos tagged Family and Solo are retagged.
+- `src/lib/interests.ts`: the `interest → TOUR_KINDS` map, unit-tested so every interest maps.
+- `FormDataSchema`: `travellers`, `ageRanges`, optional `passport`, `pace`; `age` and
+  `nationality` gone; caps shared with 1c's request schema (note ≤ 500 chars, ≤ 10 required
+  items of ≤ 60 chars, ≤ 3 interests).
+- Form: step 1 has name, who's going (`ChoiceGroup`), age ranges (`ChipCheck`) and an optional
+  passport (`CountryComboBox`). Step 3 gets pace. Step 6 gets the extended
+  interests. Copy goes in `components/form/content.ts`; `ReviewForm` and `FormDetailsSection` are
+  updated.
+- Prisma: add `travellers String?`, `ageRanges String[]`, `pace String?`, `passport String?`, and make
+  `age` and `nationality` optional. Old rows keep their old `type` and `interests` values, and the
+  trip page shows whatever is stored. **Ask before `prisma db push` against Neon.** Update the seed and
+  fixtures.
+
+#### 1b · `agent-geonames`: the city check on the server
 - **City check: keep GeoNames, fix it, run it on the server** (decided). Today it runs only in the
   browser (`useGeoNames`, gating Next in `FormButtons.tsx:44`), matches the name exactly
   (`name`/`toponymName === input`, so "Lisboa", "Munchen" and "Sao Paulo" fail), and exposes the
@@ -79,9 +113,13 @@ branch lands.
     timezone, geonameId}` or a typed "city not found" error.
   - `useGeoNames` calls `resolvePlace` (still debounced) for the live message on step 2, and the form
     shows the canonical name it found ("Lisbon, Portugal").
-  - `generateTrip` calls `resolvePlace` again and never trusts the client. Every tool takes these
-    coordinates, and the tool description stops asking the model to validate the city.
   - e2e: `resolvePlace` returns a fixture under `E2E_FIXTURES=1`, like the other server modules.
+
+#### 1c · `agent-prompt`: the prompt on the server, the new model
+- `src/lib/agent/request.ts`: a Zod `TripRequestSchema`, derived from `FormDataSchema` minus `flagUrl`
+  and `agreement`, with caps: note ≤ 500 chars, ≤ 10 required items of ≤ 60 chars, ≤ 3 interests.
+- `generateTrip` calls `resolvePlace` (1b) again and never trusts the client. Every tool takes these
+  coordinates, and the tool description stops asking the model to validate the city.
 - **Packing driven by the inputs.** Drop the fixed "9 items / 4 must-haves". The prompt asks for
   between 6 and 15 items, scaled by duration (from the dates) × weather × luggage (backpack or
   carry-on → laundry plan, liquids ≤100ml) × transport (plane: liquid and battery rules; car: bulky
@@ -114,15 +152,6 @@ branch lands.
   leaves the output; the app merges its own. `useE2EFixtures` stays.
 - `FormContext.processForm` sends the structured request, not a string. `TripContext`'s mutation takes
   `TripRequest`.
-- Form: step 1 has name, who's going (`ChoiceGroup`), age ranges (`ChipCheck`) and an optional
-  passport (`CountryComboBox`). Step 3 gets the new `type` list and pace. Step 6 gets the trimmed
-  interests. The option lists live in `src/data`, with an `interest → TOUR_KINDS` map in `src/lib/`
-  (unit-tested so every interest maps to a kind). Copy goes in `components/form/content.ts`;
-  `ReviewForm` and `FormDetailsSection` are updated.
-- Prisma: add `travellers String?`, `ageRanges String[]`, `pace String?`, `passport String?`, and make
-  `age` and `nationality` optional. Old rows keep their old `type` and `interests` values, and the
-  trip page shows whatever is stored. **Ask before `prisma db push` against Neon.** Update the seed and
-  fixtures.
 - Read `shared/tool-use-concepts.md` and `typescript/claude-api/tool-use.md` from the claude-api skill
   before writing the call.
 

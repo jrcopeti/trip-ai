@@ -35,8 +35,13 @@ export const buttons = {
 
 export const personal = {
   name: { label: "Name", placeholder: "What's your name?" },
-  age: { label: "Age", placeholder: "How old are you?" },
-  nationality: { label: "Nationality", placeholder: "Select a country" },
+  travellers: "Who's going?",
+  ageRanges: "Ages in the group",
+  passport: {
+    label: "Passport (optional)",
+    placeholder: "Select a country",
+    description: "Only used to look up entry requirements.",
+  },
 };
 
 export const destination = {
@@ -46,7 +51,8 @@ export const destination = {
 };
 
 export const details = {
-  type: "How would you describe your trip?",
+  type: "What kind of trip is it?",
+  pace: "What pace suits you?",
   accommodation: "Where are you staying?",
   luggageSize: "How big is your luggage?",
   transport: "How are you travelling?",
@@ -57,6 +63,7 @@ export const items = {
   label: (n: number) => `Item ${n}`,
   remove: (n: number) => `Remove item ${n}`,
   add: "Add an item",
+  full: (max: number) => `That's the most: ${max} items.`,
   empty: "Nothing yet. Add anything you can't travel without.",
 };
 
@@ -77,10 +84,12 @@ export const interests = {
 export const review = {
   labels: {
     name: "Name",
-    age: "Age",
-    nationality: "Nationality",
+    travellers: "Who's going",
+    ageRanges: "Ages",
+    passport: "Passport",
     destination: "Destination",
     type: "Trip type",
+    pace: "Pace",
     luggageSize: "Luggage",
     budget: "Budget",
     transport: "Transport",

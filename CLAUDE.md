@@ -58,6 +58,20 @@ Every piece of work is one branch off `main`, one PR:
 7. **Stage the work and stop.** No commit, no push, no PR — see the working agreement.
    Leave the branch checked out.
 
+### Keep PRs small
+
+A PR is sized to be reviewed in one sitting: **one concern per branch**. A step that
+spans several (data model + form UI + an external API + a prompt) is split into
+sub-branches — `1a`, `1b`, … — each green and mergeable on its own, with dependencies
+going one way.
+
+- Split **before writing code**: when starting a plan step, write the split into its
+  `PLAN.md` (what each sub-branch holds, and the order) and say it in a line.
+- A sub-branch may leave a temporary bridge for the next one (an old call site adapted,
+  not rewritten) — name it in the plan so the next branch removes it.
+- If a branch grows past its concern mid-work, stop, propose a split, and move the rest
+  to the next sub-branch rather than finishing it here.
+
 ## Code comments
 
 Keep them short: one or two lines, saying *why* — a constraint, a trap, a decision.

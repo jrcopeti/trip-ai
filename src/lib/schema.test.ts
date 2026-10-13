@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { FormDataSchema } from "@/lib/schema";
+import { FormDataSchema, LIMITS } from "@/lib/schema";
 import { validInputs } from "@/test/fixtures";
 import type { Inputs } from "@/types";
 
@@ -35,9 +35,9 @@ describe("FormDataSchema", () => {
   describe("required text fields", () => {
     it.each([
       ["userName", "Name is required"],
-      ["age", "Age is required"],
-      ["nationality", "Nationality is required"],
+      ["travellers", "Who's going is required"],
       ["type", "Type of travel is required"],
+      ["pace", "Pace is required"],
       ["city", "City is required"],
       ["country", "Country is required"],
       ["luggageSize", "Lugagge size is required"],
@@ -50,9 +50,10 @@ describe("FormDataSchema", () => {
 
     it.each([
       "userName",
-      "age",
-      "nationality",
+      "travellers",
+      "ageRanges",
       "type",
+      "pace",
       "city",
       "country",
       "luggageSize",
@@ -86,6 +87,13 @@ describe("FormDataSchema", () => {
       );
     });
 
+    it("accepts a form with no passport — it only feeds the entry-requirements lookup", () => {
+      const data: Record<string, unknown> = { ...validInputs };
+      delete data.passport;
+      expect(FormDataSchema.safeParse(data).success).toBe(true);
+      expect(FormDataSchema.safeParse(withField("passport", "")).success).toBe(true);
+    });
+
     it("accepts a form with no weatherForecast", () => {
       const data: Record<string, unknown> = { ...validInputs };
       delete data.weatherForecast;
@@ -104,6 +112,47 @@ describe("FormDataSchema", () => {
       expect(
         FormDataSchema.safeParse(withField("interests", ["art"])).success,
       ).toBe(true);
+    });
+  });
+
+  describe("ageRanges", () => {
+    it("rejects an empty list", () => {
+      expect(
+        messagesFor(withField("ageRanges", [] as unknown as Inputs["ageRanges"]), "ageRanges"),
+      ).toContain("Pick at least one age range");
+    });
+
+    it("accepts several ranges — a family spans more than one", () => {
+      expect(FormDataSchema.safeParse(withField("ageRanges", ["0-5", "35-64"])).success).toBe(true);
+    });
+  });
+
+  describe("caps", () => {
+    it(`rejects more than ${LIMITS.interests} interests`, () => {
+      expect(
+        messagesFor(withField("interests", ["art", "food", "beach", "music"]), "interests"),
+      ).toContain(`Up to ${LIMITS.interests} interests`);
+    });
+
+    it(`rejects a note over ${LIMITS.note} characters, and accepts one at the cap`, () => {
+      expect(messagesFor(withField("note", "a".repeat(LIMITS.note + 1)), "note")).toContain(
+        `Keep notes under ${LIMITS.note} characters`,
+      );
+      expect(FormDataSchema.safeParse(withField("note", "a".repeat(LIMITS.note))).success).toBe(true);
+    });
+
+    it(`rejects more than ${LIMITS.requiredItems} required items`, () => {
+      const items = Array.from({ length: LIMITS.requiredItems + 1 }, (_, i) => ({ item: `item ${i}` }));
+      expect(messagesFor(withField("requiredItems", items), "requiredItems")).toContain(
+        `Up to ${LIMITS.requiredItems} items`,
+      );
+    });
+
+    it(`rejects a required item over ${LIMITS.requiredItem} characters`, () => {
+      const items = [{ item: "a".repeat(LIMITS.requiredItem + 1) }];
+      expect(messagesFor(withField("requiredItems", items), "requiredItems.0.item")).toContain(
+        `Keep each item under ${LIMITS.requiredItem} characters`,
+      );
     });
   });
 

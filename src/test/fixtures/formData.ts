@@ -3,9 +3,11 @@ import type { FinalDataTypes, Inputs } from "@/types";
 /** A complete, valid set of RHF inputs. Dates are far enough out to stay valid. */
 export const validInputs: Inputs = {
   userName: "Ana",
-  age: "31",
-  nationality: "Brazilian",
+  travellers: "couple",
+  ageRanges: ["18-34"],
+  passport: "Brazil",
   type: "cultural",
+  pace: "balanced",
   city: "Lisbon",
   country: "Portugal",
   luggageSize: "carry-on",

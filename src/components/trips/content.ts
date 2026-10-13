@@ -94,8 +94,12 @@ export const details = {
   labels: {
     destination: "Destination",
     nationality: "Nationality",
+    passport: "Passport",
     name: "Name",
+    travellers: "Who's going",
+    ageRanges: "Ages",
     type: "Trip type",
+    pace: "Pace",
     age: "Age",
     budget: "Budget",
     transport: "Transport",

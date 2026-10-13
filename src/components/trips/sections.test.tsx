@@ -5,6 +5,7 @@ import { renderGeneratedTrip, renderSavedTrip } from "@/test/trip";
 import {
   LOCAL_IMAGES,
   makeForecastEntry,
+  legacyTripFields,
   makeTrip,
   tripDataFixture,
   tripFixture,
@@ -400,30 +401,60 @@ describe("ForecastSection", () => {
 });
 
 describe("FormDetailsSection", () => {
-  it("lists what the traveller entered as terms and values", async () => {
-    renderSavedTrip(<FormDetailsSection />);
-    await screen.findByText("Brazilian");
+  const value = (label: string) => screen.getByText(label, { selector: "dt" }).nextElementSibling;
 
-    const value = (label: string) => screen.getByText(label, { selector: "dt" }).nextElementSibling;
+  it("lists what the traveller entered as terms and values, options by their label", async () => {
+    renderSavedTrip(<FormDetailsSection />);
+    await screen.findByText("Couple");
 
     expect(value(details.labels.destination)).toHaveTextContent("lisbon, Portugal");
-    expect(value(details.labels.nationality)).toHaveTextContent("Brazilian");
+    expect(value(details.labels.passport)).toHaveTextContent("Brazil");
     expect(value(details.labels.name)).toHaveTextContent("ana");
-    expect(value(details.labels.type)).toHaveTextContent("cultural");
+    expect(value(details.labels.travellers)).toHaveTextContent("Couple");
+    expect(value(details.labels.ageRanges)).toHaveTextContent("18–34");
+    expect(value(details.labels.type)).toHaveTextContent("Cultural");
+    expect(value(details.labels.pace)).toHaveTextContent("Balanced");
     expect(value(details.labels.luggage)).toHaveTextContent("carry-on");
     expect(value(details.labels.note)).toHaveTextContent("wants a day trip to sintra");
   });
 
-  it("shows the interests as chips", async () => {
+  it("leaves out the age and nationality a newer trip does not have", async () => {
     renderSavedTrip(<FormDetailsSection />);
+    await screen.findByText("Couple");
+
+    expect(screen.queryByText(details.labels.age, { selector: "dt" })).toBeNull();
+    expect(screen.queryByText(details.labels.nationality, { selector: "dt" })).toBeNull();
+  });
+
+  it("shows an older trip as it was stored: age, nationality and a trip type no longer offered", async () => {
+    renderSavedTrip(<FormDetailsSection />, { row: makeTrip(legacyTripFields) });
     await screen.findByText("Brazilian");
+
+    expect(value(details.labels.age)).toHaveTextContent("31");
+    expect(value(details.labels.nationality)).toHaveTextContent("Brazilian");
+    expect(value(details.labels.type)).toHaveTextContent("family");
+    expect(screen.queryByText(details.labels.travellers, { selector: "dt" })).toBeNull();
+    expect(screen.queryByText(details.labels.ageRanges, { selector: "dt" })).toBeNull();
+    expect(screen.queryByText(details.labels.pace, { selector: "dt" })).toBeNull();
+    expect(screen.queryByText(details.labels.passport, { selector: "dt" })).toBeNull();
+  });
+
+  it("shows the interests as chips, by their label", async () => {
+    renderSavedTrip(<FormDetailsSection />);
+    await screen.findByText("Couple");
 
     const interests = screen.getByText(details.labels.interests, { selector: "dt" })
       .nextElementSibling as HTMLElement;
     expect(within(interests).getAllByRole("listitem").map((li) => li.textContent)).toEqual([
-      "art",
-      "food",
+      "Art",
+      "Food",
     ]);
+  });
+
+  it("shows an interest no list offers any more as it was stored", async () => {
+    renderSavedTrip(<FormDetailsSection />, { row: makeTrip({ interests: ["gardening"] }) });
+
+    expect(await screen.findByText("gardening")).toBeInTheDocument();
   });
 
   it("names the flag after the country", async () => {
@@ -443,7 +474,7 @@ describe("FormDetailsSection", () => {
 
   it("drops blank interests rather than rendering an empty chip", async () => {
     renderSavedTrip(<FormDetailsSection />, { row: makeTrip({ interests: [""] }) });
-    await screen.findByText("Brazilian");
+    await screen.findByText("Couple");
 
     const interests = screen.getByText(details.labels.interests, { selector: "dt" })
       .nextElementSibling as HTMLElement;

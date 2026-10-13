@@ -1,6 +1,7 @@
 "use client";
 import {
   ComboBox,
+  Description,
   FieldError,
   IconChevronDown,
   Input,
@@ -18,15 +19,26 @@ type Props = {
   value: string | undefined;
   onSelect: (code: string | number | null) => void;
   error?: string;
+  /** Defaults to true; the passport is the one optional country. */
+  isRequired?: boolean;
+  description?: string;
 };
 
 type Country = { code: string; label: string };
 
 /**
- * A searchable country list, shared by nationality (step 1) and destination
+ * A searchable country list, shared by the passport (step 1) and destination
  * country (step 2). The input group is the pill; the popover is a white card.
  */
-function CountryComboBox({ label, placeholder, value, onSelect, error }: Props) {
+function CountryComboBox({
+  label,
+  placeholder,
+  value,
+  onSelect,
+  error,
+  isRequired = true,
+  description,
+}: Props) {
   const { countries, isLoading } = useCountries();
   const selected = countries.find((c) => c.value === value);
 
@@ -43,7 +55,7 @@ function CountryComboBox({ label, placeholder, value, onSelect, error }: Props) 
       onChange={onSelect}
       isDisabled={isLoading}
       isInvalid={!!error}
-      isRequired
+      isRequired={isRequired}
       // `group` so the input group can read the root's `data-invalid`.
       className={`group ${field}`}
     >
@@ -57,6 +69,9 @@ function CountryComboBox({ label, placeholder, value, onSelect, error }: Props) 
           <IconChevronDown />
         </ComboBox.Trigger>
       </ComboBox.InputGroup>
+      {description && (
+        <Description className="text-sm text-sorbet-ink/70">{description}</Description>
+      )}
       <FieldError className={fieldError}>{error}</FieldError>
       <ComboBox.Popover
         placement="bottom"
