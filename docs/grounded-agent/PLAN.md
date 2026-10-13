@@ -195,6 +195,11 @@ Request schema, prompt, model call and the form's wiring are too much for one PR
   panel now has "Try again", which calls the mutation's `reset` (`resetResponseAI`) and
   brings back the review step, filled in. `NotFoundComponent` takes `onAction` as an
   alternative to `path`. An e2e test aborts the generate POST, then checks the review card comes back fully drawn with every answer it had before submitting.
+  Third review: clearing the form in the per-call `onSuccess` drew an empty step 1 while
+  `router.replace` was still navigating (worst in dev, where the trip route compiles on first
+  visit). The success now only sets `clearOnLeave`; `FormProvider`, mounted on every route,
+  clears the form once `usePathname()` is no longer `/form`. Checked by watching for step 1
+  between submit and the trip page: seen 3 of 3 runs before, 0 of 3 after.
 
 Decided at the split:
 - **The request carries `countryCode`** (the form already derives it from the country list), since

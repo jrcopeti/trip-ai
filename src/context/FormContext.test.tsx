@@ -5,6 +5,7 @@ import { FormProvider } from "@/context/FormContext";
 import { useFormData } from "@/hooks/useFormData";
 import { steps } from "@/data";
 import { validInputs, validTripRequest } from "@/test/fixtures";
+import { resetNextStubs, routerState } from "@/test/stubs/next";
 import type { FieldName, FormContextType, Inputs, SelectedForecastDataTypes } from "@/types";
 
 const generateForecast = vi.fn();
@@ -12,6 +13,7 @@ let forecastData: SelectedForecastDataTypes[] | undefined;
 const generateImage = vi.fn();
 const generateResponseAI = vi.fn();
 
+vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("@/hooks/useWeather", () => ({
   useWeather: () => ({ generateForecast, forecastData }),
 }));
@@ -43,12 +45,16 @@ function Probe() {
   return <div data-testid="step">{ctx.currentStep}</div>;
 }
 
-function renderForm() {
-  return renderWithProviders(
+function formTree() {
+  return (
     <FormProvider>
       <Probe />
-    </FormProvider>,
+    </FormProvider>
   );
+}
+
+function renderForm() {
+  return renderWithProviders(formTree());
 }
 
 /** Fills every field a given step validates, so `next()` is allowed through. */
@@ -78,6 +84,7 @@ beforeEach(() => {
   generateImage.mockClear();
   generateResponseAI.mockReset();
   forecastData = undefined;
+  resetNextStubs("/form");
   return () => vi.useRealTimers();
 });
 
@@ -392,26 +399,55 @@ describe("FormContext — processForm", () => {
     generateResponseAI.mockImplementation((_, options) => options?.onSuccess?.());
   }
 
-  it("resets back to step 0 once the trip is back", async () => {
+  /** Submits from step 2 with the weather on, and the trip comes back. */
+  async function succeedFromStepTwo() {
     generationSucceeds();
-    renderForm();
+    const view = renderForm();
     await advanceTo(2);
-    await act(async () => {
-      ctx.processForm(validInputs, undefined);
-    });
-    expect(screen.getByTestId("step")).toHaveTextContent("0");
-  });
-
-  it("clears the weather selection once the trip is back", async () => {
-    generationSucceeds();
-    renderForm();
     await act(async () => {
       ctx.setIsWeatherSelected(true);
     });
     await act(async () => {
       ctx.processForm(validInputs, undefined);
     });
+    return view;
+  }
+
+  // router.replace only starts the navigation: clearing now would draw an empty step 1.
+  it("keeps the form as it is while still on /form after the trip is back", async () => {
+    await succeedFromStepTwo();
+    expect(screen.getByTestId("step")).toHaveTextContent("2");
+    expect(ctx.isWeatherSelected).toBe(true);
+    expect(ctx.reviewFormData.userName).toBe(validInputs.userName);
+  });
+
+  it("clears the answers, the step and the weather choice once the traveller leaves /form", async () => {
+    const view = await succeedFromStepTwo();
+
+    routerState.pathname = "/trips/ab12c";
+    await act(async () => {
+      view.rerender(formTree());
+    });
+
+    expect(screen.getByTestId("step")).toHaveTextContent("0");
     expect(ctx.isWeatherSelected).toBe(false);
+    expect(ctx.reviewFormData.userName).toBe("");
+  });
+
+  it("leaves the form alone on a path change when no trip came back", async () => {
+    const view = renderForm();
+    await advanceTo(2);
+    await act(async () => {
+      ctx.processForm(validInputs, undefined);
+    });
+
+    routerState.pathname = "/about";
+    await act(async () => {
+      view.rerender(formTree());
+    });
+
+    expect(screen.getByTestId("step")).toHaveTextContent("2");
+    expect(ctx.reviewFormData.userName).toBe(validInputs.userName);
   });
 
   // A failed generation only shows a toast: the traveller can press "Plan my trip" again.

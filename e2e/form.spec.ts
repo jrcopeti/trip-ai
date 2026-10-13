@@ -11,8 +11,8 @@ import {
 
 /**
  * The seven-step form, walked in the browser, with its lookups stubbed (see
- * `formWalk.ts`). Submitting — and the trip that comes back — is
- * `trip-journey.spec`.
+ * `formWalk.ts`), up to and just past submitting. The trip that comes back, and
+ * saving it, is `trip-journey.spec`.
  */
 
 test.describe("/form", () => {
@@ -158,5 +158,26 @@ test.describe("/form", () => {
     await expect(answers).toHaveText(before);
     // Disabled until "I agree" is ticked, so the agreement came back too.
     await expect(page.getByRole("button", { name: "Plan my trip" })).toBeEnabled();
+  });
+
+  test("a successful submit goes to the trip without drawing an empty step 1", async ({ page }) => {
+    await page.goto("/form");
+    await walkAllSteps(page);
+
+    // router.replace only starts the navigation, so a form cleared on success showed
+    // step 1, empty, until the trip page took over. Record any h1 that says so.
+    await page.evaluate(() => {
+      const w = window as Window & { sawStepOne?: boolean };
+      w.sawStepOne = false;
+      new MutationObserver(() => {
+        if ([...document.querySelectorAll("h1")].some((h) => h.textContent === "Personal information")) {
+          w.sawStepOne = true;
+        }
+      }).observe(document.body, { subtree: true, childList: true, characterData: true });
+    });
+    await page.getByRole("button", { name: "Plan my trip" }).click();
+    await expect(page).toHaveURL(/\/trips\/[\w-]{5}$/);
+
+    expect(await page.evaluate(() => (window as Window & { sawStepOne?: boolean }).sawStepOne)).toBe(false);
   });
 });
