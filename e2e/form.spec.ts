@@ -120,4 +120,43 @@ test.describe("/form", () => {
     await expect(page.getByRole("checkbox", { name: "25–30" })).toBeChecked();
     await expect(page.getByRole("combobox", { name: /passport/i })).toHaveValue("Brazil");
   });
+
+  test("a failed generation can be tried again without refilling the form", async ({ page }) => {
+    await page.goto("/form");
+    await walkAllSteps(page);
+
+    // Every answer on the review card, read before submitting. Scoped to the card's
+    // <dl>, so a toast saying "Found Lisbon, Portugal" can't stand in for an answer.
+    const answers = page.locator("dl dd");
+    const before = await answers.allTextContents();
+    expect(before.length).toBeGreaterThan(10);
+
+    // Generation is a server action, a POST to the page: fail just that one.
+    await page.route("**/form", (route) =>
+      route.request().method() === "POST" ? route.abort() : route.continue(),
+    );
+    await page.getByRole("button", { name: "Plan my trip" }).click();
+    await expect(page.getByRole("heading", { name: /error generating the trip/ })).toBeVisible();
+    await page.unroute("**/form");
+
+    await page.getByRole("button", { name: "Try again" }).click();
+
+    await expect(heading(page)).toHaveText("Review and submit");
+    // The step slides in again, and Playwright counts opacity 0 as visible: wait until
+    // the card is actually drawn, or a step stuck mid-animation would still pass.
+    await expect
+      .poll(() =>
+        page.locator("dl").evaluate((el) => {
+          let opacity = 1;
+          for (let node: Element | null = el; node; node = node.parentElement) {
+            opacity *= Number(getComputedStyle(node).opacity);
+          }
+          return opacity;
+        }),
+      )
+      .toBe(1);
+    await expect(answers).toHaveText(before);
+    // Disabled until "I agree" is ticked, so the agreement came back too.
+    await expect(page.getByRole("button", { name: "Plan my trip" })).toBeEnabled();
+  });
 });

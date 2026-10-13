@@ -17,7 +17,7 @@ import LoaderResponseAI from "../ui/LoaderResponseAI";
 import { failure } from "./content";
 
 function Form() {
-  const { isPendingResponseAI, errorResponseAI } = useTripResponse();
+  const { isPendingResponseAI, errorResponseAI, resetResponseAI } = useTripResponse();
   const { handleSubmit, processForm } = useFormData();
 
   if (isPendingResponseAI) {
@@ -25,11 +25,13 @@ function Form() {
   }
 
   if (errorResponseAI) {
+    // Clearing the error shows the form again, still on the review step with
+    // every answer: it is cleared only when a trip comes back.
     return (
       <NotFoundComponent
         message={failure.message}
-        path={failure.path}
         button={failure.button}
+        onAction={resetResponseAI}
       />
     );
   }

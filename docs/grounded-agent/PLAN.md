@@ -190,6 +190,11 @@ Request schema, prompt, model call and the form's wiring are too much for one PR
   per-call `onSuccess`, so a failed generation keeps every answer for another try; and the
   form's `userName` rule matches the server's (trimmed, `LIMITS.name` = 100, no `<` or `>`), so a
   name the server would refuse is flagged on step 1.
+  Second review: the failure panel had a "Back to the form" link to `/form`, the page it was
+  on, and nothing cleared the mutation's error, so the kept answers were unreachable. The
+  panel now has "Try again", which calls the mutation's `reset` (`resetResponseAI`) and
+  brings back the review step, filled in. `NotFoundComponent` takes `onAction` as an
+  alternative to `path`. An e2e test aborts the generate POST, then checks the review card comes back fully drawn with every answer it had before submitting.
 
 Decided at the split:
 - **The request carries `countryCode`** (the form already derives it from the country list), since

@@ -13,7 +13,10 @@ import type { NotFoundComponentProps } from "@/types";
  * `w-full` so it still fills the width if a caller ever renders it inside a
  * centring flex row, where a block without a width shrinks to its text.
  */
-function NotFoundComponent({ message, path, button }: NotFoundComponentProps) {
+const buttonClass =
+  "rounded-full bg-sorbet-ink px-7 py-4 text-base font-semibold text-sorbet-offwhite transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sorbet-ink";
+
+function NotFoundComponent({ message, path, button, onAction }: NotFoundComponentProps) {
   return (
     <div className="grid w-full min-h-[calc(100dvh-4rem)] place-items-center bg-sorbet-canvas px-5 py-20 font-sorbet text-sorbet-ink antialiased sm:px-8">
       <div className="mx-auto flex max-w-2xl flex-col items-center gap-8 text-center">
@@ -23,12 +26,15 @@ function NotFoundComponent({ message, path, button }: NotFoundComponentProps) {
         <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-balance">
           {message}
         </h2>
-        <Link
-          href={path}
-          className="rounded-full bg-sorbet-ink px-7 py-4 text-base font-semibold text-sorbet-offwhite transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sorbet-ink"
-        >
-          {button}
-        </Link>
+        {onAction ? (
+          <button type="button" onClick={onAction} className={buttonClass}>
+            {button}
+          </button>
+        ) : (
+          <Link href={path} className={buttonClass}>
+            {button}
+          </Link>
+        )}
       </div>
     </div>
   );

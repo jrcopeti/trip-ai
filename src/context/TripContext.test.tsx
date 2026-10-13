@@ -144,6 +144,17 @@ describe("TripContext", () => {
     expect(onSuccess).not.toHaveBeenCalled();
   });
 
+  it("clears the error on reset, so the form can show again", async () => {
+    mockFetch.mockRejectedValue(new Error("The model did not return a trip"));
+    renderTrip();
+
+    ctx.generateResponseAI(validTripRequest);
+    await waitFor(() => expect(ctx.errorResponseAI).toBeInstanceOf(Error));
+
+    ctx.resetResponseAI();
+    await waitFor(() => expect(ctx.errorResponseAI).toBeNull());
+  });
+
   it("lets the save flag be flipped", async () => {
     renderTrip();
     ctx.setIsTripSaved(true);

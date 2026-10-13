@@ -147,6 +147,7 @@ export interface TripContextType {
   generateResponseAI: (request: TripRequest, options?: { onSuccess?: () => void }) => void;
   isPendingResponseAI: boolean;
   errorResponseAI: unknown;
+  resetResponseAI: () => void;
   isTripSaved: boolean;
   setIsTripSaved: (value: boolean) => void;
 }
@@ -182,11 +183,11 @@ export interface Country {
   flagUrl: string;
 }
 
-export interface NotFoundComponentProps {
-  message: string;
-  path: string;
-  button: string;
-}
+/** The button either links somewhere (`path`) or acts in place (`onAction`). */
+export type NotFoundComponentProps = { message: string; button: string } & (
+  | { path: string; onAction?: never }
+  | { onAction: () => void; path?: never }
+);
 export interface useGeoNamesProps {
   city: string;
   countryCode?: string;

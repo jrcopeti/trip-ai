@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import userEvent from "@testing-library/user-event";
 import { renderWithProviders, screen } from "@/test/render";
 import NotFoundComponent from "@/components/ui/NotFoundComponent";
 
@@ -29,6 +30,17 @@ describe("NotFoundComponent", () => {
     expect(
       screen.getByRole("link", { name: "Back to saved trips" }),
     ).toHaveAttribute("href", "/saved-trips");
+  });
+
+  it("acts in place, as a button, when given onAction instead of a path", async () => {
+    const onAction = vi.fn();
+    renderWithProviders(
+      <NotFoundComponent message="It failed." button="Try again" onAction={onAction} />,
+    );
+
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(onAction).toHaveBeenCalledTimes(1);
   });
 
   it("hides the error glyph from assistive technology", () => {

@@ -15,6 +15,7 @@ const defaultContextValue: TripContextType = {
   generateResponseAI: async () => {},
   isPendingResponseAI: false,
   errorResponseAI: null,
+  resetResponseAI: () => {},
   isTripSaved: false,
   setIsTripSaved: () => {},
 };
@@ -36,6 +37,7 @@ function TripProvider({ children }: { children: React.ReactNode }) {
     data: tripData,
     isPending: isPendingResponseAI,
     error: errorResponseAI,
+    reset: resetResponseAI,
   } = useMutation({
     mutationFn: (request: TripRequest) => generateTrip(request),
 
@@ -59,6 +61,7 @@ function TripProvider({ children }: { children: React.ReactNode }) {
         generateResponseAI,
         isPendingResponseAI,
         errorResponseAI,
+        resetResponseAI,
         isTripSaved,
         setIsTripSaved,
       }}
