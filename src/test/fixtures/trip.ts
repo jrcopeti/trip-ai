@@ -85,7 +85,7 @@ export function makeTrip(overrides: Partial<Trip> = {}): Trip {
  * A `Trip` row is the *read* shape: `id` and the timestamps are set by the DB,
  * and the Json columns come back as `JsonValue` (nullable) rather than the
  * `InputJsonValue` a write accepts. This drops the generated columns and
- * narrows the Json fields, giving the shape `createTripInDB` actually takes.
+ * narrows the Json fields, giving the shape a Prisma write takes (the e2e seed).
  */
 export function tripCreateInput(
   trip: Trip = tripFixture,

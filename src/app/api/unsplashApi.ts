@@ -1,4 +1,4 @@
-"use server";
+// Not a server action: only `generateTrip` calls it, with GeoNames' name for the place.
 import { getPlaiceholder } from "plaiceholder";
 import { imageDataFixture, useE2EFixtures } from "./e2eFixtures";
 

@@ -1,14 +1,17 @@
 import { useParams } from "next/navigation";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { useFormData } from "@/hooks/useFormData";
-import { useImage } from "@/hooks/useImage";
 import defaultImage1 from "@/assets/travel-photos/1.jpg";
 import Polaroid from "@/components/sorbet/Polaroid";
 import { defaultPlaceholder } from "@/lib/constants";
 import { durationInDays } from "@/lib/utils";
 import { title as copy } from "./content";
+
+// Row dates are calendar days at UTC midnight (`toTripRow`), so they're read in UTC.
+dayjs.extend(utc);
 
 /**
  * The opening section on both trip routes: the large polaroid, captioned with the
@@ -23,17 +26,16 @@ function TitleSection() {
   const { trip } = useSingleSavedTrip({ params });
   const { tripData: response } = useTripResponse();
   const { formData } = useFormData();
-  const { imageData } = useImage();
 
-  const image = trip?.tripImages[0] || imageData?.tripImages[0];
-  const placeholder = trip?.placeholder || imageData?.placeholder;
+  const image = trip?.tripImages[0] || response?.tripImages[0];
+  const placeholder = trip?.placeholder || response?.placeholder;
   const title = trip?.title || response?.title || "";
   const city = trip?.city || formData?.city;
   const country = trip?.country || formData?.country;
   const userName = trip?.userName || formData?.userName;
   const byWeather = trip ? trip.byWeather : formData?.byWeather;
-  const startDate = dayjs(trip?.startDate || formData?.startDate);
-  const endDate = dayjs(trip?.endDate || formData?.endDate);
+  const startDate = dayjs.utc(trip?.startDate || response?.startDate);
+  const endDate = dayjs.utc(trip?.endDate || response?.endDate);
   const start = startDate.format("DD.MM.YYYY");
   const end = endDate.format("DD.MM.YYYY");
   const kind = copy.kind(trip?.type || formData?.type, durationInDays(startDate, endDate));

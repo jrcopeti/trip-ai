@@ -155,7 +155,7 @@ passes here and fails in CI. Use `vi.setSystemTime` with a *local* `Date`, and
 server: not a `npm run dev` on 3000, which reads the production database from `.env`, and
 not one already on 3100, which fails the run (stop it first). With `PLAYWRIGHT_BASE_URL`
 set, no server starts and the trip journey skips, since that site's database is unknown. The one production concession to
-testing: the four `"use server"` modules return a fixture when `E2E_FIXTURES=1`
+testing: the API modules return a fixture when `E2E_FIXTURES=1`
 (`src/app/api/e2eFixtures.ts`) — those calls are server-side, so `page.route` cannot
 reach them, and the alternative is live API keys in CI.
 
@@ -239,31 +239,30 @@ architecture). A plan is for work in flight.
 
 ### User flow
 1. `/form` — multi-step form (7 steps, managed by `FormContext`)
-2. On submit: Anthropic API call → redirect to `/trips/[tripUrl]` (12 random hex characters; `tripUrl` is unique)
-3. On the trip page: user chooses to save or discard → Prisma writes to DB
+2. On submit: `generateTrip` writes the `Trip` row (`saved: false`) → redirect to `/trips/[tripUrl]` (12 random hex characters, chosen on the server; `tripUrl` is unique)
+3. On the trip page: save or discard → `setTripSaved(tripUrl, saved)` flips the flag
 4. `/saved-trips` — lists all saved trips; `/saved-trips/[id]` — single saved trip
 
-### State management: four Context providers (nested in `src/app/providers.tsx`, inside `MotionProvider`)
-- **`FormContext`** (`src/context/FormContext.tsx`) — owns the entire multi-step form: RHF instance, Zod validation (`FormDataSchema`), step navigation (`next`/`prev`), and triggers weather/image fetches on the appropriate steps.
-- **`TripContext`** (`src/context/TripContext.tsx`) — holds the Anthropic API response (`tripData`) and the TanStack Query mutation that sends a `TripRequest` to `generateTrip`. Redirects to `/trips/[tripUrl]` on success.
+### State management: three Context providers (nested in `src/app/providers.tsx`, inside `MotionProvider`)
+- **`FormContext`** (`src/context/FormContext.tsx`) — owns the entire multi-step form: RHF instance, Zod validation (`FormDataSchema`), step navigation (`next`/`prev`), and triggers the forecast fetch on the dates step.
+- **`TripContext`** (`src/context/TripContext.tsx`) — holds the row `generateTrip` wrote (`tripData`) and the TanStack Query mutation that sends a `TripRequest` to `generateTrip`. Redirects to `/trips/[tripUrl]` on success.
 - **`WeatherContext`** (`src/context/WeatherContext.tsx`) — three separate TanStack Query mutations: current weather, 5-day forecast, and daily forecast.
-- **`ImageContext`** (`src/context/ImageContext.tsx`) — TanStack Query mutation calling `fetchTripImage` (Unsplash).
 
-### Server-side modules (all marked `"use server"`)
-- `src/app/api/anthropicApi.ts` — `generateTrip(request)`: re-validates the `TripRequest` (`src/lib/agent/request.ts`), resolves the city again with `resolvePlace`, builds the prompt on the server (`src/lib/agent/prompt.ts`) and calls `claude-sonnet-5-5` with the strict `submit_trip` tool (`src/lib/agent/submitTrip.ts`) and `tool_choice: auto`. A refusal, `max_tokens`, a missing call or output that fails `TripDataSchema` all throw. Returns title, objectsList, mustHave, description, tours, tip; the traveller's own `requiredItems` come from the form.
-- `src/app/api/unsplashApi.ts` — fetches 5 city photos + generates a base64 plaiceholder blur for the first image.
+### Server-side modules (`"use server"` unless noted)
+- `src/app/api/anthropicApi.ts` — `generateTrip(request)`: re-validates the `TripRequest` (`src/lib/agent/request.ts`), resolves the city again with `resolvePlace`, builds the prompt on the server (`src/lib/agent/prompt.ts`) and calls `claude-sonnet-5-5` with the strict `submit_trip` tool (`src/lib/agent/submitTrip.ts`) and `tool_choice: auto`. A refusal, `max_tokens`, a missing call or output that fails `TripDataSchema` all throw. Alongside the model call it fetches the photos, then writes the row (`toTripRow`, `src/lib/tripRow.ts`) from the request, the place and the output, and returns it.
+- `src/app/api/unsplashApi.ts` — not an action: `generateTrip` calls it with GeoNames' name for the place. Fetches 5 photos + a base64 plaiceholder blur of the first.
 - `src/app/api/openWeatherApi.ts` — fetches current weather and forecast from OpenWeather at
   the coordinates `resolvePlace` returns for `{ city, countryCode }`.
 - `src/app/api/geoNamesApi.ts` — `resolvePlace(city, countryCode)`: GeoNames search plus `matchCity` (`src/lib/place.ts`); returns the canonical place or a typed `not-found`/`unavailable`.
-- `src/db/actions.ts` — Prisma server actions: `createTripInDB`, `getSavedTripsPage` (18 saved trips per page plus the total, for the "Show more" grid), `getSingleSavedTrip`, `getLatestSavedTrips` (the landing hero's three newest).
+- `src/db/actions.ts` — Prisma server actions: `setTripSaved` (flips an unsaved row's flag, once), `getSavedTripsPage` (18 saved trips per page plus the total, for the "Show more" grid), `getSingleSavedTrip`, `getLatestSavedTrips` (the landing hero's three newest).
 - `src/db/index.ts` — singleton Prisma client.
 
 ### Form data lifecycle
-`Inputs` (RHF shape, `requiredItems` as `{item: string}[]`) → `FinalDataTypes` (flattened to `string[]`) via `transformInputsToFinalData`; on submit, `processForm` also sends `toTripRequest(inputs, countryCode, forecast)` — the original spelling, calendar-day dates — to `generateTrip`. Both types are derived from/extend the Zod schema in `src/lib/schema.ts`. The trip is assembled in `useCreateTrip` by merging `formData` + `tripData` (AI response) + `imageData`.
+`Inputs` (RHF shape, `requiredItems` as `{item: string}[]`) → `FinalDataTypes` (flattened to `string[]`) via `transformInputsToFinalData`; on submit, `processForm` also sends `toTripRequest(inputs, countryCode, forecast)` — the original spelling, calendar-day dates — to `generateTrip`. Both types are derived from/extend the Zod schema in `src/lib/schema.ts`. The row is built on the server from the request; `formData` only feeds the generated trip page until it renders from the row (grounded-agent 2c).
 
 ### Key custom hooks
-- `useCreateTrip` — assembles the final DB payload and calls `createTripInDB`; `handleYesAnswer`/`handleNoAnswer` set `saved: true/false`
-- `useFormData`, `useTripResponse`, `useImage` — context consumers
+- `useSaveTrip` — `handleYesAnswer`/`handleNoAnswer` call `setTripSaved(tripUrl, true/false)`
+- `useFormData`, `useTripResponse` — context consumers
 - `useCountries` — fetches country list (flag URLs, ISO codes) for the autocomplete
 - `useGeoNames` — debounced city check, through the `resolvePlace` server action; run once in
   `FormProvider`, which hands it out as `cityCheck`
@@ -307,4 +306,4 @@ picks one at random on the server — `/about`'s photo and the landing's band �
 pages call `await connection()` to render per request.
 
 ### Database
-Single `Trip` model (Postgres on Neon, via Prisma; no `relationMode`, so a relation is a real foreign key). It stores the resolved place (`countryCode`, `lat`, `lng`) and the photos as `tripImages`. All trips are written immediately (saved or not); `saved: boolean` distinguishes them.
+Single `Trip` model (Postgres on Neon, via Prisma; no `relationMode`, so a relation is a real foreign key). It stores the resolved place (`countryCode`, `lat`, `lng`) and the photos as `tripImages`. Every generated trip is written (`saved: false`) before the traveller sees it; `saved: boolean` records the answer.

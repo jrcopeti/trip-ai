@@ -1,9 +1,10 @@
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
-import { useImage } from "@/hooks/useImage";
+import { useTripResponse } from "@/hooks/useTripResponse";
 import { useFormData } from "@/hooks/useFormData";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import defaultImage4 from "@/assets/travel-photos/4.jpg";
 import Reveal from "@/components/sorbet/Reveal";
 import { defaultPlaceholder } from "@/lib/constants";
@@ -20,11 +21,14 @@ import {
 import { MediaFrame, Section, SectionHeading } from "./Section";
 import { details as copy } from "./content";
 
+// Row dates are calendar days at UTC midnight (`toTripRow`), so they're read in UTC.
+dayjs.extend(utc);
+
 /** What the traveller entered, as the `<dl>` it is. Known options show their label. */
 function FormDetailsSection() {
   const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
-  const { imageData } = useImage();
+  const { tripData: response } = useTripResponse();
   const { formData } = useFormData();
 
   const countryCode = trip?.countryCode || formData?.countryCode;
@@ -36,12 +40,12 @@ function FormDetailsSection() {
     (interest) => interest.trim() !== "",
   );
 
-  const startDate = dayjs(trip?.startDate || formData?.startDate);
-  const endDate = dayjs(trip?.endDate || formData?.endDate);
+  const startDate = dayjs.utc(trip?.startDate || response?.startDate);
+  const endDate = dayjs.utc(trip?.endDate || response?.endDate);
   const duration = displayDuration(durationInDays(startDate, endDate));
 
-  const image4 = trip?.tripImages[3] || imageData?.tripImages[3];
-  const placeholder = trip?.placeholder || imageData?.placeholder;
+  const image4 = trip?.tripImages[3] || response?.tripImages[3];
+  const placeholder = trip?.placeholder || response?.placeholder;
 
   const travellers = trip?.travellers || formData?.travellers;
   const ageRanges = trip?.ageRanges?.length ? trip.ageRanges : (formData?.ageRanges ?? []);

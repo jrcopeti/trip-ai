@@ -6,7 +6,6 @@ import { Toaster } from "react-hot-toast";
 import { TripProvider } from "@/context/TripContext";
 import { WeatherProvider } from "@/context/WeatherContext";
 import { FormProvider } from "@/context/FormContext";
-import { ImageProvider } from "@/context/ImageContext";
 import MotionProvider from "@/components/sorbet/MotionProvider";
 
 interface ProvidersProps {
@@ -40,16 +39,14 @@ function Providers({ children }: ProvidersProps) {
             duration: 5000,
           }}
         />
-        <ImageProvider>
-          <WeatherProvider>
-            <TripProvider>
-              <FormProvider>
-                {children}
-                {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-              </FormProvider>
-            </TripProvider>
-          </WeatherProvider>
-        </ImageProvider>
+        <WeatherProvider>
+          <TripProvider>
+            <FormProvider>
+              {children}
+              {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+            </FormProvider>
+          </TripProvider>
+        </WeatherProvider>
       </MotionProvider>
     </QueryClientProvider>
   );

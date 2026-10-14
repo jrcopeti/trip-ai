@@ -1,32 +1,25 @@
 "use client";
-import { useFormData } from "./useFormData";
 import { useTripResponse } from "./useTripResponse";
-import { useImage } from "./useImage";
-import { createTripInDB } from "@/db/actions";
+import { setTripSaved } from "@/db/actions";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import ErrorToaster from "@/components/ui/ErrorToaster";
 import CustomToaster from "@/components/ui/CustomToaster";
-import { TripUrlParamsType } from "@/types";
-import { toTripRow } from "@/lib/tripRow";
 
-export function useCreateTrip(tripUrlParams: TripUrlParamsType) {
-  const { formData } = useFormData();
+/** The traveller's answer to "save this trip?": the row is already written, so only `saved` changes. */
+export function useSaveTrip() {
   const { tripData: trip, setIsTripSaved } = useTripResponse();
-  const { imageData } = useImage();
-  const tripUrl = tripUrlParams.tripUrl;
 
   const {
-    mutate: createTrip,
-    isPending: isCreatingTrip,
-    error: createTripError,
+    mutate: saveTrip,
+    isPending: isSavingTrip,
+    error: saveTripError,
   } = useMutation({
     mutationKey: ["trips"],
-    // The row is built in here, so a trip that can't be saved shows the error toast.
-    mutationFn: (saved: boolean) =>
-      createTripInDB(
-        toTripRow({ formData, tripData: trip!, imageData, tripUrl: tripUrl ?? "", saved }),
-      ),
+    mutationFn: (saved: boolean) => {
+      if (!trip) throw new Error("No trip to answer for");
+      return setTripSaved(trip.tripUrl, saved);
+    },
 
     onError: (error) => {
       console.error(error);
@@ -37,7 +30,7 @@ export function useCreateTrip(tripUrlParams: TripUrlParamsType) {
   });
 
   const handleYesAnswer = () => {
-    createTrip(true, {
+    saveTrip(true, {
       onSuccess: () => {
         setIsTripSaved(true);
         toast.custom(<CustomToaster message="Your trip was saved" />);
@@ -46,7 +39,7 @@ export function useCreateTrip(tripUrlParams: TripUrlParamsType) {
   };
 
   const handleNoAnswer = () => {
-    createTrip(false, {
+    saveTrip(false, {
       onSuccess: () => {
         setIsTripSaved(true);
         toast.custom(<ErrorToaster message="Trip was not saved" />);
@@ -54,9 +47,8 @@ export function useCreateTrip(tripUrlParams: TripUrlParamsType) {
     });
   };
   return {
-    createTrip,
-    isCreatingTrip,
-    createTripError,
+    isSavingTrip,
+    saveTripError,
     handleYesAnswer,
     handleNoAnswer,
   };

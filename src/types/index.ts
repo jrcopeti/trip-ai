@@ -140,13 +140,6 @@ export interface TripContextType {
   setIsTripSaved: (value: boolean) => void;
 }
 
-export interface ImageContextType {
-  imageData?: ImageDataTypes;
-  generateImage: (city: string) => void;
-  isPendingImage: boolean;
-  errorImage: unknown;
-}
-
 export interface ImageDataTypes {
   /** In the order the trip page shows them; `placeholder` is the blur of the first. */
   tripImages: string[];
@@ -190,7 +183,4 @@ export interface ToggleActions {
 
 export interface Params {
   id?: string | number;
-}
-export interface TripUrlParamsType {
-  tripUrl?: string;
 }

@@ -13,15 +13,11 @@ import type { FieldName, FormContextType, Inputs, SelectedForecastDataTypes } fr
 
 const generateForecast = vi.fn();
 let forecastData: SelectedForecastDataTypes[] | undefined;
-const generateImage = vi.fn();
 const generateResponseAI = vi.fn();
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("@/hooks/useWeather", () => ({
   useWeather: () => ({ generateForecast, forecastData }),
-}));
-vi.mock("@/hooks/useImage", () => ({
-  useImage: () => ({ generateImage }),
 }));
 vi.mock("@/hooks/useTripResponse", () => ({
   useTripResponse: () => ({ generateResponseAI }),
@@ -86,7 +82,6 @@ beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.setSystemTime(new Date(2030, 3, 1, 12, 0, 0));
   generateForecast.mockClear();
-  generateImage.mockClear();
   generateResponseAI.mockReset();
   forecastData = undefined;
   resetNextStubs("/form");
@@ -221,7 +216,6 @@ describe("FormContext — prev()", () => {
 
 describe("FormContext — fetch triggers", () => {
   const datesStep = steps.length - 3; // step 5, "Dates and Weather"
-  const interestsStep = steps.length - 2; // step 6, "Interests and Notes"
 
   it("fetches the forecast when leaving the dates step with weather selected", async () => {
     renderForm();
@@ -261,22 +255,6 @@ describe("FormContext — fetch triggers", () => {
       await ctx.next();
     });
     expect(generateForecast).not.toHaveBeenCalled();
-  });
-
-  it("fetches the city image when leaving the interests step", async () => {
-    renderForm();
-    await advanceTo(interestsStep);
-    await fillStep(interestsStep);
-    await act(async () => {
-      await ctx.next();
-    });
-    expect(generateImage).toHaveBeenCalledWith(validInputs.city);
-  });
-
-  it("does not fetch the image on any earlier step", async () => {
-    renderForm();
-    await advanceTo(interestsStep);
-    expect(generateImage).not.toHaveBeenCalled();
   });
 });
 

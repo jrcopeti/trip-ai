@@ -1,9 +1,10 @@
 import type { Trip } from "@prisma/client";
+import type { TripData } from "@/lib/agent/submitTrip";
+import { makeTrip } from "./trip";
 
 /**
- * What `generateTrip` resolves to: the `submit_trip` tool's input, cast to `Trip`
- * by the API module. Only the six tool fields are present — the rest of the row,
- * the traveller's own items included, is merged in from the form data by `useCreateTrip`.
+ * The model's `submit_trip` input: the six generated fields. `generateTrip` writes them
+ * into the row with the request, the place and the photos (`generatedTripFixture`).
  */
 export const tripDataFixture = {
   title: "Ana's Seven Sunlit Days Across Lisbon, Portugal",
@@ -48,4 +49,14 @@ export const tripDataFixture = {
     },
   ],
   tip: "A carry-on suits the hills; cobblestones punish wheeled luggage.",
-} as unknown as Trip;
+} satisfies TripData;
+
+/**
+ * What `generateTrip` resolves to for `validTripRequest` at `lisbonPlace`, with
+ * `imageDataFixture`'s photos: the row it wrote, not saved yet.
+ */
+export const generatedTripFixture: Trip = makeTrip({
+  ...tripDataFixture,
+  tripUrl: "0a1b2c3d4e5f",
+  saved: false,
+});

@@ -1,18 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  createTripInDB,
   getLatestSavedTrips,
   getSavedTripsPage,
   getSingleSavedTrip,
+  setTripSaved,
 } from "@/db/actions";
 import prisma from "@/db";
-import { tripCreateInput, tripFixture, tripFixture2 } from "@/test/fixtures";
+import { tripFixture, tripFixture2 } from "@/test/fixtures";
 import { SAVED_TRIPS_PAGE_SIZE } from "@/lib/constants";
 
 vi.mock("@/db", () => ({
   default: {
     trip: {
-      create: vi.fn(),
+      updateMany: vi.fn(),
       findMany: vi.fn(),
       findUnique: vi.fn(),
       count: vi.fn(),
@@ -23,40 +23,38 @@ vi.mock("@/db", () => ({
 const trip = vi.mocked(prisma.trip);
 
 beforeEach(() => {
-  vi.mocked(trip.create).mockReset();
+  vi.mocked(trip.updateMany).mockReset();
   vi.mocked(trip.findMany).mockReset();
   vi.mocked(trip.findUnique).mockReset();
   vi.mocked(trip.count).mockReset();
 });
 
-describe("createTripInDB", () => {
-  it("writes the trip it is handed", async () => {
-    const input = tripCreateInput();
-    vi.mocked(trip.create).mockResolvedValue(tripFixture);
+describe("setTripSaved", () => {
+  const url = "0a1b2c3d4e5f";
 
-    const result = await createTripInDB(input);
+  it.each([true, false])("flips an unsaved trip's flag to %s, and only that", async (saved) => {
+    vi.mocked(trip.updateMany).mockResolvedValue({ count: 1 });
 
-    expect(trip.create).toHaveBeenCalledWith({ data: input });
-    expect(result).toEqual(tripFixture);
-  });
-
-  it("writes discarded trips too, flagged unsaved", async () => {
-    const discarded = { ...tripCreateInput(), saved: false };
-    vi.mocked(trip.create).mockResolvedValue({ ...tripFixture, saved: false });
-
-    await createTripInDB(discarded);
-
-    expect(trip.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({ saved: false }),
+    await expect(setTripSaved(url, saved)).resolves.toBeUndefined();
+    expect(trip.updateMany).toHaveBeenCalledWith({
+      where: { tripUrl: url, saved: false },
+      data: { saved },
     });
   });
 
-  it("propagates a write failure rather than swallowing it", async () => {
-    vi.mocked(trip.create).mockRejectedValue(new Error("connection refused"));
+  it("fails when there is no unsaved trip at the url, so a saved one can't be unsaved", async () => {
+    vi.mocked(trip.updateMany).mockResolvedValue({ count: 0 });
 
-    await expect(createTripInDB(tripCreateInput())).rejects.toThrow(
-      "connection refused",
-    );
+    await expect(setTripSaved(url, false)).rejects.toThrow("No unsaved trip");
+  });
+
+  it.each([
+    ["a short url", "ab12c", true],
+    ["a url with a filter in it", { not: "" }, true],
+    ["an answer that isn't a boolean", url, "yes"],
+  ])("refuses %s before touching the table", async (_, tripUrl, saved) => {
+    await expect(setTripSaved(tripUrl as string, saved as boolean)).rejects.toThrow();
+    expect(trip.updateMany).not.toHaveBeenCalled();
   });
 });
 

@@ -10,7 +10,6 @@ import type {
 import { useCountries } from "@/hooks/useCountries";
 import { idleCityCheck, useGeoNames } from "@/hooks/useGeoNames";
 import { useWeather } from "@/hooks/useWeather";
-import { useImage } from "@/hooks/useImage";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -124,7 +123,6 @@ function FormProvider({ children }: { children: React.ReactNode }) {
 
   const { countries } = useCountries();
   const { generateForecast, forecastData } = useWeather();
-  const { generateImage } = useImage();
 
   const cityWatch = watch("city");
   const countryWatch = watch("country");
@@ -193,10 +191,6 @@ function FormProvider({ children }: { children: React.ReactNode }) {
 
     if (isWeatherSelected && countryCode && currentStep === steps.length - 3) {
       generateForecast({ city: cityWatch, countryCode });
-    }
-
-    if (currentStep === steps.length - 2) {
-      generateImage(cityWatch);
     }
     setPrevStep(currentStep);
     setCurrentStep((step) => step + 1);

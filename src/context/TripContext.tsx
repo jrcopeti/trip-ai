@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 import { generateTrip } from "@/app/api/anthropicApi";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -25,13 +25,6 @@ const TripContext = createContext<TripContextType>(defaultContextValue);
 function TripProvider({ children }: { children: React.ReactNode }) {
   const [isTripSaved, setIsTripSaved] = useState(false);
   const router = useRouter();
-  // 48 random bits: `tripUrl` is unique in the table, so a clash would make a trip unsaveable.
-  const tripId = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
-  const path = `/trips/${tripId}`;
-
-  useEffect(() => {
-    router.prefetch(path);
-  }, [path, router]);
 
   const {
     mutate: generateResponseAI,
@@ -42,9 +35,10 @@ function TripProvider({ children }: { children: React.ReactNode }) {
   } = useMutation({
     mutationFn: (request: TripRequest) => generateTrip(request),
 
-    onSuccess: () => {
+    // The server wrote the row and chose its url.
+    onSuccess: (trip) => {
       toast.custom(<CustomToaster message="Your trip has been generated!" />);
-      router.replace(path);
+      router.replace(`/trips/${trip.tripUrl}`);
     },
 
     onError: (error) => {

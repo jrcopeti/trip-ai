@@ -9,9 +9,8 @@ import SavedTripsPageComponent from "./SavedTripsPageComponent";
 import { closing, states } from "./content";
 
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
-vi.mock("@/app/api/unsplashApi", () => ({ fetchTripImage: vi.fn() }));
 vi.mock("@/app/api/openWeatherApi", () => ({ fetchWeather: vi.fn(), fetchForecast: vi.fn() }));
-vi.mock("@/db/actions", () => ({ getSingleSavedTrip: vi.fn(), createTripInDB: vi.fn() }));
+vi.mock("@/db/actions", () => ({ getSingleSavedTrip: vi.fn(), setTripSaved: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("next/image", async () => ({
   default: (await import("@/test/stubs/next")).NextImage,
