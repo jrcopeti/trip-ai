@@ -8,6 +8,7 @@ import type {
   Inputs,
 } from "@/types";
 import { useCountries } from "@/hooks/useCountries";
+import { idleCityCheck, useGeoNames } from "@/hooks/useGeoNames";
 import { useWeather } from "@/hooks/useWeather";
 import { useImage } from "@/hooks/useImage";
 import { useTripResponse } from "@/hooks/useTripResponse";
@@ -56,6 +57,7 @@ const defaultContextValue: FormContextType = {
   stepValue: 0,
   cityWatch: "",
   countryCode: "",
+  cityCheck: idleCityCheck,
   fields: [],
   append: () => {},
   insert: () => {},
@@ -136,6 +138,8 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     (country) => country.value === countryWatch,
   );
   const countryCode = findCountry?.code.toUpperCase();
+  // Here rather than in step 2 and the buttons, so each spelling is one GeoNames call.
+  const cityCheck = useGeoNames({ city: cityWatch, countryCode });
 
   // workaround to get the right value from the autocomplete
   const handleSelectionAutocomplete = (
@@ -197,11 +201,8 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     });
     if (!output) return;
 
-    if (isWeatherSelected && currentStep === steps.length - 3) {
-      generateForecast({
-        city: cityWatch,
-        country: countryWatch,
-      });
+    if (isWeatherSelected && countryCode && currentStep === steps.length - 3) {
+      generateForecast({ city: cityWatch, countryCode });
     }
 
     if (currentStep === steps.length - 2) {
@@ -273,6 +274,7 @@ function FormProvider({ children }: { children: React.ReactNode }) {
         processForm,
         cityWatch,
         countryCode,
+        cityCheck,
         fields,
         append,
         insert,

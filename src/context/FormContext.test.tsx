@@ -1,10 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
-import { renderWithProviders, screen } from "@/test/render";
+import { renderWithProviders, screen, waitFor } from "@/test/render";
 import { FormProvider } from "@/context/FormContext";
 import { useFormData } from "@/hooks/useFormData";
 import { steps } from "@/data";
-import { validInputs, validTripRequest } from "@/test/fixtures";
+import { lisbonPlace, validInputs, validTripRequest } from "@/test/fixtures";
+import { resolvePlace } from "@/app/api/geoNamesApi";
+import FormStep2 from "@/components/form/FormStep2";
+import FormButtons from "@/components/form/FormButtons";
 import { resetNextStubs, routerState } from "@/test/stubs/next";
 import type { FieldName, FormContextType, Inputs, SelectedForecastDataTypes } from "@/types";
 
@@ -23,6 +26,7 @@ vi.mock("@/hooks/useImage", () => ({
 vi.mock("@/hooks/useTripResponse", () => ({
   useTripResponse: () => ({ generateResponseAI }),
 }));
+vi.mock("@/app/api/geoNamesApi", () => ({ resolvePlace: vi.fn() }));
 vi.mock("@/hooks/useCountries", () => ({
   useCountries: () => ({
     countries: [
@@ -78,6 +82,7 @@ async function advanceTo(target: number) {
 }
 
 beforeEach(() => {
+  vi.mocked(resolvePlace).mockReset().mockResolvedValue({ ok: false, error: "not-found" });
   vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.setSystemTime(new Date(2030, 3, 1, 12, 0, 0));
   generateForecast.mockClear();
@@ -231,7 +236,7 @@ describe("FormContext — fetch triggers", () => {
 
     expect(generateForecast).toHaveBeenCalledWith({
       city: validInputs.city,
-      country: validInputs.country,
+      countryCode: "PT",
     });
   });
 
@@ -339,6 +344,25 @@ describe("FormContext — country autocomplete", () => {
       ctx.handleSelectionAutocomplete("pt", "country");
     });
     expect(ctx.countryCode).toBe("PT");
+  });
+
+  it("checks each spelling once, however many components read the check", async () => {
+    vi.mocked(resolvePlace).mockResolvedValue({ ok: true, place: lisbonPlace });
+    renderWithProviders(
+      <FormProvider>
+        <Probe />
+        <FormStep2 />
+        <FormButtons />
+      </FormProvider>,
+    );
+    await act(async () => {
+      ctx.handleSelectionAutocomplete("pt", "country");
+      ctx.setValue("city", "Lisbon");
+    });
+
+    await waitFor(() => expect(ctx.cityCheck.place).toEqual(lisbonPlace), { timeout: 2000 });
+    expect(resolvePlace).toHaveBeenCalledTimes(1);
+    expect(resolvePlace).toHaveBeenCalledWith("Lisbon", "PT");
   });
 });
 

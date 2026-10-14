@@ -1,17 +1,9 @@
 import { useEffect, useState } from "react";
 import { resolvePlace } from "@/app/api/geoNamesApi";
 import { destination } from "@/components/form/content";
-import type { Place } from "@/lib/place";
-import type { useGeoNamesProps } from "@/types";
+import type { CityCheck, useGeoNamesProps } from "@/types";
 
-interface CityStatus {
-  isLoadingCityValid: boolean;
-  isCityValid: boolean;
-  message: string;
-  place: Place | null;
-}
-
-const idle: CityStatus = {
+export const idleCityCheck: CityCheck = {
   isLoadingCityValid: false,
   isCityValid: false,
   message: "",
@@ -19,15 +11,15 @@ const idle: CityStatus = {
 };
 
 export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
-  const [status, setStatus] = useState<CityStatus>(idle);
+  const [status, setStatus] = useState<CityCheck>(idleCityCheck);
 
   useEffect(() => {
     if (city.trim().length < 3 || !countryCode) {
-      setStatus(idle);
+      setStatus(idleCityCheck);
       return;
     }
     // Loading from the first keystroke, so Next can't pass on the previous spelling's result.
-    setStatus({ ...idle, isLoadingCityValid: true });
+    setStatus({ ...idleCityCheck, isLoadingCityValid: true });
     // A slower answer for an earlier spelling must not overwrite the current one.
     let current = true;
     const debounce = setTimeout(() => {
@@ -44,7 +36,7 @@ export function useGeoNames({ city, countryCode }: useGeoNamesProps) {
                   place: result.place,
                 }
               : {
-                  ...idle,
+                  ...idleCityCheck,
                   message:
                     result.error === "not-found" ? destination.notFound : destination.unavailable,
                 },

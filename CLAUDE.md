@@ -219,6 +219,9 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
 - **`docs/landing-refresh/PLAN.md`** — the finished **landing refresh** (branches
   1–6): real saved trips, features and logo on the landing, the once-a-day intro,
   and its copy in `content.ts`. A record now; what binds is in `design-notes.md`.
+- **`docs/grounded-agent/PLAN.md`** — the **grounded agent**, in flight. Branch 1
+  (new form fields, the city check and the prompt on the server, `claude-sonnet-5-5`) is
+  finished; branches 2–7 (server-owned trip, metrics, tools, refine, evals, MCP) are next.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
 architecture). A plan is for work in flight.
@@ -249,7 +252,8 @@ architecture). A plan is for work in flight.
 ### Server-side modules (all marked `"use server"`)
 - `src/app/api/anthropicApi.ts` — `generateTrip(request)`: re-validates the `TripRequest` (`src/lib/agent/request.ts`), resolves the city again with `resolvePlace`, builds the prompt on the server (`src/lib/agent/prompt.ts`) and calls `claude-sonnet-5-5` with the strict `submit_trip` tool (`src/lib/agent/submitTrip.ts`) and `tool_choice: auto`. A refusal, `max_tokens`, a missing call or output that fails `TripDataSchema` all throw. Returns title, objectsList, mustHave, description, tours, tip; the traveller's own `requiredItems` come from the form.
 - `src/app/api/unsplashApi.ts` — fetches 5 city photos + generates a base64 plaiceholder blur for the first image.
-- `src/app/api/openWeatherApi.ts` — fetches current weather and forecast from OpenWeather.
+- `src/app/api/openWeatherApi.ts` — fetches current weather and forecast from OpenWeather at
+  the coordinates `resolvePlace` returns for `{ city, countryCode }`.
 - `src/app/api/geoNamesApi.ts` — `resolvePlace(city, countryCode)`: GeoNames search plus `matchCity` (`src/lib/place.ts`); returns the canonical place or a typed `not-found`/`unavailable`.
 - `src/db/actions.ts` — Prisma server actions: `createTripInDB`, `getSavedTripsPage` (18 saved trips per page plus the total, for the "Show more" grid), `getSingleSavedTrip`, `getLatestSavedTrips` (the landing hero's three newest).
 - `src/db/index.ts` — singleton Prisma client.
@@ -261,7 +265,8 @@ architecture). A plan is for work in flight.
 - `useCreateTrip` — assembles the final DB payload and calls `createTripInDB`; `handleYesAnswer`/`handleNoAnswer` set `saved: true/false`
 - `useFormData`, `useTripResponse`, `useImage` — context consumers
 - `useCountries` — fetches country list (flag URLs, ISO codes) for the autocomplete
-- `useGeoNames` — debounced city check on step 2, through the `resolvePlace` server action
+- `useGeoNames` — debounced city check, through the `resolvePlace` server action; run once in
+  `FormProvider`, which hands it out as `cityCheck`
 
 ### Styling
 

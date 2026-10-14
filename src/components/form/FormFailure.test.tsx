@@ -25,7 +25,8 @@ vi.mock("@/hooks/useImage", () => ({
   useImage: () => ({ generateImage: vi.fn() }),
 }));
 vi.mock("@/hooks/useGeoNames", () => ({
-  useGeoNames: () => ({ isCityValid: true, isLoadingCityValid: false, message: "" }),
+  idleCityCheck: { isCityValid: false, isLoadingCityValid: false, message: "", place: null },
+  useGeoNames: () => ({ isCityValid: true, isLoadingCityValid: false, message: "", place: null }),
 }));
 vi.mock("@/hooks/useCountries", () => ({
   useCountries: () => ({

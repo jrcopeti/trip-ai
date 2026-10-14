@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { matchCity, normalise } from "@/lib/place";
+import { countryCodeFromFlag, matchCity, normalise } from "@/lib/place";
 import {
   glasgowGeoName,
   lisbonGeoName,
@@ -77,5 +77,18 @@ describe("matchCity", () => {
   it("prefers the most populous match", () => {
     const smallLisbon = { ...lisbonGeoName, geonameId: 1, population: 900 };
     expect(matchCity("Lisbon", [smallLisbon, lisbonGeoName], "PT")?.geonameId).toBe(2267057);
+  });
+});
+
+describe("countryCodeFromFlag", () => {
+  it("reads the form's code back out of the flag URL", () => {
+    expect(countryCodeFromFlag("https://flagcdn.com/pt.svg")).toBe("PT");
+    expect(countryCodeFromFlag("https://flagcdn.com/gb-sct.svg")).toBe("GB-SCT");
+  });
+
+  it("returns undefined for anything else", () => {
+    expect(countryCodeFromFlag(undefined)).toBeUndefined();
+    expect(countryCodeFromFlag("")).toBeUndefined();
+    expect(countryCodeFromFlag("https://example.com/pt.svg")).toBeUndefined();
   });
 });

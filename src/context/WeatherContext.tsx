@@ -54,8 +54,7 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
     isPending: isPendingForecast,
     error: errorForecast,
   } = useMutation({
-    mutationFn: ({ city, country }: FetchForecastParams) =>
-      fetchForecast({ city, country }),
+    mutationFn: (params: FetchForecastParams) => fetchForecast(params),
 
     onSuccess: (initialForecastData: ForecastDataTypes[]) => {
       const selectedForecasts = selectDailyForecasts(
@@ -87,8 +86,7 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
     isPending: isPendingWeather,
     error: errorWeather,
   } = useMutation({
-    mutationFn: ({ city, country }: FetchWeatherParams) =>
-      fetchWeather({ city, country }),
+    mutationFn: (params: FetchWeatherParams) => fetchWeather(params),
 
     onSuccess: (initialWeatherData: WeatherDataTypes) => {
       const condition = initialWeatherData?.weather[0]?.main;
@@ -108,8 +106,7 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
     isPending: isPendingDailyForecast,
     error: errorDailyForecast,
   } = useMutation({
-    mutationFn: ({ city, country }: FetchForecastParams) =>
-      fetchForecast({ city, country }),
+    mutationFn: (params: FetchForecastParams) => fetchForecast(params),
 
     onSuccess: (initialDailyForecast: DailyForecastDataTypes[]) => {
       const selectedForecasts = selectDailyForecasts(
