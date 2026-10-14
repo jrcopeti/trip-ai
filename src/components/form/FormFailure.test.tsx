@@ -11,6 +11,7 @@ import { steps } from "@/data";
 import { tripDataFixture, validInputs } from "@/test/fixtures";
 import { failure, stepCopy } from "@/components/form/content";
 import { resetNextStubs } from "@/test/stubs/next";
+import toast from "react-hot-toast";
 import type { FieldName, FormContextType } from "@/types";
 
 // The real TripProvider and FormProvider, so the mutation's error and its reset
@@ -26,7 +27,12 @@ vi.mock("@/hooks/useImage", () => ({
 }));
 vi.mock("@/hooks/useGeoNames", () => ({
   idleCityCheck: { isCityValid: false, isLoadingCityValid: false, message: "", place: null },
-  useGeoNames: () => ({ isCityValid: true, isLoadingCityValid: false, message: "", place: null }),
+  useGeoNames: () => ({
+    isCityValid: true,
+    isLoadingCityValid: false,
+    message: "Found Lisbon, Portugal",
+    place: null,
+  }),
 }));
 vi.mock("@/hooks/useCountries", () => ({
   useCountries: () => ({
@@ -86,6 +92,17 @@ describe("Form — a failed generation", () => {
     expect(screen.queryByRole("heading", { name: failure.message })).not.toBeInTheDocument();
     expect(ctx.reviewFormData.userName).toBe(validInputs.userName);
     expect(ctx.reviewFormData.city).toBe(validInputs.city);
+  });
+
+  it("doesn't announce the city check again when Try again brings the form back", async () => {
+    mockGenerate.mockRejectedValue(new Error("unavailable"));
+    await fillAndSubmit();
+    vi.mocked(toast.custom).mockClear();
+
+    await userEvent.click(await screen.findByRole("button", { name: failure.button }));
+
+    await screen.findByRole("heading", { level: 1, name: stepCopy[0].title });
+    expect(toast.custom).not.toHaveBeenCalled();
   });
 
   it("sends the request again on the next submit", async () => {

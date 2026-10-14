@@ -100,6 +100,17 @@ An audit of every typed input (after #197) found five gaps. 1–4 are left for b
   The caps were lowered in the same branch: name, city and each required item to 50 characters
   (`LIMITS`), on the form and the server alike.
 
+Follow-up fixes before branch 2, one branch each:
+- **`fix-retry-city-toast`: "Try again" re-toasted the city check.** After a failed generation,
+  "Try again" brought the form back on step 7 with "Found Lisbon, Portugal" toasting again: the check
+  lives in `FormProvider` and outlasts the form, and `FormStep2`'s toast effect ran on remount. It
+  now toasts only when the message changes (a ref holds the last one shown); typing a city again
+  still toasts, since the check clears its message while loading. Tested in `FormFailure.test.tsx`.
+- **`axios-to-fetch`: drop axios.** Its last uses are `openWeatherApi.ts`, `unsplashApi.ts` (with
+  an `arraybuffer` download for the blur) and `useCountries.ts`, plus the two tests that mock it.
+  All move to `fetch`, checking `response.ok` since `fetch` doesn't throw on a 4xx/5xx, and the
+  package is uninstalled.
+
 Left from branch 1, for the branch named or for later:
 - Typed errors (invalid request, place not found, refusal) wait for branch 3's rate limit;
   today every failure is the same toast. Effort (default `high`) and `max_tokens` (16000) are
