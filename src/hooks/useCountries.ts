@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
 import type { Country } from "@/types";
 
@@ -13,9 +12,9 @@ export function useCountries() {
     setIsLoading(true);
     const fetchCountries = async () => {
       try {
-        const { data } = await axios.get<Record<string, string>>(
-          "https://flagcdn.com/en/codes.json",
-        );
+        const response = await fetch("https://flagcdn.com/en/codes.json");
+        if (!response.ok) throw new Error(`flagcdn: ${response.status}`);
+        const data: Record<string, string> = await response.json();
 
         // flagcdn also lists US states and the EU and UN; the UK's nations stay.
         const countryOptions: Country[] = Object.entries(data)
