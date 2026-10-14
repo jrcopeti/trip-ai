@@ -4,6 +4,7 @@ import { z } from "zod";
 /** Caps the form shows and the server's request schema (grounded-agent 1c) enforces again. */
 export const LIMITS = {
   name: 100,
+  city: 100,
   note: 500,
   requiredItems: 10,
   requiredItem: 60,
@@ -49,7 +50,12 @@ export const FormFieldsSchema = z.object({
   passport: z.string().optional(),
   type: z.string().min(1, "Type of travel is required"),
   pace: z.string().min(1, "Pace is required"),
-  city: z.string().min(1, "City is required"),
+  city: z
+    .string()
+    .trim()
+    .min(1, "City is required")
+    .max(LIMITS.city, `Keep the city under ${LIMITS.city} characters`)
+    .regex(/^[^\r\n<>]*$/, "Leave out < and >"),
   country: z.string().min(1, "Country is required"),
   luggageSize: z.string().min(1, "Lugagge size is required"),
   requiredItems: z

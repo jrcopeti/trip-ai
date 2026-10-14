@@ -59,6 +59,19 @@ describe("useGeoNames — when it does not search", () => {
     expect(hook.isCityValid).toBe(false);
   });
 
+  it("refuses a city the form's schema rejects, with its reason, and asks nothing", async () => {
+    renderWithProviders(<Probe city="Porto <b>" countryCode="PT" />);
+    await runDebounce();
+
+    expect(resolvePlace).not.toHaveBeenCalled();
+    expect(hook).toEqual({
+      isLoadingCityValid: false,
+      isCityValid: false,
+      message: "Leave out < and >",
+      place: null,
+    });
+  });
+
   it("does not fire before the debounce elapses", () => {
     resolvePlace.mockResolvedValue({ ok: true, place: lisbon });
     renderWithProviders(<Probe city="Lisbon" countryCode="PT" />);

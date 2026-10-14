@@ -54,7 +54,7 @@ export const TripRequestSchema = FormFieldsSchema.omit({
     passport: z.string().trim().max(100).regex(SINGLE_LINE, "Keep it to one line").optional(),
     type: oneOf(types),
     pace: oneOf(paces),
-    city: line(100),
+    city: line(LIMITS.city),
     country: line(100),
     // `resolvePlace`'s format: ISO 3166-1, or a UK nation's subdivision ("GB-SCT").
     countryCode: z.string().regex(/^[A-Z]{2}(-[A-Z]{3})?$/),
