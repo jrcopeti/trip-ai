@@ -176,7 +176,7 @@ test.describe("/form", () => {
       }).observe(document.body, { subtree: true, childList: true, characterData: true });
     });
     await page.getByRole("button", { name: "Plan my trip" }).click();
-    await expect(page).toHaveURL(/\/trips\/[\w-]{5}$/);
+    await expect(page).toHaveURL(/\/trips\/[0-9a-f]{12}$/);
 
     expect(await page.evaluate(() => (window as Window & { sawStepOne?: boolean }).sawStepOne)).toBe(false);
   });

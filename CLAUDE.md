@@ -239,7 +239,7 @@ architecture). A plan is for work in flight.
 
 ### User flow
 1. `/form` — multi-step form (7 steps, managed by `FormContext`)
-2. On submit: Anthropic API call → redirect to `/trips/[tripUrl]` (random 5-char UUID)
+2. On submit: Anthropic API call → redirect to `/trips/[tripUrl]` (12 random hex characters; `tripUrl` is unique)
 3. On the trip page: user chooses to save or discard → Prisma writes to DB
 4. `/saved-trips` — lists all saved trips; `/saved-trips/[id]` — single saved trip
 

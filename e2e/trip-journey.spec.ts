@@ -56,7 +56,7 @@ async function generateTrip(page: Page, name: string) {
   await walkAllSteps(page, name);
   await page.getByRole("button", { name: "Plan my trip" }).click();
 
-  await expect(page).toHaveURL(/\/trips\/[\w-]{5}$/);
+  await expect(page).toHaveURL(/\/trips\/[0-9a-f]{12}$/);
   // The polaroid's caption is the page's h1.
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(tripDataFixture.title!);
 }
