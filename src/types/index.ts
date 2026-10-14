@@ -123,7 +123,11 @@ export interface FormContextType {
 }
 export interface FinalDataTypes extends Omit<Inputs, "requiredItems"> {
   requiredItems: string[];
-  weatherForecast: string;
+  // Kept from the submit: the form resets once the traveller leaves /form, before the save.
+  byWeather: boolean;
+  countryCode: string;
+  lat: number | null;
+  lng: number | null;
 }
 
 export interface TripContextType {
@@ -144,11 +148,8 @@ export interface ImageContextType {
 }
 
 export interface ImageDataTypes {
-  tripImage: string | null;
-  tripImage2: string | null;
-  tripImage3: string | null;
-  tripImage4: string | null;
-  tripImage5: string | null;
+  /** In the order the trip page shows them; `placeholder` is the blur of the first. */
+  tripImages: string[];
   placeholder: string | null;
 }
 

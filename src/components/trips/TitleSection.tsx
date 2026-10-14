@@ -25,13 +25,13 @@ function TitleSection() {
   const { formData } = useFormData();
   const { imageData } = useImage();
 
-  const image = trip?.image || imageData?.tripImage;
+  const image = trip?.tripImages[0] || imageData?.tripImages[0];
   const placeholder = trip?.placeholder || imageData?.placeholder;
   const title = trip?.title || response?.title || "";
   const city = trip?.city || formData?.city;
   const country = trip?.country || formData?.country;
   const userName = trip?.userName || formData?.userName;
-  const weatherForecast = trip?.weatherForecast || formData?.weatherForecast;
+  const byWeather = trip ? trip.byWeather : formData?.byWeather;
   const startDate = dayjs(trip?.startDate || formData?.startDate);
   const endDate = dayjs(trip?.endDate || formData?.endDate);
   const start = startDate.format("DD.MM.YYYY");
@@ -45,7 +45,7 @@ function TitleSection() {
     {
       label: copy.dates,
       value: `${start} – ${end}`,
-      note: weatherForecast ? copy.byWeather : undefined,
+      note: byWeather ? copy.byWeather : undefined,
     },
     { label: copy.traveller, value: userName, name: true },
   ];

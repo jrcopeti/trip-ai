@@ -49,7 +49,7 @@ describe("TripContext", () => {
 
   it("prefetches the trip route it will redirect to", () => {
     renderTrip();
-    expect(prefetch).toHaveBeenCalledWith(expect.stringMatching(/^\/trips\/.{5}$/));
+    expect(prefetch).toHaveBeenCalledWith(expect.stringMatching(/^\/trips\/[0-9a-f]{12}$/));
   });
 
   it("exposes the AI response on success", async () => {
@@ -83,7 +83,7 @@ describe("TripContext", () => {
     ctx.generateResponseAI(validTripRequest);
 
     await waitFor(() => {
-      expect(replace).toHaveBeenCalledWith(expect.stringMatching(/^\/trips\/.{5}$/));
+      expect(replace).toHaveBeenCalledWith(expect.stringMatching(/^\/trips\/[0-9a-f]{12}$/));
     });
     expect(replace.mock.calls[0][0]).toBe(prefetch.mock.calls[0][0]);
   });

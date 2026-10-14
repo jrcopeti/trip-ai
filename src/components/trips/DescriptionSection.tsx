@@ -16,7 +16,7 @@ function DescriptionSection() {
   const { imageData } = useImage();
 
   const description = trip?.description || response?.description;
-  const image2 = trip?.image2 || imageData?.tripImage2;
+  const image2 = trip?.tripImages[1] || imageData?.tripImages[1];
   const placeholder = trip?.placeholder || imageData?.placeholder;
 
   return (

@@ -17,7 +17,7 @@ function Probe() {
   return (
     <div>
       <span data-testid="pending">{String(ctx.isPendingImage)}</span>
-      <span data-testid="image">{ctx.imageData?.tripImage ?? "none"}</span>
+      <span data-testid="image">{ctx.imageData?.tripImages[0] ?? "none"}</span>
     </div>
   );
 }

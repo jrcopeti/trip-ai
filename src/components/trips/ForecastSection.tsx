@@ -4,7 +4,6 @@ import { useParams } from "next/navigation";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useFormData } from "@/hooks/useFormData";
 import { useWeather } from "@/hooks/useWeather";
-import { countryCodeFromFlag } from "@/lib/place";
 import ForecastSectionCard from "./ForecastSectionCard";
 import { BiMessageSquareError } from "react-icons/bi";
 import Reveal from "@/components/sorbet/Reveal";
@@ -19,8 +18,7 @@ function ForecastSection() {
   const { generateDailyForecast, dailyForecastData, errorDailyForecast } = useWeather();
 
   const city = trip?.city || formData?.city;
-  // No code (a flag URL not from flagcdn) fails the resolve: the section shows its error, not a loader.
-  const countryCode = countryCodeFromFlag(trip?.flagUrl || formData?.flagUrl) ?? "";
+  const countryCode = trip?.countryCode || formData?.countryCode;
 
   useEffect(() => {
     if (city) generateDailyForecast({ city, countryCode });

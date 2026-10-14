@@ -239,7 +239,7 @@ architecture). A plan is for work in flight.
 
 ### User flow
 1. `/form` — multi-step form (7 steps, managed by `FormContext`)
-2. On submit: Anthropic API call → redirect to `/trips/[tripUrl]` (random 5-char UUID)
+2. On submit: Anthropic API call → redirect to `/trips/[tripUrl]` (12 random hex characters; `tripUrl` is unique)
 3. On the trip page: user chooses to save or discard → Prisma writes to DB
 4. `/saved-trips` — lists all saved trips; `/saved-trips/[id]` — single saved trip
 
@@ -307,4 +307,4 @@ picks one at random on the server — `/about`'s photo and the landing's band �
 pages call `await connection()` to render per request.
 
 ### Database
-Single `Trip` model (Postgres via Prisma). `relationMode = "prisma"` is set for PlanetScale/edge compatibility. All trips are written immediately (saved or not); `saved: boolean` distinguishes them.
+Single `Trip` model (Postgres on Neon, via Prisma; no `relationMode`, so a relation is a real foreign key). It stores the resolved place (`countryCode`, `lat`, `lng`) and the photos as `tripImages`. All trips are written immediately (saved or not); `saved: boolean` distinguishes them.

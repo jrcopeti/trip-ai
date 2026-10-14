@@ -167,7 +167,7 @@ describe("getLatestSavedTrips", () => {
         city: true,
         country: true,
         userName: true,
-        image: true,
+        tripImages: true,
         placeholder: true,
       },
     });

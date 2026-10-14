@@ -18,7 +18,7 @@ beforeEach(() => {
 });
 
 describe("fetchTripImage", () => {
-  it("searches for the city and blurs the first photo's bytes", async () => {
+  it("searches for the city, keeps the first five photos in order and blurs the first", async () => {
     fetchMock
       .mockResolvedValueOnce(new Response(JSON.stringify(search)))
       .mockResolvedValueOnce(new Response(imageBytes));
@@ -29,11 +29,7 @@ describe("fetchTripImage", () => {
     expect(fetchMock.mock.calls[1][0]).toBe(photo(0));
     expect([...vi.mocked(getPlaiceholder).mock.calls[0][0] as Buffer]).toEqual([1, 2, 3]);
     expect(result).toEqual({
-      tripImage: photo(0),
-      tripImage2: photo(5),
-      tripImage3: photo(2),
-      tripImage4: photo(3),
-      tripImage5: photo(4),
+      tripImages: [0, 1, 2, 3, 4].map(photo),
       placeholder: "data:image/png;base64,blur",
     });
   });

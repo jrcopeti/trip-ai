@@ -6,7 +6,7 @@ import type { Prisma, Trip } from "@prisma/client";
  * so `next/image` serves them instead of reaching for a remote host. Invented
  * Unsplash URLs made the optimizer log an upstream 404 per card under
  * `E2E_FIXTURES`; these resolve, and the seeded saved trips look like trips.
- * Kept distinct so a test asserting `image3` cannot pass on `image2`.
+ * Kept distinct so a test asserting `tripImages[2]` cannot pass on `tripImages[1]`.
  */
 export const LOCAL_IMAGES = [
   "/fixtures/trip-1.jpg",
@@ -20,8 +20,6 @@ export const LOCAL_IMAGES = [
 export const tripFixture: Trip = {
   id: 1,
   userName: "ana",
-  age: null,
-  nationality: null,
   travellers: "couple",
   ageRanges: ["25-30"],
   passport: "Brazil",
@@ -29,6 +27,9 @@ export const tripFixture: Trip = {
   type: "cultural",
   city: "lisbon",
   country: "Portugal",
+  countryCode: "PT",
+  lat: 38.71667,
+  lng: -9.13333,
   startDate: new Date("2030-05-01T00:00:00.000Z"),
   endDate: new Date("2030-05-08T00:00:00.000Z"),
   luggageSize: "carry-on",
@@ -39,15 +40,10 @@ export const tripFixture: Trip = {
   note: "wants a day trip to sintra",
   budget: "comfort",
   agreement: true,
-  weatherForecast: "",
-  flagUrl: "https://flagcdn.com/pt.svg",
+  byWeather: false,
   tripUrl: "ab12c",
-  image: LOCAL_IMAGES[0],
+  tripImages: [...LOCAL_IMAGES],
   placeholder: defaultPlaceholder,
-  image2: LOCAL_IMAGES[1],
-  image3: LOCAL_IMAGES[2],
-  image4: LOCAL_IMAGES[3],
-  image5: LOCAL_IMAGES[4],
   saved: true,
   title: "Ana's Seven Sunlit Days Across Lisbon, Portugal",
   description: "Lisbon in May is all tiled facades and long light.",
@@ -73,22 +69,13 @@ export const tripFixture2: Trip = {
   userName: "bruno",
   city: "kyoto",
   country: "Japan",
-  flagUrl: "https://flagcdn.com/jp.svg",
+  countryCode: "JP",
+  lat: 35.02107,
+  lng: 135.75385,
   tripUrl: "de34f",
   title: "Bruno's Quiet Week Among the Temples of Kyoto, Japan",
-  image: LOCAL_IMAGES[1],
+  tripImages: [LOCAL_IMAGES[1], ...LOCAL_IMAGES.slice(2), LOCAL_IMAGES[0]],
 };
-
-/** A row saved before the grounded agent: an age, a nationality, and a trip type since moved to who's going. */
-export const legacyTripFields = {
-  age: "31",
-  nationality: "Brazilian",
-  travellers: null,
-  ageRanges: [],
-  passport: null,
-  pace: null,
-  type: "family",
-} satisfies Partial<Trip>;
 
 export function makeTrip(overrides: Partial<Trip> = {}): Trip {
   return { ...tripFixture, ...overrides };
@@ -106,7 +93,6 @@ export function tripCreateInput(
   const { id: _id, createdAt: _createdAt, updatedAt: _updatedAt, ...rest } = trip;
   return {
     ...rest,
-    requiredItems: rest.requiredItems as Prisma.InputJsonValue,
     objectsList: rest.objectsList as Prisma.InputJsonValue,
     tours: rest.tours as Prisma.InputJsonValue,
   };

@@ -37,9 +37,7 @@ const defaultFormData: Inputs = {
   note: "",
   startDate: "",
   endDate: "",
-  weatherForecast: "",
   agreement: false,
-  flagUrl: "",
 };
 
 const initialFinalData = transformInputsToFinalData(defaultFormData);
@@ -113,9 +111,7 @@ function FormProvider({ children }: { children: React.ReactNode }) {
       note: "",
       startDate: "",
       endDate: "",
-      weatherForecast: "",
       agreement: false,
-      flagUrl: "",
     },
   });
 
@@ -150,9 +146,6 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     // country would stay in the form and pass validation.
     if (selectedKey === null) {
       setValue(fieldName, "");
-      if (fieldName === "country") {
-        setValue("flagUrl", "");
-      }
       return;
     }
     const selectedCountry = countries.find(
@@ -160,9 +153,6 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     );
     if (selectedCountry) {
       setValue(fieldName, selectedCountry.value);
-      if (fieldName === "country") {
-        setValue("flagUrl", selectedCountry.flagUrl);
-      }
     }
   };
 
@@ -230,11 +220,6 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     const formattedUserName = userName.trim().toLowerCase();
     const formattedCity = city.trim().toLowerCase();
     const formattedNote = note?.trim().toLowerCase();
-    const forecastDataString = JSON.stringify(forecastData);
-
-    if (isWeatherSelected) {
-      setValue("weatherForecast", forecastDataString);
-    }
     // From the submitted country, so the code always matches the data it travels with.
     const submittedCode =
       countries.find((c) => c.value === data.country)?.code.toUpperCase() ?? "";
@@ -255,7 +240,10 @@ function FormProvider({ children }: { children: React.ReactNode }) {
       city: formattedCity,
       note: formattedNote,
       requiredItems: transformedRequiredItems,
-      weatherForecast: forecastDataString,
+      byWeather: isWeatherSelected,
+      countryCode: submittedCode,
+      lat: cityCheck.place?.lat ?? null,
+      lng: cityCheck.place?.lng ?? null,
     };
     setFormData(finalData);
   };

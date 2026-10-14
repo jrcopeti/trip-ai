@@ -99,17 +99,13 @@ describe("useCreateTrip — handleYesAnswer", () => {
     expect((data.startDate as Date).toISOString()).toBe(finalFormData.startDate);
   });
 
-  it("attaches all five images and the blur placeholder", async () => {
+  it("attaches the images in order and the blur placeholder", async () => {
     renderHook();
     hook.handleYesAnswer();
 
     await waitFor(() => expect(mockCreate).toHaveBeenCalled());
     expect(payload()).toMatchObject({
-      image: imageDataFixture.tripImage,
-      image2: imageDataFixture.tripImage2,
-      image3: imageDataFixture.tripImage3,
-      image4: imageDataFixture.tripImage4,
-      image5: imageDataFixture.tripImage5,
+      tripImages: imageDataFixture.tripImages,
       placeholder: imageDataFixture.placeholder,
     });
   });
@@ -143,17 +139,15 @@ describe("useCreateTrip — handleNoAnswer", () => {
     expect(payload()).toMatchObject({ saved: false });
   });
 
-  it("attaches the images but no blur placeholder", async () => {
-    // Deliberate, not an oversight: a discarded trip is written to the DB but
-    // never read back — both getSavedTripsPage and getSingleSavedTrip filter on
-    // saved: true — so nothing ever renders its blur placeholder.
+  it("attaches the images and the blur placeholder too", async () => {
     renderHook();
     hook.handleNoAnswer();
 
     await waitFor(() => expect(mockCreate).toHaveBeenCalled());
-    const data = payload();
-    expect(data.image).toBe(imageDataFixture.tripImage);
-    expect(data.placeholder).toBeUndefined();
+    expect(payload()).toMatchObject({
+      tripImages: imageDataFixture.tripImages,
+      placeholder: imageDataFixture.placeholder,
+    });
   });
 
   it("marks the answer handled in context", async () => {

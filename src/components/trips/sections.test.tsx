@@ -5,7 +5,6 @@ import { renderGeneratedTrip, renderSavedTrip } from "@/test/trip";
 import {
   LOCAL_IMAGES,
   makeForecastEntry,
-  legacyTripFields,
   makeTrip,
   tripDataFixture,
   tripFixture,
@@ -71,7 +70,7 @@ describe("TitleSection", () => {
   });
 
   it("counts a forecast trip's days from its real dates", async () => {
-    renderSavedTrip(<TitleSection />, { row: makeTrip({ weatherForecast: "yes" }) });
+    renderSavedTrip(<TitleSection />, { row: makeTrip({ byWeather: true }) });
 
     expect(await screen.findByText("A cultural trip · 7 days")).toBeInTheDocument();
   });
@@ -98,7 +97,7 @@ describe("TitleSection", () => {
   });
 
   it("keeps a forecast trip's real dates and notes they followed the forecast", async () => {
-    renderSavedTrip(<TitleSection />, { row: makeTrip({ weatherForecast: "yes" }) });
+    renderSavedTrip(<TitleSection />, { row: makeTrip({ byWeather: true }) });
 
     const start = dayjs(tripFixture.startDate).format("DD.MM.YYYY");
     const end = dayjs(tripFixture.endDate).format("DD.MM.YYYY");
@@ -157,7 +156,7 @@ describe("PhotoSection", () => {
 
   it("shows the saved trip's third photo", async () => {
     const { container } = renderSavedTrip(<PhotoSection />, {
-      row: makeTrip({ image3: "/saved/third.jpg" }),
+      row: makeTrip({ tripImages: ["/a.jpg", "/b.jpg", "/saved/third.jpg"] }),
     });
 
     await vi.waitFor(() =>
@@ -179,7 +178,7 @@ describe("PackReadySection", () => {
   });
 
   it("says the list is based on the weather when it is", async () => {
-    renderSavedTrip(<PackReadySection />, { row: makeTrip({ weatherForecast: "yes" }) });
+    renderSavedTrip(<PackReadySection />, { row: makeTrip({ byWeather: true }) });
 
     expect(await screen.findByText(new RegExp(packReady.byWeather))).toBeInTheDocument();
   });
@@ -288,23 +287,12 @@ describe("WeatherSection", () => {
 
   it("asks for the saved trip's destination on the saved route", async () => {
     renderSavedTrip(<WeatherSection />, {
-      row: makeTrip({ city: "kyoto", country: "Japan", flagUrl: "https://flagcdn.com/jp.svg" }),
+      row: makeTrip({ city: "kyoto", country: "Japan", countryCode: "JP" }),
       weather: { generateWeather },
     });
 
     await vi.waitFor(() =>
       expect(generateWeather).toHaveBeenCalledWith({ city: "kyoto", countryCode: "JP" }),
-    );
-  });
-
-  it("still asks, with no code, when the flag URL isn't flagcdn's, so the section can fail", async () => {
-    renderSavedTrip(<WeatherSection />, {
-      row: makeTrip({ city: "kyoto", flagUrl: "" }),
-      weather: { generateWeather },
-    });
-
-    await vi.waitFor(() =>
-      expect(generateWeather).toHaveBeenCalledWith({ city: "kyoto", countryCode: "" }),
     );
   });
 
@@ -429,24 +417,10 @@ describe("FormDetailsSection", () => {
     expect(value(details.labels.note)).toHaveTextContent("wants a day trip to sintra");
   });
 
-  it("leaves out the age and nationality a newer trip does not have", async () => {
-    renderSavedTrip(<FormDetailsSection />);
+  it("leaves out a passport the traveller didn't give", async () => {
+    renderSavedTrip(<FormDetailsSection />, { row: makeTrip({ passport: null }) });
     await screen.findByText("Couple");
 
-    expect(screen.queryByText(details.labels.age, { selector: "dt" })).toBeNull();
-    expect(screen.queryByText(details.labels.nationality, { selector: "dt" })).toBeNull();
-  });
-
-  it("shows an older trip as it was stored: age, nationality and a trip type no longer offered", async () => {
-    renderSavedTrip(<FormDetailsSection />, { row: makeTrip(legacyTripFields) });
-    await screen.findByText("Brazilian");
-
-    expect(value(details.labels.age)).toHaveTextContent("31");
-    expect(value(details.labels.nationality)).toHaveTextContent("Brazilian");
-    expect(value(details.labels.type)).toHaveTextContent("family");
-    expect(screen.queryByText(details.labels.travellers, { selector: "dt" })).toBeNull();
-    expect(screen.queryByText(details.labels.ageRanges, { selector: "dt" })).toBeNull();
-    expect(screen.queryByText(details.labels.pace, { selector: "dt" })).toBeNull();
     expect(screen.queryByText(details.labels.passport, { selector: "dt" })).toBeNull();
   });
 
@@ -468,17 +442,17 @@ describe("FormDetailsSection", () => {
     expect(await screen.findByText("gardening")).toBeInTheDocument();
   });
 
-  it("names the flag after the country", async () => {
+  it("shows the flag for the row's country code, named after the country", async () => {
     renderSavedTrip(<FormDetailsSection />);
 
     expect(await screen.findByRole("img", { name: details.flag("Portugal") })).toHaveAttribute(
       "src",
-      tripFixture.flagUrl,
+      "https://flagcdn.com/pt.svg",
     );
   });
 
   it("says the duration follows the weather when it does", async () => {
-    renderSavedTrip(<FormDetailsSection />, { row: makeTrip({ weatherForecast: "yes" }) });
+    renderSavedTrip(<FormDetailsSection />, { row: makeTrip({ byWeather: true }) });
 
     expect(await screen.findByText(details.byWeather)).toBeInTheDocument();
   });

@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import defaultImage4 from "@/assets/travel-photos/4.jpg";
 import Reveal from "@/components/sorbet/Reveal";
 import { defaultPlaceholder } from "@/lib/constants";
+import { flagUrl } from "@/lib/place";
 import { displayDuration, durationInDays } from "@/lib/utils";
 import {
   ageRanges as ageRangeOptions,
@@ -19,21 +20,17 @@ import {
 import { MediaFrame, Section, SectionHeading } from "./Section";
 import { details as copy } from "./content";
 
-/**
- * What the traveller entered, as the `<dl>` it is. A row shows only what was stored: a
- * trip saved before the grounded agent has an age and a nationality, a newer one has
- * who's going, ages, pace and maybe a passport. Known options show their label.
- */
+/** What the traveller entered, as the `<dl>` it is. Known options show their label. */
 function FormDetailsSection() {
   const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
   const { imageData } = useImage();
   const { formData } = useFormData();
 
-  const flag = trip?.flagUrl || formData?.flagUrl;
+  const countryCode = trip?.countryCode || formData?.countryCode;
   const city = trip?.city || formData?.city;
   const country = trip?.country || formData?.country;
-  const weatherForecast = trip?.weatherForecast || formData?.weatherForecast;
+  const byWeather = trip ? trip.byWeather : formData?.byWeather;
   const note = trip?.note || formData?.note;
   const interests = (trip?.interests || formData?.interests || []).filter(
     (interest) => interest.trim() !== "",
@@ -43,7 +40,7 @@ function FormDetailsSection() {
   const endDate = dayjs(trip?.endDate || formData?.endDate);
   const duration = displayDuration(durationInDays(startDate, endDate));
 
-  const image4 = trip?.image4 || imageData?.tripImage4;
+  const image4 = trip?.tripImages[3] || imageData?.tripImages[3];
   const placeholder = trip?.placeholder || imageData?.placeholder;
 
   const travellers = trip?.travellers || formData?.travellers;
@@ -57,7 +54,6 @@ function FormDetailsSection() {
   const rows: Row[] = [
     { label: labels.destination, value: `${city}, ${country}` },
     { label: labels.passport, value: passport },
-    { label: labels.nationality, value: trip?.nationality },
     { label: labels.name, value: trip?.userName || formData?.userName },
     { label: labels.travellers, value: optionLabel(travellerOptions, travellers), asLabel: true },
     {
@@ -65,7 +61,6 @@ function FormDetailsSection() {
       value: ageRanges.map((range) => optionLabel(ageRangeOptions, range) ?? range).join(", "),
       asLabel: true,
     },
-    { label: labels.age, value: trip?.age },
     {
       label: labels.type,
       value: optionLabel(types, type) ?? type,
@@ -76,7 +71,7 @@ function FormDetailsSection() {
     { label: labels.transport, value: trip?.transport || formData?.transport },
     { label: labels.luggage, value: trip?.luggageSize || formData?.luggageSize },
     // A sentence, not a name: the one value the dd's `capitalize` must skip.
-    { label: labels.duration, value: weatherForecast ? copy.byWeather : duration, sentence: true },
+    { label: labels.duration, value: byWeather ? copy.byWeather : duration, sentence: true },
     { label: labels.accommodation, value: trip?.accommodation || formData?.accommodation },
   ];
 
@@ -87,9 +82,9 @@ function FormDetailsSection() {
           <SectionHeading eyebrow={copy.eyebrow} heading={copy.heading} />
 
           <Reveal delay={0.06}>
-            {flag && (
+            {countryCode && (
               <Image
-                src={flag}
+                src={flagUrl(countryCode)}
                 alt={copy.flag(country ?? "")}
                 width={80}
                 height={56}

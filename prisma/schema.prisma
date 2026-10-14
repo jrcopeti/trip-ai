@@ -11,46 +11,38 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  relationMode = "prisma"
 }
-
-
-
 
 model Trip {
   id Int @id @default(autoincrement())
   userName String
-  age String?
-  nationality String?
-  travellers String?
+  travellers String
   ageRanges String[]
-  pace String?
+  pace String
   passport String?
   type String
   city String
   country String
+  countryCode String
+  lat Float
+  lng Float
   startDate DateTime
   endDate DateTime
   luggageSize String
   accommodation String
   transport String
-  requiredItems Json?
+  requiredItems String[]
   interests String[]
   note String?
   budget String
   agreement Boolean
-  weatherForecast String?
-  flagUrl String
-  tripUrl String
-  image String?
+  byWeather Boolean @default(false)
+  tripUrl String @unique
+  tripImages String[]
   placeholder String?
-  image2 String?
-  image3 String?
-  image4 String?
-  image5 String?
   saved Boolean @default(false)
-  title String?
-  description String? @db.Text
+  title String
+  description String @db.Text
   objectsList Json?
   mustHave String[]
   tours Json?
@@ -58,4 +50,5 @@ model Trip {
   createdAt  DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([saved, createdAt])
 }

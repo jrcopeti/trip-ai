@@ -74,7 +74,7 @@ export function matchCity(
   };
 }
 
-/** "PT" or "GB-SCT" from the form's flagcdn URL: a trip row keeps its country code only there. */
-export function countryCodeFromFlag(flagUrl?: string) {
-  return /flagcdn\.com\/([a-z]{2}(?:-[a-z]{3})?)\.svg$/i.exec(flagUrl ?? "")?.[1].toUpperCase();
+/** flagcdn's flag for "PT" or "GB-SCT", the code a trip row keeps. */
+export function flagUrl(countryCode: string) {
+  return `https://flagcdn.com/${countryCode.toLowerCase()}.svg`;
 }

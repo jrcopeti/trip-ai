@@ -95,7 +95,7 @@ describe("SavedTripsDisplay", () => {
   });
 
   it("falls back to a bundled photo when a trip has none", async () => {
-    mockGetPage.mockResolvedValue(savedTripsPage([makeTrip({ image: null })]));
+    mockGetPage.mockResolvedValue(savedTripsPage([makeTrip({ tripImages: [] })]));
     renderWithProviders(<SavedTripsDisplay />);
 
     const link = await screen.findByRole("link", { name: /lisbon/i });

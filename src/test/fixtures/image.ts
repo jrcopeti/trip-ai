@@ -14,10 +14,6 @@ import type { ImageDataTypes } from "@/types";
  * the value and fails on anything that is not a genuine base64 image.
  */
 export const imageDataFixture = {
-  tripImage: LOCAL_IMAGES[0],
-  tripImage2: LOCAL_IMAGES[1],
-  tripImage3: LOCAL_IMAGES[2],
-  tripImage4: LOCAL_IMAGES[3],
-  tripImage5: LOCAL_IMAGES[4],
+  tripImages: [...LOCAL_IMAGES],
   placeholder: defaultPlaceholder,
 } satisfies ImageDataTypes;

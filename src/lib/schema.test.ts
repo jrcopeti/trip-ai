@@ -93,7 +93,6 @@ describe("FormDataSchema", () => {
       "accommodation",
       "budget",
       "transport",
-      "flagUrl",
     ] as const)("rejects a missing %s", (field) => {
       const data: Record<string, unknown> = { ...validInputs };
       delete data[field];
@@ -127,11 +126,6 @@ describe("FormDataSchema", () => {
       expect(FormDataSchema.safeParse(withField("passport", "")).success).toBe(true);
     });
 
-    it("accepts a form with no weatherForecast", () => {
-      const data: Record<string, unknown> = { ...validInputs };
-      delete data.weatherForecast;
-      expect(FormDataSchema.safeParse(data).success).toBe(true);
-    });
   });
 
   describe("interests", () => {

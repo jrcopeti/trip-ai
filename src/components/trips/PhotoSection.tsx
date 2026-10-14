@@ -21,7 +21,7 @@ function PhotoSection() {
   const { trip } = useSingleSavedTrip({ params });
   const { imageData } = useImage();
 
-  const image3 = trip?.image3 || imageData?.tripImage3;
+  const image3 = trip?.tripImages[2] || imageData?.tripImages[2];
   const placeholder = trip?.placeholder || imageData?.placeholder;
 
   return (

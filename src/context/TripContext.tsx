@@ -25,7 +25,8 @@ const TripContext = createContext<TripContextType>(defaultContextValue);
 function TripProvider({ children }: { children: React.ReactNode }) {
   const [isTripSaved, setIsTripSaved] = useState(false);
   const router = useRouter();
-  const tripId = crypto.randomUUID().slice(0, 5);
+  // 48 random bits: `tripUrl` is unique in the table, so a clash would make a trip unsaveable.
+  const tripId = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
   const path = `/trips/${tripId}`;
 
   useEffect(() => {
