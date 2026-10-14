@@ -1,57 +1,58 @@
-import type { Prisma, Trip } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import type { TripData } from "@/lib/agent/submitTrip";
-import type { FinalDataTypes, ImageDataTypes } from "@/types";
-
-type TripOutput = TripData | Pick<Trip, keyof TripData>;
+import type { TripRequest } from "@/lib/agent/request";
+import type { Place } from "@/lib/place";
+import type { ImageDataTypes } from "@/types";
 
 /**
- * The row `createTripInDB` writes, field by field: spreading the form hands Prisma keys it
- * has no column for. A bridge until the server writes the row (grounded-agent branch 2).
+ * The row `generateTrip` writes, from the checked request, GeoNames' place and the model's
+ * output. Unsaved until the traveller answers; `setTripSaved` only flips the flag.
  */
 export function toTripRow({
-  formData,
+  request,
+  place,
   tripData,
-  imageData,
+  images,
   tripUrl,
-  saved,
 }: {
-  formData: FinalDataTypes;
-  tripData: TripOutput;
-  imageData?: ImageDataTypes;
+  request: TripRequest;
+  place: Pick<Place, "lat" | "lng">;
+  tripData: TripData;
+  images: ImageDataTypes;
   tripUrl: string;
-  saved: boolean;
 }): Prisma.TripCreateInput {
-  const { lat, lng } = formData;
-  // Step 2 resolves the city before Next is enabled, so a missing place is a bug, not input.
-  if (lat === null || lng === null) throw new Error("No resolved place to save the trip at");
+  // Stored lowercased, as the form used to; the trip page capitalises them.
+  const lower = (text: string) => text.trim().toLowerCase();
 
   return {
-    userName: formData.userName,
-    travellers: formData.travellers,
-    ageRanges: formData.ageRanges,
-    pace: formData.pace,
-    passport: formData.passport || null,
-    type: formData.type,
-    city: formData.city,
-    country: formData.country,
-    countryCode: formData.countryCode,
-    lat,
-    lng,
-    startDate: new Date(formData.startDate),
-    endDate: new Date(formData.endDate),
-    luggageSize: formData.luggageSize,
-    accommodation: formData.accommodation,
-    transport: formData.transport,
-    budget: formData.budget,
-    requiredItems: formData.requiredItems.filter((item) => item.trim() !== ""),
-    interests: formData.interests,
-    note: formData.note || null,
-    agreement: formData.agreement,
-    byWeather: formData.byWeather,
+    userName: lower(request.userName),
+    travellers: request.travellers,
+    ageRanges: request.ageRanges,
+    pace: request.pace,
+    passport: request.passport || null,
+    type: request.type,
+    city: lower(request.city),
+    country: request.country,
+    countryCode: request.countryCode,
+    lat: place.lat,
+    lng: place.lng,
+    // Calendar days at UTC midnight: the trip page formats them in UTC.
+    startDate: new Date(`${request.startDate}T00:00:00.000Z`),
+    endDate: new Date(`${request.endDate}T00:00:00.000Z`),
+    luggageSize: request.luggageSize,
+    accommodation: request.accommodation,
+    transport: request.transport,
+    budget: request.budget,
+    requiredItems: request.requiredItems.map(lower),
+    interests: request.interests,
+    note: request.note ? lower(request.note) : null,
+    // The request leaves it out on purpose (it never reaches the prompt); the form can't submit without it.
+    agreement: true,
+    byWeather: !!request.forecast?.length,
     tripUrl,
-    tripImages: imageData?.tripImages ?? [],
-    placeholder: imageData?.placeholder ?? null,
-    saved,
+    tripImages: images.tripImages,
+    placeholder: images.placeholder,
+    saved: false,
     title: tripData.title,
     description: tripData.description,
     objectsList: tripData.objectsList as Prisma.InputJsonValue,

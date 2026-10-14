@@ -1,7 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { lisbonPlace, tripDataFixture, validTripRequest } from "@/test/fixtures";
+import {
+  generatedTripFixture,
+  imageDataFixture,
+  lisbonPlace,
+  tripCreateInput,
+  tripDataFixture,
+  validTripRequest,
+} from "@/test/fixtures";
 import { buildSystemPrompt, buildTripMessage } from "@/lib/agent/prompt";
+import prisma from "@/db";
 import { resolvePlace } from "./geoNamesApi";
+import { fetchTripImage } from "./unsplashApi";
 
 const create = vi.fn();
 
@@ -16,6 +25,10 @@ vi.mock("@anthropic-ai/sdk", () => {
   return { default: Anthropic };
 });
 vi.mock("./geoNamesApi", () => ({ resolvePlace: vi.fn() }));
+vi.mock("./unsplashApi", () => ({ fetchTripImage: vi.fn() }));
+vi.mock("@/db", () => ({ default: { trip: { create: vi.fn() } } }));
+
+const write = vi.mocked(prisma.trip.create);
 
 const { generateTrip } = await import("./anthropicApi");
 
@@ -33,12 +46,21 @@ function sent() {
   return create.mock.calls.at(-1)![0];
 }
 
+/** The row handed to Prisma. */
+function written() {
+  return write.mock.calls.at(-1)![0].data;
+}
+
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date(2030, 3, 1, 12, 0, 0));
   vi.spyOn(console, "error").mockImplementation(() => {});
   create.mockReset();
   vi.mocked(resolvePlace).mockResolvedValue({ ok: true, place: lisbonPlace });
+  vi.mocked(fetchTripImage).mockReset();
+  vi.mocked(fetchTripImage).mockResolvedValue(imageDataFixture);
+  write.mockReset();
+  write.mockResolvedValue(generatedTripFixture as never);
   submits(tripDataFixture);
 });
 
@@ -53,6 +75,7 @@ describe("generateTrip — the request", () => {
 
     expect(resolvePlace).not.toHaveBeenCalled();
     expect(create).not.toHaveBeenCalled();
+    expect(write).not.toHaveBeenCalled();
   });
 
   it("resolves the city again on the server, and stops when it can't", async () => {
@@ -61,6 +84,8 @@ describe("generateTrip — the request", () => {
     await expect(generateTrip(validTripRequest)).rejects.toThrow();
     expect(resolvePlace).toHaveBeenCalledWith("Lisbon", "PT");
     expect(create).not.toHaveBeenCalled();
+    expect(fetchTripImage).not.toHaveBeenCalled();
+    expect(write).not.toHaveBeenCalled();
   });
 
   it("sends the cached system prompt and the trip message with the resolved place", async () => {
@@ -91,21 +116,51 @@ describe("generateTrip — the request", () => {
   });
 });
 
+describe("generateTrip — the row", () => {
+  it("writes the trip unsaved, under a fresh 12-character url, and returns the row", async () => {
+    await expect(generateTrip(validTripRequest)).resolves.toEqual(generatedTripFixture);
+
+    const { tripUrl, ...row } = written();
+    expect(tripUrl).toMatch(/^[0-9a-f]{12}$/);
+    const { tripUrl: _, ...expected } = tripCreateInput(generatedTripFixture);
+    expect(row).toEqual(expected);
+  });
+
+  it("searches the photos by GeoNames' name for the place, not the typed city", async () => {
+    vi.mocked(resolvePlace).mockResolvedValue({
+      ok: true,
+      place: { ...lisbonPlace, name: "Lisboa Canonical" },
+    });
+    await generateTrip({ ...validTripRequest, city: "lisbon " });
+
+    expect(fetchTripImage).toHaveBeenCalledWith("Lisboa Canonical");
+  });
+
+  it("still writes the trip, without photos, when the search fails", async () => {
+    vi.mocked(fetchTripImage).mockRejectedValue(new Error("Error fetching image"));
+    await generateTrip(validTripRequest);
+
+    expect(written()).toMatchObject({ tripImages: [], placeholder: null });
+  });
+
+  it("keeps the traveller's items, whatever the model adds", async () => {
+    submits({ ...tripDataFixture, requiredItems: ["a model's item"] });
+    await generateTrip(validTripRequest);
+
+    expect(written().requiredItems).toEqual(["camera", "walking shoes"]);
+  });
+
+  it("fails when the write fails", async () => {
+    write.mockRejectedValue(new Error("connection refused"));
+    await expect(generateTrip(validTripRequest)).rejects.toThrow("connection refused");
+  });
+});
+
 describe("generateTrip — the answer", () => {
-  it("returns the submitted trip", async () => {
-    await expect(generateTrip(validTripRequest)).resolves.toEqual(tripDataFixture);
-  });
-
-  it("drops anything the model adds beyond the trip", async () => {
-    submits({ ...tripDataFixture, requiredItems: ["camera"] });
-
-    const trip = await generateTrip(validTripRequest);
-    expect(trip).not.toHaveProperty("requiredItems");
-  });
-
   it("fails on a refusal", async () => {
     submits(tripDataFixture, "refusal");
     await expect(generateTrip(validTripRequest)).rejects.toThrow(/declined/);
+    expect(write).not.toHaveBeenCalled();
   });
 
   it("fails when cut off at max_tokens, even with a tool call", async () => {

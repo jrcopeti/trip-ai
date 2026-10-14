@@ -1,46 +1,58 @@
 import { describe, expect, it } from "vitest";
 import { toTripRow } from "@/lib/tripRow";
-import { finalFormData, imageDataFixture, tripDataFixture } from "@/test/fixtures";
+import {
+  familyTripRequest,
+  generatedTripFixture,
+  imageDataFixture,
+  lisbonPlace,
+  tripCreateInput,
+  tripDataFixture,
+  validTripRequest,
+} from "@/test/fixtures";
 
 const row = (overrides: Partial<Parameters<typeof toTripRow>[0]> = {}) =>
   toTripRow({
-    formData: finalFormData,
+    request: validTripRequest,
+    place: lisbonPlace,
     tripData: tripDataFixture,
-    imageData: imageDataFixture,
-    tripUrl: "ab12c",
-    saved: true,
+    images: imageDataFixture,
+    tripUrl: generatedTripFixture.tripUrl,
     ...overrides,
   });
 
 describe("toTripRow", () => {
-  it("writes the form's place, kept from the submit", () => {
-    expect(row()).toMatchObject({ countryCode: "PT", lat: 38.71667, lng: -9.13333 });
+  it("writes the request, the place, the photos and the model's trip, unsaved", () => {
+    expect(row()).toEqual(tripCreateInput(generatedTripFixture));
   });
 
-  it("writes byWeather rather than a forecast", () => {
-    expect(row({ formData: { ...finalFormData, byWeather: true } }).byWeather).toBe(true);
-  });
-
-  it("writes the images in order, and the blur on a discarded trip too", () => {
-    expect(row({ saved: false })).toMatchObject({
-      tripImages: imageDataFixture.tripImages,
-      placeholder: imageDataFixture.placeholder,
-      saved: false,
+  it("writes GeoNames' coordinates and the request's code", () => {
+    expect(row({ place: { lat: 1.5, lng: -2.5 } })).toMatchObject({
+      countryCode: "PT",
+      lat: 1.5,
+      lng: -2.5,
     });
   });
 
-  it("writes no images when the image search failed", () => {
-    expect(row({ imageData: undefined })).toMatchObject({ tripImages: [], placeholder: null });
+  it("stores each calendar day at UTC midnight, whatever the server's zone", () => {
+    expect(row().startDate).toEqual(new Date("2030-05-01T00:00:00.000Z"));
+    expect(row().endDate).toEqual(new Date("2030-05-08T00:00:00.000Z"));
   });
 
-  it("passes Prisma no key it has no column for", () => {
-    const keys = Object.keys(row());
-    for (const gone of ["flagUrl", "weatherForecast", "image", "age", "nationality"]) {
-      expect(keys).not.toContain(gone);
-    }
+  it("is planned by the weather only when a forecast came with the request", () => {
+    expect(row().byWeather).toBe(false);
+    expect(row({ request: familyTripRequest }).byWeather).toBe(true);
+    expect(row({ request: { ...familyTripRequest, forecast: [] } }).byWeather).toBe(false);
   });
 
-  it("refuses a form with no resolved place", () => {
-    expect(() => row({ formData: { ...finalFormData, lat: null } })).toThrow();
+  it("writes no passport or note when there is none", () => {
+    expect(row({ request: familyTripRequest })).toMatchObject({ passport: null });
+    expect(row({ request: { ...validTripRequest, note: undefined } }).note).toBeNull();
+  });
+
+  it("writes no photos when the search failed", () => {
+    expect(row({ images: { tripImages: [], placeholder: null } })).toMatchObject({
+      tripImages: [],
+      placeholder: null,
+    });
   });
 });

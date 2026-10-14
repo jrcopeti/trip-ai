@@ -1,9 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import { useTripResponse } from "@/hooks/useTripResponse";
-import { useImage } from "@/hooks/useImage";
-import { useCreateTrip } from "@/hooks/useCreateTrip";
+import { useSaveTrip } from "@/hooks/useSaveTrip";
 import defaultImage5 from "@/assets/travel-photos/9.jpg";
 import { defaultPlaceholder } from "@/lib/constants";
 import Closing, { buttonExtras, primaryPill, secondaryPill } from "./Closing";
@@ -11,16 +9,13 @@ import { closing as copy } from "./content";
 
 /** The generated route's last section: keep the trip or not, then where next. */
 function SaveSection() {
-  const tripUrlParams = useParams();
   const { tripData: response, isTripSaved } = useTripResponse();
-  const { handleYesAnswer, handleNoAnswer, isCreatingTrip } =
-    useCreateTrip(tripUrlParams);
-  const { imageData } = useImage();
+  const { handleYesAnswer, handleNoAnswer, isSavingTrip } = useSaveTrip();
 
   return (
     <Closing
-      image={imageData?.tripImages[4] ?? defaultImage5}
-      placeholder={imageData?.placeholder ?? defaultPlaceholder}
+      image={response?.tripImages[4] ?? defaultImage5}
+      placeholder={response?.placeholder ?? defaultPlaceholder}
       tip={response?.tip}
       heading={isTripSaved ? copy.saved.heading : copy.save.question}
     >
@@ -29,7 +24,7 @@ function SaveSection() {
           <button
             type="button"
             onClick={handleYesAnswer}
-            disabled={isCreatingTrip}
+            disabled={isSavingTrip}
             className={`${primaryPill} ${buttonExtras}`}
           >
             {copy.save.yes}
@@ -37,7 +32,7 @@ function SaveSection() {
           <button
             type="button"
             onClick={handleNoAnswer}
-            disabled={isCreatingTrip}
+            disabled={isSavingTrip}
             className={`${secondaryPill} ${buttonExtras}`}
           >
             {copy.save.no}

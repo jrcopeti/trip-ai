@@ -3,10 +3,22 @@ import { Prisma, Trip } from "@prisma/client";
 import prisma from "@/db";
 import { SAVED_TRIPS_PAGE_SIZE } from "@/lib/constants";
 
-export const createTripInDB = async (trip: Prisma.TripCreateInput) => {
-  return prisma.trip.create({
-    data: trip,
+// `generateTrip`'s format: 12 hex characters.
+const TRIP_URL = /^[0-9a-f]{12}$/;
+
+/**
+ * The traveller's answer to "save this trip?". `generateTrip` already wrote the row, so
+ * this only flips the flag, and only once: a saved trip can't be unsaved by its url.
+ */
+export const setTripSaved = async (tripUrl: string, saved: boolean): Promise<void> => {
+  if (!TRIP_URL.test(tripUrl) || typeof saved !== "boolean") {
+    throw new Error("Not a trip url and an answer");
+  }
+  const { count } = await prisma.trip.updateMany({
+    where: { tripUrl, saved: false },
+    data: { saved },
   });
+  if (count === 0) throw new Error("No unsaved trip at that url");
 };
 
 export type SavedTripsPage = {

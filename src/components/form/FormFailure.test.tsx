@@ -8,7 +8,7 @@ import { useFormData } from "@/hooks/useFormData";
 import Form from "@/components/form/Form";
 import { generateTrip } from "@/app/api/anthropicApi";
 import { steps } from "@/data";
-import { tripDataFixture, validInputs } from "@/test/fixtures";
+import { generatedTripFixture, validInputs } from "@/test/fixtures";
 import { failure, stepCopy } from "@/components/form/content";
 import { resetNextStubs } from "@/test/stubs/next";
 import toast from "react-hot-toast";
@@ -21,9 +21,6 @@ vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn() } }));
 vi.mock("@/hooks/useWeather", () => ({
   useWeather: () => ({ generateForecast: vi.fn(), forecastData: undefined }),
-}));
-vi.mock("@/hooks/useImage", () => ({
-  useImage: () => ({ generateImage: vi.fn() }),
 }));
 vi.mock("@/hooks/useGeoNames", () => ({
   idleCityCheck: { isCityValid: false, isLoadingCityValid: false, message: "", place: null },
@@ -107,7 +104,7 @@ describe("Form — a failed generation", () => {
 
   it("sends the request again on the next submit", async () => {
     mockGenerate.mockRejectedValueOnce(new Error("unavailable"));
-    mockGenerate.mockResolvedValueOnce(tripDataFixture);
+    mockGenerate.mockResolvedValueOnce(generatedTripFixture);
     await fillAndSubmit();
     await userEvent.click(await screen.findByRole("button", { name: failure.button }));
 

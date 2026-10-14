@@ -3,8 +3,8 @@ import { renderWithProviders, screen, waitFor } from "@/test/render";
 import { TripProvider } from "@/context/TripContext";
 import { useTripResponse } from "@/hooks/useTripResponse";
 import { generateTrip } from "@/app/api/anthropicApi";
-import { tripDataFixture, validTripRequest } from "@/test/fixtures";
-import { replace, resetNextStubs, prefetch } from "@/test/stubs/next";
+import { generatedTripFixture, validTripRequest } from "@/test/fixtures";
+import { replace, resetNextStubs } from "@/test/stubs/next";
 import type { TripContextType } from "@/types";
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
@@ -47,13 +47,8 @@ describe("TripContext", () => {
     expect(screen.getByTestId("saved")).toHaveTextContent("false");
   });
 
-  it("prefetches the trip route it will redirect to", () => {
-    renderTrip();
-    expect(prefetch).toHaveBeenCalledWith(expect.stringMatching(/^\/trips\/[0-9a-f]{12}$/));
-  });
-
   it("exposes the AI response on success", async () => {
-    mockFetch.mockResolvedValue(tripDataFixture);
+    mockFetch.mockResolvedValue(generatedTripFixture);
     renderTrip();
 
     ctx.generateResponseAI(validTripRequest);
@@ -66,7 +61,7 @@ describe("TripContext", () => {
   });
 
   it("passes the request straight through to the API module", async () => {
-    mockFetch.mockResolvedValue(tripDataFixture);
+    mockFetch.mockResolvedValue(generatedTripFixture);
     renderTrip();
 
     ctx.generateResponseAI(validTripRequest);
@@ -76,20 +71,19 @@ describe("TripContext", () => {
     });
   });
 
-  it("redirects to the prefetched trip url on success", async () => {
-    mockFetch.mockResolvedValue(tripDataFixture);
+  it("redirects to the url the server gave the trip", async () => {
+    mockFetch.mockResolvedValue(generatedTripFixture);
     renderTrip();
 
     ctx.generateResponseAI(validTripRequest);
 
     await waitFor(() => {
-      expect(replace).toHaveBeenCalledWith(expect.stringMatching(/^\/trips\/[0-9a-f]{12}$/));
+      expect(replace).toHaveBeenCalledWith(`/trips/${generatedTripFixture.tripUrl}`);
     });
-    expect(replace.mock.calls[0][0]).toBe(prefetch.mock.calls[0][0]);
   });
 
   it("reports pending while the request is in flight", async () => {
-    let resolve: (value: typeof tripDataFixture) => void = () => {};
+    let resolve: (value: typeof generatedTripFixture) => void = () => {};
     mockFetch.mockReturnValue(
       new Promise((r) => {
         resolve = r;
@@ -103,7 +97,7 @@ describe("TripContext", () => {
       expect(screen.getByTestId("pending")).toHaveTextContent("true");
     });
 
-    resolve(tripDataFixture);
+    resolve(generatedTripFixture);
 
     await waitFor(() => {
       expect(screen.getByTestId("pending")).toHaveTextContent("false");
@@ -124,7 +118,7 @@ describe("TripContext", () => {
   });
 
   it("runs the caller's onSuccess once the trip is back", async () => {
-    mockFetch.mockResolvedValue(tripDataFixture);
+    mockFetch.mockResolvedValue(generatedTripFixture);
     const onSuccess = vi.fn();
     renderTrip();
 

@@ -48,6 +48,16 @@ async function deleteOwnRows() {
   }
 }
 
+/** The `saved` flag of each of `name`'s rows. */
+async function savedFlags(name: string) {
+  const prisma = new PrismaClient();
+  try {
+    const rows = await prisma.trip.findMany({ where: { userName: name.toLowerCase() } });
+    return rows.map((row) => row.saved);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
 
 /** Walks the form as `name`, submits, and waits for the generated trip. */
 async function generateTrip(page: Page, name: string) {
@@ -150,6 +160,9 @@ test.describe("trip journey", () => {
     await page.getByRole("button", { name: "No, thanks" }).click();
     // The answer is written either way; wait for it before looking.
     await expect(page.getByRole("heading", { name: "What next?" })).toBeVisible();
+
+    // Generation wrote the row; the answer only left it unsaved.
+    expect(await savedFlags(DISCARDER)).toEqual([false]);
 
     await page.goto("/saved-trips");
     await searchSavedTrips(page, DISCARDER);

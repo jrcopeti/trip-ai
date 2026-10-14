@@ -2,15 +2,13 @@ import { useContext, type ReactElement, type ReactNode } from "react";
 import { vi } from "vitest";
 import { TripContext } from "@/context/TripContext";
 import { FormContext } from "@/context/FormContext";
-import { ImageContext } from "@/context/ImageContext";
 import { WeatherContext } from "@/context/WeatherContext";
 import { getSingleSavedTrip } from "@/db/actions";
 import { renderWithProviders } from "@/test/render";
 import { resetNextStubs } from "@/test/stubs/next";
-import { finalFormData, imageDataFixture, tripDataFixture, tripFixture } from "@/test/fixtures";
+import { finalFormData, generatedTripFixture, tripFixture } from "@/test/fixtures";
 import type {
   FormContextType,
-  ImageContextType,
   TripContextType,
   WeatherContextType,
 } from "@/types";
@@ -18,17 +16,16 @@ import type { Trip } from "@prisma/client";
 
 /**
  * Rendering helpers for the trip sections, which read their data from wherever
- * the route keeps it: the four contexts on `/trips/[tripUrl]`, a `Trip` row from
+ * the route keeps it: the contexts on `/trips/[tripUrl]`, a `Trip` row from
  * `getSingleSavedTrip` on `/saved-trips/[id]`.
  *
  * Test files using these must mock the boundaries themselves — `vi.mock` only
- * applies to the file that calls it. Importing the contexts pulls in the three
+ * applies to the file that calls it. Importing the contexts pulls in the two
  * API modules, so those are mocked too:
  *
  *   vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
- *   vi.mock("@/app/api/unsplashApi", () => ({ fetchTripImage: vi.fn() }));
  *   vi.mock("@/app/api/openWeatherApi", () => ({ fetchWeather: vi.fn(), fetchForecast: vi.fn() }));
- *   vi.mock("@/db/actions", () => ({ getSingleSavedTrip: vi.fn(), createTripInDB: vi.fn() }));
+ *   vi.mock("@/db/actions", () => ({ getSingleSavedTrip: vi.fn(), setTripSaved: vi.fn() }));
  *   vi.mock("next/navigation", () => import("@/test/stubs/next"));
  *   vi.mock("next/image", async () => ({ default: (await import("@/test/stubs/next")).NextImage }));
  */
@@ -36,7 +33,6 @@ import type { Trip } from "@prisma/client";
 type Contexts = {
   trip?: Partial<TripContextType>;
   form?: Partial<FormContextType>;
-  image?: Partial<ImageContextType>;
   weather?: Partial<WeatherContextType>;
 };
 
@@ -44,37 +40,34 @@ type Contexts = {
  * Overrides each context on top of its own default value, read from the
  * context itself, so a test names only the fields it cares about.
  */
-function ContextOverrides({ trip, form, image, weather, children }: Contexts & { children: ReactNode }) {
+function ContextOverrides({ trip, form, weather, children }: Contexts & { children: ReactNode }) {
   const tripCtx = useContext(TripContext);
   const formCtx = useContext(FormContext);
-  const imageCtx = useContext(ImageContext);
   const weatherCtx = useContext(WeatherContext);
 
   return (
     <TripContext.Provider value={{ ...tripCtx, ...trip }}>
       <FormContext.Provider value={{ ...formCtx, ...form }}>
-        <ImageContext.Provider value={{ ...imageCtx, ...image }}>
-          <WeatherContext.Provider value={{ ...weatherCtx, ...weather }}>
-            {children}
-          </WeatherContext.Provider>
-        </ImageContext.Provider>
+        <WeatherContext.Provider value={{ ...weatherCtx, ...weather }}>
+          {children}
+        </WeatherContext.Provider>
       </FormContext.Provider>
     </TripContext.Provider>
   );
 }
 
 /**
- * `/trips/[tripUrl]`: the AI's response, the form data and the Unsplash images
- * in context, no `id` param. Each context can be overridden further.
+ * `/trips/[tripUrl]`: the row `generateTrip` wrote and the form data in context,
+ * no `id` param. Each context can be overridden further.
  */
 export function renderGeneratedTrip(ui: ReactElement, contexts: Contexts = {}) {
-  resetNextStubs("/trips/ab12c", { tripUrl: "ab12c" });
+  const { tripUrl } = generatedTripFixture;
+  resetNextStubs(`/trips/${tripUrl}`, { tripUrl });
 
   return renderWithProviders(
     <ContextOverrides
-      trip={{ tripData: tripDataFixture, ...contexts.trip }}
+      trip={{ tripData: generatedTripFixture, ...contexts.trip }}
       form={{ formData: finalFormData, ...contexts.form }}
-      image={{ imageData: imageDataFixture, ...contexts.image }}
       weather={contexts.weather}
     >
       {ui}

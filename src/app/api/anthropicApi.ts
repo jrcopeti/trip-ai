@@ -1,10 +1,15 @@
 "use server";
 import Anthropic from "@anthropic-ai/sdk";
+import { randomBytes } from "node:crypto";
 import type { Trip } from "@prisma/client";
+import prisma from "@/db";
 import { buildSystemPrompt, buildTripMessage } from "@/lib/agent/prompt";
-import { TripRequestSchema } from "@/lib/agent/request";
-import { TripDataSchema, submitTripTool } from "@/lib/agent/submitTrip";
+import { TripRequestSchema, type TripRequest } from "@/lib/agent/request";
+import { TripDataSchema, submitTripTool, type TripData } from "@/lib/agent/submitTrip";
+import type { Place } from "@/lib/place";
+import { toTripRow } from "@/lib/tripRow";
 import { resolvePlace } from "./geoNamesApi";
+import { fetchTripImage } from "./unsplashApi";
 import { tripDataFixture, useE2EFixtures } from "./e2eFixtures";
 
 const client = new Anthropic({
@@ -13,7 +18,8 @@ const client = new Anthropic({
 
 /**
  * A server action is a public endpoint, so the request is checked again here
- * and the city resolved again, whatever the browser already did.
+ * and the city resolved again, whatever the browser already did. Writes the
+ * trip unsaved and returns the row; the traveller's answer only flips `saved`.
  */
 export async function generateTrip(input: unknown): Promise<Trip> {
   const request = TripRequestSchema.safeParse(input);
@@ -26,15 +32,27 @@ export async function generateTrip(input: unknown): Promise<Trip> {
   const resolved = await resolvePlace(req.city, req.countryCode);
   if (!resolved.ok) throw new Error(`The city could not be resolved: ${resolved.error}`);
 
-  if (useE2EFixtures) return tripDataFixture;
+  const [tripData, images] = await Promise.all([
+    useE2EFixtures ? (tripDataFixture as TripData) : askForTrip(req, resolved.place),
+    // Searched by GeoNames' name, not the raw spelling; a trip without photos is still a trip.
+    fetchTripImage(resolved.place.name).catch(() => ({ tripImages: [], placeholder: null })),
+  ]);
 
+  // 48 random bits: `tripUrl` is unique, so a clash would fail the write.
+  const tripUrl = randomBytes(6).toString("hex");
+  return prisma.trip.create({
+    data: toTripRow({ request: req, place: resolved.place, tripData, images, tripUrl }),
+  });
+}
+
+async function askForTrip(req: TripRequest, place: Place): Promise<TripData> {
   let response: Anthropic.Message;
   try {
     response = await client.messages.create({
       model: "claude-sonnet-5-5",
       max_tokens: 16000,
       system: [{ type: "text", text: buildSystemPrompt(), cache_control: { type: "ephemeral" } }],
-      messages: [{ role: "user", content: buildTripMessage(req, resolved.place) }],
+      messages: [{ role: "user", content: buildTripMessage(req, place) }],
       tools: [submitTripTool],
       // Sonnet 5.5 rejects a forced tool choice; the prompt asks for submit_trip and `strict` keeps its shape.
       tool_choice: { type: "auto" },
@@ -72,6 +90,5 @@ export async function generateTrip(input: unknown): Promise<Trip> {
     console.error("generateTrip: invalid trip", trip.error.flatten());
     throw new Error("The model returned an invalid trip");
   }
-  // The trip page reads the generated fields off a `Trip`; the rest is merged from the form.
-  return trip.data as unknown as Trip;
+  return trip.data;
 }

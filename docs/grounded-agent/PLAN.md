@@ -384,15 +384,51 @@ from `cityCheck.place` and `isWeatherSelected` at save time, as first planned: t
 the traveller leaves `/form`, before the save. `processForm` keeps them in `formData` instead
 (`FinalDataTypes`), and the refactor drops them with `formData`.
 
-**Status: done on `trip-schema`, staged, not committed.** Also in it: `flagUrl` and
+**Status: merged (#202).** Also in it: `flagUrl` and
 `weatherForecast` leave the form schema (they only fed the columns), `flagUrl(code)` replaces
 `countryCodeFromFlag`, the age/nationality rows and labels go, a discarded trip now writes its
 blur too, and blank required items are dropped from the row. The local e2e database was reset
-and reseeded on the new shape. **Still to do when it merges: delete every row on Neon and
-`db push` there — ask first.** `prisma/migrations` (last one April 2024) is stale: the project
+and reseeded on the new shape. Neon was cleared and pushed when it merged. `prisma/migrations` (last one April 2024) is stale: the project
 uses `db push`, so it is left alone here.
 
-The rest of 2 (the server-owned trip) builds on this shape. Split it further at its start.
+The rest of 2 (the server-owned trip) builds on this shape, in four sub-branches, each green on
+its own, in this order (2f is independent and can land any time):
+
+- **2b · `trip-write`: generation writes the row; save and discard flip a flag.**
+  `generateTrip` makes the `tripUrl`, fetches the photos (searching GeoNames' name for the place,
+  finding 4), writes the row (`saved: false`) from the checked request, the resolved place and the
+  model's output, and returns it. `setTripSaved(tripUrl, saved)` replaces `createTripInDB` on the
+  client (finding 1); `toTripRow` moves to the server and builds from the request. `ImageContext`,
+  `useImage` and the form's photo fetch go; `fetchTripImage` stops being a server action.
+  *Bridge for 2c:* `TripContext` keeps the returned row as `tripData`, so the generated route's
+  sections read photos from it, and still read the form's fields from `formData`.
+  **Status: done on `trip-write`, staged, not committed.** As built: the photo search runs
+  alongside the model call, and a failed search writes the trip without photos; `setTripSaved`
+  only touches a row still unsaved (a saved trip can't be unsaved by its url) and checks the url's
+  format first. `useCreateTrip` became `useSaveTrip`. The row keeps the old storage (name, city,
+  note and items lowercased; `agreement: true`, since the request leaves it out on purpose), and
+  its dates are calendar days at UTC midnight, so the sections now read row dates in UTC, the
+  generated route's included. `formData` and its 2a bridge fields stay until 2c.
+  From its review: rows saved between #202's deploy and this merge hold local-midnight dates
+  and would read a day early in UTC; the user deletes them. Left for 2c: the generated route
+  still reads `byWeather` from the form, so a weather trip whose forecast failed says "Planned
+  by the forecast" until saved, then not (the row has `false`); reading it from the row fixes it.
+- **2c · `trip-page-server`: both trip routes render the row on the server.** `getTripByUrl`;
+  `/trips/[tripUrl]` and `/saved-trips/[id]` read the row and pass `trip` to `TripPage`, whose
+  sections take props: no dual-source reads, no `formData` on the trip page. Saved state comes from
+  the row. `TripResponse`, `useSingleSavedTrip`, `useConfirmOnPageExit` and `TripContext`'s
+  `tripData` go; a refresh keeps the trip (e2e). *Bridge for 2d:* the weather sections stay client
+  components fetching by `{ city, countryCode }` off the `trip` prop.
+- **2d · `weather-by-coords`: the place, resolved once.** `fetchWeather`/`fetchForecast` take
+  `{ lat, lon }` and never call `resolvePlace`; the trip page fetches both on the server from the
+  row (short `revalidate`); the form's forecast uses `cityCheck.place`. `WeatherContext` shrinks
+  to the form's forecast.
+- **2e · `form-scoped`: the providers leave the app root.** `FormContext` moves to
+  `src/app/form/layout.tsx`; `TripContext` becomes `useTripGeneration`; the form's forecast
+  becomes a form-local hook; `formData`/`FinalDataTypes` go if nothing reads them; `providers.tsx`
+  keeps QueryClient, MotionProvider and Toaster. CLAUDE.md's architecture section is rewritten.
+- **2f · `request-checks`: findings 2 and 3.** Passport checked with `oneOf` against the
+  countries; required items refuse line breaks, on the server and the form.
 
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`

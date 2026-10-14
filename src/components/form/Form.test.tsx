@@ -22,9 +22,6 @@ import type { FieldName, FormContextType } from "@/types";
 vi.mock("@/hooks/useWeather", () => ({
   useWeather: () => ({ generateForecast: vi.fn(), forecastData: undefined }),
 }));
-vi.mock("@/hooks/useImage", () => ({
-  useImage: () => ({ generateImage: vi.fn() }),
-}));
 vi.mock("@/hooks/useTripResponse", () => ({
   useTripResponse: () => ({
     generateResponseAI: vi.fn(),

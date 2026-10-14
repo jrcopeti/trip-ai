@@ -3,27 +3,26 @@ import userEvent from "@testing-library/user-event";
 import { screen, waitFor } from "@/test/render";
 import { renderGeneratedTrip, renderSavedTrip } from "@/test/trip";
 import { back } from "@/test/stubs/next";
-import { createTripInDB } from "@/db/actions";
-import { makeTrip, tripDataFixture, tripFixture } from "@/test/fixtures";
+import { setTripSaved } from "@/db/actions";
+import { generatedTripFixture, makeTrip, tripDataFixture } from "@/test/fixtures";
 import SaveSection from "./SaveSection";
 import FinalSection from "./FinalSection";
 import { closing } from "./content";
 
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
-vi.mock("@/app/api/unsplashApi", () => ({ fetchTripImage: vi.fn() }));
 vi.mock("@/app/api/openWeatherApi", () => ({ fetchWeather: vi.fn(), fetchForecast: vi.fn() }));
-vi.mock("@/db/actions", () => ({ getSingleSavedTrip: vi.fn(), createTripInDB: vi.fn() }));
+vi.mock("@/db/actions", () => ({ getSingleSavedTrip: vi.fn(), setTripSaved: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("next/image", async () => ({
   default: (await import("@/test/stubs/next")).NextImage,
 }));
 
-const mockCreate = vi.mocked(createTripInDB);
+const mockSave = vi.mocked(setTripSaved);
 const setIsTripSaved = vi.fn();
 
 beforeEach(() => {
-  mockCreate.mockReset();
-  mockCreate.mockResolvedValue(tripFixture);
+  mockSave.mockReset();
+  mockSave.mockResolvedValue(undefined);
   setIsTripSaved.mockClear();
 });
 
@@ -35,27 +34,27 @@ describe("SaveSection", () => {
     expect(screen.getByRole("heading", { name: closing.save.question })).toBeInTheDocument();
   });
 
-  it("saves the trip with saved: true on yes", async () => {
+  it("saves the written trip by its url on yes", async () => {
     renderGeneratedTrip(<SaveSection />, { trip: { setIsTripSaved } });
 
     await userEvent.click(screen.getByRole("button", { name: closing.save.yes }));
 
-    await waitFor(() => expect(mockCreate).toHaveBeenCalledTimes(1));
-    expect(mockCreate.mock.calls[0][0]).toMatchObject({ saved: true, tripUrl: "ab12c" });
+    await waitFor(() => expect(mockSave).toHaveBeenCalledTimes(1));
+    expect(mockSave).toHaveBeenCalledWith(generatedTripFixture.tripUrl, true);
     await waitFor(() => expect(setIsTripSaved).toHaveBeenCalledWith(true));
   });
 
-  it("writes the trip with saved: false on no", async () => {
+  it("answers false on no", async () => {
     renderGeneratedTrip(<SaveSection />, { trip: { setIsTripSaved } });
 
     await userEvent.click(screen.getByRole("button", { name: closing.save.no }));
 
-    await waitFor(() => expect(mockCreate).toHaveBeenCalledTimes(1));
-    expect(mockCreate.mock.calls[0][0]).toMatchObject({ saved: false, tripUrl: "ab12c" });
+    await waitFor(() => expect(mockSave).toHaveBeenCalledTimes(1));
+    expect(mockSave).toHaveBeenCalledWith(generatedTripFixture.tripUrl, false);
   });
 
   it("disables both answers while the trip is being written", async () => {
-    mockCreate.mockReturnValue(new Promise(() => {}));
+    mockSave.mockReturnValue(new Promise(() => {}));
     renderGeneratedTrip(<SaveSection />);
 
     await userEvent.click(screen.getByRole("button", { name: closing.save.yes }));

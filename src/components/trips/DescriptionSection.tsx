@@ -2,7 +2,6 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useTripResponse } from "@/hooks/useTripResponse";
-import { useImage } from "@/hooks/useImage";
 import defaultImage2 from "@/assets/travel-photos/2.jpg";
 import Reveal from "@/components/sorbet/Reveal";
 import { defaultPlaceholder } from "@/lib/constants";
@@ -13,11 +12,10 @@ function DescriptionSection() {
   const params = useParams();
   const { trip } = useSingleSavedTrip({ params });
   const { tripData: response } = useTripResponse();
-  const { imageData } = useImage();
 
   const description = trip?.description || response?.description;
-  const image2 = trip?.tripImages[1] || imageData?.tripImages[1];
-  const placeholder = trip?.placeholder || imageData?.placeholder;
+  const image2 = trip?.tripImages[1] || response?.tripImages[1];
+  const placeholder = trip?.placeholder || response?.placeholder;
 
   return (
     <Section ground="bg-white">
