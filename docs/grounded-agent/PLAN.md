@@ -76,6 +76,14 @@ Fixed in the wrap-up (`agent-phase1-wrap-up`):
   so `countryCodeFromFlag` (`src/lib/place.ts`) reads it back from `flagUrl`, which has always been
   `https://flagcdn.com/<code>.svg`; any other URL sends an empty code, and the section shows its
   error. Branch 2 should store the resolved place on the row and drop this.
+  Its review found two costs, left for branch 2 (see "The place, resolved once" there):
+  - **More GeoNames calls, not fewer.** Each weather call resolves the place again: the dates
+    step's forecast repeats step 2's check, and every trip page view makes two (weather and
+    forecast, sent at once, so a cache wouldn't merge them). Weather now fails when GeoNames is
+    down or over quota.
+  - **Some older saved trips lose their weather.** Rows saved before branch 1 passed a looser
+    check, so a city GeoNames' strict match rejects ("Bali", a region, a typo) now shows the
+    sections' errors instead of OpenWeather's best guess. Not checked against Neon.
 - **One city check per spelling.** `useGeoNames` ran in both `FormStep2` and `FormButtons`, so
   each spelling was two GeoNames calls. It now runs once in `FormProvider`, which exposes
   `cityCheck`.
@@ -321,6 +329,15 @@ Server (after the refactor):
   `getTripByUrl`, plus the existing `getSingleSavedTrip`) and pass `trip` as props to one `TripPage`.
   The sections take props; there's no dual-source reading.
 - Current weather for the weather card is fetched in the page (server), with a short `revalidate`.
+- **The place, resolved once** (from the phase 1 wrap-up's review). The row stores the resolved
+  place: `countryCode`, `lat`, `lng` (Prisma columns, nullable; **ask before `db push` to Neon**).
+  `fetchForecast` and `fetchWeather` take `{ lat, lon }` and never call `resolvePlace`; the page
+  fetches both from the row's coordinates in one server pass. The form's forecast uses
+  `cityCheck.place`, which step 2 already resolved. `countryCodeFromFlag` goes. Result: one
+  GeoNames call per spelling on the form, one in `generateTrip`, none on any trip page.
+  Old rows: a one-off backfill script resolves each through `resolvePlace` (code from `flagUrl`);
+  rows that fail keep null coordinates, and the page geocodes those with OpenWeather using the ISO
+  code (not the country name), so they keep their weather.
 - Save and discard become `setTripSaved(tripUrl, saved)`, a flag, not a client-built payload.
   `createTripInDB` leaves the client API.
 
