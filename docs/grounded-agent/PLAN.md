@@ -88,6 +88,18 @@ Fixed in the wrap-up (`agent-phase1-wrap-up`):
   each spelling was two GeoNames calls. It now runs once in `FormProvider`, which exposes
   `cityCheck`.
 
+An audit of every typed input (after #197) found five gaps. 1–4 are left for branch 2 (see
+"From the input audit" there). The fifth was fixed in `form-matches-server`:
+- **The form was looser than the server.** A city with `<` or over 100 characters passed the form
+  and failed at submit with the generic toast. The form's city now has the server's rules (trimmed,
+  ≤ `LIMITS.city`, no line breaks or `<` `>`), and the name and city inputs take `maxLength`. Step 2's
+  Next waits on the city check, so a field message could never show: `useGeoNames` checks the
+  spelling against the schema first, and a refused one makes no GeoNames call and toasts the reason.
+  Country and passport are picked from a list, so the form can't send a bad one; items are
+  single-line inputs, and their line breaks are finding 3.
+  The caps were lowered in the same branch: name, city and each required item to 50 characters
+  (`LIMITS`), on the form and the server alike.
+
 Left from branch 1, for the branch named or for later:
 - Typed errors (invalid request, place not found, refusal) wait for branch 3's rate limit;
   today every failure is the same toast. Effort (default `high`) and `max_tokens` (16000) are
@@ -355,6 +367,19 @@ Client (stays):
 Tests: page logic as pure helpers (`loadTrip`), sections rendered with a fixture `trip` prop
 (`sections.test.tsx` gets simpler), an action test for `setTripSaved`. e2e: generate → refresh the
 trip page → still there; save → appears in saved trips.
+
+From the input audit (after #197; finding 5 was fixed in phase 1, see branch 1):
+1. **Saving checks nothing (high).** `createTripInDB` writes the whole client-built row, so a direct
+   call skips every limit. `setTripSaved(tripUrl, saved)` above replaces it; `createTripInDB` stays
+   server-only.
+2. **Passport is free text in the trusted facts (medium).** The request schema caps it at 100
+   characters on one line but doesn't check it against the country list. Check it with `oneOf`
+   against the countries, like the choice fields.
+3. **Required items allow line breaks (low).** One can fake a second line inside
+   `<traveller_note>`. Refuse them on the server as the name does, and on the form to match. The
+   note keeps its line breaks.
+4. **The image search takes the raw city (low).** `fetchTripImage` is its own server action with
+   no cap. It moves inside generation here, so search with GeoNames' name for the place.
 
 Left for a follow-up: rendering `/saved-trips`' first page on the server (the "Show more" query
 stays as it is), and updating CLAUDE.md's "four Context providers" architecture section, done in this

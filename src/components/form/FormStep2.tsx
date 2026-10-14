@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useFormData } from "@/hooks/useFormData";
+import { LIMITS } from "@/lib/schema";
 
 import { TextField, Label, Input, Description, FieldError } from "@heroui/react";
 import { Controller } from "react-hook-form";
@@ -74,6 +75,7 @@ function FormStep2() {
                 <Input
                   ref={ref}
                   type="text"
+                  maxLength={LIMITS.city}
                   placeholder={destination.city.placeholder}
                   className={`${fieldInput} pr-16 disabled:opacity-45 disabled:hover:border-sorbet-ink/15`}
                 />

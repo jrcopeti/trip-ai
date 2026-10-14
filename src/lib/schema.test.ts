@@ -50,6 +50,21 @@ describe("FormDataSchema", () => {
     });
   });
 
+  describe("the city", () => {
+    it(`rejects a city over ${LIMITS.city} characters, and accepts one at the cap`, () => {
+      expect(FormDataSchema.safeParse(withField("city", "a".repeat(LIMITS.city + 1))).success).toBe(false);
+      expect(FormDataSchema.safeParse(withField("city", "a".repeat(LIMITS.city))).success).toBe(true);
+    });
+
+    it("rejects < and >, which the server refuses too", () => {
+      expect(messagesFor(withField("city", "Porto <b>"), "city")).toContain("Leave out < and >");
+    });
+
+    it("rejects a city of only spaces", () => {
+      expect(messagesFor(withField("city", "   "), "city")).toContain("City is required");
+    });
+  });
+
   describe("required text fields", () => {
     it.each([
       ["userName", "Name is required"],

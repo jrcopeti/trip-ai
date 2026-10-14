@@ -3,7 +3,7 @@ import { useFormData } from "@/hooks/useFormData";
 import { TextField, Label, Input, FieldError } from "@heroui/react";
 import { Controller, useController } from "react-hook-form";
 import { ageRanges, travellers } from "@/data";
-import { AGE_RANGE_RULES, fitsGroup } from "@/lib/schema";
+import { AGE_RANGE_RULES, LIMITS, fitsGroup } from "@/lib/schema";
 import StepPanel from "./StepPanel";
 import ChoiceGroup from "./ChoiceGroup";
 import ChipCheckGroup from "./ChipCheckGroup";
@@ -39,7 +39,13 @@ function FormStep1() {
             render={({ field: { ref, ...fieldProps } }) => (
               <TextField {...fieldProps} isInvalid={!!errors.userName} isRequired className={field}>
                 <Label className={fieldLabel}>{personal.name.label}</Label>
-                <Input ref={ref} type="text" placeholder={personal.name.placeholder} className={fieldInput} />
+                <Input
+                  ref={ref}
+                  type="text"
+                  maxLength={LIMITS.name}
+                  placeholder={personal.name.placeholder}
+                  className={fieldInput}
+                />
                 <FieldError className={fieldError}>{errors.userName?.message}</FieldError>
               </TextField>
             )}

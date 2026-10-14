@@ -107,7 +107,7 @@ describe("TripRequestSchema", () => {
     );
 
     it("caps the name", () => {
-      expect(accepts(withField("userName", "a".repeat(101)))).toBe(false);
+      expect(accepts(withField("userName", "a".repeat(LIMITS.name + 1)))).toBe(false);
     });
   });
 
