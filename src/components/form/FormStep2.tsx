@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useFormData } from "@/hooks/useFormData";
 import { LIMITS } from "@/lib/schema";
 
@@ -25,7 +25,14 @@ function FormStep2() {
     cityCheck: { isCityValid, isLoadingCityValid, message },
   } = useFormData();
 
+  // The check lives in FormProvider and outlasts this step: "Try again" after a failed trip
+  // remounts the form, and a result already announced must not toast a second time.
+  const announced = useRef(message);
+
   useEffect(() => {
+    if (message === announced.current) return;
+    announced.current = message;
+
     if (isCityValid && !isLoadingCityValid) {
       toast.custom(<CustomToaster message={message} />);
     }
