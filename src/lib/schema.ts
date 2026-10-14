@@ -85,11 +85,9 @@ export const FormFieldsSchema = z.object({
     }),
   endDate: z.string().datetime().min(1, "End date is required"),
 
-  weatherForecast: z.string().optional(),
   agreement: z.boolean().refine((val) => val === true, {
     message: "You must agree to the terms to continue",
   }),
-  flagUrl: z.string(),
 });
 
 /** Shared with the request schema, whose dates are calendar days rather than instants. */

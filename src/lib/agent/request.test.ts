@@ -36,7 +36,7 @@ describe("TripRequestSchema", () => {
     expect(accepts(familyTripRequest)).toBe(true);
   });
 
-  it("drops flagUrl, agreement and weatherForecast rather than passing them on", () => {
+  it("drops agreement, and keys it doesn't know, rather than passing them on", () => {
     const result = TripRequestSchema.parse({
       ...validTripRequest,
       flagUrl: "https://flagcdn.com/pt.svg",
@@ -198,11 +198,8 @@ describe("toTripRequest", () => {
     expect(request.passport).toBeUndefined();
   });
 
-  it("leaves out the form-only fields", () => {
-    const request = toTripRequest(inputs, "PT");
-    expect(request).not.toHaveProperty("flagUrl");
-    expect(request).not.toHaveProperty("agreement");
-    expect(request).not.toHaveProperty("weatherForecast");
+  it("leaves out the form-only agreement", () => {
+    expect(toTripRequest(inputs, "PT")).not.toHaveProperty("agreement");
   });
 
   it("sends the chosen forecast as calendar days", () => {

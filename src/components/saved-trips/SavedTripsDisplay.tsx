@@ -195,7 +195,7 @@ function SavedTripsDisplay() {
                   <Reveal delay={0.06 * (i % 3)}>
                     <Polaroid
                       href={`/saved-trips/${trip.id}`}
-                      image={trip.image ?? image1}
+                      image={trip.tripImages[0] ?? image1}
                       placeholder={trip.placeholder ?? defaultPlaceholder}
                       caption={`${trip.city.trim()}, ${trip.country}`}
                       username={`${trip.userName}`}

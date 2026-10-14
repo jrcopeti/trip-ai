@@ -19,7 +19,7 @@ function SaveSection() {
 
   return (
     <Closing
-      image={imageData?.tripImage5 ?? defaultImage5}
+      image={imageData?.tripImages[4] ?? defaultImage5}
       placeholder={imageData?.placeholder ?? defaultPlaceholder}
       tip={response?.tip}
       heading={isTripSaved ? copy.saved.heading : copy.save.question}

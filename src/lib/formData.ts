@@ -14,6 +14,9 @@ export function transformInputsToFinalData(inputs: Inputs): FinalDataTypes {
   return {
     ...inputs,
     requiredItems: transformedRequiredItems,
-    weatherForecast: inputs.weatherForecast || "",
+    byWeather: false,
+    countryCode: "",
+    lat: null,
+    lng: null,
   };
 }

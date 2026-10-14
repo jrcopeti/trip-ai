@@ -17,15 +17,13 @@ export const fetchTripImage = async (city: string) => {
     const { results }: UnsplashSearch = await search.json();
     if (!results.length) throw new Error(`Unsplash: no photos of ${city}`);
 
-    const [tripImage, tripImage2, tripImage3, tripImage4, tripImage5] = [0, 5, 2, 3, 4].map(
-      (i) => results[i]?.urls.regular,
-    );
+    const tripImages = results.slice(0, 5).map((result) => result.urls.regular);
 
-    const image = await fetch(tripImage);
+    const image = await fetch(tripImages[0]);
     if (!image.ok) throw new Error(`Unsplash image: ${image.status}`);
     const { base64: placeholder } = await getPlaiceholder(Buffer.from(await image.arrayBuffer()));
 
-    return { tripImage, tripImage2, tripImage3, tripImage4, tripImage5, placeholder };
+    return { tripImages, placeholder };
   } catch (error: unknown) {
     console.error(error);
     throw new Error("Error fetching image");

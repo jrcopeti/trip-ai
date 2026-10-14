@@ -307,4 +307,4 @@ picks one at random on the server â€” `/about`'s photo and the landing's band â€
 pages call `await connection()` to render per request.
 
 ### Database
-Single `Trip` model (Postgres via Prisma). `relationMode = "prisma"` is set for PlanetScale/edge compatibility. All trips are written immediately (saved or not); `saved: boolean` distinguishes them.
+Single `Trip` model (Postgres on Neon, via Prisma; no `relationMode`, so a relation is a real foreign key). It stores the resolved place (`countryCode`, `lat`, `lng`) and the photos as `tripImages`. All trips are written immediately (saved or not); `saved: boolean` distinguishes them.

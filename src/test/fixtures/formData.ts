@@ -20,19 +20,20 @@ export const validInputs: Inputs = {
   note: "Wants a day trip to Sintra",
   startDate: "2030-05-01T00:00:00.000Z",
   endDate: "2030-05-08T00:00:00.000Z",
-  weatherForecast: "",
   agreement: true,
-  flagUrl: "https://flagcdn.com/pt.svg",
 };
 
-/** The same data after `transformInputsToFinalData`. */
+/** The same data as `processForm` keeps it, with the place `cityCheck` resolved. */
 export const finalFormData: FinalDataTypes = {
   ...validInputs,
   userName: "ana",
   city: "lisbon",
   note: "wants a day trip to sintra",
   requiredItems: ["camera", "walking shoes"],
-  weatherForecast: "",
+  byWeather: false,
+  countryCode: "PT",
+  lat: 38.71667,
+  lng: -9.13333,
 };
 
 /** `validInputs` as `toTripRequest` sends it, original case kept. */

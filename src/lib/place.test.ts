@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countryCodeFromFlag, matchCity, normalise } from "@/lib/place";
+import { flagUrl, matchCity, normalise } from "@/lib/place";
 import {
   glasgowGeoName,
   lisbonGeoName,
@@ -80,15 +80,9 @@ describe("matchCity", () => {
   });
 });
 
-describe("countryCodeFromFlag", () => {
-  it("reads the form's code back out of the flag URL", () => {
-    expect(countryCodeFromFlag("https://flagcdn.com/pt.svg")).toBe("PT");
-    expect(countryCodeFromFlag("https://flagcdn.com/gb-sct.svg")).toBe("GB-SCT");
-  });
-
-  it("returns undefined for anything else", () => {
-    expect(countryCodeFromFlag(undefined)).toBeUndefined();
-    expect(countryCodeFromFlag("")).toBeUndefined();
-    expect(countryCodeFromFlag("https://example.com/pt.svg")).toBeUndefined();
+describe("flagUrl", () => {
+  it("builds flagcdn's URL from a row's country code, a UK nation included", () => {
+    expect(flagUrl("PT")).toBe("https://flagcdn.com/pt.svg");
+    expect(flagUrl("GB-SCT")).toBe("https://flagcdn.com/gb-sct.svg");
   });
 });

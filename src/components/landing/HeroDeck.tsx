@@ -39,7 +39,7 @@ function HeroDeck({ trips }: Props) {
         >
           <Polaroid
             href={`/saved-trips/${trip.id}`}
-            image={trip.image ?? image1}
+            image={trip.tripImages[0] ?? image1}
             placeholder={trip.placeholder ?? defaultPlaceholder}
             caption={`${trip.city.trim()}, ${trip.country}`}
             username={trip.userName}

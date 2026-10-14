@@ -41,12 +41,8 @@ export const ForecastDaySchema = z.object({
   description: line(80),
 });
 
-/** What the browser sends `generateTrip`: the form minus `flagUrl` and `agreement`, checked again. */
-export const TripRequestSchema = FormFieldsSchema.omit({
-  flagUrl: true,
-  agreement: true,
-  weatherForecast: true,
-})
+/** What the browser sends `generateTrip`: the form minus `agreement`, checked again. */
+export const TripRequestSchema = FormFieldsSchema.omit({ agreement: true })
   .extend({
     userName: line(LIMITS.name),
     travellers: oneOf(travellers),
@@ -85,8 +81,7 @@ export function toTripRequest(
   countryCode: string,
   forecast?: SelectedForecastDataTypes[],
 ): TripRequest {
-  const { flagUrl, agreement, weatherForecast, requiredItems, note, passport, ...fields } =
-    inputs;
+  const { agreement, requiredItems, note, passport, ...fields } = inputs;
   const items = (requiredItems ?? []).map(({ item }) => item.trim()).filter(Boolean);
   return {
     ...fields,

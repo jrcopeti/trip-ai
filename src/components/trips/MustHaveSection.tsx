@@ -60,9 +60,7 @@ function MustHaveSection() {
   const mustHave = trip?.mustHave || response?.mustHave || [];
   // The traveller's own items come from the form, not the model. The form keeps
   // an empty first row when nothing was added, so blanks are dropped.
-  const requiredItems = (
-    ((trip?.requiredItems || formData.requiredItems) as string[] | undefined) ?? []
-  ).filter((item) => item.trim() !== "");
+  const requiredItems = (trip?.requiredItems ?? formData.requiredItems ?? []).filter((item) => item.trim() !== "");
 
   return (
     <Section ground="bg-white">

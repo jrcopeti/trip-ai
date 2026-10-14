@@ -15,7 +15,7 @@ function FinalSection() {
 
   return (
     <Closing
-      image={trip?.image5 ?? defaultImage5}
+      image={trip?.tripImages[4] ?? defaultImage5}
       placeholder={trip?.placeholder ?? defaultPlaceholder}
       tip={trip?.tip}
       heading={copy.final.heading}

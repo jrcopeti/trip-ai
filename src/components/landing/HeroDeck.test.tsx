@@ -32,7 +32,7 @@ describe("HeroDeck", () => {
   });
 
   it("falls back to the bundled photo for a trip saved without one", () => {
-    renderWithProviders(<HeroDeck trips={[{ ...tripFixture, image: null }]} />);
+    renderWithProviders(<HeroDeck trips={[{ ...tripFixture, tripImages: [] }]} />);
 
     const link = screen.getByRole("link", { name: "lisbon, Portugal, ana" });
     expect(link.querySelector("img")).toHaveAttribute("src", stubSrc("1.jpg"));

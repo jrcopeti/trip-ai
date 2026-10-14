@@ -281,16 +281,15 @@ describe("FormContext — fetch triggers", () => {
 });
 
 describe("FormContext — country autocomplete", () => {
-  it("writes the country name and its flag from the selected code", async () => {
+  it("writes the country name from the selected code", async () => {
     renderForm();
     await act(async () => {
       ctx.handleSelectionAutocomplete("pt", "country");
     });
     expect(ctx.reviewFormData.country).toBe("Portugal");
-    expect(ctx.reviewFormData.flagUrl).toBe("https://flagcdn.com/pt.svg");
   });
 
-  it("writes no flag for a non-country field", async () => {
+  it("writes the passport's country name from the selected code", async () => {
     renderForm();
     await act(async () => {
       ctx.handleSelectionAutocomplete("pt", "passport");
@@ -300,10 +299,9 @@ describe("FormContext — country autocomplete", () => {
       ctx.setValue("city", "Lisbon");
     });
     expect(ctx.reviewFormData.passport).toBe("Portugal");
-    expect(ctx.reviewFormData.flagUrl).toBe("");
   });
 
-  it("clears the country and its flag when the selection is cleared", async () => {
+  it("clears the country when the selection is cleared", async () => {
     renderForm();
     await act(async () => {
       ctx.handleSelectionAutocomplete("pt", "country");
@@ -312,7 +310,6 @@ describe("FormContext — country autocomplete", () => {
       ctx.handleSelectionAutocomplete(null, "country");
     });
     expect(ctx.reviewFormData.country).toBe("");
-    expect(ctx.reviewFormData.flagUrl).toBe("");
   });
 
   it("clears the passport when the selection is cleared", async () => {
@@ -456,6 +453,37 @@ describe("FormContext — processForm", () => {
     expect(screen.getByTestId("step")).toHaveTextContent("0");
     expect(ctx.isWeatherSelected).toBe(false);
     expect(ctx.reviewFormData.userName).toBe("");
+  });
+
+  // The save on the trip page comes after the clear, and writes these to the row.
+  it("keeps the resolved place and the weather choice in formData past the clear", async () => {
+    vi.mocked(resolvePlace).mockResolvedValue({ ok: true, place: lisbonPlace });
+    const view = renderForm();
+    await act(async () => {
+      ctx.setValue("country", "Portugal");
+      ctx.setValue("city", "Lisbon");
+    });
+    await waitFor(() => expect(ctx.cityCheck.place).toEqual(lisbonPlace), { timeout: 2000 });
+    generationSucceeds();
+    await act(async () => {
+      ctx.setIsWeatherSelected(true);
+    });
+    await act(async () => {
+      ctx.processForm(validInputs, undefined);
+    });
+
+    routerState.pathname = "/trips/ab12c";
+    await act(async () => {
+      view.rerender(formTree());
+    });
+
+    expect(ctx.cityCheck.place).toBeNull();
+    expect(ctx.formData).toMatchObject({
+      byWeather: true,
+      countryCode: "PT",
+      lat: lisbonPlace.lat,
+      lng: lisbonPlace.lng,
+    });
   });
 
   it("leaves the form alone on a path change when no trip came back", async () => {

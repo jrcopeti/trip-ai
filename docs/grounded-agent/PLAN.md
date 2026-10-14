@@ -378,8 +378,19 @@ Audit of every column (who writes it, who reads it), after #200:
   `updatedAt` is unread today, but `setTripSaved` makes it the save time.
 
 Bridge for the refactor to remove: until the server writes the row, `useCreateTrip` still builds
-it in the browser. In 2a it takes `countryCode`, `lat` and `lng` from `cityCheck.place`, and
-`byWeather` from `isWeatherSelected`.
+it in the browser, now field by field in `toTripRow` (`src/lib/tripRow.ts`): spreading the form
+handed Prisma keys it has no column for. `countryCode`, `lat`, `lng` and `byWeather` can't be read
+from `cityCheck.place` and `isWeatherSelected` at save time, as first planned: the form resets once
+the traveller leaves `/form`, before the save. `processForm` keeps them in `formData` instead
+(`FinalDataTypes`), and the refactor drops them with `formData`.
+
+**Status: done on `trip-schema`, staged, not committed.** Also in it: `flagUrl` and
+`weatherForecast` leave the form schema (they only fed the columns), `flagUrl(code)` replaces
+`countryCodeFromFlag`, the age/nationality rows and labels go, a discarded trip now writes its
+blur too, and blank required items are dropped from the row. The local e2e database was reset
+and reseeded on the new shape. **Still to do when it merges: delete every row on Neon and
+`db push` there — ask first.** `prisma/migrations` (last one April 2024) is stale: the project
+uses `db push`, so it is left alone here.
 
 The rest of 2 (the server-owned trip) builds on this shape. Split it further at its start.
 

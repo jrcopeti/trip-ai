@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Country } from "@/types";
+import { flagUrl } from "@/lib/place";
 
 const COUNTRY_MAX_LENGTH = 25;
 const NOT_COUNTRIES = new Set(["eu", "un"]);
@@ -26,7 +27,7 @@ export function useCountries() {
               name.slice(0, COUNTRY_MAX_LENGTH) +
               (name.length > COUNTRY_MAX_LENGTH ? "..." : ""),
             code: code,
-            flagUrl: `https://flagcdn.com/${code}.svg`,
+            flagUrl: flagUrl(code),
           }),
         );
         setCountries(

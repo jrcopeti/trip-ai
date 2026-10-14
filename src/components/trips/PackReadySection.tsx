@@ -16,7 +16,7 @@ function PackReadySection() {
 
   const startDate = dayjs(trip?.startDate || formData?.startDate).format("DD.MM.YYYY");
   const endDate = dayjs(trip?.endDate || formData?.endDate).format("DD.MM.YYYY");
-  const weatherForecast = trip?.weatherForecast || formData?.weatherForecast;
+  const byWeather = trip ? trip.byWeather : formData?.byWeather;
 
   return (
     <Section ground="bg-white">
@@ -31,7 +31,7 @@ function PackReadySection() {
       </SectionHeading>
       <Reveal delay={0.06}>
         <p className="mt-8 text-lg leading-relaxed text-sorbet-ink/75 md:text-xl">
-          {weatherForecast && (
+          {byWeather && (
             <span className="font-semibold text-sorbet-ink">{copy.byWeather}. </span>
           )}
           {copy.range(startDate, endDate)}.

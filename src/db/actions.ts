@@ -69,7 +69,7 @@ export const getSavedTripsPage = async (
 /** What the landing's hero deck needs of a trip: a polaroid's worth, no more. */
 export type LatestTrip = Pick<
   Trip,
-  "id" | "city" | "country" | "userName" | "image" | "placeholder"
+  "id" | "city" | "country" | "userName" | "tripImages" | "placeholder"
 >;
 
 /**
@@ -87,7 +87,7 @@ export const getLatestSavedTrips = async (): Promise<LatestTrip[]> => {
       city: true,
       country: true,
       userName: true,
-      image: true,
+      tripImages: true,
       placeholder: true,
     },
   });

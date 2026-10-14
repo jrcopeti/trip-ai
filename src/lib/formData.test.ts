@@ -30,20 +30,9 @@ describe("transformInputsToFinalData", () => {
     expect(result.requiredItems).toEqual([""]);
   });
 
-  it("coerces an absent weatherForecast to an empty string", () => {
-    const result = transformInputsToFinalData({
-      ...validInputs,
-      weatherForecast: undefined,
-    });
-    expect(result.weatherForecast).toBe("");
-  });
-
-  it("keeps a weatherForecast that is present", () => {
-    const result = transformInputsToFinalData({
-      ...validInputs,
-      weatherForecast: '[{"dt_txt":"2030-05-01 09:00:00"}]',
-    });
-    expect(result.weatherForecast).toBe('[{"dt_txt":"2030-05-01 09:00:00"}]');
+  it("starts with no place and no weather, which the submit fills in", () => {
+    const result = transformInputsToFinalData(validInputs);
+    expect(result).toMatchObject({ byWeather: false, countryCode: "", lat: null, lng: null });
   });
 
   it("carries every other field through untouched", () => {
@@ -66,7 +55,6 @@ describe("transformInputsToFinalData", () => {
       startDate: "2030-05-01T00:00:00.000Z",
       endDate: "2030-05-08T00:00:00.000Z",
       agreement: true,
-      flagUrl: "https://flagcdn.com/pt.svg",
     });
   });
 
