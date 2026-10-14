@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { setTripSaved } from "@/db/actions";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -7,6 +8,7 @@ import CustomToaster from "@/components/ui/CustomToaster";
 
 /** The traveller's answer to "save this trip?": the row is already written, so only `saved` changes. */
 export function useSaveTrip(tripUrl: string) {
+  const router = useRouter();
   const {
     mutate: saveTrip,
     isPending: isSavingTrip,
@@ -15,6 +17,10 @@ export function useSaveTrip(tripUrl: string) {
   } = useMutation({
     mutationKey: ["trips"],
     mutationFn: (saved: boolean) => setTripSaved(tripUrl, saved),
+
+    // The router cache still holds this page rendered with `saved: false`; without a
+    // refresh, Back restores it and asks again, and answering throws (the row is saved).
+    onSuccess: () => router.refresh(),
 
     onError: (error) => {
       console.error(error);
