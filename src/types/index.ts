@@ -3,6 +3,7 @@ import { FormDataSchema } from "@/lib/schema";
 import { Control, FieldErrors, SubmitHandler } from "react-hook-form";
 import { Trip } from "@prisma/client";
 import type { TripRequest } from "@/lib/agent/request";
+import type { Place } from "@/lib/place";
 
 export type Inputs = z.infer<typeof FormDataSchema>;
 export type FieldName = keyof Inputs;
@@ -61,13 +62,13 @@ export interface SelectedForecastDataTypes {
 }
 
 export interface FetchForecastParams {
-  city?: string;
-  country?: string;
+  city: string;
+  countryCode: string;
 }
 
 export interface FetchWeatherParams {
-  city?: string;
-  country?: string;
+  city: string;
+  countryCode: string;
 }
 
 export interface FetchResponseAIParams {
@@ -78,33 +79,15 @@ export interface FetchResponseAIParams {
 
 export interface WeatherContextType {
   forecastData?: SelectedForecastDataTypes[];
-  generateForecast: ({
-    city,
-    country,
-  }: {
-    city?: string;
-    country?: string;
-  }) => void;
+  generateForecast: (params: FetchForecastParams) => void;
   isPendingForecast: boolean;
   errorForecast: unknown;
   weatherData?: Partial<WeatherDataTypes>;
-  generateWeather: ({
-    city,
-    country,
-  }: {
-    city?: string;
-    country?: string;
-  }) => void;
+  generateWeather: (params: FetchWeatherParams) => void;
   isPendingWeather: boolean;
   errorWeather: unknown;
   dailyForecastData?: DailyForecastDataTypes[];
-  generateDailyForecast: ({
-    city,
-    country,
-  }: {
-    city?: string;
-    country?: string;
-  }) => void;
+  generateDailyForecast: (params: FetchForecastParams) => void;
   isPendingDailyForecast: boolean;
   errorDailyForecast: unknown;
 }
@@ -125,6 +108,7 @@ export interface FormContextType {
   stepValue: number;
   cityWatch: string;
   countryCode?: string;
+  cityCheck: CityCheck;
   fields: { id: string }[];
   append: (data: { item: string }) => void;
   insert: (index: number, data: { item: string }) => void;
@@ -191,6 +175,12 @@ export type NotFoundComponentProps = { message: string; button: string } & (
 export interface useGeoNamesProps {
   city: string;
   countryCode?: string;
+}
+export interface CityCheck {
+  isLoadingCityValid: boolean;
+  isCityValid: boolean;
+  message: string;
+  place: Place | null;
 }
 export interface ToggleActions {
   setVisible: (visible: boolean) => void;

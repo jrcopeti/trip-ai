@@ -2,7 +2,6 @@
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa6";
 import { steps } from "@/data";
 import { useFormData } from "@/hooks/useFormData";
-import { useGeoNames } from "@/hooks/useGeoNames";
 import { buttons } from "./content";
 import { inkPill, limePill } from "./styles";
 
@@ -12,8 +11,7 @@ import { inkPill, limePill } from "./styles";
  * move between steps. The wiring is `FormContext`'s, unchanged.
  */
 function FormButtons() {
-  const { currentStep, next, prev, cityWatch, countryCode, isValid } = useFormData();
-  const { isCityValid } = useGeoNames({ city: cityWatch, countryCode });
+  const { currentStep, next, prev, cityCheck, isValid } = useFormData();
   const isLast = currentStep === steps.length - 1;
 
   return (
@@ -41,7 +39,7 @@ function FormButtons() {
           key="next"
           type="button"
           onClick={next}
-          disabled={currentStep > 0 && !isCityValid}
+          disabled={currentStep > 0 && !cityCheck.isCityValid}
           className={inkPill}
         >
           {buttons.next}

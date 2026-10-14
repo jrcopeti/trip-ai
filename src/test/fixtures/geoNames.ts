@@ -1,4 +1,4 @@
-import type { GeoNamesResult } from "@/lib/place";
+import type { GeoNamesResult, Place } from "@/lib/place";
 
 /** GeoNames `searchJSON` rows (`style=FULL`), trimmed to the fields `matchCity` reads. */
 export const lisbonGeoName: GeoNamesResult = {
@@ -85,4 +85,14 @@ export const glasgowGeoName: GeoNamesResult = {
 export const geoNamesSearchFixture = {
   totalResultsCount: 1,
   geonames: [lisbonGeoName],
+};
+
+/** `resolvePlace`'s answer for Lisbon, PT: what `matchCity` makes of `lisbonGeoName`. */
+export const lisbonPlace: Place = {
+  name: "Lisbon",
+  country: "Portugal",
+  lat: 38.71667,
+  lng: -9.13333,
+  timezone: "Europe/Lisbon",
+  geonameId: 2267057,
 };

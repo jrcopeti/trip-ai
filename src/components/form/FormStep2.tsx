@@ -1,7 +1,6 @@
 "use client";
 import { useEffect } from "react";
 import { useFormData } from "@/hooks/useFormData";
-import { useGeoNames } from "@/hooks/useGeoNames";
 
 import { TextField, Label, Input, Description, FieldError } from "@heroui/react";
 import { Controller } from "react-hook-form";
@@ -21,13 +20,9 @@ function FormStep2() {
     control,
     errors,
     handleSelectionAutocomplete,
-    cityWatch,
     countryCode,
+    cityCheck: { isCityValid, isLoadingCityValid, message },
   } = useFormData();
-  const { isCityValid, isLoadingCityValid, message } = useGeoNames({
-    city: cityWatch,
-    countryCode: countryCode,
-  });
 
   useEffect(() => {
     if (isCityValid && !isLoadingCityValid) {

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useFormData } from "@/hooks/useFormData";
 import { useWeather } from "@/hooks/useWeather";
+import { countryCodeFromFlag } from "@/lib/place";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import suncloudy from "@/assets/weather/suncloudy.png";
@@ -29,26 +30,12 @@ function WeatherSection() {
 
   const city = trip?.city || formData?.city;
   const country = trip?.country || formData?.country;
+  // No code (a flag URL not from flagcdn) fails the resolve: the section shows its error, not a loader.
+  const countryCode = countryCodeFromFlag(trip?.flagUrl || formData?.flagUrl) ?? "";
 
   useEffect(() => {
-    if (
-      (trip?.city && trip?.country) ||
-      (formData?.city && formData?.country)
-    ) {
-      generateWeather({
-        city: city,
-        country: country,
-      });
-    }
-  }, [
-    generateWeather,
-    city,
-    country,
-    trip?.city,
-    trip?.country,
-    formData?.city,
-    formData?.country,
-  ]);
+    if (city) generateWeather({ city, countryCode });
+  }, [generateWeather, city, countryCode]);
 
   return (
     <Section ground="bg-sorbet-offwhite">

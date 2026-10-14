@@ -73,3 +73,8 @@ export function matchCity(
     geonameId: best.geonameId,
   };
 }
+
+/** "PT" or "GB-SCT" from the form's flagcdn URL: a trip row keeps its country code only there. */
+export function countryCodeFromFlag(flagUrl?: string) {
+  return /flagcdn\.com\/([a-z]{2}(?:-[a-z]{3})?)\.svg$/i.exec(flagUrl ?? "")?.[1].toUpperCase();
+}

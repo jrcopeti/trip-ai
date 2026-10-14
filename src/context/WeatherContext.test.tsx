@@ -60,7 +60,7 @@ describe("WeatherContext — forecast for the prompt", () => {
     mockForecast.mockResolvedValue(forecastListFixture);
     renderWeather();
 
-    ctx.generateForecast({ city: "lisbon", country: "Portugal" });
+    ctx.generateForecast({ city: "lisbon", countryCode: "PT" });
 
     await waitFor(() => {
       expect(ctx.forecastData).toHaveLength(5);
@@ -73,7 +73,7 @@ describe("WeatherContext — forecast for the prompt", () => {
     ]);
     renderWeather();
 
-    ctx.generateForecast({ city: "lisbon", country: "Portugal" });
+    ctx.generateForecast({ city: "lisbon", countryCode: "PT" });
 
     await waitFor(() => {
       expect(ctx.forecastData?.[0].formattedTemp).toBe("27°C");
@@ -84,7 +84,7 @@ describe("WeatherContext — forecast for the prompt", () => {
     mockForecast.mockResolvedValue([makeForecastEntry(4)]);
     renderWeather();
 
-    ctx.generateForecast({ city: "lisbon", country: "Portugal" });
+    ctx.generateForecast({ city: "lisbon", countryCode: "PT" });
 
     await waitFor(() => {
       expect(ctx.forecastData?.[0]).toBeDefined();
@@ -97,16 +97,16 @@ describe("WeatherContext — forecast for the prompt", () => {
     ]);
   });
 
-  it("passes the city and country through", async () => {
+  it("passes the city and country code through", async () => {
     mockForecast.mockResolvedValue(forecastListFixture);
     renderWeather();
 
-    ctx.generateForecast({ city: "lisbon", country: "Portugal" });
+    ctx.generateForecast({ city: "lisbon", countryCode: "PT" });
 
     await waitFor(() => {
       expect(mockForecast).toHaveBeenCalledWith({
         city: "lisbon",
-        country: "Portugal",
+        countryCode: "PT",
       });
     });
   });
@@ -115,7 +115,7 @@ describe("WeatherContext — forecast for the prompt", () => {
     mockForecast.mockRejectedValue(new Error("Error fetching forecast data"));
     renderWeather();
 
-    ctx.generateForecast({ city: "nowhere", country: "Nowhere" });
+    ctx.generateForecast({ city: "nowhere", countryCode: "XX" });
 
     await waitFor(() => {
       expect(ctx.errorForecast).toBeInstanceOf(Error);
@@ -129,7 +129,7 @@ describe("WeatherContext — current weather", () => {
     mockWeather.mockResolvedValue(weatherFixture);
     renderWeather();
 
-    ctx.generateWeather({ city: "lisbon", country: "Portugal" });
+    ctx.generateWeather({ city: "lisbon", countryCode: "PT" });
 
     await waitFor(() => {
       expect(ctx.weatherData).toBeDefined();
@@ -142,7 +142,7 @@ describe("WeatherContext — current weather", () => {
     mockWeather.mockResolvedValue(weatherFixture);
     renderWeather();
 
-    ctx.generateWeather({ city: "lisbon", country: "Portugal" });
+    ctx.generateWeather({ city: "lisbon", countryCode: "PT" });
 
     await waitFor(() => {
       expect(ctx.weatherData?.main?.temp).toBe(295.15);
@@ -157,7 +157,7 @@ describe("WeatherContext — current weather", () => {
     } as WeatherApiResponse);
     renderWeather();
 
-    ctx.generateWeather({ city: "lisbon", country: "Portugal" });
+    ctx.generateWeather({ city: "lisbon", countryCode: "PT" });
 
     await waitFor(() => {
       expect(ctx.weatherData?.weatherIconSrc).toBe(stubSrc("cloudy.png"));
@@ -168,7 +168,7 @@ describe("WeatherContext — current weather", () => {
     mockWeather.mockRejectedValue(new Error("Error fetching weather data"));
     renderWeather();
 
-    ctx.generateWeather({ city: "nowhere", country: "Nowhere" });
+    ctx.generateWeather({ city: "nowhere", countryCode: "XX" });
 
     await waitFor(() => {
       expect(ctx.errorWeather).toBeInstanceOf(Error);
@@ -187,7 +187,7 @@ describe("WeatherContext — five-day forecast", () => {
     mockForecast.mockResolvedValue([]);
     renderWeather();
 
-    ctx.generateDailyForecast({ city: "lisbon", country: "Portugal" });
+    ctx.generateDailyForecast({ city: "lisbon", countryCode: "PT" });
 
     await waitFor(() => {
       expect(ctx.dailyForecastData).toEqual([]);
@@ -198,7 +198,7 @@ describe("WeatherContext — five-day forecast", () => {
     mockForecast.mockResolvedValue(forecastListFixture);
     renderWeather();
 
-    ctx.generateDailyForecast({ city: "lisbon", country: "Portugal" });
+    ctx.generateDailyForecast({ city: "lisbon", countryCode: "PT" });
 
     await waitFor(() => {
       expect(ctx.dailyForecastData).toHaveLength(5);
@@ -212,7 +212,7 @@ describe("WeatherContext — five-day forecast", () => {
     mockForecast.mockResolvedValue(forecastListFixture);
     renderWeather();
 
-    ctx.generateDailyForecast({ city: "lisbon", country: "Portugal" });
+    ctx.generateDailyForecast({ city: "lisbon", countryCode: "PT" });
 
     await waitFor(() => {
       expect(ctx.dailyForecastData?.[0]).toBeDefined();
@@ -226,7 +226,7 @@ describe("WeatherContext — five-day forecast", () => {
     mockForecast.mockRejectedValue(new Error("Error fetching forecast data"));
     renderWeather();
 
-    ctx.generateDailyForecast({ city: "nowhere", country: "Nowhere" });
+    ctx.generateDailyForecast({ city: "nowhere", countryCode: "XX" });
 
     await waitFor(() => {
       expect(ctx.errorDailyForecast).toBeInstanceOf(Error);
@@ -238,7 +238,7 @@ describe("WeatherContext — five-day forecast", () => {
     mockForecast.mockResolvedValue(forecastListFixture);
     renderWeather();
 
-    ctx.generateDailyForecast({ city: "lisbon", country: "Portugal" });
+    ctx.generateDailyForecast({ city: "lisbon", countryCode: "PT" });
 
     await waitFor(() => {
       expect(ctx.dailyForecastData).toHaveLength(5);

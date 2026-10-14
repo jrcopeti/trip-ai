@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
 import { useFormData } from "@/hooks/useFormData";
 import { useWeather } from "@/hooks/useWeather";
+import { countryCodeFromFlag } from "@/lib/place";
 import ForecastSectionCard from "./ForecastSectionCard";
 import { BiMessageSquareError } from "react-icons/bi";
 import Reveal from "@/components/sorbet/Reveal";
@@ -18,26 +19,12 @@ function ForecastSection() {
   const { generateDailyForecast, dailyForecastData, errorDailyForecast } = useWeather();
 
   const city = trip?.city || formData?.city;
-  const country = trip?.country || formData?.country;
+  // No code (a flag URL not from flagcdn) fails the resolve: the section shows its error, not a loader.
+  const countryCode = countryCodeFromFlag(trip?.flagUrl || formData?.flagUrl) ?? "";
+
   useEffect(() => {
-    if (
-      (trip?.city && trip?.country) ||
-      (formData?.city && formData?.country)
-    ) {
-      generateDailyForecast({
-        city: city,
-        country: country,
-      });
-    }
-  }, [
-    generateDailyForecast,
-    city,
-    country,
-    trip?.city,
-    trip?.country,
-    formData?.city,
-    formData?.country,
-  ]);
+    if (city) generateDailyForecast({ city, countryCode });
+  }, [generateDailyForecast, city, countryCode]);
 
   // Undefined until the first forecast arrives (see WeatherContext): loading
   // until then, unless the request failed. An empty list is a real answer.

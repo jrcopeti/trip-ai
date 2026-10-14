@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { tripDataFixture, validTripRequest } from "@/test/fixtures";
+import { lisbonPlace, tripDataFixture, validTripRequest } from "@/test/fixtures";
 import { buildSystemPrompt, buildTripMessage } from "@/lib/agent/prompt";
 import { resolvePlace } from "./geoNamesApi";
 
@@ -18,15 +18,6 @@ vi.mock("@anthropic-ai/sdk", () => {
 vi.mock("./geoNamesApi", () => ({ resolvePlace: vi.fn() }));
 
 const { generateTrip } = await import("./anthropicApi");
-
-const lisbon = {
-  name: "Lisbon",
-  country: "Portugal",
-  lat: 38.72,
-  lng: -9.13,
-  timezone: "Europe/Lisbon",
-  geonameId: 2267057,
-};
 
 /** A response whose only block is a `submit_trip` call with `input`. */
 function submits(input: unknown, stop_reason = "tool_use") {
@@ -47,7 +38,7 @@ beforeEach(() => {
   vi.setSystemTime(new Date(2030, 3, 1, 12, 0, 0));
   vi.spyOn(console, "error").mockImplementation(() => {});
   create.mockReset();
-  vi.mocked(resolvePlace).mockResolvedValue({ ok: true, place: lisbon });
+  vi.mocked(resolvePlace).mockResolvedValue({ ok: true, place: lisbonPlace });
   submits(tripDataFixture);
 });
 
@@ -75,7 +66,7 @@ describe("generateTrip — the request", () => {
   it("sends the cached system prompt and the trip message with the resolved place", async () => {
     vi.mocked(resolvePlace).mockResolvedValue({
       ok: true,
-      place: { ...lisbon, name: "Lisboa Canonical" },
+      place: { ...lisbonPlace, name: "Lisboa Canonical" },
     });
     await generateTrip(validTripRequest);
 

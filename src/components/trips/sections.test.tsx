@@ -283,17 +283,28 @@ describe("WeatherSection", () => {
   it("asks for the destination's weather", () => {
     renderGeneratedTrip(<WeatherSection />, { weather: { generateWeather } });
 
-    expect(generateWeather).toHaveBeenCalledWith({ city: "lisbon", country: "Portugal" });
+    expect(generateWeather).toHaveBeenCalledWith({ city: "lisbon", countryCode: "PT" });
   });
 
   it("asks for the saved trip's destination on the saved route", async () => {
     renderSavedTrip(<WeatherSection />, {
-      row: makeTrip({ city: "kyoto", country: "Japan" }),
+      row: makeTrip({ city: "kyoto", country: "Japan", flagUrl: "https://flagcdn.com/jp.svg" }),
       weather: { generateWeather },
     });
 
     await vi.waitFor(() =>
-      expect(generateWeather).toHaveBeenCalledWith({ city: "kyoto", country: "Japan" }),
+      expect(generateWeather).toHaveBeenCalledWith({ city: "kyoto", countryCode: "JP" }),
+    );
+  });
+
+  it("still asks, with no code, when the flag URL isn't flagcdn's, so the section can fail", async () => {
+    renderSavedTrip(<WeatherSection />, {
+      row: makeTrip({ city: "kyoto", flagUrl: "" }),
+      weather: { generateWeather },
+    });
+
+    await vi.waitFor(() =>
+      expect(generateWeather).toHaveBeenCalledWith({ city: "kyoto", countryCode: "" }),
     );
   });
 
@@ -357,7 +368,7 @@ describe("ForecastSection", () => {
   it("asks for the destination's forecast", () => {
     renderGeneratedTrip(<ForecastSection />, { weather: { generateDailyForecast } });
 
-    expect(generateDailyForecast).toHaveBeenCalledWith({ city: "lisbon", country: "Portugal" });
+    expect(generateDailyForecast).toHaveBeenCalledWith({ city: "lisbon", countryCode: "PT" });
   });
 
   it("renders a card per day with its weekday and temperature", () => {
