@@ -100,16 +100,18 @@ An audit of every typed input (after #197) found five gaps. 1–4 are left for b
   The caps were lowered in the same branch: name, city and each required item to 50 characters
   (`LIMITS`), on the form and the server alike.
 
-Follow-up fixes before branch 2, one branch each:
-- **`fix-retry-city-toast`: "Try again" re-toasted the city check.** After a failed generation,
-  "Try again" brought the form back on step 7 with "Found Lisbon, Portugal" toasting again: the check
-  lives in `FormProvider` and outlasts the form, and `FormStep2`'s toast effect ran on remount. It
-  now toasts only when the message changes (a ref holds the last one shown); typing a city again
-  still toasts, since the check clears its message while loading. Tested in `FormFailure.test.tsx`.
-- **`axios-to-fetch`: drop axios.** Its last uses are `openWeatherApi.ts`, `unsplashApi.ts` (with
-  an `arraybuffer` download for the blur) and `useCountries.ts`, plus the two tests that mock it.
-  All move to `fetch`, checking `response.ok` since `fetch` doesn't throw on a 4xx/5xx, and the
-  package is uninstalled.
+Follow-up fixes before branch 2, one branch each, both merged:
+- **`fix-retry-city-toast` (#199): "Try again" re-toasted the city check.** After a failed
+  generation, "Try again" brought the form back on step 7 with "Found Lisbon, Portugal" toasting
+  again: the check lives in `FormProvider` and outlasts the form, and `FormStep2`'s toast effect ran
+  on remount. It now toasts only when the message changes (a ref holds the last one shown); typing a
+  city again still toasts, since the check clears its message while loading. Tested in
+  `FormFailure.test.tsx`.
+- **`axios-to-fetch` (#200): axios is gone.** `openWeatherApi.ts`, `unsplashApi.ts` and
+  `useCountries.ts` use `fetch`, checking `response.ok` since `fetch` resolves on a 4xx/5xx; their
+  tests stub the global `fetch`, as `geoNamesApi`'s do. `unsplashApi.ts` was tidied in passing and
+  got its first test: a search with no photos now fails before any download. It still takes
+  `results[0, 5, 2, 3, 4]`, as before; `results[1]` is never shown.
 
 Left from branch 1, for the branch named or for later:
 - Typed errors (invalid request, place not found, refusal) wait for branch 3's rate limit;
@@ -334,6 +336,53 @@ production mode and loads it too.)
 (branch 7) all need the trip to exist on the server. Building them on the client-memory trip would
 mean writing them twice.
 
+**2a · `trip-schema`: the `Trip` table, audited and reshaped.** First sub-branch of 2, before
+the refactor, so the refactor writes the new shape once. The user deletes every current row (local
+and Neon) when this lands, so there's no migration or backfill and no column has to stay nullable
+for old rows. **Ask before `db push` to Neon.** The seed, fixtures and e2e database change with it.
+
+Audit of every column (who writes it, who reads it), after #200:
+- **Drop, never read or written by the app any more:**
+  - `age` and `nationality`: replaced by `ageRanges` and `passport` in 1a. Only
+    `FormDetailsSection` still shows them, for old rows; those rows and labels go.
+  - `image`, `image2` … `image5`: replaced by `tripImages` (below).
+- **Reshape:**
+  - **`tripImages String[]`** replaces the five image columns, in the order shown. Today
+    `fetchTripImage` picks `results[0, 5, 2, 3, 4]` (`results[1]` is never shown); it now returns
+    the first five in order. `ImageDataTypes`, `imageDataFixture` and the five sections that each
+    read one column (`TitleSection`, `DescriptionSection`, `PhotoSection`, `FormDetailsSection`,
+    `FinalSection`) read `tripImages[i]`, as do `HeroDeck` and `SavedTripsDisplay` (`[0]`).
+    `placeholder` stays: it is the blur of `tripImages[0]`. Today discard doesn't write it, so it
+    is written on every row.
+  - **`weatherForecast String?` becomes `byWeather Boolean @default(false)`.** It holds the whole
+    40-entry forecast as a JSON string, but `TitleSection`, `FormDetailsSection` and
+    `PackReadySection` only test whether it's set ("planned around the weather"). The forecast
+    shown on the page is fetched live (below).
+  - **`requiredItems Json?` becomes `String[]`.** It is always a list of strings
+    (`transformInputsToFinalData`).
+  - **`flagUrl` goes, replaced by `countryCode`** (below). It has always been
+    `https://flagcdn.com/<code>.svg`, so the page builds it from the code; `countryCodeFromFlag`
+    goes with it.
+- **Tighten, now that no old row needs the slack:**
+  - `travellers`, `pace`, `title` and `description` become required. `passport` stays optional,
+    by design.
+  - `tripUrl` gets `@unique`: `getTripByUrl` looks rows up by it.
+  - An index on `(saved, createdAt)` for the landing's newest saved trips and `/saved-trips`.
+  - `relationMode = "prisma"` goes. It was for PlanetScale, and this is Postgres on Neon, so branch
+    3's `Generation` → `Trip` relation can be a real foreign key.
+- **Add**, as already planned above: `countryCode` (ISO, as `resolvePlace` returns it, `GB-SCT`
+  for a UK nation), `lat` and `lng` (`Float`), all required.
+- **Keep as they are:** `userName`, `ageRanges`, `type`, `city`, `country`, the dates,
+  `luggageSize`, `accommodation`, `transport`, `budget`, `interests`, `note`, `agreement`, `saved`, the model's
+  output (`objectsList` and `tours` as `Json`, `mustHave`, `tip`), `createdAt` and `updatedAt`.
+  `updatedAt` is unread today, but `setTripSaved` makes it the save time.
+
+Bridge for the refactor to remove: until the server writes the row, `useCreateTrip` still builds
+it in the browser. In 2a it takes `countryCode`, `lat` and `lng` from `cityCheck.place`, and
+`byWeather` from `isWeatherSelected`.
+
+The rest of 2 (the server-owned trip) builds on this shape. Split it further at its start.
+
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`
   included. Weather and images are fetched from the browser during the form steps and carried in
@@ -353,14 +402,13 @@ Server (after the refactor):
   The sections take props; there's no dual-source reading.
 - Current weather for the weather card is fetched in the page (server), with a short `revalidate`.
 - **The place, resolved once** (from the phase 1 wrap-up's review). The row stores the resolved
-  place: `countryCode`, `lat`, `lng` (Prisma columns, nullable; **ask before `db push` to Neon**).
+  place: `countryCode`, `lat`, `lng` (added in 2a).
   `fetchForecast` and `fetchWeather` take `{ lat, lon }` and never call `resolvePlace`; the page
   fetches both from the row's coordinates in one server pass. The form's forecast uses
   `cityCheck.place`, which step 2 already resolved. `countryCodeFromFlag` goes. Result: one
   GeoNames call per spelling on the form, one in `generateTrip`, none on any trip page.
-  Old rows: a one-off backfill script resolves each through `resolvePlace` (code from `flagUrl`);
-  rows that fail keep null coordinates, and the page geocodes those with OpenWeather using the ISO
-  code (not the country name), so they keep their weather.
+  No backfill: every current row is deleted before 2a's schema lands (see below), so the
+  columns are required and there's no fallback geocoding.
 - Save and discard become `setTripSaved(tripUrl, saved)`, a flag, not a client-built payload.
   `createTripInDB` leaves the client API.
 
