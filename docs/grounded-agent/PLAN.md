@@ -97,6 +97,8 @@ An audit of every typed input (after #197) found five gaps. 1–4 are left for b
   spelling against the schema first, and a refused one makes no GeoNames call and toasts the reason.
   Country and passport are picked from a list, so the form can't send a bad one; items are
   single-line inputs, and their line breaks are finding 3.
+  The caps were lowered in the same branch: name, city and each required item to 50 characters
+  (`LIMITS`), on the form and the server alike.
 
 Left from branch 1, for the branch named or for later:
 - Typed errors (invalid request, place not found, refusal) wait for branch 3's rate limit;

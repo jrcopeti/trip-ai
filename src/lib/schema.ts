@@ -3,11 +3,11 @@ import { z } from "zod";
 
 /** Caps the form shows and the server's request schema (grounded-agent 1c) enforces again. */
 export const LIMITS = {
-  name: 100,
-  city: 100,
+  name: 50,
+  city: 50,
   note: 500,
   requiredItems: 10,
-  requiredItem: 60,
+  requiredItem: 50,
   interests: 3,
 } as const;
 
