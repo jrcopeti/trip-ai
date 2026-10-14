@@ -1,18 +1,12 @@
-import { useParams } from "next/navigation";
-import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
-import { useTripResponse } from "@/hooks/useTripResponse";
+import type { Trip } from "@prisma/client";
 import Reveal from "@/components/sorbet/Reveal";
 import { Section, SectionHeading } from "./Section";
 import ToursCarousel from "./ToursCarousel";
 import { toTours } from "./tours";
 import { tours as copy } from "./content";
 
-function ToursSection() {
-  const params = useParams();
-  const { trip } = useSingleSavedTrip({ params });
-  const { tripData: response } = useTripResponse();
-
-  const tours = toTours(trip?.tours || response?.tours);
+function ToursSection({ trip }: { trip: Trip }) {
+  const tours = toTours(trip.tours);
 
   return (
     <Section ground="bg-sorbet-offwhite">

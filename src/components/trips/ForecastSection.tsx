@@ -1,8 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { useParams } from "next/navigation";
-import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
-import { useFormData } from "@/hooks/useFormData";
+import type { Trip } from "@prisma/client";
 import { useWeather } from "@/hooks/useWeather";
 import ForecastSectionCard from "./ForecastSectionCard";
 import { BiMessageSquareError } from "react-icons/bi";
@@ -11,17 +9,12 @@ import SquiggleLoader from "@/components/sorbet/SquiggleLoader";
 import { Section, SectionHeading, SectionNotice } from "./Section";
 import { forecast as copy } from "./content";
 
-function ForecastSection() {
-  const params = useParams();
-  const { trip } = useSingleSavedTrip({ params });
-  const { formData } = useFormData();
+/** Fetched in the browser by place until grounded-agent 2d fetches it on the server. */
+function ForecastSection({ city, countryCode }: Pick<Trip, "city" | "countryCode">) {
   const { generateDailyForecast, dailyForecastData, errorDailyForecast } = useWeather();
 
-  const city = trip?.city || formData?.city;
-  const countryCode = trip?.countryCode || formData?.countryCode;
-
   useEffect(() => {
-    if (city) generateDailyForecast({ city, countryCode });
+    generateDailyForecast({ city, countryCode });
   }, [generateDailyForecast, city, countryCode]);
 
   // Undefined until the first forecast arrives (see WeatherContext): loading

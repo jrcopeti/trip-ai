@@ -1,21 +1,14 @@
-import { useParams } from "next/navigation";
 import Image from "next/image";
-import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
-import { useTripResponse } from "@/hooks/useTripResponse";
+import type { Trip } from "@prisma/client";
 import defaultImage2 from "@/assets/travel-photos/2.jpg";
 import Reveal from "@/components/sorbet/Reveal";
 import { defaultPlaceholder } from "@/lib/constants";
 import { MediaFrame, Section, SectionHeading } from "./Section";
 import { description as copy } from "./content";
 
-function DescriptionSection() {
-  const params = useParams();
-  const { trip } = useSingleSavedTrip({ params });
-  const { tripData: response } = useTripResponse();
-
-  const description = trip?.description || response?.description;
-  const image2 = trip?.tripImages[1] || response?.tripImages[1];
-  const placeholder = trip?.placeholder || response?.placeholder;
+function DescriptionSection({ trip }: { trip: Trip }) {
+  const { description, placeholder } = trip;
+  const image2 = trip.tripImages[1];
 
   return (
     <Section ground="bg-white">

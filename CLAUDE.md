@@ -221,7 +221,8 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
   and its copy in `content.ts`. A record now; what binds is in `design-notes.md`.
 - **`docs/grounded-agent/PLAN.md`** — the **grounded agent**, in flight. Branch 1
   (new form fields, the city check and the prompt on the server, `claude-sonnet-5-5`) is
-  finished; branches 2–7 (server-owned trip, metrics, tools, refine, evals, MCP) are next.
+  finished; branch 2 (the server-owned trip) is in progress, 2a–2c merged or staged; 3–7
+  (metrics, tools, refine, evals, MCP) are next.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
 architecture). A plan is for work in flight.
@@ -240,12 +241,15 @@ architecture). A plan is for work in flight.
 ### User flow
 1. `/form` — multi-step form (7 steps, managed by `FormContext`)
 2. On submit: `generateTrip` writes the `Trip` row (`saved: false`) → redirect to `/trips/[tripUrl]` (12 random hex characters, chosen on the server; `tripUrl` is unique)
-3. On the trip page: save or discard → `setTripSaved(tripUrl, saved)` flips the flag
-4. `/saved-trips` — lists all saved trips; `/saved-trips/[id]` — single saved trip
+3. `/trips/[tripUrl]` reads the row on the server (`getTripByUrl`), so a refresh keeps it;
+   save or discard → `setTripSaved(tripUrl, saved)` flips the flag
+4. `/saved-trips` — lists all saved trips; `/saved-trips/[id]` — single saved trip, also
+   read on the server (`getSingleSavedTrip`). Both routes render `TripPage` with the row as
+   a `trip` prop; each has a `loading.tsx` with the squiggle `Loader`.
 
 ### State management: three Context providers (nested in `src/app/providers.tsx`, inside `MotionProvider`)
 - **`FormContext`** (`src/context/FormContext.tsx`) — owns the entire multi-step form: RHF instance, Zod validation (`FormDataSchema`), step navigation (`next`/`prev`), and triggers the forecast fetch on the dates step.
-- **`TripContext`** (`src/context/TripContext.tsx`) — holds the row `generateTrip` wrote (`tripData`) and the TanStack Query mutation that sends a `TripRequest` to `generateTrip`. Redirects to `/trips/[tripUrl]` on success.
+- **`TripContext`** (`src/context/TripContext.tsx`) — the TanStack Query mutation that sends a `TripRequest` to `generateTrip`, and its pending/error state for the form. Redirects to `/trips/[tripUrl]` on success.
 - **`WeatherContext`** (`src/context/WeatherContext.tsx`) — three separate TanStack Query mutations: current weather, 5-day forecast, and daily forecast.
 
 ### Server-side modules (`"use server"` unless noted)
@@ -254,14 +258,14 @@ architecture). A plan is for work in flight.
 - `src/app/api/openWeatherApi.ts` — fetches current weather and forecast from OpenWeather at
   the coordinates `resolvePlace` returns for `{ city, countryCode }`.
 - `src/app/api/geoNamesApi.ts` — `resolvePlace(city, countryCode)`: GeoNames search plus `matchCity` (`src/lib/place.ts`); returns the canonical place or a typed `not-found`/`unavailable`.
-- `src/db/actions.ts` — Prisma server actions: `setTripSaved` (flips an unsaved row's flag, once), `getSavedTripsPage` (18 saved trips per page plus the total, for the "Show more" grid), `getSingleSavedTrip`, `getLatestSavedTrips` (the landing hero's three newest).
+- `src/db/actions.ts` — Prisma server actions: `setTripSaved` (flips an unsaved row's flag, once), `getSavedTripsPage` (18 saved trips per page plus the total, for the "Show more" grid), `getTripByUrl` and `getSingleSavedTrip` (each takes the route's string and returns null for one it could never match), `getLatestSavedTrips` (the landing hero's three newest).
 - `src/db/index.ts` — singleton Prisma client.
 
 ### Form data lifecycle
-`Inputs` (RHF shape, `requiredItems` as `{item: string}[]`) → `FinalDataTypes` (flattened to `string[]`) via `transformInputsToFinalData`; on submit, `processForm` also sends `toTripRequest(inputs, countryCode, forecast)` — the original spelling, calendar-day dates — to `generateTrip`. Both types are derived from/extend the Zod schema in `src/lib/schema.ts`. The row is built on the server from the request; `formData` only feeds the generated trip page until it renders from the row (grounded-agent 2c).
+`Inputs` (RHF shape, `requiredItems` as `{item: string}[]`) → `FinalDataTypes` (flattened to `string[]`) via `transformInputsToFinalData`; on submit, `processForm` also sends `toTripRequest(inputs, countryCode, forecast)` — the original spelling, calendar-day dates — to `generateTrip`. Both types are derived from/extend the Zod schema in `src/lib/schema.ts`. The row is built on the server from the request; nothing reads `formData` any more, and grounded-agent 2e removes it.
 
 ### Key custom hooks
-- `useSaveTrip` — `handleYesAnswer`/`handleNoAnswer` call `setTripSaved(tripUrl, true/false)`
+- `useSaveTrip(tripUrl)` — `handleYesAnswer`/`handleNoAnswer` call `setTripSaved(tripUrl, true/false)`; `isAnswered` once one lands
 - `useFormData`, `useTripResponse` — context consumers
 - `useCountries` — fetches country list (flag URLs, ISO codes) for the autocomplete
 - `useGeoNames` — debounced city check, through the `resolvePlace` server action; run once in

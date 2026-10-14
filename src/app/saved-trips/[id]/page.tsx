@@ -1,18 +1,29 @@
-import SavedTripsPageComponent from "@/components/trips/SavedTripsPageComponent";
-import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
-} from "@tanstack/react-query";
+import { notFound } from "next/navigation";
+import { getSingleSavedTrip } from "@/db/actions";
+import TripPage from "@/components/trips/TripPage";
+import FinalSection from "@/components/trips/FinalSection";
+import ButtonBackOutlined from "@/components/ui/ButtonBackOutlined";
 
-function SavedTripsPageId() {
-  const queryClient = new QueryClient();
+async function SavedTripPage({ params }: PageProps<"/saved-trips/[id]">) {
+  const { id } = await params;
+  const trip = await getSingleSavedTrip(id);
+  if (!trip) notFound();
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <SavedTripsPageComponent />
-    </HydrationBoundary>
+    <TripPage
+      trip={trip}
+      before={
+        <div className="absolute inset-x-0 top-6 px-5 sm:px-8">
+          <div className="mx-auto max-w-6xl">
+            <ButtonBackOutlined position="relative" />
+          </div>
+        </div>
+      }
+      closing={
+        <FinalSection image={trip.tripImages[4]} placeholder={trip.placeholder} tip={trip.tip} />
+      }
+    />
   );
 }
 
-export default SavedTripsPageId;
+export default SavedTripPage;

@@ -59,13 +59,24 @@ test.describe("not found", () => {
   test("an unknown saved trip shows its own not-found page", async ({ page }) => {
     await page.goto("/saved-trips/999999");
 
-    // The route renders, then calls notFound() from a client component once the
-    // query resolves empty — so the response is a 200 carrying the 404 UI.
     await expect(
       page.getByText("Seems that this trip doesn't exist."),
     ).toBeVisible();
     await expect(
       page.getByRole("link", { name: /back to saved trips/i }),
     ).toBeVisible();
+  });
+
+  test("a saved trip id that isn't a number shows the same page", async ({ page }) => {
+    await page.goto("/saved-trips/not-a-number");
+
+    await expect(page.getByText("Seems that this trip doesn't exist.")).toBeVisible();
+  });
+
+  test("an unknown trip url shows the trip's not-found page", async ({ page }) => {
+    await page.goto("/trips/ffffffffffff");
+
+    await expect(page.getByText("This trip is no longer available.")).toBeVisible();
+    await expect(page.getByRole("link", { name: /back to home/i })).toBeVisible();
   });
 });

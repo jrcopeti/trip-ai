@@ -1,9 +1,6 @@
-import { useParams } from "next/navigation";
+import type { Trip } from "@prisma/client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
-import { useTripResponse } from "@/hooks/useTripResponse";
-import { useFormData } from "@/hooks/useFormData";
 import defaultImage1 from "@/assets/travel-photos/1.jpg";
 import Polaroid from "@/components/sorbet/Polaroid";
 import { defaultPlaceholder } from "@/lib/constants";
@@ -21,24 +18,13 @@ dayjs.extend(utc);
  * Not wrapped in `Reveal`: it is above the fold, and the polaroid's photo is a
  * `priority` image that a fade from opacity 0 would waste.
  */
-function TitleSection() {
-  const params = useParams();
-  const { trip } = useSingleSavedTrip({ params });
-  const { tripData: response } = useTripResponse();
-  const { formData } = useFormData();
-
-  const image = trip?.tripImages[0] || response?.tripImages[0];
-  const placeholder = trip?.placeholder || response?.placeholder;
-  const title = trip?.title || response?.title || "";
-  const city = trip?.city || formData?.city;
-  const country = trip?.country || formData?.country;
-  const userName = trip?.userName || formData?.userName;
-  const byWeather = trip ? trip.byWeather : formData?.byWeather;
-  const startDate = dayjs.utc(trip?.startDate || response?.startDate);
-  const endDate = dayjs.utc(trip?.endDate || response?.endDate);
+function TitleSection({ trip }: { trip: Trip }) {
+  const { title, city, country, userName, byWeather } = trip;
+  const startDate = dayjs.utc(trip.startDate);
+  const endDate = dayjs.utc(trip.endDate);
   const start = startDate.format("DD.MM.YYYY");
   const end = endDate.format("DD.MM.YYYY");
-  const kind = copy.kind(trip?.type || formData?.type, durationInDays(startDate, endDate));
+  const kind = copy.kind(trip.type, durationInDays(startDate, endDate));
 
   // The real dates either way: a forecast trip's "next five days" were the five
   // days after it was generated, which on a saved trip are long gone.
@@ -58,8 +44,8 @@ function TitleSection() {
         <div className="flex justify-center md:justify-start">
           <Polaroid
             size="lg"
-            image={image ?? defaultImage1}
-            placeholder={placeholder ?? defaultPlaceholder}
+            image={trip.tripImages[0] ?? defaultImage1}
+            placeholder={trip.placeholder ?? defaultPlaceholder}
             caption={title}
           />
         </div>

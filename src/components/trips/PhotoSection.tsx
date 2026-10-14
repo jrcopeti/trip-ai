@@ -1,7 +1,5 @@
-import { useParams } from "next/navigation";
 import Image from "next/image";
-import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
-import { useTripResponse } from "@/hooks/useTripResponse";
+import type { Trip } from "@prisma/client";
 import defaultImage3 from "@/assets/travel-photos/3.jpg";
 import Reveal from "@/components/sorbet/Reveal";
 import { defaultPlaceholder } from "@/lib/constants";
@@ -16,13 +14,9 @@ import { Section } from "./Section";
  * 2.1:1) cropped most of the frame away; 4:3 at a narrower measure loses only a
  * sliver of a landscape photo and keeps a portrait one recognisable.
  */
-function PhotoSection() {
-  const params = useParams();
-  const { trip } = useSingleSavedTrip({ params });
-  const { tripData: response } = useTripResponse();
-
-  const image3 = trip?.tripImages[2] || response?.tripImages[2];
-  const placeholder = trip?.placeholder || response?.placeholder;
+function PhotoSection({ trip }: { trip: Trip }) {
+  const { placeholder } = trip;
+  const image3 = trip.tripImages[2];
 
   return (
     <Section ground="bg-sorbet-canvas">

@@ -1,9 +1,7 @@
 "use client";
 import { useEffect } from "react";
-import { useParams } from "next/navigation";
 import Image from "next/image";
-import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
-import { useFormData } from "@/hooks/useFormData";
+import type { Trip } from "@prisma/client";
 import { useWeather } from "@/hooks/useWeather";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -21,18 +19,12 @@ dayjs.extend(utc);
 
 const toCelsius = (kelvin?: number) => Math.round((kelvin ?? 0) - 273.15);
 
-function WeatherSection() {
-  const params = useParams();
-  const { trip } = useSingleSavedTrip({ params });
-  const { formData } = useFormData();
+/** Fetched in the browser by place until grounded-agent 2d fetches it on the server. */
+function WeatherSection({ city, country, countryCode }: Pick<Trip, "city" | "country" | "countryCode">) {
   const { generateWeather, weatherData, errorWeather } = useWeather();
 
-  const city = trip?.city || formData?.city;
-  const country = trip?.country || formData?.country;
-  const countryCode = trip?.countryCode || formData?.countryCode;
-
   useEffect(() => {
-    if (city) generateWeather({ city, countryCode });
+    generateWeather({ city, countryCode });
   }, [generateWeather, city, countryCode]);
 
   return (

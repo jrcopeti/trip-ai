@@ -402,7 +402,7 @@ its own, in this order (2f is independent and can land any time):
   `useImage` and the form's photo fetch go; `fetchTripImage` stops being a server action.
   *Bridge for 2c:* `TripContext` keeps the returned row as `tripData`, so the generated route's
   sections read photos from it, and still read the form's fields from `formData`.
-  **Status: done on `trip-write`, staged, not committed.** As built: the photo search runs
+  **Status: merged (#203).** As built: the photo search runs
   alongside the model call, and a failed search writes the trip without photos; `setTripSaved`
   only touches a row still unsaved (a saved trip can't be unsaved by its url) and checks the url's
   format first. `useCreateTrip` became `useSaveTrip`. The row keeps the old storage (name, city,
@@ -419,6 +419,22 @@ its own, in this order (2f is independent and can land any time):
   the row. `TripResponse`, `useSingleSavedTrip`, `useConfirmOnPageExit` and `TripContext`'s
   `tripData` go; a refresh keeps the trip (e2e). *Bridge for 2d:* the weather sections stay client
   components fetching by `{ city, countryCode }` off the `trip` prop.
+  **Status: done on `trip-page-server`, staged, not committed.** As built: every section but
+  the weather two and the closings is a server component taking `trip`; those four are client
+  components and get only their fields (`WeatherSection`/`ForecastSection` the place,
+  `SaveSection` url, flag, fifth photo, blur and tip, `FinalSection` the last three). Saved
+  state is `trip.saved || isAnswered` (the mutation's success); a discarded row is still
+  unsaved, so after a refresh it asks again and yes still saves it. `getTripByUrl` and
+  `getSingleSavedTrip` take the route's string and return null for one they could never
+  match (a non-numeric or out-of-range id was a Prisma error, so a 500). Both routes got a
+  `loading.tsx` (the squiggle `Loader`, as before); its streamed shell means `notFound()`
+  answers 200 with the not-found UI, as the client `notFound()` did. `useConfirmOnPageExit`
+  stays, without context, for `LoaderResponseAI` only: leaving mid-generation loses the
+  redirect. `TripContext` keeps only the generation mutation. Nothing reads `formData` now,
+  so 2e removes it and its 2a bridge fields. Tests: `getTripByUrl`/`getSingleSavedTrip` in
+  `actions.test`, sections and closings rendered with props, a `TripPage` test; e2e: a
+  refresh keeps a generated trip, a saved one comes back answered, unknown trip url and
+  non-numeric saved id show their not-found pages.
 - **2d · `weather-by-coords`: the place, resolved once.** `fetchWeather`/`fetchForecast` take
   `{ lat, lon }` and never call `resolvePlace`; the trip page fetches both on the server from the
   row (short `revalidate`); the form's forecast uses `cityCheck.place`. `WeatherContext` shrinks

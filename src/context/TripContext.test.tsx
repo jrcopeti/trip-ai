@@ -19,8 +19,6 @@ function Probe() {
   return (
     <div>
       <span data-testid="pending">{String(ctx.isPendingResponseAI)}</span>
-      <span data-testid="title">{ctx.tripData?.title ?? "none"}</span>
-      <span data-testid="saved">{String(ctx.isTripSaved)}</span>
     </div>
   );
 }
@@ -40,24 +38,9 @@ beforeEach(() => {
 });
 
 describe("TripContext", () => {
-  it("starts with no trip and nothing pending", () => {
+  it("starts with nothing pending", () => {
     renderTrip();
-    expect(screen.getByTestId("title")).toHaveTextContent("none");
     expect(screen.getByTestId("pending")).toHaveTextContent("false");
-    expect(screen.getByTestId("saved")).toHaveTextContent("false");
-  });
-
-  it("exposes the AI response on success", async () => {
-    mockFetch.mockResolvedValue(generatedTripFixture);
-    renderTrip();
-
-    ctx.generateResponseAI(validTripRequest);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("title")).toHaveTextContent(
-        "Ana's Seven Sunlit Days Across Lisbon, Portugal",
-      );
-    });
   });
 
   it("passes the request straight through to the API module", async () => {
@@ -114,7 +97,6 @@ describe("TripContext", () => {
       expect(ctx.errorResponseAI).toBeInstanceOf(Error);
     });
     expect(replace).not.toHaveBeenCalled();
-    expect(screen.getByTestId("title")).toHaveTextContent("none");
   });
 
   it("runs the caller's onSuccess once the trip is back", async () => {
@@ -147,13 +129,5 @@ describe("TripContext", () => {
 
     ctx.resetResponseAI();
     await waitFor(() => expect(ctx.errorResponseAI).toBeNull());
-  });
-
-  it("lets the save flag be flipped", async () => {
-    renderTrip();
-    ctx.setIsTripSaved(true);
-    await waitFor(() => {
-      expect(screen.getByTestId("saved")).toHaveTextContent("true");
-    });
   });
 });

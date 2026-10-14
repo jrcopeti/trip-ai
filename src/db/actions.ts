@@ -105,10 +105,22 @@ export const getLatestSavedTrips = async (): Promise<LatestTrip[]> => {
   });
 };
 
-export const getSingleSavedTrip = async (id: number | undefined) => {
+/** The trip at `/trips/[tripUrl]`, saved or not; null for a url `generateTrip` never makes. */
+export const getTripByUrl = async (tripUrl: string): Promise<Trip | null> => {
+  if (!TRIP_URL.test(tripUrl)) return null;
+  return prisma.trip.findUnique({ where: { tripUrl } });
+};
+
+// A Postgres `Int`: anything longer, or not digits, is a Prisma error rather than no row.
+const TRIP_ID = /^[1-9]\d{0,9}$/;
+const MAX_INT = 2_147_483_647;
+
+/** The saved trip at `/saved-trips/[id]`, from the route's own string. */
+export const getSingleSavedTrip = async (id: string): Promise<Trip | null> => {
+  if (!TRIP_ID.test(id) || Number(id) > MAX_INT) return null;
   return prisma.trip.findUnique({
     where: {
-      id,
+      id: Number(id),
       saved: true,
     },
   });

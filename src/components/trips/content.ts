@@ -1,8 +1,7 @@
 /**
  * Content for both trip routes, `/trips/[tripUrl]` and `/saved-trips/[id]`. Every
  * word around the trip lives here; the sections hold only layout and styling. The
- * trip itself is not here: it is the AI's `tripData`, the form data and the
- * weather on the generated route, and a `Trip` row on the saved one.
+ * trip itself is not here: it is the `Trip` row both routes read, and the weather.
  */
 
 export const title = {
@@ -128,14 +127,5 @@ export const closing = {
     heading: "Where to now?",
     back: "Back",
     another: { label: "Plan another trip", href: "/form" },
-  },
-};
-
-export const states = {
-  generationFailed: {
-    message:
-      "Seems that there's something wrong with the destination provided. Please try again.",
-    path: "/form",
-    button: "Back to New Trip",
   },
 };

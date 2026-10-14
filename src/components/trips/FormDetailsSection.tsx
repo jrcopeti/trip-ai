@@ -1,8 +1,5 @@
 import Image from "next/image";
-import { useParams } from "next/navigation";
-import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
-import { useTripResponse } from "@/hooks/useTripResponse";
-import { useFormData } from "@/hooks/useFormData";
+import type { Trip } from "@prisma/client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import defaultImage4 from "@/assets/travel-photos/4.jpg";
@@ -25,40 +22,23 @@ import { details as copy } from "./content";
 dayjs.extend(utc);
 
 /** What the traveller entered, as the `<dl>` it is. Known options show their label. */
-function FormDetailsSection() {
-  const params = useParams();
-  const { trip } = useSingleSavedTrip({ params });
-  const { tripData: response } = useTripResponse();
-  const { formData } = useFormData();
+function FormDetailsSection({ trip }: { trip: Trip }) {
+  const { countryCode, city, country, byWeather, note, placeholder } = trip;
+  const { travellers, ageRanges, pace, passport, type } = trip;
+  const interests = trip.interests.filter((interest) => interest.trim() !== "");
 
-  const countryCode = trip?.countryCode || formData?.countryCode;
-  const city = trip?.city || formData?.city;
-  const country = trip?.country || formData?.country;
-  const byWeather = trip ? trip.byWeather : formData?.byWeather;
-  const note = trip?.note || formData?.note;
-  const interests = (trip?.interests || formData?.interests || []).filter(
-    (interest) => interest.trim() !== "",
-  );
-
-  const startDate = dayjs.utc(trip?.startDate || response?.startDate);
-  const endDate = dayjs.utc(trip?.endDate || response?.endDate);
+  const startDate = dayjs.utc(trip.startDate);
+  const endDate = dayjs.utc(trip.endDate);
   const duration = displayDuration(durationInDays(startDate, endDate));
 
-  const image4 = trip?.tripImages[3] || response?.tripImages[3];
-  const placeholder = trip?.placeholder || response?.placeholder;
-
-  const travellers = trip?.travellers || formData?.travellers;
-  const ageRanges = trip?.ageRanges?.length ? trip.ageRanges : (formData?.ageRanges ?? []);
-  const pace = trip?.pace || formData?.pace;
-  const passport = trip?.passport || formData?.passport;
-  const type = trip?.type || formData?.type;
+  const image4 = trip.tripImages[3];
 
   const { labels } = copy;
   type Row = { label: string; value: string | null | undefined; sentence?: boolean; asLabel?: boolean };
   const rows: Row[] = [
     { label: labels.destination, value: `${city}, ${country}` },
     { label: labels.passport, value: passport },
-    { label: labels.name, value: trip?.userName || formData?.userName },
+    { label: labels.name, value: trip.userName },
     { label: labels.travellers, value: optionLabel(travellerOptions, travellers), asLabel: true },
     {
       label: labels.ageRanges,
@@ -71,12 +51,12 @@ function FormDetailsSection() {
       asLabel: optionLabel(types, type) !== undefined,
     },
     { label: labels.pace, value: optionLabel(paces, pace), asLabel: true },
-    { label: labels.budget, value: trip?.budget || formData?.budget },
-    { label: labels.transport, value: trip?.transport || formData?.transport },
-    { label: labels.luggage, value: trip?.luggageSize || formData?.luggageSize },
+    { label: labels.budget, value: trip.budget },
+    { label: labels.transport, value: trip.transport },
+    { label: labels.luggage, value: trip.luggageSize },
     // A sentence, not a name: the one value the dd's `capitalize` must skip.
     { label: labels.duration, value: byWeather ? copy.byWeather : duration, sentence: true },
-    { label: labels.accommodation, value: trip?.accommodation || formData?.accommodation },
+    { label: labels.accommodation, value: trip.accommodation },
   ];
 
   return (
@@ -86,15 +66,13 @@ function FormDetailsSection() {
           <SectionHeading eyebrow={copy.eyebrow} heading={copy.heading} />
 
           <Reveal delay={0.06}>
-            {countryCode && (
-              <Image
-                src={flagUrl(countryCode)}
-                alt={copy.flag(country ?? "")}
-                width={80}
-                height={56}
-                className="mt-10 h-10 w-auto rounded-md object-cover"
-              />
-            )}
+            <Image
+              src={flagUrl(countryCode)}
+              alt={copy.flag(country)}
+              width={80}
+              height={56}
+              className="mt-10 h-10 w-auto rounded-md object-cover"
+            />
             <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-6 border-t border-sorbet-ink/15 pt-8 sm:grid-cols-3">
               {rows.filter((row) => row.value).map(({ label, value, sentence, asLabel }) => (
                 <div key={label}>

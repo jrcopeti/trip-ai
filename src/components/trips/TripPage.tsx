@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { Trip } from "@prisma/client";
 import SiteFooter from "../ui/SiteFooter";
 import TitleSection from "./TitleSection";
 import DescriptionSection from "./DescriptionSection";
@@ -17,22 +18,33 @@ import FormDetailsSection from "./FormDetailsSection";
  * white (packing) → canvas (list) → white (essentials) → offwhite (weather) →
  * white (forecast) → canvas (details) → lime (the route's closing section) →
  * ink footer, never two alike in a row.
+ *
+ * Both routes read the row on the server and hand it down; only the weather
+ * sections and the closing are client components, and they get only their fields.
  */
-function TripPage({ before, closing }: { before?: ReactNode; closing: ReactNode }) {
+function TripPage({
+  trip,
+  before,
+  closing,
+}: {
+  trip: Trip;
+  before?: ReactNode;
+  closing: ReactNode;
+}) {
   return (
     <div className="bg-sorbet-canvas font-sorbet text-sorbet-ink antialiased">
       <main className="relative">
         {before}
-        <TitleSection />
-        <DescriptionSection />
-        <ToursSection />
-        <PhotoSection />
-        <PackReadySection />
-        <ObjectsSection />
-        <MustHaveSection />
-        <WeatherSection />
-        <ForecastSection />
-        <FormDetailsSection />
+        <TitleSection trip={trip} />
+        <DescriptionSection trip={trip} />
+        <ToursSection trip={trip} />
+        <PhotoSection trip={trip} />
+        <PackReadySection trip={trip} />
+        <ObjectsSection trip={trip} />
+        <MustHaveSection trip={trip} />
+        <WeatherSection city={trip.city} country={trip.country} countryCode={trip.countryCode} />
+        <ForecastSection city={trip.city} countryCode={trip.countryCode} />
+        <FormDetailsSection trip={trip} />
         {closing}
       </main>
       <SiteFooter />
