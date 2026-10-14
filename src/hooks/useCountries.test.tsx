@@ -1,13 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import axios from "axios";
 import { renderWithProviders, waitFor } from "@/test/render";
 import { useCountries } from "@/hooks/useCountries";
 
-vi.mock("axios", () => ({
-  default: { get: vi.fn() },
-}));
-
-const mockGet = vi.mocked(axios.get);
+const mockGet = vi.fn();
+const answer = (body: unknown, status = 200) =>
+  mockGet.mockResolvedValue(new Response(JSON.stringify(body), { status }));
 
 let hook: ReturnType<typeof useCountries>;
 
@@ -18,12 +15,13 @@ function Probe() {
 
 beforeEach(() => {
   mockGet.mockReset();
+  vi.stubGlobal("fetch", mockGet);
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
 describe("useCountries", () => {
   it("fetches the flag CDN's code list", async () => {
-    mockGet.mockResolvedValue({ data: { pt: "Portugal" } });
+    answer({ pt: "Portugal" });
     renderWithProviders(<Probe />);
 
     await waitFor(() => {
@@ -33,7 +31,7 @@ describe("useCountries", () => {
   });
 
   it("maps each entry to a value, label, code and flag url", async () => {
-    mockGet.mockResolvedValue({ data: { pt: "Portugal" } });
+    answer({ pt: "Portugal" });
     renderWithProviders(<Probe />);
 
     await waitFor(() => expect(hook.countries).toHaveLength(1));
@@ -46,9 +44,7 @@ describe("useCountries", () => {
   });
 
   it("sorts alphabetically by country name", async () => {
-    mockGet.mockResolvedValue({
-      data: { jp: "Japan", pt: "Portugal", br: "Brazil" },
-    });
+    answer({ jp: "Japan", pt: "Portugal", br: "Brazil" });
     renderWithProviders(<Probe />);
 
     await waitFor(() => expect(hook.countries).toHaveLength(3));
@@ -60,16 +56,14 @@ describe("useCountries", () => {
   });
 
   it("drops US states, the EU and the UN, but keeps the UK's nations", async () => {
-    mockGet.mockResolvedValue({
-      data: {
-        pt: "Portugal",
-        "gb-eng": "England",
-        gb: "United Kingdom",
-        "us-ny": "New York",
-        us: "United States",
-        eu: "European Union",
-        un: "United Nations",
-      },
+    answer({
+      pt: "Portugal",
+      "gb-eng": "England",
+      gb: "United Kingdom",
+      "us-ny": "New York",
+      us: "United States",
+      eu: "European Union",
+      un: "United Nations",
     });
     renderWithProviders(<Probe />);
 
@@ -79,7 +73,7 @@ describe("useCountries", () => {
 
   it("truncates a label past 25 characters, leaving the value intact", async () => {
     const long = "United Kingdom of Great Britain and Northern Ireland";
-    mockGet.mockResolvedValue({ data: { gb: long } });
+    answer({ gb: long });
     renderWithProviders(<Probe />);
 
     await waitFor(() => expect(hook.countries).toHaveLength(1));
@@ -89,7 +83,7 @@ describe("useCountries", () => {
 
   it("leaves a label of exactly 25 characters unmarked", async () => {
     const exact = "a".repeat(25);
-    mockGet.mockResolvedValue({ data: { xx: exact } });
+    answer({ xx: exact });
     renderWithProviders(<Probe />);
 
     await waitFor(() => expect(hook.countries).toHaveLength(1));
@@ -106,8 +100,16 @@ describe("useCountries", () => {
     expect(hook.countries).toEqual([]);
   });
 
+  it("ends up with an empty list when the CDN answers with an error status", async () => {
+    answer({ message: "Not Found" }, 404);
+    renderWithProviders(<Probe />);
+
+    await waitFor(() => expect(hook.isLoading).toBe(false));
+    expect(hook.countries).toEqual([]);
+  });
+
   it("clears the loading flag once the request settles", async () => {
-    mockGet.mockResolvedValue({ data: { pt: "Portugal" } });
+    answer({ pt: "Portugal" });
     renderWithProviders(<Probe />);
 
     await waitFor(() => {

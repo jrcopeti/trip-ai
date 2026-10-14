@@ -1,48 +1,31 @@
 "use server";
-import axios from "axios";
 import { getPlaiceholder } from "plaiceholder";
 import { imageDataFixture, useE2EFixtures } from "./e2eFixtures";
 
-const url = `https://api.unsplash.com/search/photos?client_id=${process.env.UNSPLASH_API_KEY}&query=`;
+type UnsplashSearch = { results: { urls: { regular: string } }[] };
 
 export const fetchTripImage = async (city: string) => {
   if (useE2EFixtures) return imageDataFixture;
 
-  let tripImage = "";
-  let tripImage2 = "";
-  let tripImage3 = "";
-  let tripImage4 = "";
-  let tripImage5 = "";
-  let placeholder = "";
-
-  const encodedCity = encodeURIComponent(city);
-
   try {
-    const { data } = await axios.get(`${url}${encodedCity}`);
-    if (data.length === 0) {
-      throw new Error("No data image found");
-    }
-
-    tripImage = data?.results[0]?.urls.regular;
-    tripImage2 = data?.results[5]?.urls?.regular;
-    tripImage3 = data?.results[2]?.urls?.regular;
-    tripImage4 = data?.results[3]?.urls?.regular;
-    tripImage5 = data?.results[4]?.urls?.regular;
-    const response = await axios.get(tripImage, {
-      responseType: "arraybuffer",
+    const params = new URLSearchParams({
+      client_id: process.env.UNSPLASH_API_KEY ?? "",
+      query: city,
     });
-    const buffer = Buffer.from(response.data, "binary");
-    const plaiceholderRes = await getPlaiceholder(buffer);
-    placeholder = plaiceholderRes.base64;
+    const search = await fetch(`https://api.unsplash.com/search/photos?${params}`);
+    if (!search.ok) throw new Error(`Unsplash: ${search.status}`);
+    const { results }: UnsplashSearch = await search.json();
+    if (!results.length) throw new Error(`Unsplash: no photos of ${city}`);
 
-    return {
-      tripImage,
-      tripImage2,
-      tripImage3,
-      tripImage4,
-      tripImage5,
-      placeholder,
-    };
+    const [tripImage, tripImage2, tripImage3, tripImage4, tripImage5] = [0, 5, 2, 3, 4].map(
+      (i) => results[i]?.urls.regular,
+    );
+
+    const image = await fetch(tripImage);
+    if (!image.ok) throw new Error(`Unsplash image: ${image.status}`);
+    const { base64: placeholder } = await getPlaiceholder(Buffer.from(await image.arrayBuffer()));
+
+    return { tripImage, tripImage2, tripImage3, tripImage4, tripImage5, placeholder };
   } catch (error: unknown) {
     console.error(error);
     throw new Error("Error fetching image");

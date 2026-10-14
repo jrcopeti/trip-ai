@@ -1,5 +1,4 @@
 "use server";
-import axios from "axios";
 import {
   forecastListFixture,
   useE2EFixtures,
@@ -21,6 +20,13 @@ async function coordinatesOf(city: string, countryCode: string) {
   return { lat: resolved.place.lat, lon: resolved.place.lng };
 }
 
+// `fetch` resolves on a 4xx/5xx, so a bad key or quota error has to be thrown here.
+async function getJson(url: string) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`OpenWeather: ${response.status}`);
+  return response.json();
+}
+
 export const fetchForecast = async ({
   city,
   countryCode,
@@ -32,8 +38,7 @@ export const fetchForecast = async ({
   try {
     const { lat, lon } = await coordinatesOf(city, countryCode);
     const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${process.env.OPEN_WEATHER_KEY}`;
-    const getForecast = await axios.get(forecastUrl);
-    forecast = getForecast.data.list;
+    forecast = (await getJson(forecastUrl)).list;
     return forecast;
   } catch (error: unknown) {
     console.error("error", error);
@@ -51,8 +56,7 @@ export const fetchWeather = async ({
   try {
     const { lat, lon } = await coordinatesOf(city, countryCode);
     const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${process.env.OPEN_WEATHER_KEY}`;
-    const getWeather = await axios.get(weatherUrl);
-    weather = getWeather.data;
+    weather = await getJson(weatherUrl);
     return weather;
   } catch (error: unknown) {
     console.error(error);
