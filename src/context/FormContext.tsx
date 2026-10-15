@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, createContext } from "react";
-import { usePathname } from "next/navigation";
 import type {
   FieldName,
   FinalDataTypes,
@@ -77,14 +76,11 @@ function FormProvider({ children }: { children: React.ReactNode }) {
   const delta = currentStep - prevStep;
 
   const [isWeatherSelected, setIsWeatherSelected] = useState<boolean>(false);
-  const [clearOnLeave, setClearOnLeave] = useState(false);
-  const pathname = usePathname();
 
   const {
     handleSubmit,
     control,
     watch,
-    reset,
     trigger,
     getValues,
     getFieldState,
@@ -170,16 +166,6 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     return unsubscribe;
   }, [watch, trigger, getFieldState, currentStep]);
 
-  // Cleared once the traveller has left /form after a trip came back: clearing on
-  // success itself drew an empty step 1 while router.replace was still navigating.
-  useEffect(() => {
-    if (!clearOnLeave || !pathname || pathname === "/form") return;
-    reset();
-    setCurrentStep(0);
-    setIsWeatherSelected(false);
-    setClearOnLeave(false);
-  }, [clearOnLeave, pathname, reset]);
-
   const stepValue = steps[currentStep].stepValue;
 
   const next = async () => {
@@ -218,15 +204,14 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     // From the submitted country, so the code always matches the data it travels with.
     const submittedCode =
       countries.find((c) => c.value === data.country)?.code.toUpperCase() ?? "";
-    // The form clears only after a trip is back (see `clearOnLeave`), so a
-    // failed generation leaves everything filled in for another try.
+    // Nothing clears here: a failed generation leaves everything filled in for another
+    // try, and a trip that comes back leaves /form, whose layout unmounts this provider.
     generateResponseAI(
       toTripRequest(
         data,
         submittedCode,
         isWeatherSelected ? forecastData : undefined,
       ),
-      { onSuccess: () => setClearOnLeave(true) },
     );
 
     const finalData: FinalDataTypes = {

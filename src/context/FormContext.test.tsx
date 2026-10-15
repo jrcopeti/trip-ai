@@ -8,7 +8,7 @@ import { lisbonPlace, validInputs, validTripRequest } from "@/test/fixtures";
 import { resolvePlace } from "@/app/api/geoNamesApi";
 import FormStep2 from "@/components/form/FormStep2";
 import FormButtons from "@/components/form/FormButtons";
-import { resetNextStubs, routerState } from "@/test/stubs/next";
+import { resetNextStubs } from "@/test/stubs/next";
 import type { FieldName, FormContextType, Inputs, SelectedForecastDataTypes } from "@/types";
 
 const generateForecast = vi.fn();
@@ -407,95 +407,9 @@ describe("FormContext — processForm", () => {
     expect(ctx.formData.requiredItems).toEqual(["camera", "shoes"]);
   });
 
-  /** The trip came back: the mutation runs the per-call `onSuccess`. */
-  function generationSucceeds() {
-    generateResponseAI.mockImplementation((_, options) => options?.onSuccess?.());
-  }
-
-  /** Submits from step 2 with the weather on, and the trip comes back. */
-  async function succeedFromStepTwo() {
-    generationSucceeds();
-    const view = renderForm();
-    await advanceTo(2);
-    await act(async () => {
-      ctx.setIsWeatherSelected(true);
-    });
-    await act(async () => {
-      ctx.processForm(validInputs, undefined);
-    });
-    return view;
-  }
-
-  // router.replace only starts the navigation: clearing now would draw an empty step 1.
-  it("keeps the form as it is while still on /form after the trip is back", async () => {
-    await succeedFromStepTwo();
-    expect(screen.getByTestId("step")).toHaveTextContent("2");
-    expect(ctx.isWeatherSelected).toBe(true);
-    expect(ctx.reviewFormData.userName).toBe(validInputs.userName);
-  });
-
-  it("clears the answers, the step and the weather choice once the traveller leaves /form", async () => {
-    const view = await succeedFromStepTwo();
-
-    routerState.pathname = "/trips/ab12c";
-    await act(async () => {
-      view.rerender(formTree());
-    });
-
-    expect(screen.getByTestId("step")).toHaveTextContent("0");
-    expect(ctx.isWeatherSelected).toBe(false);
-    expect(ctx.reviewFormData.userName).toBe("");
-  });
-
-  // The save on the trip page comes after the clear, and writes these to the row.
-  it("keeps the resolved place and the weather choice in formData past the clear", async () => {
-    vi.mocked(resolvePlace).mockResolvedValue({ ok: true, place: lisbonPlace });
-    const view = renderForm();
-    await act(async () => {
-      ctx.setValue("country", "Portugal");
-      ctx.setValue("city", "Lisbon");
-    });
-    await waitFor(() => expect(ctx.cityCheck.place).toEqual(lisbonPlace), { timeout: 2000 });
-    generationSucceeds();
-    await act(async () => {
-      ctx.setIsWeatherSelected(true);
-    });
-    await act(async () => {
-      ctx.processForm(validInputs, undefined);
-    });
-
-    routerState.pathname = "/trips/ab12c";
-    await act(async () => {
-      view.rerender(formTree());
-    });
-
-    expect(ctx.cityCheck.place).toBeNull();
-    expect(ctx.formData).toMatchObject({
-      byWeather: true,
-      countryCode: "PT",
-      lat: lisbonPlace.lat,
-      lng: lisbonPlace.lng,
-    });
-  });
-
-  it("leaves the form alone on a path change when no trip came back", async () => {
-    const view = renderForm();
-    await advanceTo(2);
-    await act(async () => {
-      ctx.processForm(validInputs, undefined);
-    });
-
-    routerState.pathname = "/about";
-    await act(async () => {
-      view.rerender(formTree());
-    });
-
-    expect(screen.getByTestId("step")).toHaveTextContent("2");
-    expect(ctx.reviewFormData.userName).toBe(validInputs.userName);
-  });
-
   // A failed generation only shows a toast: the traveller can press "Plan my trip" again.
-  it("keeps the step, the answers and the weather choice until the trip is back", async () => {
+  // A trip that comes back leaves /form, and its layout's unmount clears the form.
+  it("keeps the step, the answers and the weather choice after submitting", async () => {
     renderForm();
     await advanceTo(2);
     await act(async () => {

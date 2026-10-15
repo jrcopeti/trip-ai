@@ -119,7 +119,7 @@ export interface FinalDataTypes extends Omit<Inputs, "requiredItems"> {
 }
 
 export interface TripContextType {
-  generateResponseAI: (request: TripRequest, options?: { onSuccess?: () => void }) => void;
+  generateResponseAI: (request: TripRequest) => void;
   isPendingResponseAI: boolean;
   errorResponseAI: unknown;
   resetResponseAI: () => void;

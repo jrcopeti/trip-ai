@@ -20,6 +20,25 @@ test.describe("/form", () => {
     await stubLookups(page);
   });
 
+  // The form's providers are /form's alone, so no other route asks flagcdn for the list.
+  test("fetches the country list on /form only", async ({ page }) => {
+    const requests: string[] = [];
+    page.on("request", (request) => {
+      if (request.url().startsWith("https://flagcdn.com/en/codes.json")) {
+        requests.push(request.url());
+      }
+    });
+
+    await page.goto("/");
+    await page.goto("/about");
+    await page.waitForLoadState("networkidle");
+    expect(requests).toHaveLength(0);
+
+    await page.goto("/form");
+    await expect(page.getByRole("combobox", { name: /passport/i })).toBeEnabled();
+    expect(requests).toHaveLength(1);
+  });
+
   test("blocks a premature Next and shows why", async ({ page }) => {
     await page.goto("/form");
     await next(page);
