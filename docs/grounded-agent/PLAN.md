@@ -535,6 +535,42 @@ its own, in this order (2f is independent and can land any time):
   the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
   weather by coordinates, the form-scoped providers, architecture and commands. Retake the
   screenshots that changed at the sizes above.
+- **2e-e · `background-generation`: leaving the loader doesn't lose the trip.** From 2e-a's
+  review. The loader covers the nav, so the way out mid-generation is the browser's Back, a soft
+  navigation: no `beforeunload`, and the generation keeps running with nothing on screen saying so.
+  A `GenerationToast` in the root providers reads the keyed mutation (2e-a's `generateTripKey`,
+  via `useMutationState`) and, while one is pending off `/form`, shows a persistent toast: "Your
+  trip is being planned" with **Stop**. On `/form` there's no toast; the loader shows (2e-a).
+  - Arrival: the toast becomes **"Your trip is ready — View"**, everywhere; nobody is moved
+    without asking, so a second form or a saved trip being read isn't pulled away. `onSuccess`
+    stops redirecting on its own when the traveller is off `/form`; on `/form` it redirects as today.
+  - Stop: marks the generation stopped and removes it from the mutation cache; `onSuccess` and
+    `onError` check the mark, so a stopped one shows nothing when it lands. Until 2i this is the
+    browser only: the server still finishes the call (billed) and writes an unsaved row.
+  - Failure while away: the toast becomes the failure message with a link to `/form`, where 2e-d's
+    draft restores the answers (closes 2e-a's second-review finding).
+  - Reload, closing the tab or a typed URL still end the page's JS, so they keep
+    `useConfirmOnPageExit`; the loader says so: "You can keep browsing while we plan it; reloading
+    or closing the tab stops it."
+  - Tests: the toast off `/form` and not on it; View opens the trip; Stop means nothing on arrival;
+    a failure shows the failure toast; the toast at 390 and by keyboard. e2e: submit, Back, the
+    toast shows, View opens the trip.
+- **2i · `trip-route`: generation through a route that can be stopped.** Brings branch 4's transport
+  forward, for today's single call. `POST /api/trip` (`src/app/api/trip/route.ts`) replaces the
+  `generateTrip` server action for the form: the same validation, `resolvePlace`, prompt and row,
+  but the Claude call is streamed (`client.messages.stream(...)`, read with `finalMessage()`) and
+  takes the request's `signal`. The response is SSE with `done` (the trip url) and `error` events
+  only; branch 4 adds `step`. Stop (2e-e) and leaving the page abort the fetch, which aborts the
+  stream: the output not yet written isn't billed (input is, as it's read at the start), no photos
+  are fetched after it, and no row is written. A server action can't be aborted from the client,
+  and a non-streamed call runs to the end however the client leaves, hence both changes.
+  `maxDuration` for the route in `vercel.json`. The agent itself (request → trip row) becomes a
+  function the route calls, so MCP (branch 7) and evals (6) call it directly.
+  - Tests: an aborted request aborts the SDK stream (mocked at `anthropicApi`) and writes no row;
+    `done` carries the url; a refusal, `max_tokens` or a bad request is an `error` event. e2e: the
+    fixture path (`E2E_FIXTURES=1`) answers as a fixture stream; Stop leaves no row.
+- **Order from here:** 2e-b → 2e-d → 2e-e → 2i, with 2e-c any time after 2e-b; then 2f, 2g, 2h
+  as planned, and branch 3. 2i comes after 2e-e, so Stop exists before it can stop the server.
 
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`
@@ -603,9 +639,12 @@ branch's diff.
   toolCalls Json, iterations, latencyMs, costUsd Decimal, stopReason, ok, error, tripUrl?, ipHash.
 - `src/lib/agent/cost.ts`: a pricing table (Sonnet 5.5 input, output, cache read/write, $ per web
   search) and `costOf(usage)`, unit-tested.
-- `recordGeneration()` is called from a `finally` in the agent, so failures are logged too.
+- `recordGeneration()` is called from a `finally` in the agent, so failures are logged too — and
+  stopped ones (2i): `ok: false`, `stopReason: "aborted"`, and the usage that had arrived. A stream
+  stopped early may never report its final usage, so that row's cost is an estimate.
 - Rate limit: count `Generation` rows by `ipHash` in the last hour (e.g. 5 per hour), and return a
-  typed error the form shows as a toast. No Redis.
+  typed error the form shows as a toast. No Redis. Stopped generations count, or starting and
+  stopping would get around it.
 - `scripts/usage-report.ts` (`npm run usage`): trips, $ per trip (p50/p95), seconds per trip
   (p50/p95), cache hit rate, failures by stop reason. A script, not a page, since there's no auth for
   an admin page.
@@ -631,9 +670,11 @@ branch's diff.
   `estCost`; plus `weatherSummary`, `entryRequirements {summary, sources[]}` (only when a passport
   is given), and `sources[] {title, url}`. Prisma columns: `sources Json?`, `entryRequirements Json?`;
   `tours Json` already holds the richer shape.
-- Streaming: the loop moves to a route handler, `src/app/api/trip/route.ts`, which sends SSE events
-  (`step` "Checking the weather in Lisbon…", `done` trip, `error`), with `maxDuration = 300` in
-  `vercel.json` for that route. `LoaderResponseAI` shows the real steps in place of the canned ones.
+- Streaming: the route and its SSE are 2i's; the loop runs inside it and adds `step` events
+  ("Checking the weather in Lisbon…"), with `maxDuration = 300`. `LoaderResponseAI` and 2e-e's
+  toast show the real steps in place of the canned ones.
+- Stopping: the request's `signal` reaches every iteration's Claude call and every tool's HTTP
+  call, and the loop checks it between iterations — or Stop would end only the first call.
 - Trip page: each tour card shows its address and a "map" link; a Sources section; an entry-requirements
   card. Read `docs/design-notes.md` first.
 - e2e: the fixture path (`E2E_FIXTURES=1`) returns a fixture stream with the new fields.
@@ -665,7 +706,7 @@ branch's diff.
 
 ### 7 · `agent-mcp`: trip-ai as an MCP server
 - `src/app/api/mcp/route.ts` using `@modelcontextprotocol/sdk` (Streamable HTTP), with tools
-  `plan_trip` (calls `generateTrip`, logged as `kind: mcp`), `list_saved_trips` and `get_saved_trip`
+  `plan_trip` (calls the agent function 2i split out, not the HTTP route; logged as `kind: mcp`), `list_saved_trips` and `get_saved_trip`
   (reusing `getSavedTripsPage` and `getSingleSavedTrip` from `src/db/actions.ts`).
 - Bearer-token auth (`MCP_TOKEN`), since `plan_trip` spends money, and the same rate limit.
 - README: how to add it to Claude Desktop / Claude Code.
