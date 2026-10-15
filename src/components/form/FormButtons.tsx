@@ -1,17 +1,19 @@
 "use client";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa6";
 import { steps } from "@/data";
-import { useFormData } from "@/hooks/useFormData";
+import { useCityCheck, useFormFields, useFormSteps } from "@/hooks/useFormData";
 import { buttons } from "./content";
 import { inkPill, limePill } from "./styles";
 
 /**
  * Back and Next, or Back and Submit on the last step. Inside the `<form>`, so
  * Submit is a real submit button; Back and Next are `type="button"` and only
- * move between steps. The wiring is `FormContext`'s, unchanged.
+ * move between steps.
  */
 function FormButtons() {
-  const { currentStep, next, prev, cityCheck, isValid } = useFormData();
+  const { currentStep, next, prev } = useFormSteps();
+  const { isValid } = useFormFields();
+  const { cityCheck } = useCityCheck();
   const isLast = currentStep === steps.length - 1;
 
   return (

@@ -1,5 +1,5 @@
 "use client";
-import { useFormData } from "@/hooks/useFormData";
+import { useFormFields, useFormSteps } from "@/hooks/useFormData";
 import { Controller } from "react-hook-form";
 import StepPanel from "./StepPanel";
 import ChoiceGroup from "./ChoiceGroup";
@@ -25,7 +25,8 @@ const questions = [
 ] as const;
 
 function FormStep3() {
-  const { currentStep, control, errors } = useFormData();
+  const { currentStep } = useFormSteps();
+  const { control, errors } = useFormFields();
 
   if (currentStep !== 2) return null;
 

@@ -4,6 +4,8 @@ import { flagUrl } from "@/lib/place";
 
 const COUNTRY_MAX_LENGTH = 25;
 const NOT_COUNTRIES = new Set(["eu", "un"]);
+// One empty list, so the form's memoised context doesn't change on every render while it loads.
+const NO_COUNTRIES: Country[] = [];
 
 async function fetchCountries(): Promise<Country[]> {
   try {
@@ -40,5 +42,5 @@ export function useCountries() {
     retry: 1,
   });
 
-  return { countries: data ?? [], isLoading };
+  return { countries: data ?? NO_COUNTRIES, isLoading };
 }

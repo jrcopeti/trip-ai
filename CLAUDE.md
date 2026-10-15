@@ -221,7 +221,7 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
   and its copy in `content.ts`. A record now; what binds is in `design-notes.md`.
 - **`docs/grounded-agent/PLAN.md`** — the **grounded agent**, in flight. Branch 1
   (new form fields, the city check and the prompt on the server, `claude-sonnet-5-5`) is
-  finished; branch 2 (the server-owned trip) is in progress, 2a–2d merged, 2e-a (`form-scoped`) staged; 3–7
+  finished; branch 2 (the server-owned trip) is in progress, 2a–2d and 2e-a merged, 2e-b (`form-context-split`) staged; 3–7
   (metrics, tools, refine, evals, MCP) are next.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
@@ -269,7 +269,9 @@ architecture). A plan is for work in flight.
 
 ### Key custom hooks
 - `useSaveTrip(tripUrl)` — `handleYesAnswer`/`handleNoAnswer` call `setTripSaved(tripUrl, true/false)`; `isAnswered` once one lands
-- `useFormData`, `useTripResponse` — context consumers
+- `useFormSteps`, `useFormFields`, `useCityCheck` — `FormContext`'s three memoised contexts,
+  so a keystroke in the city re-renders only its readers; `useFormData` reads all three, for tests
+- `useTripResponse` — context consumer
 - `useCountries` — the country list (flag URLs, ISO codes) for the autocomplete; a TanStack query fetched once per session
 - `useGeoNames` — debounced city check, through the `resolvePlace` server action; run once in
   `FormProvider`, which hands it out as `cityCheck`

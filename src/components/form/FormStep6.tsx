@@ -1,5 +1,5 @@
 "use client";
-import { useFormData } from "@/hooks/useFormData";
+import { useFormFields, useFormSteps } from "@/hooks/useFormData";
 import { Label, FieldError, TextField, TextArea } from "@heroui/react";
 import { Controller } from "react-hook-form";
 import StepPanel from "./StepPanel";
@@ -10,7 +10,8 @@ import { interests } from "./content";
 import { field, fieldError, fieldLabel, fieldTextArea } from "./styles";
 
 function FormStep6() {
-  const { currentStep, control, errors } = useFormData();
+  const { currentStep } = useFormSteps();
+  const { control, errors } = useFormFields();
 
   if (currentStep !== 5) return null;
 

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { useFormData } from "@/hooks/useFormData";
+import { useCityCheck, useFormFields, useFormSteps } from "@/hooks/useFormData";
 import { LIMITS } from "@/lib/schema";
 
 import { TextField, Label, Input, Description, FieldError } from "@heroui/react";
@@ -16,14 +16,12 @@ import { destination } from "./content";
 import { field, fieldError, fieldInput, fieldLabel } from "./styles";
 
 function FormStep2() {
+  const { currentStep } = useFormSteps();
+  const { control, errors, handleSelectionAutocomplete } = useFormFields();
   const {
-    currentStep,
-    control,
-    errors,
-    handleSelectionAutocomplete,
     countryCode,
     cityCheck: { isCityValid, isLoadingCityValid, message },
-  } = useFormData();
+  } = useCityCheck();
 
   // The check lives in FormProvider and outlasts this step: "Try again" after a failed trip
   // remounts the form, and a result already announced must not toast a second time.

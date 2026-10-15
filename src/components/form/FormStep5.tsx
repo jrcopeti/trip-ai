@@ -1,5 +1,5 @@
 "use client";
-import { useFormData } from "@/hooks/useFormData";
+import { useFormFields, useFormSteps } from "@/hooks/useFormData";
 import { Controller } from "react-hook-form";
 import { Checkbox } from "@heroui/react";
 import DatePicker from "./DatePicker";
@@ -9,8 +9,8 @@ import { dates } from "./content";
 import { fieldError } from "./styles";
 
 function FormStep5() {
-  const { currentStep, isWeatherSelected, setIsWeatherSelected, control, errors, setValue } =
-    useFormData();
+  const { currentStep } = useFormSteps();
+  const { isWeatherSelected, setIsWeatherSelected, control, errors, setValue } = useFormFields();
 
   const handleCheckboxChange = () => {
     setIsWeatherSelected(!isWeatherSelected);

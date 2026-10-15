@@ -1,5 +1,5 @@
 "use client";
-import { useFormData } from "@/hooks/useFormData";
+import { useFormFields, useFormSteps } from "@/hooks/useFormData";
 import { Controller } from "react-hook-form";
 import { TextField, Label, Input } from "@heroui/react";
 import { FaPlus, FaXmark } from "react-icons/fa6";
@@ -9,7 +9,8 @@ import { items } from "./content";
 import { field, fieldInput, fieldLabel, focusTriad, limePill } from "./styles";
 
 function FormStep4() {
-  const { currentStep, fields, control, append, insert, remove } = useFormData();
+  const { currentStep } = useFormSteps();
+  const { fields, control, append, insert, remove } = useFormFields();
 
   if (currentStep !== 3) return null;
 

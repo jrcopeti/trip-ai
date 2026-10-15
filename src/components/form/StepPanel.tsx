@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { useFormData } from "@/hooks/useFormData";
+import { useFormSteps } from "@/hooks/useFormData";
 import FormTitle from "./FormTitle";
 
 /**
@@ -9,7 +9,7 @@ import FormTitle from "./FormTitle";
  * (`MotionProvider`).
  */
 function StepPanel({ children }: { children: React.ReactNode }) {
-  const { delta } = useFormData();
+  const { delta } = useFormSteps();
 
   return (
     <motion.div
