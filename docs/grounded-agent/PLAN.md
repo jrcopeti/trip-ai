@@ -439,10 +439,32 @@ its own, in this order (2f is independent and can land any time):
   `{ lat, lon }` and never call `resolvePlace`; the trip page fetches both on the server from the
   row (short `revalidate`); the form's forecast uses `cityCheck.place`. `WeatherContext` shrinks
   to the form's forecast.
-- **2e · `form-scoped`: the providers leave the app root.** `FormContext` moves to
-  `src/app/form/layout.tsx`; `TripContext` becomes `useTripGeneration`; the form's forecast
-  becomes a form-local hook; `formData`/`FinalDataTypes` go if nothing reads them; `providers.tsx`
-  keeps QueryClient, MotionProvider and Toaster. CLAUDE.md's architecture section is rewritten.
+- **2e · the providers leave the app root — split 2e-a, 2e-b, 2e-c.** Born of an audit of the
+  three contexts. Cost found: all three providers wrap every route but only `/form` reads them,
+  so `FormProvider` runs `useForm`/`useFieldArray`/`useGeoNames` everywhere and `useCountries`
+  does a raw, uncached `fetch("https://flagcdn.com/en/codes.json")` on every page load; and the
+  `FormContext` value is a new 23-field object each render, so all 13 `useFormData()` consumers
+  re-render on every city keystroke (`cityCheck`, the provider-level `watch`). `TripContext` and
+  `WeatherContext` are thin `useMutation` wrappers that change only on mutation status — fine.
+  - **2e-a · `form-scoped`: the providers move to `src/app/form/layout.tsx`.** `providers.tsx`
+    keeps QueryClient, MotionProvider and Toaster. The `clearOnLeave`/`reset()` effect goes, since
+    the provider unmounting resets the state — check the empty-step-1 flash during `router.replace`
+    does not come back. `useCountries` becomes a TanStack Query (`staleTime: Infinity`), so the
+    flagcdn call is made once and only on `/form`. Biggest win; ships first.
+  - **2e-b · `form-context-split`: stop re-rendering everything on a keystroke.** Memoise the
+    value and split it into steps (`currentStep, delta, stepValue, next, prev`), rhf (`control,
+    errors, fields, append/insert/remove, setValue, handleSubmit`) and city (`cityCheck,
+    cityWatch, countryCode`) — or read the city with `useWatch` in Step 2 and `FormButtons` only.
+    `reviewFormData = getValues()` becomes a reactive read. `defaultFormData` and `useForm`'s
+    defaults are one object (they differ today: `interests: [""]` vs `[]`). Measure commits on the
+    city field before and after.
+  - **2e-c · `form-state-dead`: what nothing reads goes.** `formData`/`setFormData`/
+    `FinalDataTypes`; `TripContext` becomes `useTripGeneration`; the form's forecast becomes a
+    form-local hook (`WeatherContext` goes). CLAUDE.md's architecture section is rewritten.
+  - **Zustand: evaluated, not adopted.** react-hook-form owns the form state (uncontrolled,
+    ref-based) and TanStack Query owns the server state; a store would mirror RHF's. What is left
+    is `currentStep`, `prevStep` and `isWeatherSelected`. Revisit only for a draft that survives a
+    refresh, or form state read across routes.
 - **2f · `request-checks`: findings 2 and 3.** Passport checked with `oneOf` against the
   countries; required items refuse line breaks, on the server and the form.
 
