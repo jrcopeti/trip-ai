@@ -19,6 +19,10 @@ const defaultContextValue: TripContextType = {
 
 const TripContext = createContext<TripContextType>(defaultContextValue);
 
+// Keyed so `Form` can see a generation that outlived the provider: one left running
+// when the traveller left /form still redirects when it lands.
+const generateTripKey = ["generateTrip"];
+
 function TripProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
@@ -28,6 +32,7 @@ function TripProvider({ children }: { children: React.ReactNode }) {
     error: errorResponseAI,
     reset: resetResponseAI,
   } = useMutation({
+    mutationKey: generateTripKey,
     mutationFn: (request: TripRequest) => generateTrip(request),
 
     // The server wrote the row and chose its url; the trip page reads it from there.
@@ -58,4 +63,4 @@ function TripProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export { TripProvider, TripContext };
+export { TripProvider, TripContext, generateTripKey };

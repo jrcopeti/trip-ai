@@ -19,6 +19,7 @@ import {
 import { LIMITS } from "@/lib/schema";
 import type { FieldName, FormContextType } from "@/types";
 
+vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("@/hooks/useWeather", () => ({
   useWeather: () => ({ generateForecast: vi.fn(), forecastData: undefined }),
 }));

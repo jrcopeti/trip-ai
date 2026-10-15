@@ -36,6 +36,8 @@ export function useCountries() {
     queryFn: fetchCountries,
     staleTime: Infinity,
     gcTime: Infinity,
+    // Once, not TanStack's three: the country fields stay disabled while it loads.
+    retry: 1,
   });
 
   return { countries: data ?? [], isLoading };

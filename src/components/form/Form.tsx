@@ -1,6 +1,8 @@
 "use client";
 
+import { useIsMutating } from "@tanstack/react-query";
 import { useTripResponse } from "@/hooks/useTripResponse";
+import { generateTripKey } from "@/context/TripContext";
 import { useFormData } from "@/hooks/useFormData";
 
 import ProgressBar from "./Progress";
@@ -19,8 +21,10 @@ import { failure } from "./content";
 function Form() {
   const { isPendingResponseAI, errorResponseAI, resetResponseAI } = useTripResponse();
   const { handleSubmit, processForm } = useFormData();
+  // Also one from before /form last unmounted: the form behind it would send a second trip.
+  const isGenerating = useIsMutating({ mutationKey: generateTripKey }) > 0;
 
-  if (isPendingResponseAI) {
+  if (isPendingResponseAI || isGenerating) {
     return <LoaderResponseAI />;
   }
 

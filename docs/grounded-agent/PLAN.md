@@ -495,13 +495,18 @@ its own, in this order (2f is independent and can land any time):
     QueryClient, MotionProvider and Toaster. With `clearOnLeave` gone, so is the per-call
     `onSuccess` on `generateResponseAI` that only it used. `useCountries` is a query
     (`staleTime` and `gcTime: Infinity`), one request for its three readers, kept across visits
-    to `/form` in a session; a failed request now retries (TanStack's default), still logged.
+    to `/form` in a session; a failed request retries once (TanStack's three kept the country
+    fields disabled for ~7s), each failure logged.
     Behaviour change: leaving `/form` mid-fill and coming back starts a fresh form (it used to
     keep the answers). Checked in the browser: submit → loader → trip page draws no form step
     in between. Tests: the layout provides the form and the root doesn't (nor fetches
     flagcdn), a remount starts fresh, `useCountries` asks once across readers and remounts;
     e2e: no flagcdn request on `/` or `/about`, and "New trip" after a saved trip is an empty
     step 1.
+    From its review: leaving `/form` mid-generation remounted an empty form that could send a
+    second trip, while the first still redirected on landing. The mutation is keyed
+    (`generateTripKey`) and `Form` shows the loader while `useIsMutating` finds one running, so
+    coming back mid-generation shows the loader; that survives 2e-c's `useTripGeneration`.
   - **2e-b · `form-context-split`: stop re-rendering everything on a keystroke.** Memoise the
     value and split it into steps (`currentStep, delta, stepValue, next, prev`), rhf (`control,
     errors, fields, append/insert/remove, setValue, handleSubmit`) and city (`cityCheck,
