@@ -11,7 +11,6 @@ import type { FormContextType, Inputs } from "@/types";
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("@/app/api/geoNamesApi", () => ({ resolvePlace: vi.fn() }));
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
-vi.mock("@/app/api/forecastAction", () => ({ forecastForForm: vi.fn() }));
 
 let ctx: FormContextType;
 let values: Inputs;

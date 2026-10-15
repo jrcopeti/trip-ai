@@ -553,7 +553,7 @@ its own, in this order (2f is independent and can land any time):
     over" asks, cancel keeps everything, confirm clears the form and the storage. e2e: fill two
     steps, go to About and back, the answers are there; start over, step 1 is empty. After 2e-b,
     which reshapes the context this hooks into; independent of 2e-c.
-    **Status: done on `form-draft`, staged, not committed.** As built: `src/lib/formDraft.ts`
+    **Status: merged (#213).** As built: `src/lib/formDraft.ts`
     reads, writes and clears `{ values, step, isWeatherSelected }` under one sessionStorage key,
     every access in a try (a lost draft is a fresh form). `FormProvider` restores it in an effect
     after mount, not in `useForm`'s defaults (the server has no storage, so that would hydrate a
@@ -616,6 +616,34 @@ its own, in this order (2f is independent and can land any time):
     trip (no forecast, `byWeather: false`) when OpenWeather fails; the day pick in the
     destination's time with the clock pinned; `processForm` sends the flag. e2e: a weather trip
     under `E2E_FIXTURES=1` comes back marked as planned by the forecast.
+  - **Status: done on `server-forecast`, staged, not committed.** As built: `tripForecast`
+    (`src/lib/agent/forecast.ts`) keeps one reading per trip day, the one nearest 12:00 at the
+    destination (each reading's `dt` plus its `timezone`), so a reading late in UTC can still be
+    the destination's afternoon; it reads no clock, so its tests pin none. `generateTrip` starts
+    the photos, then awaits `forecastFor` (only with `byWeather`; a throw logs and returns no
+    days) before the model call; `toTripRow` takes `byWeather` as "a forecast reached the
+    prompt", so a traveller who asked but got none is `false`. `buildTripMessage` takes the days
+    as a third argument. The request's `byWeather` is required; a `forecast` sent with it is
+    stripped by zod, not refused (the result is the same: it never reaches the prompt), and
+    `ForecastDaySchema` is gone. Also gone: `SelectedForecastDataTypes`, `ForecastDataTypes`.
+    Found on the way: the e2e forecast fixture is dated 2030, so filtering by the trip's dates
+    left no days and the journey's "Planned by the forecast" would have failed; under
+    `E2E_FIXTURES=1` `fetchForecast` now returns it moved to the last three-hour mark in UTC
+    (`forecastFixtureFromNow`), which also keeps the trip page's five forecast cards at any hour.
+    Tests: `forecast.test` (Tokyo and Honolulu offsets, the trip's days only, Celsius, empty);
+    `generateTrip` — no fetch without the flag, the fetch at the resolved place with only the
+    trip's days in the message, OpenWeather failing and no days in range both write
+    `byWeather: false`; the request needs the flag and drops a forecast; `processForm` sends
+    the flag; `e2eFixtures.test` checked in four time zones. e2e: the journey's existing
+    "Planned by the forecast" check now runs through the server's fetch.
+  - **Parked, from the review** (neither breaks a trip; pick up with branch 4's `get_forecast`):
+    - *An end day can go without a forecast.* The trip's dates are the traveller's calendar
+      days; readings are dated by the destination's clock. Planning Tokyo from Los Angeles,
+      "today" can already be tomorrow in Tokyo, so the first day finds no reading. Fix: widen
+      `tripForecast`'s date filter by a day at each end, or take the dates in the destination's zone.
+    - *Half-hour offsets.* `local.hour()` drops the minutes, so at +5:30 "nearest midday" is
+      off by 30 minutes, which only decides between two readings that would tie. Fix: measure in
+      minutes, `Math.abs(local.hour() * 60 + local.minute() - 720)`.
 - **2f · `request-checks`: findings 2 and 3.** Passport checked with `oneOf` against the
   countries; required items refuse line breaks, on the server and the form.
 - **2g · dependencies: Renovate keeps them current, a branch each for the breaking ones.**

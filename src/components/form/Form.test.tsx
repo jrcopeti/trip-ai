@@ -20,9 +20,6 @@ import { LIMITS } from "@/lib/schema";
 import type { FieldName, FormContextType } from "@/types";
 
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
-vi.mock("@/hooks/useFormForecast", () => ({
-  useFormForecast: () => ({ generateForecast: vi.fn(), forecastData: undefined }),
-}));
 vi.mock("@/hooks/useTripGeneration", () => ({
   generateTripKey: ["generateTrip"],
   useTripGeneration: () => ({ generateTrip: vi.fn(), isPending: false, error: null, reset: vi.fn() }),

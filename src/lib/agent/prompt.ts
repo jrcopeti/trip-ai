@@ -12,7 +12,8 @@ import {
   types,
 } from "@/data";
 import { TOUR_KINDS } from "@/lib/tourKinds";
-import type { ForecastDay, TripRequest } from "./request";
+import type { ForecastDay } from "./forecast";
+import type { TripRequest } from "./request";
 
 const SYSTEM_PROMPT = `You plan trips for the Trip AI app. You get one traveller's trip details and return a packing list, a short description, five tours and a tip, through the submit_trip tool. Call submit_trip exactly once, with the whole trip.
 
@@ -74,8 +75,8 @@ function length(req: TripRequest) {
   return `${nights} ${nights === 1 ? "night" : "nights"}`;
 }
 
-function forecastLines(forecast: ForecastDay[] | undefined) {
-  if (!forecast?.length) return ["- None; plan for the usual weather there on these dates."];
+function forecastLines(forecast: ForecastDay[]) {
+  if (!forecast.length) return ["- None; plan for the usual weather there on these dates."];
   return forecast.map(
     (f) => `- ${dayjs(f.date).format("ddd D MMM")}: ${f.temp}, ${f.condition} (${f.description})`,
   );
@@ -83,9 +84,13 @@ function forecastLines(forecast: ForecastDay[] | undefined) {
 
 /**
  * The per-trip facts as a labelled block. `place` is the server's resolved
- * place, not the browser's spelling.
+ * place, not the browser's spelling; `forecast` is the server's, empty for none.
  */
-export function buildTripMessage(req: TripRequest, place: { name: string; country: string }) {
+export function buildTripMessage(
+  req: TripRequest,
+  place: { name: string; country: string },
+  forecast: ForecastDay[],
+) {
   const facts = [
     `- Traveller's name: ${req.userName}`,
     `- Who's going: ${label(travellers, req.travellers)}, ages ${req.ageRanges
@@ -115,7 +120,7 @@ export function buildTripMessage(req: TripRequest, place: { name: string; countr
     ...facts,
     "",
     "Weather forecast:",
-    ...forecastLines(req.forecast),
+    ...forecastLines(forecast),
     "",
     "<traveller_note>",
     ...note,

@@ -11,7 +11,6 @@ import { resetNextStubs } from "@/test/stubs/next";
 import type { FormContextType } from "@/types";
 
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
-vi.mock("@/app/api/forecastAction", () => ({ forecastForForm: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn() } }));
 vi.mock("@/components/ui/LoaderResponseAI", () => ({

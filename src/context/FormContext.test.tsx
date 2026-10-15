@@ -10,16 +10,11 @@ import { resolvePlace } from "@/app/api/geoNamesApi";
 import FormStep2 from "@/components/form/FormStep2";
 import FormButtons from "@/components/form/FormButtons";
 import { resetNextStubs } from "@/test/stubs/next";
-import type { FieldName, FormContextType, Inputs, SelectedForecastDataTypes } from "@/types";
+import type { FieldName, FormContextType, Inputs } from "@/types";
 
-const generateForecast = vi.fn();
-let forecastData: SelectedForecastDataTypes[] | undefined;
 const generateTrip = vi.fn();
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
-vi.mock("@/hooks/useFormForecast", () => ({
-  useFormForecast: () => ({ generateForecast, forecastData }),
-}));
 vi.mock("@/hooks/useTripGeneration", () => ({
   generateTripKey: ["generateTrip"],
   useTripGeneration: () => ({ generateTrip, isPending: false, error: null, reset: vi.fn() }),
@@ -86,9 +81,7 @@ beforeEach(() => {
   vi.mocked(resolvePlace).mockReset().mockResolvedValue({ ok: false, error: "not-found" });
   vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.setSystemTime(new Date(2030, 3, 1, 12, 0, 0));
-  generateForecast.mockClear();
   generateTrip.mockReset();
-  forecastData = undefined;
   resetNextStubs("/form");
   return () => vi.useRealTimers();
 });
@@ -216,64 +209,6 @@ describe("FormContext — prev()", () => {
       ctx.prev();
     });
     expect(ctx.delta).toBe(-1);
-  });
-});
-
-describe("FormContext — fetch triggers", () => {
-  const datesStep = steps.length - 3; // step 5, "Dates and Weather"
-
-  it("fetches the forecast at the place step 2 resolved, when leaving the dates step with weather selected", async () => {
-    vi.mocked(resolvePlace).mockResolvedValue({ ok: true, place: lisbonPlace });
-    renderForm();
-    await advanceTo(datesStep);
-    await waitFor(() => expect(ctx.cityCheck.place).toEqual(lisbonPlace), { timeout: 2000 });
-    await act(async () => {
-      ctx.setIsWeatherSelected(true);
-    });
-    await fillStep(datesStep);
-    await act(async () => {
-      await ctx.next();
-    });
-
-    expect(generateForecast).toHaveBeenCalledWith({ lat: lisbonPlace.lat, lon: lisbonPlace.lng });
-  });
-
-  it("does not fetch the forecast without a resolved place", async () => {
-    renderForm();
-    await advanceTo(datesStep);
-    await act(async () => {
-      ctx.setIsWeatherSelected(true);
-    });
-    await fillStep(datesStep);
-    await act(async () => {
-      await ctx.next();
-    });
-
-    expect(ctx.cityCheck.place).toBeNull();
-    expect(generateForecast).not.toHaveBeenCalled();
-  });
-
-  it("does not fetch the forecast when weather is not selected", async () => {
-    renderForm();
-    await advanceTo(datesStep);
-    await fillStep(datesStep);
-    await act(async () => {
-      await ctx.next();
-    });
-    expect(generateForecast).not.toHaveBeenCalled();
-  });
-
-  it("does not fetch the forecast when the dates step is invalid", async () => {
-    renderForm();
-    await advanceTo(datesStep);
-    await act(async () => {
-      ctx.setIsWeatherSelected(true);
-      ctx.setValue("startDate", "");
-    });
-    await act(async () => {
-      await ctx.next();
-    });
-    expect(generateForecast).not.toHaveBeenCalled();
   });
 });
 
@@ -410,15 +345,8 @@ describe("FormContext — processForm", () => {
     expect(values.userName).toBe(validInputs.userName);
   });
 
-  it("sends the forecast days when weather is selected", async () => {
-    forecastData = [
-      {
-        dt_txt: "2030-05-01 12:00:00",
-        formattedTemp: "21°C",
-        condition: "Clear",
-        description: "clear sky",
-      },
-    ];
+  // The server fetches the forecast; the request only says it was asked for.
+  it("sends the weather choice", async () => {
     renderForm();
     await act(async () => {
       ctx.setIsWeatherSelected(true);
@@ -426,13 +354,12 @@ describe("FormContext — processForm", () => {
     await act(async () => {
       ctx.processForm(validInputs, undefined);
     });
-    expect(generateTrip.mock.calls[0][0].forecast).toEqual([
-      { date: "2030-05-01", temp: "21°C", condition: "Clear", description: "clear sky" },
-    ]);
+    expect(generateTrip.mock.calls[0][0].byWeather).toBe(true);
+    expect(generateTrip.mock.calls[0][0]).not.toHaveProperty("forecast");
   });
 
-  it("sends no forecast when weather is not selected", async () => {
+  it("sends no weather choice when it is off", async () => {
     await submitWith();
-    expect(generateTrip.mock.calls[0][0].forecast).toBeUndefined();
+    expect(generateTrip.mock.calls[0][0].byWeather).toBe(false);
   });
 });

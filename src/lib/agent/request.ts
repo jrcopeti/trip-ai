@@ -12,7 +12,7 @@ import {
   types,
 } from "@/data";
 import { FormFieldsSchema, LIMITS, checkAgeRanges, checkEndDate } from "@/lib/schema";
-import type { Inputs, SelectedForecastDataTypes } from "@/types";
+import type { Inputs } from "@/types";
 
 type Options = readonly { value: string; label: string }[];
 
@@ -33,13 +33,6 @@ const calendarDay = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD")
   .refine((day) => dayjs(day).format("YYYY-MM-DD") === day, { message: "Not a real date" });
-
-export const ForecastDaySchema = z.object({
-  date: calendarDay,
-  temp: line(10),
-  condition: line(40),
-  description: line(80),
-});
 
 /** What the browser sends `generateTrip`: the form minus `agreement`, checked again. */
 export const TripRequestSchema = FormFieldsSchema.omit({ agreement: true })
@@ -67,19 +60,19 @@ export const TripRequestSchema = FormFieldsSchema.omit({ agreement: true })
       { message: "Start date cannot be in the past" },
     ),
     endDate: calendarDay,
-    forecast: ForecastDaySchema.array().max(7).optional(),
+    // Whether the traveller asked for the forecast; `generateTrip` fetches it at the resolved place.
+    byWeather: z.boolean(),
   })
   .superRefine(checkEndDate)
   .superRefine(checkAgeRanges);
 
 export type TripRequest = z.infer<typeof TripRequestSchema>;
-export type ForecastDay = z.infer<typeof ForecastDaySchema>;
 
 /** Built in the browser, where the dates are still in the traveller's own timezone. */
 export function toTripRequest(
   inputs: Inputs,
   countryCode: string,
-  forecast?: SelectedForecastDataTypes[],
+  byWeather: boolean,
 ): TripRequest {
   const { agreement, requiredItems, note, passport, ...fields } = inputs;
   const items = (requiredItems ?? []).map(({ item }) => item.trim()).filter(Boolean);
@@ -93,12 +86,6 @@ export function toTripRequest(
     passport: passport?.trim() || undefined,
     startDate: dayjs(inputs.startDate).format("YYYY-MM-DD"),
     endDate: dayjs(inputs.endDate).format("YYYY-MM-DD"),
-    forecast: forecast?.map((day) => ({
-      // OpenWeather's `dt_txt` is "YYYY-MM-DD HH:mm:ss".
-      date: day.dt_txt.slice(0, 10),
-      temp: day.formattedTemp,
-      condition: day.condition,
-      description: day.description,
-    })),
+    byWeather,
   };
 }

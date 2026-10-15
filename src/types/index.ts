@@ -47,19 +47,6 @@ export interface DailyForecastDataTypes extends WeatherApiResponse {
   dailyForecastIconSrc?: string;
 }
 
-export interface ForecastDataTypes extends WeatherApiResponse {
-  dt: number;
-  dt_txt: string;
-}
-
-export interface SelectedForecastDataTypes {
-  dt_txt: string;
-  temp?: number;
-  formattedTemp: string;
-  condition: string;
-  description: string;
-}
-
 /** A place GeoNames resolved, in OpenWeather's names (the row stores `lng`). */
 export interface Coordinates {
   lat: number;
