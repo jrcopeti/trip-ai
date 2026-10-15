@@ -136,6 +136,11 @@ Left from branch 1, for the branch named or for later:
 - No retry when the model skips `submit_trip`; branch 4's loop owns this.
 - Parked: tabbing into `CountryComboBox` opens its list at once (on step 1 it covers the age
   chips), and HeroUI's popover still fades out under reduced motion.
+- Parked: `submit_trip` returned `tours` as a string despite `strict: true` (seen once in dev,
+  2026-10-15: "Expected array, received string"), so the trip failed with "invalid trip". Fix:
+  before `TripDataSchema` runs, an array field that arrives as a string parsing to an array is
+  replaced by the parsed array; Zod still checks it, so prose still fails. Tests first: tours as
+  a JSON string writes the trip; prose in `tours` still fails.
 
 
 Too much for one reviewable PR (data model, form UI, GeoNames, prompt and model in one diff),
