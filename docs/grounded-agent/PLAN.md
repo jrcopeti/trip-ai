@@ -636,6 +636,14 @@ its own, in this order (2f is independent and can land any time):
     `byWeather: false`; the request needs the flag and drops a forecast; `processForm` sends
     the flag; `e2eFixtures.test` checked in four time zones. e2e: the journey's existing
     "Planned by the forecast" check now runs through the server's fetch.
+  - **Parked, from the review** (neither breaks a trip; pick up with branch 4's `get_forecast`):
+    - *An end day can go without a forecast.* The trip's dates are the traveller's calendar
+      days; readings are dated by the destination's clock. Planning Tokyo from Los Angeles,
+      "today" can already be tomorrow in Tokyo, so the first day finds no reading. Fix: widen
+      `tripForecast`'s date filter by a day at each end, or take the dates in the destination's zone.
+    - *Half-hour offsets.* `local.hour()` drops the minutes, so at +5:30 "nearest midday" is
+      off by 30 minutes, which only decides between two readings that would tie. Fix: measure in
+      minutes, `Math.abs(local.hour() * 60 + local.minute() - 720)`.
 - **2f · `request-checks`: findings 2 and 3.** Passport checked with `oneOf` against the
   countries; required items refuse line breaks, on the server and the form.
 - **2g · dependencies: Renovate keeps them current, a branch each for the breaking ones.**
