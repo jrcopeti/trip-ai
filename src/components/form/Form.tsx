@@ -2,7 +2,7 @@
 
 import { useIsMutating } from "@tanstack/react-query";
 import { generateTripKey } from "@/hooks/useTripGeneration";
-import { useFormFields } from "@/hooks/useFormData";
+import { useFormFields, useFormSteps } from "@/hooks/useFormData";
 
 import ProgressBar from "./Progress";
 import FormStep1 from "./FormStep1";
@@ -20,6 +20,7 @@ import { failure } from "./content";
 function Form() {
   const { handleSubmit, processForm, isGenerationPending, generationError, resetGeneration } =
     useFormFields();
+  const { isDraftRestored } = useFormSteps();
   // Also one from before /form last unmounted: the form behind it would send a second trip.
   const isGenerating = useIsMutating({ mutationKey: generateTripKey }) > 0;
 
@@ -40,8 +41,11 @@ function Form() {
   }
 
   return (
-    // `overflow-hidden` contains the step slide; popovers portal out of it.
-    <div className="overflow-hidden rounded-3xl bg-white p-6 sm:p-10">
+    // `overflow-hidden` contains the step slide; popovers portal out of it. Invisible, not
+    // absent, until a saved draft is back in, so step 1 doesn't flash before it.
+    <div
+      className={`overflow-hidden rounded-3xl bg-white p-6 sm:p-10 ${isDraftRestored ? "" : "invisible"}`}
+    >
       <ProgressBar />
       <form onSubmit={handleSubmit(processForm)} noValidate className="mt-10">
         <FormStep1 />

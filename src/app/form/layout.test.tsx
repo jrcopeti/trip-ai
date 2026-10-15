@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
-import { renderWithProviders } from "@/test/render";
+import { renderWithProviders, waitFor } from "@/test/render";
 import FormLayout from "@/app/form/layout";
 import Providers from "@/app/providers";
 import { useWatch } from "react-hook-form";
@@ -53,8 +53,8 @@ describe("the form's providers", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  // Leaving /form unmounts its layout, which is what clears the form after a trip.
-  it("start a fresh form each time /form mounts", async () => {
+  // Leaving /form unmounts its layout; the draft in sessionStorage is what brings the answers back.
+  it("bring the answers back when /form mounts again", async () => {
     const tree = (
       <FormLayout>
         <Probe />
@@ -70,6 +70,19 @@ describe("the form's providers", () => {
     first.unmount();
 
     renderWithProviders(tree);
+    await waitFor(() => expect(values.userName).toBe("Ana"));
+    expect(ctx.isWeatherSelected).toBe(true);
+    expect(ctx.isDraftRestored).toBe(true);
+  });
+
+  it("start empty when there is no draft", async () => {
+    renderWithProviders(
+      <FormLayout>
+        <Probe />
+        <ValuesProbe />
+      </FormLayout>,
+    );
+    await waitFor(() => expect(ctx.isDraftRestored).toBe(true));
     expect(values.userName).toBe("");
     expect(ctx.isWeatherSelected).toBe(false);
     expect(ctx.currentStep).toBe(0);

@@ -47,3 +47,6 @@ export const tints = {
 export const inkPill = `inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-sorbet-ink px-7 py-3.5 text-base font-semibold text-sorbet-offwhite transition-transform hover:scale-[1.03] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 motion-reduce:transition-none ${focusTriad}`;
 
 export const limePill = `inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-sorbet-lime px-7 py-3.5 text-base font-semibold text-sorbet-ink transition-transform hover:scale-[1.03] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 motion-reduce:transition-none ${focusTriad}`;
+
+/** A quiet text button, for a secondary action beside the pills. */
+export const quietButton = `cursor-pointer rounded-full px-2 py-1 text-sm font-semibold text-sorbet-ink/70 underline underline-offset-4 transition-colors hover:text-sorbet-ink motion-reduce:transition-none ${focusTriad}`;

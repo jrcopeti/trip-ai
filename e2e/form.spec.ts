@@ -4,6 +4,7 @@ import {
   fillStepOne,
   heading,
   next,
+  noHorizontalScroll,
   pickCountry,
   stubLookups,
   walkAllSteps,
@@ -138,6 +139,47 @@ test.describe("/form", () => {
     await expect(page.getByRole("radio", { name: "Couple" })).toBeChecked();
     await expect(page.getByRole("checkbox", { name: "25–30" })).toBeChecked();
     await expect(page.getByRole("combobox", { name: /passport/i })).toHaveValue("Brazil");
+  });
+
+  // The form's state goes with /form's layout; the tab's draft brings it back.
+  test("leaving mid-fill keeps the answers, and Start over clears them", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/form");
+    await fillStepOne(page);
+    await next(page);
+    await expect(heading(page)).toHaveText("Destination");
+    await pickCountry(page, /country/i, "Portugal");
+    await page.getByRole("textbox", { name: /city/i }).fill("Lisbon");
+    await expect(page.getByRole("button", { name: "Next" })).toBeEnabled({ timeout: 10_000 });
+
+    // At 390 the nav's links are behind its menu.
+    await page.getByRole("button", { name: "Menu" }).click();
+    await page.locator("#site-menu").getByRole("link", { name: "About", exact: true }).click();
+    await expect(page).toHaveURL(/\/about$/);
+    await page.goBack();
+
+    await expect(heading(page)).toHaveText("Destination");
+    await expect(page.getByText("Step 2 of 7")).toBeVisible();
+    await expect(page.getByRole("textbox", { name: /city/i })).toHaveValue("Lisbon");
+    await expect(page.getByRole("combobox", { name: /country/i })).toHaveValue("Portugal");
+    await page.getByRole("button", { name: "Back" }).click();
+    await expect(page.getByRole("textbox", { name: /name/i })).toHaveValue("Ana");
+
+    await page.getByRole("button", { name: "Start over" }).click();
+    const dialog = page.getByRole("alertdialog", { name: "Clear your answers?" });
+    await expect(dialog).toBeVisible();
+    await noHorizontalScroll(page);
+    await dialog.getByRole("button", { name: "Clear and start over" }).click();
+
+    await expect(dialog).toBeHidden();
+    await expect(heading(page)).toHaveText("Personal information");
+    await expect(page.getByRole("textbox", { name: /name/i })).toHaveValue("");
+    await expect(page.getByRole("button", { name: "Start over" })).toHaveCount(0);
+
+    // And the draft went with it: a reload is still an empty step 1.
+    await page.reload();
+    await expect(page.getByText("Step 1 of 7")).toBeVisible();
+    await expect(page.getByRole("textbox", { name: /name/i })).toHaveValue("");
   });
 
   test("a failed generation can be tried again without refilling the form", async ({ page }) => {

@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import ErrorToaster from "@/components/ui/ErrorToaster";
 import CustomToaster from "@/components/ui/CustomToaster";
 import type { TripRequest } from "@/lib/agent/request";
+import { clearFormDraft } from "@/lib/formDraft";
 
 // Keyed so `Form` can see a generation that outlived the provider: one left running
 // when the traveller left /form still redirects when it lands.
@@ -21,7 +22,9 @@ function useTripGeneration() {
     mutationFn: (request: TripRequest) => generateTrip(request),
 
     // The server wrote the row and chose its url; the trip page reads it from there.
+    // The answers are spent, so the draft goes; a failure keeps it for another try.
     onSuccess: (trip) => {
+      clearFormDraft();
       toast.custom(<CustomToaster message="Your trip has been generated!" />);
       router.replace(`/trips/${trip.tripUrl}`);
     },

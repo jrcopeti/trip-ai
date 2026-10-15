@@ -8,6 +8,8 @@ import { cleanup } from "@testing-library/react";
 // piles up in the same document and `getBy*` starts finding duplicates.
 afterEach(() => {
   cleanup();
+  // jsdom keeps storage for the whole file, so /form's draft would carry into the next test.
+  window.sessionStorage.clear();
 });
 
 // react-aria (under HeroUI) reads both of these on mount; jsdom ships neither.
