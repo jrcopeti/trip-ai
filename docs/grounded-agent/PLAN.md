@@ -62,6 +62,22 @@ This plan lives in `docs/grounded-agent/PLAN.md` and is updated as each
 branch lands. Each numbered branch is split into reviewable sub-branches (1a, 1b, …) when it
 starts, per CLAUDE.md's "Keep PRs small"; 2 and 4 will certainly need it.
 
+**README wrap-up, once per phase (2, 3, 4, 5, 6, 7), not per sub-branch.** The last branch of
+a phase ends with a review of `README.md` against everything the phase changed, folding in what
+a reader would care about: text and descriptions (features, how it works, stack, setup, env
+vars, commands) and screenshots of anything visible. Sub-branches such as 2b or 2d do not touch
+the README. A phase with nothing visible still gets the review and reports "no README change".
+Phase 2 gets its own last branch, 2h, which also catches up anything from phase 1 the README
+doesn't yet say.
+- Screenshots come from the Playwright MCP tools, saved in `public/screenshots/`, named
+  `desktop-<page>[-<step>].png` / `mobile-<page>[-<step>].png`.
+- **Laptop shots are all one size: a 1440 × 900 viewport, viewport capture, never full-page**,
+  so every desktop image is 1440 × 900. (Today's set varies from 668 to 1196 px tall; retake
+  those the phase touches; the rest in 2h.)
+- **Phone shots are 390 × 844, at most four in a row** (`width="24%"`; today's row uses 19%).
+  A set of more than four wraps onto another row.
+- Alt text says what is in frame; the README's captions say what the phase added.
+
 ### 1 · the prompt on the server, new fields, new model — split into 1a, 1b, 1c
 
 **Status: finished.** Every sub-branch is merged: 1a (#189), 1d (#190), 1b (#191), the tidy after
@@ -445,6 +461,35 @@ its own, in this order (2f is independent and can land any time):
   keeps QueryClient, MotionProvider and Toaster. CLAUDE.md's architecture section is rewritten.
 - **2f · `request-checks`: findings 2 and 3.** Passport checked with `oneOf` against the
   countries; required items refuse line breaks, on the server and the form.
+- **2g · dependencies: Renovate keeps them current, a branch each for the breaking ones.**
+  Evaluated: both. Nothing prompts an update today (no Dependabot or Renovate config), and
+  `npm outdated` shows the lockfile behind — `next` 16.2.6 → 16.4.1, `react` 19.2.6 → 19.3.1,
+  `@heroui/react` 3.0.5 → 3.2.6, `react-hook-form` 7.76 → 7.90, TanStack Query, Tailwind. CI
+  (typecheck, build, unit, e2e) is what makes automated PRs safe to merge. Breaking bumps need
+  code, not a merge button: Prisma 5 → 7, `@hookform/resolvers` 3 → 5 (tied to zod),
+  `@anthropic-ai/sdk` 0.100 → 0.134 (pre-1.0, touches `anthropicApi.ts`), `framer-motion` 12 → 14,
+  `react-day-picker` 9 → 10, `eslint` 9 → 10 (lint is already broken, so parked with it).
+  - **2g-a · `deps-minor`: clear the backlog by hand.** Every non-major bump in one PR, so
+    Renovate's first PR isn't enormous. Run `deps-safe`; green is `npx next typegen && npx tsc
+    --noEmit`, `npm test`, `npm run build`, `npm run test:e2e`; browser-check `/form`, a trip
+    page and `/saved-trips` (design-notes' gotchas on HeroUI and Tailwind bumps). Split off
+    `next`, `react`/`react-dom` + their `@types`, and `@heroui/react` if one breaks.
+  - **2g-b · `renovate`: `renovate.json`.** One weekly PR for all non-major bumps; separate PRs for
+    `next`, `react`/`react-dom` + `@types`, `@heroui/react`, `@anthropic-ai/sdk`, `prisma` +
+    `@prisma/client`; majors held behind the dependency dashboard until approved; security
+    updates immediately; GitHub Actions versions included. Installing the Renovate app and
+    the repository's branch protection are outward-facing — ask first. Bot PRs run the same four
+    required checks (e2e needs no secrets). Merged by hand after a look at the diff; no automerge.
+  - **2g-c… · the majors, one branch each, by request, in this order:** `@anthropic-ai/sdk`
+    (touches the agent, so it goes before 3–7 build on it), `@hookform/resolvers` with zod,
+    `framer-motion`, `react-day-picker`, Prisma 7 (schema, client generation, the Neon
+    adapter, the e2e push script). Each: plan note on what changed, tests with the change.
+  - Order: 2g-a → 2g-b → majors. Independent of 2e/2f and of branches 3–7, except that the SDK
+    major should land before 3.
+- **2h · `readme-phase-2`: the README, caught up.** Review `README.md` against phases 1 and 2:
+  the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
+  weather by coordinates, the form-scoped providers, architecture and commands. Retake the
+  screenshots that changed at the sizes above.
 
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`
@@ -519,6 +564,7 @@ branch's diff.
 - `scripts/usage-report.ts` (`npm run usage`): trips, $ per trip (p50/p95), seconds per trip
   (p50/p95), cache hit rate, failures by stop reason. A script, not a page, since there's no auth for
   an admin page.
+- README wrap-up (see Branches), in this phase's last branch.
 
 ### 4 · `agent-tools`: the loop, the tools, live progress
 - `src/lib/agent/loop.ts`: a manual loop (so each iteration's usage and the progress events can be
@@ -546,6 +592,7 @@ branch's diff.
 - Trip page: each tour card shows its address and a "map" link; a Sources section; an entry-requirements
   card. Read `docs/design-notes.md` first.
 - e2e: the fixture path (`E2E_FIXTURES=1`) returns a fixture stream with the new fields.
+- README wrap-up (see Branches), in this phase's last branch.
 
 ### 5 · `agent-refine`: change the trip from the trip page
 - `refineTrip({ trip, instruction })` is stateless: the current trip JSON plus the request go to the
@@ -556,6 +603,7 @@ branch's diff.
   5 refinements per trip, with the SSE progress. Logged as `kind: refine`.
 - Tests: the route validates the instruction (length, presence); a component test for the box; an e2e
   test on the fixture path.
+- README wrap-up (see Branches), in this phase's last branch. Shots of the live progress loader and the trip's places and sources.
 
 ### 6 · `agent-evals`
 - Follow the claude-api skill's `shared/evals/build-eval.md`. `evals/cases.json` has about 20
@@ -568,6 +616,7 @@ branch's diff.
   interests; voice (second person, each tour's reason tied to the inputs, no repetitive narration).
 - `npm run eval` writes a report: score per case, plus **$ and seconds per case** from `Generation`
   rows (`kind: eval`). Real API spend, so **ask before each run**, with the cost estimated first.
+- README wrap-up (see Branches), in this phase's last branch.
 
 ### 7 · `agent-mcp`: trip-ai as an MCP server
 - `src/app/api/mcp/route.ts` using `@modelcontextprotocol/sdk` (Streamable HTTP), with tools
@@ -577,6 +626,7 @@ branch's diff.
 - README: how to add it to Claude Desktop / Claude Code.
 - Later, not in this plan: connect remote MCP servers to the agent (Messages API MCP connector, beta
   `mcp-client-2025-11-20`) once there's one worth using.
+- README wrap-up (see Branches), in this phase's last branch. Also the final pass: the feature list and stack matched to what shipped, MCP setup.
 
 ## Reused as-is
 `fetchForecast` (`src/app/api/openWeatherApi.ts`), `useGeoNames` city validation, `TOUR_KINDS`
