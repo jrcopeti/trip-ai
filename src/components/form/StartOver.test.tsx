@@ -5,7 +5,7 @@ import { FormProvider } from "@/context/FormContext";
 import Form from "@/components/form/Form";
 import { readFormDraft, writeFormDraft } from "@/lib/formDraft";
 import { validInputs } from "@/test/fixtures";
-import { buttons, personal, progress, startOver, stepCopy } from "@/components/form/content";
+import { buttons, destination, personal, progress, startOver, stepCopy } from "@/components/form/content";
 import toast from "react-hot-toast";
 
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
@@ -75,7 +75,7 @@ describe("the form's draft", () => {
   });
 
   // The restored city is checked again once the provider mounts; its answer is step 2's to say.
-  it("doesn't announce the city check on a later step", async () => {
+  it("doesn't announce a found city on a later step", async () => {
     writeFormDraft(savedDraft);
     const view = renderForm();
     await screen.findByRole("heading", { level: 1, name: stepCopy[2].title });
@@ -93,6 +93,27 @@ describe("the form's draft", () => {
     );
 
     expect(toast.custom).not.toHaveBeenCalled();
+  });
+
+  // Next stays off while the check fails, so a failure says why on any step.
+  it("still announces a failed city check on a later step", async () => {
+    writeFormDraft(savedDraft);
+    const view = renderForm();
+    await screen.findByRole("heading", { level: 1, name: stepCopy[2].title });
+
+    geoNames.mockReturnValue({
+      isCityValid: false,
+      isLoadingCityValid: false,
+      message: destination.unavailable,
+      place: null,
+    });
+    view.rerender(
+      <FormProvider>
+        <Form />
+      </FormProvider>,
+    );
+
+    expect(toast.custom).toHaveBeenCalledTimes(1);
   });
 
   it("saves what is typed, and the step", async () => {

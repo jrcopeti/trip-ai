@@ -568,13 +568,14 @@ its own, in this order (2f is independent and can land any time):
     button (its `Trigger` is a `role="button"` div); Escape and a click outside cancel; on
     confirm focus goes to the name field, since the button that opened it is gone.
     Found in the browser: a draft restored past step 2 re-checks its city, and step 2's
-    announce effect (above its early return) toasted "Found Lisbon" on step 3; it now announces
-    only on step 2. Known, closed by 2e-e: a draft restored past the dates step with the
+    announce effect (above its early return) toasted "Found Lisbon" on step 3; a find is now
+    announced only on step 2, while a failure still toasts on any step, since it keeps Next off
+    (from the review). Known, closed by 2e-e: a draft restored past the dates step with the
     weather on has no forecast (the form fetched it on Next), so that trip goes without one.
     Tests: `formDraft.test` (round trip, malformed, throwing storage); the layout restores on
     remount and starts empty without a draft; success clears and failure keeps it
     (`useTripGeneration.test`); `StartOver.test` (restored step and answers, saving as you type,
-    no toast off step 2, the button's visibility, cancel keeps, confirm clears and focuses).
+    no "Found" toast off step 2 but a failure's, the button's visibility, cancel keeps, confirm clears and focuses).
     `src/test/setup.ts` clears sessionStorage after each test. e2e (`form.spec`, at 390): two
     steps, About through the menu, Back: the answers and step are there; start over → empty
     step 1, and still empty after a reload.

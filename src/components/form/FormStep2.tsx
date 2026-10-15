@@ -25,15 +25,15 @@ function FormStep2() {
 
   // The check lives in FormProvider and outlasts this step: "Try again" after a failed trip
   // remounts the form, and a result already announced must not toast a second time. A
-  // restored draft re-checks its city on whatever step it reopens on; only step 2 says so.
+  // restored draft re-checks its city on whatever step it reopens on: a find is step 2's to
+  // say, but a failure keeps Next off on any step, so it always says why.
   const announced = useRef(message);
 
   useEffect(() => {
     if (message === announced.current) return;
     announced.current = message;
-    if (currentStep !== 1) return;
 
-    if (isCityValid && !isLoadingCityValid) {
+    if (isCityValid && !isLoadingCityValid && currentStep === 1) {
       toast.custom(<CustomToaster message={message} />);
     }
 
