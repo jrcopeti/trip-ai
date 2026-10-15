@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { renderWithProviders, screen } from "@/test/render";
 import { TripProvider } from "@/context/TripContext";
 import { FormProvider } from "@/context/FormContext";
+import { useWatch } from "react-hook-form";
 import { useFormData } from "@/hooks/useFormData";
 import Form from "@/components/form/Form";
 import { generateTrip } from "@/app/api/anthropicApi";
@@ -12,7 +13,7 @@ import { generatedTripFixture, validInputs } from "@/test/fixtures";
 import { failure, stepCopy } from "@/components/form/content";
 import { resetNextStubs } from "@/test/stubs/next";
 import toast from "react-hot-toast";
-import type { FieldName, FormContextType } from "@/types";
+import type { FieldName, FormContextType, Inputs } from "@/types";
 
 // The real TripProvider and FormProvider, so the mutation's error and its reset
 // drive what Form shows. Only the server action and the browser-side lookups are mocked.
@@ -42,9 +43,12 @@ vi.mock("@/hooks/useCountries", () => ({
 
 const mockGenerate = vi.mocked(generateTrip);
 let ctx: FormContextType;
+let values: Inputs;
 
 function Probe() {
   ctx = useFormData();
+  // The answers as the review step reads them.
+  values = useWatch({ control: ctx.control }) as Inputs;
   return null;
 }
 
@@ -87,8 +91,8 @@ describe("Form — a failed generation", () => {
       await screen.findByRole("heading", { level: 1, name: stepCopy[0].title }),
     ).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: failure.message })).not.toBeInTheDocument();
-    expect(ctx.reviewFormData.userName).toBe(validInputs.userName);
-    expect(ctx.reviewFormData.city).toBe(validInputs.city);
+    expect(values.userName).toBe(validInputs.userName);
+    expect(values.city).toBe(validInputs.city);
   });
 
   it("doesn't announce the city check again when Try again brings the form back", async () => {

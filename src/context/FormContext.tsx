@@ -1,22 +1,25 @@
 "use client";
-import { useState, useEffect, createContext } from "react";
+import { useState, useEffect, createContext, useCallback, useMemo } from "react";
 import type {
+  CityCheckContextType,
   FieldName,
   FinalDataTypes,
-  FormContextType,
+  FormFieldsContextType,
+  FormStepsContextType,
   Inputs,
 } from "@/types";
 import { useCountries } from "@/hooks/useCountries";
 import { idleCityCheck, useGeoNames } from "@/hooks/useGeoNames";
 import { useWeather } from "@/hooks/useWeather";
 import { useTripResponse } from "@/hooks/useTripResponse";
-import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import { SubmitHandler, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { steps } from "@/data";
 import { FormDataSchema } from "@/lib/schema";
 import { transformInputsToFinalData } from "@/lib/formData";
 import { toTripRequest } from "@/lib/agent/request";
 
+// Also `useForm`'s defaults, so the two can't drift apart.
 const defaultFormData: Inputs = {
   userName: "",
   travellers: "",
@@ -31,7 +34,7 @@ const defaultFormData: Inputs = {
   budget: "",
   transport: "",
   requiredItems: [{ item: "" }],
-  interests: [""],
+  interests: [] as unknown as Inputs["interests"],
   note: "",
   startDate: "",
   endDate: "",
@@ -40,20 +43,25 @@ const defaultFormData: Inputs = {
 
 const initialFinalData = transformInputsToFinalData(defaultFormData);
 
-const defaultContextValue: FormContextType = {
-  formData: initialFinalData,
-  setFormData: () => {},
+// Three contexts, each memoised, so a keystroke in the city re-renders only what reads the
+// city check, and a step change only what reads the step.
+const FormStepsContext = createContext<FormStepsContextType>({
   currentStep: 0,
   delta: 0,
+  stepValue: 0,
+  next: () => {},
+  prev: () => {},
+});
+
+const FormFieldsContext = createContext<FormFieldsContextType>({
+  formData: initialFinalData,
+  setFormData: () => {},
   control: undefined,
   errors: {},
+  isValid: false,
   handleSelectionAutocomplete: () => {},
   handleSubmit: () => () => {},
   processForm: () => {},
-  stepValue: 0,
-  cityWatch: "",
-  countryCode: "",
-  cityCheck: idleCityCheck,
   fields: [],
   append: () => {},
   insert: () => {},
@@ -61,13 +69,11 @@ const defaultContextValue: FormContextType = {
   setValue: () => {},
   isWeatherSelected: false,
   setIsWeatherSelected: () => {},
-  isValid: false,
-  reviewFormData: defaultFormData,
-  next: () => {},
-  prev: () => {},
-};
+});
 
-const FormContext = createContext<FormContextType>(defaultContextValue);
+const CityCheckContext = createContext<CityCheckContextType>({
+  cityCheck: idleCityCheck,
+});
 
 function FormProvider({ children }: { children: React.ReactNode }) {
   const [formData, setFormData] = useState<FinalDataTypes>(initialFinalData);
@@ -77,38 +83,13 @@ function FormProvider({ children }: { children: React.ReactNode }) {
 
   const [isWeatherSelected, setIsWeatherSelected] = useState<boolean>(false);
 
-  const {
-    handleSubmit,
-    control,
-    watch,
-    trigger,
-    getValues,
-    getFieldState,
-    setValue,
-    formState: { errors, isValid },
-  } = useForm<Inputs>({
-    resolver: zodResolver(FormDataSchema),
-    defaultValues: {
-      userName: "",
-      travellers: "",
-      ageRanges: [],
-      passport: "",
-      type: "",
-      pace: "",
-      city: "",
-      country: "",
-      luggageSize: "",
-      accommodation: "",
-      budget: "",
-      transport: "",
-      requiredItems: [{ item: "" }],
-      interests: [],
-      note: "",
-      startDate: "",
-      endDate: "",
-      agreement: false,
-    },
-  });
+  const { handleSubmit, control, watch, trigger, getFieldState, setValue, formState } =
+    useForm<Inputs>({
+      resolver: zodResolver(FormDataSchema),
+      defaultValues: defaultFormData,
+    });
+  // RHF edits `errors` in place, so the memo below keys on `formState`, a new object per change.
+  const { errors, isValid } = formState;
 
   const { fields, append, insert, remove } = useFieldArray({
     control,
@@ -120,9 +101,9 @@ function FormProvider({ children }: { children: React.ReactNode }) {
   const { countries } = useCountries();
   const { generateForecast, forecastData } = useWeather();
 
-  const cityWatch = watch("city");
-  const countryWatch = watch("country");
-  const reviewFormData = getValues();
+  // `useWatch`, not `watch`: a root `watch` re-renders `useForm`'s host with a new
+  // `formState` on every keystroke, and every context with it.
+  const [cityWatch, countryWatch] = useWatch({ control, name: ["city", "country"] });
 
   const findCountry = countries.find(
     (country) => country.value === countryWatch,
@@ -132,23 +113,23 @@ function FormProvider({ children }: { children: React.ReactNode }) {
   const cityCheck = useGeoNames({ city: cityWatch, countryCode });
 
   // workaround to get the right value from the autocomplete
-  const handleSelectionAutocomplete = (
-    selectedKey: string | number | null,
-    fieldName: FieldName,
-  ) => {
-    // Emptying the input selects `null`: clear the field, or the previous
-    // country would stay in the form and pass validation.
-    if (selectedKey === null) {
-      setValue(fieldName, "");
-      return;
-    }
-    const selectedCountry = countries.find(
-      (country) => country.code === selectedKey,
-    );
-    if (selectedCountry) {
-      setValue(fieldName, selectedCountry.value);
-    }
-  };
+  const handleSelectionAutocomplete = useCallback(
+    (selectedKey: string | number | null, fieldName: FieldName) => {
+      // Emptying the input selects `null`: clear the field, or the previous
+      // country would stay in the form and pass validation.
+      if (selectedKey === null) {
+        setValue(fieldName, "");
+        return;
+      }
+      const selectedCountry = countries.find(
+        (country) => country.code === selectedKey,
+      );
+      if (selectedCountry) {
+        setValue(fieldName, selectedCountry.value);
+      }
+    },
+    [countries, setValue],
+  );
 
   // Errors appear on Next (`trigger` in `next`), but should go as soon as the
   // field is fixed. Any value change re-checks the current step's fields that
@@ -168,7 +149,8 @@ function FormProvider({ children }: { children: React.ReactNode }) {
 
   const stepValue = steps[currentStep].stepValue;
 
-  const next = async () => {
+  const place = cityCheck.place;
+  const next = useCallback(async () => {
     const fields = steps[currentStep].fields;
     const output = await trigger(fields as FieldName[], {
       shouldFocus: true,
@@ -176,21 +158,21 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     if (!output) return;
 
     // Next is disabled until step 2's check finds the city, so its place is here by the dates step.
-    if (isWeatherSelected && cityCheck.place && currentStep === steps.length - 3) {
-      generateForecast({ lat: cityCheck.place.lat, lon: cityCheck.place.lng });
+    if (isWeatherSelected && place && currentStep === steps.length - 3) {
+      generateForecast({ lat: place.lat, lon: place.lng });
     }
     setPrevStep(currentStep);
     setCurrentStep((step) => step + 1);
-  };
+  }, [trigger, isWeatherSelected, place, currentStep, generateForecast]);
 
-  const prev = () => {
+  const prev = useCallback(() => {
     if (currentStep > 0) {
       setPrevStep(currentStep);
       setCurrentStep((step) => step - 1);
     }
-  };
+  }, [currentStep]);
 
-  const processForm: SubmitHandler<Inputs> = (data) => {
+  const processForm: SubmitHandler<Inputs> = useCallback((data) => {
     const { userName, city, note, requiredItems } = data;
 
     const transformedRequiredItems =
@@ -222,44 +204,62 @@ function FormProvider({ children }: { children: React.ReactNode }) {
       requiredItems: transformedRequiredItems,
       byWeather: isWeatherSelected,
       countryCode: submittedCode,
-      lat: cityCheck.place?.lat ?? null,
-      lng: cityCheck.place?.lng ?? null,
+      lat: place?.lat ?? null,
+      lng: place?.lng ?? null,
     };
     setFormData(finalData);
-  };
+  }, [countries, generateResponseAI, isWeatherSelected, forecastData, place]);
+
+  const stepsValue = useMemo(
+    () => ({ currentStep, delta, stepValue, next, prev }),
+    [currentStep, delta, stepValue, next, prev],
+  );
+
+  const fieldsValue = useMemo(
+    () => ({
+      formData,
+      setFormData,
+      control,
+      errors,
+      isValid,
+      handleSelectionAutocomplete,
+      handleSubmit,
+      processForm,
+      fields,
+      append,
+      insert,
+      remove,
+      setValue,
+      isWeatherSelected,
+      setIsWeatherSelected,
+    }),
+    // `formState` stands in for `errors` and `isValid` (see above).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      formState,
+      formData,
+      control,
+      handleSelectionAutocomplete,
+      handleSubmit,
+      processForm,
+      fields,
+      append,
+      insert,
+      remove,
+      setValue,
+      isWeatherSelected,
+    ],
+  );
+
+  const cityValue = useMemo(() => ({ countryCode, cityCheck }), [countryCode, cityCheck]);
 
   return (
-    <FormContext.Provider
-      value={{
-        formData,
-        setFormData,
-        currentStep,
-        delta,
-        control,
-        errors,
-        handleSelectionAutocomplete,
-        handleSubmit,
-        processForm,
-        cityWatch,
-        countryCode,
-        cityCheck,
-        fields,
-        append,
-        insert,
-        remove,
-        setValue,
-        isWeatherSelected,
-        setIsWeatherSelected,
-        isValid,
-        reviewFormData,
-        stepValue,
-        next,
-        prev,
-      }}
-    >
-      {children}
-    </FormContext.Provider>
+    <FormStepsContext.Provider value={stepsValue}>
+      <FormFieldsContext.Provider value={fieldsValue}>
+        <CityCheckContext.Provider value={cityValue}>{children}</CityCheckContext.Provider>
+      </FormFieldsContext.Provider>
+    </FormStepsContext.Provider>
   );
 }
 
-export { FormProvider, FormContext };
+export { FormProvider, FormStepsContext, FormFieldsContext, CityCheckContext };

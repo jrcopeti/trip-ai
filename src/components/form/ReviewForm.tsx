@@ -1,4 +1,5 @@
-import { useFormData } from "@/hooks/useFormData";
+import { useWatch } from "react-hook-form";
+import { useFormFields } from "@/hooks/useFormData";
 import { durationInDays, displayDuration } from "@/lib/utils";
 import {
   ageRanges as ageRangeOptions,
@@ -9,13 +10,16 @@ import {
   types,
 } from "@/data";
 import { review } from "./content";
+import type { Inputs } from "@/types";
 
 /**
  * Everything entered, as a definition list. Chosen options show their labels,
  * as the chips did; typed values show as written.
  */
 function ReviewForm() {
-  const { reviewFormData, isWeatherSelected: weather } = useFormData();
+  const { control, isWeatherSelected: weather } = useFormFields();
+  // Subscribed here, on the last step only: the provider no longer re-renders on every value.
+  const reviewFormData = useWatch({ control }) as Inputs;
 
   const {
     userName,

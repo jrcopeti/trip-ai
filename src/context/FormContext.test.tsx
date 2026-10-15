@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
 import { renderWithProviders, screen, waitFor } from "@/test/render";
 import { FormProvider } from "@/context/FormContext";
+import { useWatch } from "react-hook-form";
 import { useFormData } from "@/hooks/useFormData";
 import { steps } from "@/data";
 import { lisbonPlace, validInputs, validTripRequest } from "@/test/fixtures";
@@ -39,9 +40,12 @@ vi.mock("@/hooks/useCountries", () => ({
 
 /** Hands the live context out to the test and renders the current step number. */
 let ctx: FormContextType;
+let values: Inputs;
 
 function Probe() {
   ctx = useFormData();
+  // The answers as the review step reads them.
+  values = useWatch({ control: ctx.control }) as Inputs;
   return <div data-testid="step">{ctx.currentStep}</div>;
 }
 
@@ -278,19 +282,15 @@ describe("FormContext — country autocomplete", () => {
     await act(async () => {
       ctx.handleSelectionAutocomplete("pt", "country");
     });
-    expect(ctx.reviewFormData.country).toBe("Portugal");
+    expect(values.country).toBe("Portugal");
   });
 
   it("writes the passport's country name from the selected code", async () => {
     renderForm();
     await act(async () => {
       ctx.handleSelectionAutocomplete("pt", "passport");
-      // `reviewFormData` is `getValues()`, read at render time. Only `city` and
-      // `country` are watched, so writing to `passport` alone re-renders
-      // nothing and the context the test holds would still be the old one.
-      ctx.setValue("city", "Lisbon");
     });
-    expect(ctx.reviewFormData.passport).toBe("Portugal");
+    expect(values.passport).toBe("Portugal");
   });
 
   it("clears the country when the selection is cleared", async () => {
@@ -301,7 +301,7 @@ describe("FormContext — country autocomplete", () => {
     await act(async () => {
       ctx.handleSelectionAutocomplete(null, "country");
     });
-    expect(ctx.reviewFormData.country).toBe("");
+    expect(values.country).toBe("");
   });
 
   it("clears the passport when the selection is cleared", async () => {
@@ -309,10 +309,8 @@ describe("FormContext — country autocomplete", () => {
     await act(async () => {
       ctx.handleSelectionAutocomplete("pt", "passport");
       ctx.handleSelectionAutocomplete(null, "passport");
-      // Re-render so `reviewFormData` is read again (see above).
-      ctx.setValue("city", "Lisbon");
     });
-    expect(ctx.reviewFormData.passport).toBe("");
+    expect(values.passport).toBe("");
   });
 
   it("passes step 0 with no passport — it is optional", async () => {
@@ -420,7 +418,7 @@ describe("FormContext — processForm", () => {
     });
     expect(screen.getByTestId("step")).toHaveTextContent("2");
     expect(ctx.isWeatherSelected).toBe(true);
-    expect(ctx.reviewFormData.userName).toBe(validInputs.userName);
+    expect(values.userName).toBe(validInputs.userName);
   });
 
   it("sends the forecast days when weather is selected", async () => {

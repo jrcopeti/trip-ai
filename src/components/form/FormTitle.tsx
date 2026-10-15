@@ -1,9 +1,9 @@
-import { useFormData } from "@/hooks/useFormData";
+import { useFormSteps } from "@/hooks/useFormData";
 import { stepCopy } from "./content";
 
 /** The step's title is the page's h1: there is no other heading on `/form`. */
 function FormTitle() {
-  const { currentStep } = useFormData();
+  const { currentStep } = useFormSteps();
   const { title, subtitle } = stepCopy[currentStep];
 
   return (

@@ -80,23 +80,25 @@ export interface WeatherContextType {
   errorForecast: unknown;
 }
 
-export interface FormContextType {
-  formData: FinalDataTypes;
-  setFormData: (data: FinalDataTypes) => void;
+export interface FormStepsContextType {
   currentStep: number;
   delta: number;
+  stepValue: number;
+  next: () => void;
+  prev: () => void;
+}
+export interface FormFieldsContextType {
+  formData: FinalDataTypes;
+  setFormData: (data: FinalDataTypes) => void;
   control: Control<Inputs> | undefined;
   errors: FieldErrors<Inputs>;
+  isValid: boolean;
   handleSelectionAutocomplete: (
     selectedKey: string | number | null,
     fieldName: FieldName,
   ) => void;
   handleSubmit: (fn: SubmitHandler<Inputs>) => (e: React.FormEvent) => void;
   processForm: SubmitHandler<Inputs>;
-  stepValue: number;
-  cityWatch: string;
-  countryCode?: string;
-  cityCheck: CityCheck;
   fields: { id: string }[];
   append: (data: { item: string }) => void;
   insert: (index: number, data: { item: string }) => void;
@@ -104,11 +106,14 @@ export interface FormContextType {
   setValue: (name: FieldName, value: string) => void;
   isWeatherSelected: boolean;
   setIsWeatherSelected: (value: boolean) => void;
-  isValid: boolean;
-  reviewFormData: Inputs;
-  next: () => void;
-  prev: () => void;
 }
+export interface CityCheckContextType {
+  countryCode?: string;
+  cityCheck: CityCheck;
+}
+export type FormContextType = FormStepsContextType &
+  FormFieldsContextType &
+  CityCheckContextType;
 export interface FinalDataTypes extends Omit<Inputs, "requiredItems"> {
   requiredItems: string[];
   // Kept from the submit: the form resets once the traveller leaves /form, before the save.

@@ -1,5 +1,5 @@
 "use client";
-import { useFormData } from "@/hooks/useFormData";
+import { useFormFields, useFormSteps } from "@/hooks/useFormData";
 import { Checkbox } from "@heroui/react";
 import { Controller } from "react-hook-form";
 import StepPanel from "./StepPanel";
@@ -8,7 +8,8 @@ import { review } from "./content";
 
 /** The review, and the agreement Submit waits on. Submit itself is in `FormButtons`. */
 function FormStep7() {
-  const { currentStep, control } = useFormData();
+  const { currentStep } = useFormSteps();
+  const { control } = useFormFields();
 
   if (currentStep !== 6) return null;
 

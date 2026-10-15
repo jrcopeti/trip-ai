@@ -3,9 +3,10 @@ import { act } from "react";
 import { renderWithProviders } from "@/test/render";
 import FormLayout from "@/app/form/layout";
 import Providers from "@/app/providers";
+import { useWatch } from "react-hook-form";
 import { useFormData } from "@/hooks/useFormData";
 import { resetNextStubs } from "@/test/stubs/next";
-import type { FormContextType } from "@/types";
+import type { FormContextType, Inputs } from "@/types";
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("@/app/api/geoNamesApi", () => ({ resolvePlace: vi.fn() }));
@@ -13,9 +14,16 @@ vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("@/app/api/forecastAction", () => ({ forecastForForm: vi.fn() }));
 
 let ctx: FormContextType;
+let values: Inputs;
 
 function Probe() {
   ctx = useFormData();
+  return null;
+}
+
+// The answers as the review step reads them; only inside the form, where there is a control.
+function ValuesProbe() {
+  values = useWatch({ control: useFormData().control }) as Inputs;
   return null;
 }
 
@@ -50,6 +58,7 @@ describe("the form's providers", () => {
     const tree = (
       <FormLayout>
         <Probe />
+        <ValuesProbe />
       </FormLayout>
     );
     const first = renderWithProviders(tree);
@@ -57,11 +66,11 @@ describe("the form's providers", () => {
       ctx.setValue("userName", "Ana");
       ctx.setIsWeatherSelected(true);
     });
-    expect(ctx.reviewFormData.userName).toBe("Ana");
+    expect(values.userName).toBe("Ana");
     first.unmount();
 
     renderWithProviders(tree);
-    expect(ctx.reviewFormData.userName).toBe("");
+    expect(values.userName).toBe("");
     expect(ctx.isWeatherSelected).toBe(false);
     expect(ctx.currentStep).toBe(0);
   });

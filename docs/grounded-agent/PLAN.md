@@ -514,6 +514,18 @@ its own, in this order (2f is independent and can land any time):
     `reviewFormData = getValues()` becomes a reactive read. `defaultFormData` and `useForm`'s
     defaults are one object (they differ today: `interests: [""]` vs `[]`). Measure commits on the
     city field before and after.
+    **Status: done on `form-context-split`, staged, not committed.** As built: three memoised
+    contexts, `FormStepsContext`, `FormFieldsContext` and `CityCheckContext`, read with
+    `useFormSteps`, `useFormFields` and `useCityCheck`; `useFormData` (all three) stays for test
+    probes. `cityWatch` and `reviewFormData` left the context: nothing read the first, and
+    `ReviewForm` reads the answers with `useWatch`. The provider reads the city and country with
+    `useWatch`, not `watch`: a root `watch` hands `useForm`'s host a new `formState` per keystroke.
+    The fields memo keys on `formState`, not `errors`, which RHF edits in place. The shared
+    defaults keep `interests: []`, `useForm`'s; `useCountries` returns one empty list while loading.
+    Measured (`FormContext.renders.test.tsx`, a Profiler per component, typing "Lisbon"): the
+    progress bar and step 1 rendered 10 times each before, 0 after; step 2, 11 both ways, its
+    field included. Checked in the browser: the city check, the review after a change two steps
+    back, 390 with reduced motion, no console errors.
   - **2e-c · `form-state-dead`: what nothing reads goes.** `formData`/`setFormData`/
     `FinalDataTypes`; `TripContext` becomes `useTripGeneration`; the form's forecast becomes a
     form-local hook (`WeatherContext` goes). CLAUDE.md's architecture section is rewritten.

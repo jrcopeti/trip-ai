@@ -1,5 +1,5 @@
 "use client";
-import { useFormData } from "@/hooks/useFormData";
+import { useFormFields, useFormSteps } from "@/hooks/useFormData";
 import { TextField, Label, Input, FieldError } from "@heroui/react";
 import { Controller, useController } from "react-hook-form";
 import { ageRanges, travellers } from "@/data";
@@ -12,7 +12,8 @@ import { personal } from "./content";
 import { field, fieldError, fieldInput, fieldLabel, tints } from "./styles";
 
 function FormStep1() {
-  const { currentStep, control, errors, handleSelectionAutocomplete } = useFormData();
+  const { currentStep } = useFormSteps();
+  const { control, errors, handleSelectionAutocomplete } = useFormFields();
   const { field: group } = useController({ name: "travellers", control });
   const { field: ages } = useController({ name: "ageRanges", control });
 

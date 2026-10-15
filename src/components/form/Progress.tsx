@@ -1,11 +1,11 @@
 "use client";
-import { useFormData } from "@/hooks/useFormData";
+import { useFormSteps } from "@/hooks/useFormData";
 import { ProgressBar } from "@heroui/react";
 import { steps } from "@/data";
 import { progress } from "./content";
 
 function FormProgressBar() {
-  const { stepValue, currentStep } = useFormData();
+  const { stepValue, currentStep } = useFormSteps();
 
   return (
     <section className="flex flex-col gap-3">
