@@ -23,7 +23,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { steps } from "@/data";
 import { FormDataSchema } from "@/lib/schema";
 import { toTripRequest } from "@/lib/agent/request";
-import { clearFormDraft, readFormDraft, writeFormDraft } from "@/lib/formDraft";
+import { clearFormDraft, readFormDraft, resumeStep, writeFormDraft } from "@/lib/formDraft";
+import { weatherDates } from "@/lib/utils";
 
 // Also `useForm`'s defaults, so the two can't drift apart.
 const defaultFormData: Inputs = {
@@ -115,14 +116,19 @@ function FormProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const draft = readFormDraft();
     if (draft) {
-      const step = Math.min(Math.max(Math.trunc(draft.step), 0), steps.length - 1);
-      reset({ ...defaultFormData, ...draft.values }, { keepDefaultValues: true });
+      const values = { ...defaultFormData, ...draft.values };
+      // A weather plan starts now, as ticking the box does; a picked date that has passed
+      // reopens its step with the error showing, or Submit would be off with no reason.
+      if (draft.isWeatherSelected) Object.assign(values, weatherDates());
+      const { step, invalid } = resumeStep(values, draft.step);
+      reset(values, { keepDefaultValues: true });
       setPrevStep(step);
       setCurrentStep(step);
       setIsWeatherSelected(draft.isWeatherSelected);
+      if (invalid.length) trigger(invalid);
     }
     setIsDraftRestored(true);
-  }, [reset]);
+  }, [reset, trigger]);
 
   const { fields, append, insert, remove } = useFieldArray({
     control,

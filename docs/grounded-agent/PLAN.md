@@ -570,7 +570,14 @@ its own, in this order (2f is independent and can land any time):
     Found in the browser: a draft restored past step 2 re-checks its city, and step 2's
     announce effect (above its early return) toasted "Found Lisbon" on step 3; a find is now
     announced only on step 2, while a failure still toasts on any step, since it keeps Next off
-    (from the review). Known, closed by 2e-e: a draft restored past the dates step with the
+    (from the review). From the second review: a draft restored a day later held a start date
+    the schema now refuses, so "Plan my trip" stayed off on the review step with nothing saying
+    why. `resumeStep` (`formDraft.ts`) reopens on the first step before the saved one whose
+    answers fail, and the provider `trigger`s them so the error shows; a weather plan's dates
+    are reset to now first (`weatherDates`, `lib/utils.ts`, shared with step 5's checkbox). The
+    storage key is versioned (`trip-ai:form-draft:v1`): bump it when `Inputs` changes shape, so
+    an older build's draft in an open tab is dropped rather than restored unrenderable.
+    Known, closed by 2e-e: a draft restored past the dates step with the
     weather on has no forecast (the form fetched it on Next), so that trip goes without one.
     Tests: `formDraft.test` (round trip, malformed, throwing storage); the layout restores on
     remount and starts empty without a draft; success clears and failure keeps it

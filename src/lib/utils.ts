@@ -124,8 +124,14 @@ const selectDailyForecasts = (
   return forecasts;
 };
 
+/** A weather plan's dates: five days from now, set when the box is ticked or a draft restored. */
+function weatherDates(now: Dayjs = dayjs()) {
+  return { startDate: now.toISOString(), endDate: now.add(5, "day").toISOString() };
+}
+
 export {
   cn,
+  weatherDates,
   formatDate,
   placeWeatherIcons,
   durationInDays,

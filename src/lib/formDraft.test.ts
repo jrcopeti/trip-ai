@@ -1,11 +1,18 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { FORM_DRAFT_KEY, clearFormDraft, readFormDraft, writeFormDraft } from "@/lib/formDraft";
+import {
+  FORM_DRAFT_KEY,
+  clearFormDraft,
+  readFormDraft,
+  resumeStep,
+  writeFormDraft,
+} from "@/lib/formDraft";
 import { validInputs } from "@/test/fixtures";
 
 const draft = { values: validInputs, step: 3, isWeatherSelected: true };
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.useRealTimers();
 });
 
 describe("the form draft", () => {
@@ -50,5 +57,38 @@ describe("the form draft", () => {
     expect(() => writeFormDraft(draft)).not.toThrow();
     expect(readFormDraft()).toBeNull();
     expect(() => clearFormDraft()).not.toThrow();
+  });
+});
+
+// `validInputs`' dates are in May 2030; the clock is pinned before them, in local time.
+describe("resumeStep", () => {
+  const pin = (date: Date) => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(date);
+  };
+
+  it("keeps the saved step when every answer still holds", () => {
+    pin(new Date(2030, 3, 1, 12, 0, 0));
+    expect(resumeStep(validInputs, 6)).toEqual({ step: 6, invalid: [] });
+  });
+
+  // Left on the review step, back the day after the trip was meant to start.
+  it("goes back to the dates step when the start date has passed", () => {
+    pin(new Date(2030, 4, 3, 12, 0, 0));
+    expect(resumeStep(validInputs, 6)).toEqual({ step: 4, invalid: ["startDate"] });
+  });
+
+  // Steps after the saved one are just not filled in yet; that's not a reason to move.
+  it("ignores steps the traveller hasn't reached", () => {
+    pin(new Date(2030, 4, 3, 12, 0, 0));
+    expect(resumeStep({ ...validInputs, interests: [] as never }, 2)).toEqual({
+      step: 2,
+      invalid: [],
+    });
+  });
+
+  it("stops at the first failing step", () => {
+    pin(new Date(2030, 4, 3, 12, 0, 0));
+    expect(resumeStep({ ...validInputs, pace: "" }, 6)).toEqual({ step: 2, invalid: ["pace"] });
   });
 });

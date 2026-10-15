@@ -4,7 +4,7 @@ import { Controller } from "react-hook-form";
 import { Checkbox } from "@heroui/react";
 import DatePicker from "./DatePicker";
 import StepPanel from "./StepPanel";
-import dayjs from "dayjs";
+import { weatherDates } from "@/lib/utils";
 import { dates } from "./content";
 import { fieldError } from "./styles";
 
@@ -14,10 +14,9 @@ function FormStep5() {
 
   const handleCheckboxChange = () => {
     setIsWeatherSelected(!isWeatherSelected);
-    const startDate = dayjs();
-    setValue("startDate", startDate.toISOString());
-    const endDate = startDate.add(5, "day");
-    setValue("endDate", endDate.toISOString());
+    const { startDate, endDate } = weatherDates();
+    setValue("startDate", startDate);
+    setValue("endDate", endDate);
   };
 
   if (currentStep !== 4) return null;

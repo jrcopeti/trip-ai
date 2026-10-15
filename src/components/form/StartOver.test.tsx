@@ -116,6 +116,32 @@ describe("the form's draft", () => {
     expect(toast.custom).toHaveBeenCalledTimes(1);
   });
 
+  // Back the day after the start date: "Plan my trip" would be off with nothing saying why.
+  it("reopens on the dates step, with its error, when the start date has passed", async () => {
+    writeFormDraft({ ...savedDraft, step: 6 });
+    vi.setSystemTime(new Date(2030, 4, 3, 12, 0, 0));
+    renderForm();
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: stepCopy[4].title }),
+    ).toBeInTheDocument();
+    expect(await screen.findByText("Start date cannot be in the past")).toBeInTheDocument();
+  });
+
+  // The weather plan starts now, as ticking the box does, so it never goes stale.
+  it("moves a weather plan's dates to today", async () => {
+    writeFormDraft({ ...savedDraft, step: 6, isWeatherSelected: true });
+    vi.setSystemTime(new Date(2030, 4, 3, 12, 0, 0));
+    renderForm();
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: stepCopy[6].title }),
+    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(readFormDraft()?.values.startDate).toBe(new Date(2030, 4, 3, 12, 0, 0).toISOString()),
+    );
+  });
+
   it("saves what is typed, and the step", async () => {
     const user = userEvent.setup();
     renderForm();
