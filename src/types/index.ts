@@ -72,6 +72,10 @@ export interface FormStepsContextType {
   stepValue: number;
   next: () => void;
   prev: () => void;
+  /** Empties the form, back to step 1, and drops the draft. */
+  startOver: () => void;
+  /** False until the draft, if any, is back in the form; `Form` hides the card till then. */
+  isDraftRestored: boolean;
 }
 export interface FormFieldsContextType {
   control: Control<Inputs> | undefined;

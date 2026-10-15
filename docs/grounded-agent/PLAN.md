@@ -529,7 +529,7 @@ its own, in this order (2f is independent and can land any time):
   - **2e-c · `form-state-dead`: what nothing reads goes.** `formData`/`setFormData`/
     `FinalDataTypes`; `TripContext` becomes `useTripGeneration`; the form's forecast becomes a
     form-local hook (`WeatherContext` goes). CLAUDE.md's architecture section is rewritten.
-    **Status: done on `form-state-dead`, staged, not committed.** As built: `FormProvider` is
+    **Status: merged (#212).** As built: `FormProvider` is
     the only provider, rendered by `form/layout.tsx` (`form/providers.tsx` goes). It runs
     `useTripGeneration` (the keyed mutation; returns `generate`, `isPending`, `error`, `reset`)
     and `useFormForecast` (`forecastData`, `generateForecast`), both in `src/hooks/`; `Form`
@@ -553,6 +553,39 @@ its own, in this order (2f is independent and can land any time):
     over" asks, cancel keeps everything, confirm clears the form and the storage. e2e: fill two
     steps, go to About and back, the answers are there; start over, step 1 is empty. After 2e-b,
     which reshapes the context this hooks into; independent of 2e-c.
+    **Status: done on `form-draft`, staged, not committed.** As built: `src/lib/formDraft.ts`
+    reads, writes and clears `{ values, step, isWeatherSelected }` under one sessionStorage key,
+    every access in a try (a lost draft is a fresh form). `FormProvider` restores it in an effect
+    after mount, not in `useForm`'s defaults (the server has no storage, so that would hydrate a
+    different form), with `keepDefaultValues` so `isDirty` still measures against the empty form;
+    `Form` keeps the card `invisible` until then, so step 1 doesn't flash first. A
+    `FormDraftSaver` child writes it, watching every field without re-rendering the provider
+    (2e-b's render test still reads 0); an untouched form removes it rather than saving it.
+    `useTripGeneration`'s `onSuccess` clears it before the redirect. "Start over" (`StartOver.tsx`)
+    is a quiet text button beside Back, on its own row below the pills at 390, shown when
+    `useFormState`'s `isDirty` or past step 1 — read in `FormButtons`, not the context, so its
+    flip doesn't re-render the form. The confirm is HeroUI's `AlertDialog`, opened by a plain
+    button (its `Trigger` is a `role="button"` div); Escape and a click outside cancel; on
+    confirm focus goes to the name field, since the button that opened it is gone.
+    Found in the browser: a draft restored past step 2 re-checks its city, and step 2's
+    announce effect (above its early return) toasted "Found Lisbon" on step 3; a find is now
+    announced only on step 2, while a failure still toasts on any step, since it keeps Next off
+    (from the review). From the second review: a draft restored a day later held a start date
+    the schema now refuses, so "Plan my trip" stayed off on the review step with nothing saying
+    why. `resumeStep` (`formDraft.ts`) reopens on the first step before the saved one whose
+    answers fail, and the provider `trigger`s them so the error shows; a weather plan's dates
+    are reset to now first (`weatherDates`, `lib/utils.ts`, shared with step 5's checkbox). The
+    storage key is versioned (`trip-ai:form-draft:v1`): bump it when `Inputs` changes shape, so
+    an older build's draft in an open tab is dropped rather than restored unrenderable.
+    Known, closed by 2e-e: a draft restored past the dates step with the
+    weather on has no forecast (the form fetched it on Next), so that trip goes without one.
+    Tests: `formDraft.test` (round trip, malformed, throwing storage); the layout restores on
+    remount and starts empty without a draft; success clears and failure keeps it
+    (`useTripGeneration.test`); `StartOver.test` (restored step and answers, saving as you type,
+    no "Found" toast off step 2 but a failure's, the button's visibility, cancel keeps, confirm clears and focuses).
+    `src/test/setup.ts` clears sessionStorage after each test. e2e (`form.spec`, at 390): two
+    steps, About through the menu, Back: the answers and step are there; start over → empty
+    step 1, and still empty after a reload.
   - **Zustand: evaluated, not adopted.** react-hook-form owns the form state (uncontrolled,
     ref-based) and TanStack Query owns the server state; a store would mirror RHF's. What is left
     is `currentStep`, `prevStep` and `isWeatherSelected`. Revisit only for a draft that survives a

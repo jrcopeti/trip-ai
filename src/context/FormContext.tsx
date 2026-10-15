@@ -11,11 +11,20 @@ import { useCountries } from "@/hooks/useCountries";
 import { idleCityCheck, useGeoNames } from "@/hooks/useGeoNames";
 import { useFormForecast } from "@/hooks/useFormForecast";
 import { useTripGeneration } from "@/hooks/useTripGeneration";
-import { SubmitHandler, useFieldArray, useForm, useWatch } from "react-hook-form";
+import {
+  type Control,
+  SubmitHandler,
+  useFieldArray,
+  useForm,
+  useFormState,
+  useWatch,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { steps } from "@/data";
 import { FormDataSchema } from "@/lib/schema";
 import { toTripRequest } from "@/lib/agent/request";
+import { clearFormDraft, readFormDraft, resumeStep, writeFormDraft } from "@/lib/formDraft";
+import { weatherDates } from "@/lib/utils";
 
 // Also `useForm`'s defaults, so the two can't drift apart.
 const defaultFormData: Inputs = {
@@ -47,6 +56,8 @@ const FormStepsContext = createContext<FormStepsContextType>({
   stepValue: 0,
   next: () => {},
   prev: () => {},
+  startOver: () => {},
+  isDraftRestored: true,
 });
 
 const FormFieldsContext = createContext<FormFieldsContextType>({
@@ -78,14 +89,46 @@ function FormProvider({ children }: { children: React.ReactNode }) {
   const delta = currentStep - prevStep;
 
   const [isWeatherSelected, setIsWeatherSelected] = useState<boolean>(false);
+  const [isDraftRestored, setIsDraftRestored] = useState(false);
+  const [startOvers, setStartOvers] = useState(0);
 
-  const { handleSubmit, control, watch, trigger, getFieldState, setValue, formState } =
+  const {
+    handleSubmit,
+    control,
+    watch,
+    trigger,
+    getFieldState,
+    setValue,
+    setFocus,
+    reset,
+    formState,
+  } =
     useForm<Inputs>({
       resolver: zodResolver(FormDataSchema),
       defaultValues: defaultFormData,
     });
   // RHF edits `errors` in place, so the memo below keys on `formState`, a new object per change.
   const { errors, isValid } = formState;
+
+  // After mount, not in `useForm`'s defaults: the server has no sessionStorage, so reading
+  // it during render would hydrate a different form. `keepDefaultValues` keeps `isDirty`
+  // measured against the empty form, which is what shows "Start over".
+  useEffect(() => {
+    const draft = readFormDraft();
+    if (draft) {
+      const values = { ...defaultFormData, ...draft.values };
+      // A weather plan starts now, as ticking the box does; a picked date that has passed
+      // reopens its step with the error showing, or Submit would be off with no reason.
+      if (draft.isWeatherSelected) Object.assign(values, weatherDates());
+      const { step, invalid } = resumeStep(values, draft.step);
+      reset(values, { keepDefaultValues: true });
+      setPrevStep(step);
+      setCurrentStep(step);
+      setIsWeatherSelected(draft.isWeatherSelected);
+      if (invalid.length) trigger(invalid);
+    }
+    setIsDraftRestored(true);
+  }, [reset, trigger]);
 
   const { fields, append, insert, remove } = useFieldArray({
     control,
@@ -173,12 +216,27 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     }
   }, [currentStep]);
 
+  const startOver = useCallback(() => {
+    reset(defaultFormData);
+    setPrevStep(0);
+    setCurrentStep(0);
+    setIsWeatherSelected(false);
+    clearFormDraft();
+    setStartOvers((n) => n + 1);
+  }, [reset]);
+
+  // The "Start over" button that opened the dialog is gone with the answers, so the dialog
+  // has nowhere to hand focus back: put it on step 1's first field instead.
+  useEffect(() => {
+    if (startOvers > 0) setFocus("userName");
+  }, [startOvers, setFocus]);
+
   const processForm: SubmitHandler<Inputs> = useCallback((data) => {
     // From the submitted country, so the code always matches the data it travels with.
     const submittedCode =
       countries.find((c) => c.value === data.country)?.code.toUpperCase() ?? "";
     // Nothing clears here: a failed generation leaves everything filled in for another
-    // try, and a trip that comes back leaves /form, whose layout unmounts this provider.
+    // try, and a trip that comes back clears the draft and leaves /form.
     generateTrip(
       toTripRequest(
         data,
@@ -189,8 +247,8 @@ function FormProvider({ children }: { children: React.ReactNode }) {
   }, [countries, generateTrip, isWeatherSelected, forecastData]);
 
   const stepsValue = useMemo(
-    () => ({ currentStep, delta, stepValue, next, prev }),
-    [currentStep, delta, stepValue, next, prev],
+    () => ({ currentStep, delta, stepValue, next, prev, startOver, isDraftRestored }),
+    [currentStep, delta, stepValue, next, prev, startOver, isDraftRestored],
   );
 
   const fieldsValue = useMemo(
@@ -237,10 +295,44 @@ function FormProvider({ children }: { children: React.ReactNode }) {
   return (
     <FormStepsContext.Provider value={stepsValue}>
       <FormFieldsContext.Provider value={fieldsValue}>
-        <CityCheckContext.Provider value={cityValue}>{children}</CityCheckContext.Provider>
+        <CityCheckContext.Provider value={cityValue}>
+          {children}
+          {/* Only once restored, so its first write is the draft, not the empty form. */}
+          {isDraftRestored && (
+            <FormDraftSaver
+              control={control}
+              step={currentStep}
+              isWeatherSelected={isWeatherSelected}
+            />
+          )}
+        </CityCheckContext.Provider>
       </FormFieldsContext.Provider>
     </FormStepsContext.Provider>
   );
+}
+
+/**
+ * Writes the draft as the answers change. Its own component, so watching every field
+ * re-renders only this, not the provider (2e-b). An untouched form is no draft at all.
+ */
+function FormDraftSaver({
+  control,
+  step,
+  isWeatherSelected,
+}: {
+  control: Control<Inputs>;
+  step: number;
+  isWeatherSelected: boolean;
+}) {
+  const values = useWatch({ control });
+  const { isDirty } = useFormState({ control });
+
+  useEffect(() => {
+    if (!isDirty && step === 0 && !isWeatherSelected) clearFormDraft();
+    else writeFormDraft({ values: values as Inputs, step, isWeatherSelected });
+  }, [values, isDirty, step, isWeatherSelected]);
+
+  return null;
 }
 
 export { FormProvider, FormStepsContext, FormFieldsContext, CityCheckContext };

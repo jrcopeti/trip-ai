@@ -33,6 +33,14 @@ export const buttons = {
   submit: "Plan my trip",
 };
 
+export const startOver = {
+  button: "Start over",
+  heading: "Clear your answers?",
+  body: "Everything you've filled in goes, and the form starts again at step 1.",
+  cancel: "Keep my answers",
+  confirm: "Clear and start over",
+};
+
 /** Keyed by any group, so step 1 can look up the chosen one; Family has no hint. */
 const ageRangesHint: Partial<Record<string, string>> = {
   solo: "One age range, 13 and up.",

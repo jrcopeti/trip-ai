@@ -3,8 +3,9 @@ import { renderWithProviders, screen, waitFor } from "@/test/render";
 import { useIsMutating } from "@tanstack/react-query";
 import { generateTripKey, useTripGeneration } from "@/hooks/useTripGeneration";
 import { generateTrip } from "@/app/api/anthropicApi";
-import { generatedTripFixture, validTripRequest } from "@/test/fixtures";
+import { generatedTripFixture, validInputs, validTripRequest } from "@/test/fixtures";
 import { replace, resetNextStubs } from "@/test/stubs/next";
+import { readFormDraft, writeFormDraft } from "@/lib/formDraft";
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
@@ -56,6 +57,30 @@ describe("useTripGeneration", () => {
     await waitFor(() => {
       expect(replace).toHaveBeenCalledWith(`/trips/${generatedTripFixture.tripUrl}`);
     });
+  });
+
+  // The answers are spent; coming back to /form starts a new trip.
+  it("clears the form's draft when the trip comes back", async () => {
+    writeFormDraft({ values: validInputs, step: 6, isWeatherSelected: false });
+    mockFetch.mockResolvedValue(generatedTripFixture);
+    renderTrip();
+
+    ctx.generateTrip(validTripRequest);
+
+    await waitFor(() => expect(replace).toHaveBeenCalled());
+    expect(readFormDraft()).toBeNull();
+  });
+
+  it("keeps the draft when the call fails, for another try", async () => {
+    const draft = { values: validInputs, step: 6, isWeatherSelected: false };
+    writeFormDraft(draft);
+    mockFetch.mockRejectedValue(new Error("The model did not return a trip"));
+    renderTrip();
+
+    ctx.generateTrip(validTripRequest);
+
+    await waitFor(() => expect(ctx.error).toBeInstanceOf(Error));
+    expect(readFormDraft()).toEqual(draft);
   });
 
   it("reports pending while the request is in flight", async () => {

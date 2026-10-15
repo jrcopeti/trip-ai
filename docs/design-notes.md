@@ -509,6 +509,9 @@ Each of these was a bug, not a theory.
       HeroUI's `ListBoxItem` wraps its label with an indicator, so react-aria cannot
       read the text. A searchable list needs `defaultItems` **and** `textValue` on each
       item — with either missing, typing filters nothing.
+    - `AlertDialog.Trigger` is the same: a `role="button"` div around what it holds. Open
+      the dialog from a plain pill with `isOpen`/`onOpenChange` on `AlertDialog.Backdrop`
+      (`form/StartOver.tsx`).
     - Radios and checkboxes are a `<label>` around a visually hidden `<input>`. In
       Playwright, click the label; a forced click on the input does not toggle it.
       Style the selected state with `data-selected:` on the label.
