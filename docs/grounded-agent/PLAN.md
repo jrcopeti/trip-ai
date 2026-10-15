@@ -278,7 +278,7 @@ Decided at the split:
 - **Dates are calendar days (`YYYY-MM-DD`)**, taken in the browser's timezone. The form stores local
   midnight as an ISO instant, which a UTC server would read as the day before.
 - **The chosen forecast travels as structured days** (`{date, temp, condition, description}`), not
-  the JSON dump; branch 4's `get_forecast` replaces it.
+  the JSON dump; 2e-e fetches it on the server instead, and branch 4's `get_forecast` replaces that.
 - **Choice fields must be one of `src/data`'s values**, and free text is capped. Once the prompt is
   built on the server, an unbounded `type` would be an open channel into it.
 - `formData` keeps its lowercasing in 1c. It is what the trip page and the saved row read, and the
@@ -529,6 +529,17 @@ its own, in this order (2f is independent and can land any time):
   - **2e-c · `form-state-dead`: what nothing reads goes.** `formData`/`setFormData`/
     `FinalDataTypes`; `TripContext` becomes `useTripGeneration`; the form's forecast becomes a
     form-local hook (`WeatherContext` goes). CLAUDE.md's architecture section is rewritten.
+    **Status: done on `form-state-dead`, staged, not committed.** As built: `FormProvider` is
+    the only provider, rendered by `form/layout.tsx` (`form/providers.tsx` goes). It runs
+    `useTripGeneration` (the keyed mutation; returns `generate`, `isPending`, `error`, `reset`)
+    and `useFormForecast` (`forecastData`, `generateForecast`), both in `src/hooks/`; `Form`
+    reads the generation's pending, error and reset as `isGenerationPending`, `generationError`
+    and `resetGeneration` from the fields context. Gone: `formData`/`setFormData`, the
+    lowercasing `processForm` did for it, `FinalDataTypes`, `transformInputsToFinalData`
+    (`lib/formData.ts`), `finalFormData`, the forecast's unread pending/error, and the unused
+    `FetchResponseAIParams`. Behaviour unchanged. One test note: with no `setFormData`
+    re-render, a `processForm` called directly shows the loader on TanStack's next notify, so
+    `FormPending.test` waits for it; a real submit re-renders through RHF's `formState`.
   - **2e-d · `form-draft`: the answers survive leaving `/form`, and "Start over" clears them.**
     Since 2e-a, a nav link mid-form loses the answers (the layout unmounts); a reload always did.
     The answers (RHF values), the step and the weather choice are saved to `sessionStorage` as they
@@ -546,6 +557,32 @@ its own, in this order (2f is independent and can land any time):
     ref-based) and TanStack Query owns the server state; a store would mirror RHF's. What is left
     is `currentStep`, `prevStep` and `isWeatherSelected`. Revisit only for a draft that survives a
     refresh, or form state read across routes. (2e-d's draft is `sessionStorage` beside RHF, not a store.)
+- **2e-e · `server-forecast`: the request says "by the weather"; the server fetches it.** Born of
+  2e-c's review. The form fetches the forecast only to send it back in the request; nothing on the
+  form shows it. What that costs today:
+  - **The prompt takes the browser's word.** `TripRequestSchema` checks the forecast days' shape,
+    not where they came from, so a crafted request puts any "forecast" into the prompt.
+  - **A missing forecast is silent.** If the dates step's fetch fails, or hasn't landed by the
+    submit, the trip goes out with none, and `byWeather` records `false` for a traveller who asked.
+  - **The daily readings are picked by the browser's hour** (`getChosenHour()`), not the
+    destination's.
+
+  The change: `TripRequest.forecast` becomes `byWeather: boolean`. `generateTrip` fetches the
+  forecast at the place it already resolves, beside the photos and before the model call. It picks
+  the daily readings in the destination's time (the response's `city.timezone`, as the trip page's
+  cards do) and keeps only the days inside the trip's dates. A failed fetch plans for the usual
+  weather, as with no forecast, and the row's `byWeather` records whether one was used. `fetchForecast`'s
+  10-minute cache then also serves the trip page's forecast at the same coordinates.
+  Gone: `useFormForecast`, `forecastForForm` (`forecastAction.ts`, the browser's only route to
+  OpenWeather), the forecast branch in `next()` and its `cityCheck.place` dependency,
+  `toTripRequest`'s `forecast` argument and the "Forecast was generated" toast. 2e-d's draft
+  keeps the weather choice as it is. Branch 4's `get_forecast` takes the server-side fetch as its
+  handler, and the flag becomes "the traveller allowed weather".
+  - Tests: the request schema takes the flag and refuses forecast days; `generateTrip` fetches at
+    the resolved place only with the flag, keeps the days within the trip, and still writes the
+    trip (no forecast, `byWeather: false`) when OpenWeather fails; the day pick in the
+    destination's time with the clock pinned; `processForm` sends the flag. e2e: a weather trip
+    under `E2E_FIXTURES=1` comes back marked as planned by the forecast.
 - **2f · `request-checks`: findings 2 and 3.** Passport checked with `oneOf` against the
   countries; required items refuse line breaks, on the server and the form.
 - **2g · dependencies: Renovate keeps them current, a branch each for the breaking ones.**
@@ -577,7 +614,7 @@ its own, in this order (2f is independent and can land any time):
   the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
   weather by coordinates, the form-scoped providers, architecture and commands. Retake the
   screenshots that changed at the sizes above.
-- **2e-e · `background-generation`: leaving the loader doesn't lose the trip.** From 2e-a's
+- **2e-f · `background-generation`: leaving the loader doesn't lose the trip.** From 2e-a's
   review. The loader covers the nav, so the way out mid-generation is the browser's Back, a soft
   navigation: no `beforeunload`, and the generation keeps running with nothing on screen saying so.
   A `GenerationToast` in the root providers reads the keyed mutation (2e-a's `generateTripKey`,
@@ -602,7 +639,7 @@ its own, in this order (2f is independent and can land any time):
   `generateTrip` server action for the form: the same validation, `resolvePlace`, prompt and row,
   but the Claude call is streamed (`client.messages.stream(...)`, read with `finalMessage()`) and
   takes the request's `signal`. The response is SSE with `done` (the trip url) and `error` events
-  only; branch 4 adds `step`. Stop (2e-e) and leaving the page abort the fetch, which aborts the
+  only; branch 4 adds `step`. Stop (2e-f) and leaving the page abort the fetch, which aborts the
   stream: the output not yet written isn't billed (input is, as it's read at the start), no photos
   are fetched after it, and no row is written. A server action can't be aborted from the client,
   and a non-streamed call runs to the end however the client leaves, hence both changes.
@@ -611,8 +648,8 @@ its own, in this order (2f is independent and can land any time):
   - Tests: an aborted request aborts the SDK stream (mocked at `anthropicApi`) and writes no row;
     `done` carries the url; a refusal, `max_tokens` or a bad request is an `error` event. e2e: the
     fixture path (`E2E_FIXTURES=1`) answers as a fixture stream; Stop leaves no row.
-- **Order from here:** 2e-b → 2e-d → 2e-e → 2i, with 2e-c any time after 2e-b; then 2f, 2g, 2h
-  as planned, and branch 3. 2i comes after 2e-e, so Stop exists before it can stop the server.
+- **Order from here:** 2e-b → 2e-d → 2e-e → 2e-f → 2i, with 2e-c any time after 2e-b; then 2f, 2g, 2h
+  as planned, and branch 3. 2i comes after 2e-f, so Stop exists before it can stop the server.
 
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`
@@ -713,7 +750,7 @@ branch's diff.
   is given), and `sources[] {title, url}`. Prisma columns: `sources Json?`, `entryRequirements Json?`;
   `tours Json` already holds the richer shape.
 - Streaming: the route and its SSE are 2i's; the loop runs inside it and adds `step` events
-  ("Checking the weather in Lisbon…"), with `maxDuration = 300`. `LoaderResponseAI` and 2e-e's
+  ("Checking the weather in Lisbon…"), with `maxDuration = 300`. `LoaderResponseAI` and 2e-f's
   toast show the real steps in place of the canned ones.
 - Stopping: the request's `signal` reaches every iteration's Claude call and every tool's HTTP
   call, and the loop checks it between iterations — or Stop would end only the first call.

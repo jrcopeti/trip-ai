@@ -20,15 +20,12 @@ import { LIMITS } from "@/lib/schema";
 import type { FieldName, FormContextType } from "@/types";
 
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
-vi.mock("@/hooks/useWeather", () => ({
-  useWeather: () => ({ generateForecast: vi.fn(), forecastData: undefined }),
+vi.mock("@/hooks/useFormForecast", () => ({
+  useFormForecast: () => ({ generateForecast: vi.fn(), forecastData: undefined }),
 }));
-vi.mock("@/hooks/useTripResponse", () => ({
-  useTripResponse: () => ({
-    generateResponseAI: vi.fn(),
-    isPendingResponseAI: false,
-    errorResponseAI: null,
-  }),
+vi.mock("@/hooks/useTripGeneration", () => ({
+  generateTripKey: ["generateTrip"],
+  useTripGeneration: () => ({ generateTrip: vi.fn(), isPending: false, error: null, reset: vi.fn() }),
 }));
 vi.mock("@/hooks/useGeoNames", () => ({
   idleCityCheck: { isCityValid: false, isLoadingCityValid: false, message: "", place: null },

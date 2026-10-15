@@ -3,20 +3,18 @@ import { useState, useEffect, createContext, useCallback, useMemo } from "react"
 import type {
   CityCheckContextType,
   FieldName,
-  FinalDataTypes,
   FormFieldsContextType,
   FormStepsContextType,
   Inputs,
 } from "@/types";
 import { useCountries } from "@/hooks/useCountries";
 import { idleCityCheck, useGeoNames } from "@/hooks/useGeoNames";
-import { useWeather } from "@/hooks/useWeather";
-import { useTripResponse } from "@/hooks/useTripResponse";
+import { useFormForecast } from "@/hooks/useFormForecast";
+import { useTripGeneration } from "@/hooks/useTripGeneration";
 import { SubmitHandler, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { steps } from "@/data";
 import { FormDataSchema } from "@/lib/schema";
-import { transformInputsToFinalData } from "@/lib/formData";
 import { toTripRequest } from "@/lib/agent/request";
 
 // Also `useForm`'s defaults, so the two can't drift apart.
@@ -41,8 +39,6 @@ const defaultFormData: Inputs = {
   agreement: false,
 };
 
-const initialFinalData = transformInputsToFinalData(defaultFormData);
-
 // Three contexts, each memoised, so a keystroke in the city re-renders only what reads the
 // city check, and a step change only what reads the step.
 const FormStepsContext = createContext<FormStepsContextType>({
@@ -54,8 +50,6 @@ const FormStepsContext = createContext<FormStepsContextType>({
 });
 
 const FormFieldsContext = createContext<FormFieldsContextType>({
-  formData: initialFinalData,
-  setFormData: () => {},
   control: undefined,
   errors: {},
   isValid: false,
@@ -69,6 +63,9 @@ const FormFieldsContext = createContext<FormFieldsContextType>({
   setValue: () => {},
   isWeatherSelected: false,
   setIsWeatherSelected: () => {},
+  isGenerationPending: false,
+  generationError: null,
+  resetGeneration: () => {},
 });
 
 const CityCheckContext = createContext<CityCheckContextType>({
@@ -76,7 +73,6 @@ const CityCheckContext = createContext<CityCheckContextType>({
 });
 
 function FormProvider({ children }: { children: React.ReactNode }) {
-  const [formData, setFormData] = useState<FinalDataTypes>(initialFinalData);
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [prevStep, setPrevStep] = useState<number>(0);
   const delta = currentStep - prevStep;
@@ -96,10 +92,15 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     name: "requiredItems",
   });
 
-  const { generateResponseAI } = useTripResponse();
+  const {
+    generateTrip,
+    isPending: isGenerationPending,
+    error: generationError,
+    reset: resetGeneration,
+  } = useTripGeneration();
 
   const { countries } = useCountries();
-  const { generateForecast, forecastData } = useWeather();
+  const { generateForecast, forecastData } = useFormForecast();
 
   // `useWatch`, not `watch`: a root `watch` re-renders `useForm`'s host with a new
   // `formState` on every keystroke, and every context with it.
@@ -173,42 +174,19 @@ function FormProvider({ children }: { children: React.ReactNode }) {
   }, [currentStep]);
 
   const processForm: SubmitHandler<Inputs> = useCallback((data) => {
-    const { userName, city, note, requiredItems } = data;
-
-    const transformedRequiredItems =
-      requiredItems?.map((requiredItem) =>
-        requiredItem.item.trim().toLowerCase(),
-      ) ?? [];
-
-    const formattedUserName = userName.trim().toLowerCase();
-    const formattedCity = city.trim().toLowerCase();
-    const formattedNote = note?.trim().toLowerCase();
     // From the submitted country, so the code always matches the data it travels with.
     const submittedCode =
       countries.find((c) => c.value === data.country)?.code.toUpperCase() ?? "";
     // Nothing clears here: a failed generation leaves everything filled in for another
     // try, and a trip that comes back leaves /form, whose layout unmounts this provider.
-    generateResponseAI(
+    generateTrip(
       toTripRequest(
         data,
         submittedCode,
         isWeatherSelected ? forecastData : undefined,
       ),
     );
-
-    const finalData: FinalDataTypes = {
-      ...data,
-      userName: formattedUserName,
-      city: formattedCity,
-      note: formattedNote,
-      requiredItems: transformedRequiredItems,
-      byWeather: isWeatherSelected,
-      countryCode: submittedCode,
-      lat: place?.lat ?? null,
-      lng: place?.lng ?? null,
-    };
-    setFormData(finalData);
-  }, [countries, generateResponseAI, isWeatherSelected, forecastData, place]);
+  }, [countries, generateTrip, isWeatherSelected, forecastData]);
 
   const stepsValue = useMemo(
     () => ({ currentStep, delta, stepValue, next, prev }),
@@ -217,8 +195,6 @@ function FormProvider({ children }: { children: React.ReactNode }) {
 
   const fieldsValue = useMemo(
     () => ({
-      formData,
-      setFormData,
       control,
       errors,
       isValid,
@@ -232,12 +208,14 @@ function FormProvider({ children }: { children: React.ReactNode }) {
       setValue,
       isWeatherSelected,
       setIsWeatherSelected,
+      isGenerationPending,
+      generationError,
+      resetGeneration,
     }),
     // `formState` stands in for `errors` and `isValid` (see above).
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       formState,
-      formData,
       control,
       handleSelectionAutocomplete,
       handleSubmit,
@@ -248,6 +226,9 @@ function FormProvider({ children }: { children: React.ReactNode }) {
       remove,
       setValue,
       isWeatherSelected,
+      isGenerationPending,
+      generationError,
+      resetGeneration,
     ],
   );
 

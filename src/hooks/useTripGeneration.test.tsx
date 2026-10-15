@@ -1,34 +1,27 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, screen, waitFor } from "@/test/render";
-import { TripProvider } from "@/context/TripContext";
-import { useTripResponse } from "@/hooks/useTripResponse";
+import { useIsMutating } from "@tanstack/react-query";
+import { generateTripKey, useTripGeneration } from "@/hooks/useTripGeneration";
 import { generateTrip } from "@/app/api/anthropicApi";
 import { generatedTripFixture, validTripRequest } from "@/test/fixtures";
 import { replace, resetNextStubs } from "@/test/stubs/next";
-import type { TripContextType } from "@/types";
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 
 const mockFetch = vi.mocked(generateTrip);
 
-let ctx: TripContextType;
+let ctx: ReturnType<typeof useTripGeneration>;
 
+// Pending as `Form` reads it: by the mutation's key, so one that outlived /form counts too.
 function Probe() {
-  ctx = useTripResponse();
-  return (
-    <div>
-      <span data-testid="pending">{String(ctx.isPendingResponseAI)}</span>
-    </div>
-  );
+  ctx = useTripGeneration();
+  const pending = useIsMutating({ mutationKey: generateTripKey }) > 0;
+  return <span data-testid="pending">{String(pending)}</span>;
 }
 
 function renderTrip() {
-  return renderWithProviders(
-    <TripProvider>
-      <Probe />
-    </TripProvider>,
-  );
+  return renderWithProviders(<Probe />);
 }
 
 beforeEach(() => {
@@ -37,7 +30,7 @@ beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
-describe("TripContext", () => {
+describe("useTripGeneration", () => {
   it("starts with nothing pending", () => {
     renderTrip();
     expect(screen.getByTestId("pending")).toHaveTextContent("false");
@@ -47,7 +40,7 @@ describe("TripContext", () => {
     mockFetch.mockResolvedValue(generatedTripFixture);
     renderTrip();
 
-    ctx.generateResponseAI(validTripRequest);
+    ctx.generateTrip(validTripRequest);
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledWith(validTripRequest);
@@ -58,7 +51,7 @@ describe("TripContext", () => {
     mockFetch.mockResolvedValue(generatedTripFixture);
     renderTrip();
 
-    ctx.generateResponseAI(validTripRequest);
+    ctx.generateTrip(validTripRequest);
 
     await waitFor(() => {
       expect(replace).toHaveBeenCalledWith(`/trips/${generatedTripFixture.tripUrl}`);
@@ -74,7 +67,7 @@ describe("TripContext", () => {
     );
     renderTrip();
 
-    ctx.generateResponseAI(validTripRequest);
+    ctx.generateTrip(validTripRequest);
 
     await waitFor(() => {
       expect(screen.getByTestId("pending")).toHaveTextContent("true");
@@ -91,10 +84,10 @@ describe("TripContext", () => {
     mockFetch.mockRejectedValue(new Error("Error in generating response from AI"));
     renderTrip();
 
-    ctx.generateResponseAI(validTripRequest);
+    ctx.generateTrip(validTripRequest);
 
     await waitFor(() => {
-      expect(ctx.errorResponseAI).toBeInstanceOf(Error);
+      expect(ctx.error).toBeInstanceOf(Error);
     });
     expect(replace).not.toHaveBeenCalled();
   });
@@ -103,10 +96,10 @@ describe("TripContext", () => {
     mockFetch.mockRejectedValue(new Error("The model did not return a trip"));
     renderTrip();
 
-    ctx.generateResponseAI(validTripRequest);
-    await waitFor(() => expect(ctx.errorResponseAI).toBeInstanceOf(Error));
+    ctx.generateTrip(validTripRequest);
+    await waitFor(() => expect(ctx.error).toBeInstanceOf(Error));
 
-    ctx.resetResponseAI();
-    await waitFor(() => expect(ctx.errorResponseAI).toBeNull());
+    ctx.reset();
+    await waitFor(() => expect(ctx.error).toBeNull());
   });
 });

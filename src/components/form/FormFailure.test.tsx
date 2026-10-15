@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
 import userEvent from "@testing-library/user-event";
 import { renderWithProviders, screen } from "@/test/render";
-import { TripProvider } from "@/context/TripContext";
 import { FormProvider } from "@/context/FormContext";
 import { useWatch } from "react-hook-form";
 import { useFormData } from "@/hooks/useFormData";
@@ -15,13 +14,13 @@ import { resetNextStubs } from "@/test/stubs/next";
 import toast from "react-hot-toast";
 import type { FieldName, FormContextType, Inputs } from "@/types";
 
-// The real TripProvider and FormProvider, so the mutation's error and its reset
+// The real FormProvider and its trip generation, so the mutation's error and its reset
 // drive what Form shows. Only the server action and the browser-side lookups are mocked.
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn() } }));
-vi.mock("@/hooks/useWeather", () => ({
-  useWeather: () => ({ generateForecast: vi.fn(), forecastData: undefined }),
+vi.mock("@/hooks/useFormForecast", () => ({
+  useFormForecast: () => ({ generateForecast: vi.fn(), forecastData: undefined }),
 }));
 vi.mock("@/hooks/useGeoNames", () => ({
   idleCityCheck: { isCityValid: false, isLoadingCityValid: false, message: "", place: null },
@@ -69,12 +68,10 @@ beforeEach(() => {
   mockGenerate.mockReset();
   vi.spyOn(console, "error").mockImplementation(() => {});
   renderWithProviders(
-    <TripProvider>
-      <FormProvider>
-        <Probe />
-        <Form />
-      </FormProvider>
-    </TripProvider>,
+    <FormProvider>
+      <Probe />
+      <Form />
+    </FormProvider>,
   );
 });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useState } from "react";
+import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { forecastForForm } from "@/app/api/forecastAction";
 import { selectDailyForecasts } from "@/lib/utils";
@@ -10,31 +10,17 @@ import ErrorToaster from "@/components/ui/ErrorToaster";
 import { getChosenHour } from "@/lib/constants";
 import type {
   Coordinates,
-  WeatherContextType,
   ForecastDataTypes,
   SelectedForecastDataTypes,
 } from "@/types";
 
-const defaultContextValue: WeatherContextType = {
-  forecastData: undefined,
-  generateForecast: async () => {},
-  isPendingForecast: false,
-  errorForecast: null,
-};
-
-const WeatherContext = createContext<WeatherContextType>(defaultContextValue);
-
 /** The form's forecast, for the prompt. The trip page fetches its own on the server. */
-function WeatherProvider({ children }: { children: React.ReactNode }) {
+function useFormForecast() {
   const [forecastData, setForecastData] = useState<
     SelectedForecastDataTypes[] | undefined
   >(undefined);
 
-  const {
-    mutate: generateForecast,
-    isPending: isPendingForecast,
-    error: errorForecast,
-  } = useMutation({
+  const { mutate: generateForecast } = useMutation({
     mutationFn: (coordinates: Coordinates) => forecastForForm(coordinates),
 
     onSuccess: (initialForecastData: ForecastDataTypes[]) => {
@@ -61,18 +47,7 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
     },
   });
 
-  return (
-    <WeatherContext.Provider
-      value={{
-        forecastData,
-        generateForecast,
-        isPendingForecast,
-        errorForecast,
-      }}
-    >
-      {children}
-    </WeatherContext.Provider>
-  );
+  return { forecastData, generateForecast };
 }
 
-export { WeatherProvider, WeatherContext };
+export { useFormForecast };
