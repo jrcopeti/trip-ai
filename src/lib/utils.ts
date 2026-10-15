@@ -29,14 +29,9 @@ function formatDate(dateString?: string | Date, includeTime = true) {
 }
 
 const placeWeatherIcons = (condition: string, icon: string) => {
-  const hour = new Date().getHours();
-
+  // OpenWeather's code ends in "n" at night where the weather is: the clock here is the server's.
   if (condition === "Clear") {
-    if (hour >= 5 && hour <= 19) {
-      return sun.src;
-    } else {
-      return moon.src;
-    }
+    return icon.endsWith("n") ? moon.src : sun.src;
   }
 
   if (condition === "Thunderstorm") {

@@ -11,6 +11,7 @@ import MustHaveSection from "./MustHaveSection";
 import WeatherSection from "./WeatherSection";
 import ForecastSection from "./ForecastSection";
 import FormDetailsSection from "./FormDetailsSection";
+import loadWeather from "./loadWeather";
 
 /**
  * The sections both trip routes share, in the sorbet system. Grounds run
@@ -21,6 +22,7 @@ import FormDetailsSection from "./FormDetailsSection";
  *
  * Both routes read the row on the server and hand it down; only the weather
  * sections and the closing are client components, and they get only their fields.
+ * The weather is fetched here too, at the row's coordinates, and streams in.
  */
 function TripPage({
   trip,
@@ -31,6 +33,8 @@ function TripPage({
   before?: ReactNode;
   closing: ReactNode;
 }) {
+  const { weather, forecast } = loadWeather(trip);
+
   return (
     <div className="bg-sorbet-canvas font-sorbet text-sorbet-ink antialiased">
       <main className="relative">
@@ -42,8 +46,8 @@ function TripPage({
         <PackReadySection trip={trip} />
         <ObjectsSection trip={trip} />
         <MustHaveSection trip={trip} />
-        <WeatherSection city={trip.city} country={trip.country} countryCode={trip.countryCode} />
-        <ForecastSection city={trip.city} countryCode={trip.countryCode} />
+        <WeatherSection city={trip.city} country={trip.country} weather={weather} />
+        <ForecastSection forecast={forecast} />
         <FormDetailsSection trip={trip} />
         {closing}
       </main>

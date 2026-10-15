@@ -59,7 +59,7 @@ export default defineConfig({
         reuseExistingServer: false,
         timeout: 120_000,
         env: {
-          // The three "use server" modules answer from fixtures instead of calling
+          // The server-side API modules answer from fixtures instead of calling
           // Anthropic, Unsplash and OpenWeather — see src/app/api/e2eFixtures.ts.
           E2E_FIXTURES: "1",
           PORT: String(PORT),

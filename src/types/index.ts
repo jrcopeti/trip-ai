@@ -61,14 +61,10 @@ export interface SelectedForecastDataTypes {
   description: string;
 }
 
-export interface FetchForecastParams {
-  city: string;
-  countryCode: string;
-}
-
-export interface FetchWeatherParams {
-  city: string;
-  countryCode: string;
+/** A place GeoNames resolved, in OpenWeather's names (the row stores `lng`). */
+export interface Coordinates {
+  lat: number;
+  lon: number;
 }
 
 export interface FetchResponseAIParams {
@@ -79,17 +75,9 @@ export interface FetchResponseAIParams {
 
 export interface WeatherContextType {
   forecastData?: SelectedForecastDataTypes[];
-  generateForecast: (params: FetchForecastParams) => void;
+  generateForecast: (coordinates: Coordinates) => void;
   isPendingForecast: boolean;
   errorForecast: unknown;
-  weatherData?: Partial<WeatherDataTypes>;
-  generateWeather: (params: FetchWeatherParams) => void;
-  isPendingWeather: boolean;
-  errorWeather: unknown;
-  dailyForecastData?: DailyForecastDataTypes[];
-  generateDailyForecast: (params: FetchForecastParams) => void;
-  isPendingDailyForecast: boolean;
-  errorDailyForecast: unknown;
 }
 
 export interface FormContextType {

@@ -69,6 +69,16 @@ test.describe("/saved-trips", () => {
     await expect(page.getByText(/lisbon/i).first()).toBeVisible();
   });
 
+  test("the detail page streams in the weather fetched on the server", async ({ page }) => {
+    await page.getByRole("link", { name: /lisbon/i }).click();
+
+    // The OpenWeather fixtures (E2E_FIXTURES=1): clear now, five days of cloud.
+    const weather = page.locator("section", { hasText: "The sky right now." });
+    await expect(weather.getByText("clear sky")).toBeVisible();
+    const forecast = page.locator("section", { hasText: "The next five days." });
+    await expect(forecast.getByRole("article")).toHaveCount(5);
+  });
+
   test("every card is visible rather than left at opacity 0", async ({ page }) => {
     // The old cards carried opacity-0 for a GSAP batch to clear, and each
     // polaroid now starts at opacity 0 inside a `Reveal`. If either entrance

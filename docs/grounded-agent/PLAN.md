@@ -455,6 +455,29 @@ its own, in this order (2f is independent and can land any time):
   `{ lat, lon }` and never call `resolvePlace`; the trip page fetches both on the server from the
   row (short `revalidate`); the form's forecast uses `cityCheck.place`. `WeatherContext` shrinks
   to the form's forecast.
+  **Status: done on `weather-by-coords`, PR #208.** As built: `TripPage` calls
+  `loadWeather(trip)`, which starts both fetches (not awaited) and hands the promises to the
+  weather sections. They stay client components, show their heading at once and read the data
+  with `use()` inside their own `<Suspense>` (the squiggle as fallback), so the page streams
+  rather than waiting on OpenWeather. Neither promise rejects: a failure is `null` weather or no
+  days, each logged, and the section says it isn't available. Icons are picked on the server.
+  `fetch` keeps a reading 600s (`next.revalidate`). Both functions check the coordinates are in
+  range with zod before building the URL, since the form's reach them through an action. The form fetches
+  the forecast only with `cityCheck.place` set, which Next already requires past step 2.
+  `src/test/trip.tsx` (the weather-context override) went. Tests: the API and context at
+  coordinates, `loadWeather` (coordinates, icons, failure), the sections with resolved and
+  pending promises (rendered in an awaited `act`, which React 19 needs for `use()`), `TripPage`
+  fetching at the row's coordinates; e2e: a saved trip's page streams in the fixture weather
+  and five forecast days.
+  From the wrap-up, also in this branch: `placeWeatherIcons` picked sun or moon for a clear sky
+  by the clock of the machine running it (the browser's, then the server's, UTC on Vercel); it
+  now reads OpenWeather's icon code (`01d`/`01n`), day or night at the destination. And
+  `openWeatherApi.ts` is no longer `"use server"`, so `fetchWeather` has no public endpoint;
+  the form's forecast goes through a one-function action, `forecastForForm` (`forecastAction.ts`).
+  From its review: the forecast cards named each day in the renderer's zone, and they now render
+  on the server (UTC) and hydrate in the browser, so the names could disagree. `fetchForecast`
+  gives each reading the response's `city.timezone`, and the card names the day in the
+  destination's time, as the weather card already did.
 - **2e · the providers leave the app root — split 2e-a, 2e-b, 2e-c.** Born of an audit of the
   three contexts. Cost found: all three providers wrap every route but only `/form` reads them,
   so `FormProvider` runs `useForm`/`useFieldArray`/`useGeoNames` everywhere and `useCountries`
