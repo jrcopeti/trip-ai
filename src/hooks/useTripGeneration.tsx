@@ -34,7 +34,7 @@ function useTripGeneration() {
     },
   });
 
-  return { generate: mutate, isPending, error, reset };
+  return { generateTrip: mutate, isPending, error, reset };
 }
 
 export { useTripGeneration, generateTripKey };

@@ -14,7 +14,7 @@ import type { FieldName, FormContextType, Inputs, SelectedForecastDataTypes } fr
 
 const generateForecast = vi.fn();
 let forecastData: SelectedForecastDataTypes[] | undefined;
-const generate = vi.fn();
+const generateTrip = vi.fn();
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("@/hooks/useFormForecast", () => ({
@@ -22,7 +22,7 @@ vi.mock("@/hooks/useFormForecast", () => ({
 }));
 vi.mock("@/hooks/useTripGeneration", () => ({
   generateTripKey: ["generateTrip"],
-  useTripGeneration: () => ({ generate, isPending: false, error: null, reset: vi.fn() }),
+  useTripGeneration: () => ({ generateTrip, isPending: false, error: null, reset: vi.fn() }),
 }));
 vi.mock("@/app/api/geoNamesApi", () => ({ resolvePlace: vi.fn() }));
 vi.mock("@/hooks/useCountries", () => ({
@@ -87,7 +87,7 @@ beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.setSystemTime(new Date(2030, 3, 1, 12, 0, 0));
   generateForecast.mockClear();
-  generate.mockReset();
+  generateTrip.mockReset();
   forecastData = undefined;
   resetNextStubs("/form");
   return () => vi.useRealTimers();
@@ -384,13 +384,13 @@ describe("FormContext — processForm", () => {
 
   it("sends the trip request, with the submitted country's code", async () => {
     await submitWith();
-    expect(generate).toHaveBeenCalledTimes(1);
-    expect(generate.mock.calls[0][0]).toEqual(validTripRequest);
+    expect(generateTrip).toHaveBeenCalledTimes(1);
+    expect(generateTrip.mock.calls[0][0]).toEqual(validTripRequest);
   });
 
   it("keeps the traveller's own spelling in the request", async () => {
     await submitWith({ userName: "  Ana  ", city: " Lisbon ", note: "  Sintra, please " });
-    const request = generate.mock.calls[0][0];
+    const request = generateTrip.mock.calls[0][0];
     expect(request).toMatchObject({ userName: "Ana", city: "Lisbon", note: "Sintra, please" });
   });
 
@@ -426,13 +426,13 @@ describe("FormContext — processForm", () => {
     await act(async () => {
       ctx.processForm(validInputs, undefined);
     });
-    expect(generate.mock.calls[0][0].forecast).toEqual([
+    expect(generateTrip.mock.calls[0][0].forecast).toEqual([
       { date: "2030-05-01", temp: "21°C", condition: "Clear", description: "clear sky" },
     ]);
   });
 
   it("sends no forecast when weather is not selected", async () => {
     await submitWith();
-    expect(generate.mock.calls[0][0].forecast).toBeUndefined();
+    expect(generateTrip.mock.calls[0][0].forecast).toBeUndefined();
   });
 });

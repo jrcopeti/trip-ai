@@ -40,7 +40,7 @@ describe("useTripGeneration", () => {
     mockFetch.mockResolvedValue(generatedTripFixture);
     renderTrip();
 
-    ctx.generate(validTripRequest);
+    ctx.generateTrip(validTripRequest);
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledWith(validTripRequest);
@@ -51,7 +51,7 @@ describe("useTripGeneration", () => {
     mockFetch.mockResolvedValue(generatedTripFixture);
     renderTrip();
 
-    ctx.generate(validTripRequest);
+    ctx.generateTrip(validTripRequest);
 
     await waitFor(() => {
       expect(replace).toHaveBeenCalledWith(`/trips/${generatedTripFixture.tripUrl}`);
@@ -67,7 +67,7 @@ describe("useTripGeneration", () => {
     );
     renderTrip();
 
-    ctx.generate(validTripRequest);
+    ctx.generateTrip(validTripRequest);
 
     await waitFor(() => {
       expect(screen.getByTestId("pending")).toHaveTextContent("true");
@@ -84,7 +84,7 @@ describe("useTripGeneration", () => {
     mockFetch.mockRejectedValue(new Error("Error in generating response from AI"));
     renderTrip();
 
-    ctx.generate(validTripRequest);
+    ctx.generateTrip(validTripRequest);
 
     await waitFor(() => {
       expect(ctx.error).toBeInstanceOf(Error);
@@ -96,7 +96,7 @@ describe("useTripGeneration", () => {
     mockFetch.mockRejectedValue(new Error("The model did not return a trip"));
     renderTrip();
 
-    ctx.generate(validTripRequest);
+    ctx.generateTrip(validTripRequest);
     await waitFor(() => expect(ctx.error).toBeInstanceOf(Error));
 
     ctx.reset();

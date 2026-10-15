@@ -93,7 +93,7 @@ function FormProvider({ children }: { children: React.ReactNode }) {
   });
 
   const {
-    generate,
+    generateTrip,
     isPending: isGenerationPending,
     error: generationError,
     reset: resetGeneration,
@@ -179,14 +179,14 @@ function FormProvider({ children }: { children: React.ReactNode }) {
       countries.find((c) => c.value === data.country)?.code.toUpperCase() ?? "";
     // Nothing clears here: a failed generation leaves everything filled in for another
     // try, and a trip that comes back leaves /form, whose layout unmounts this provider.
-    generate(
+    generateTrip(
       toTripRequest(
         data,
         submittedCode,
         isWeatherSelected ? forecastData : undefined,
       ),
     );
-  }, [countries, generate, isWeatherSelected, forecastData]);
+  }, [countries, generateTrip, isWeatherSelected, forecastData]);
 
   const stepsValue = useMemo(
     () => ({ currentStep, delta, stepValue, next, prev }),

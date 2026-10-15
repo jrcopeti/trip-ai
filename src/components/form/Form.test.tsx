@@ -25,7 +25,7 @@ vi.mock("@/hooks/useFormForecast", () => ({
 }));
 vi.mock("@/hooks/useTripGeneration", () => ({
   generateTripKey: ["generateTrip"],
-  useTripGeneration: () => ({ generate: vi.fn(), isPending: false, error: null, reset: vi.fn() }),
+  useTripGeneration: () => ({ generateTrip: vi.fn(), isPending: false, error: null, reset: vi.fn() }),
 }));
 vi.mock("@/hooks/useGeoNames", () => ({
   idleCityCheck: { isCityValid: false, isLoadingCityValid: false, message: "", place: null },
