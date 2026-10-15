@@ -3,6 +3,7 @@ import {
   generatedTripFixture,
   imageDataFixture,
   lisbonPlace,
+  makeForecastEntry,
   tripCreateInput,
   tripDataFixture,
   validTripRequest,
@@ -11,6 +12,7 @@ import { buildSystemPrompt, buildTripMessage } from "@/lib/agent/prompt";
 import prisma from "@/db";
 import { resolvePlace } from "./geoNamesApi";
 import { fetchTripImage } from "./unsplashApi";
+import { fetchForecast } from "./openWeatherApi";
 
 const create = vi.fn();
 
@@ -26,6 +28,7 @@ vi.mock("@anthropic-ai/sdk", () => {
 });
 vi.mock("./geoNamesApi", () => ({ resolvePlace: vi.fn() }));
 vi.mock("./unsplashApi", () => ({ fetchTripImage: vi.fn() }));
+vi.mock("./openWeatherApi", () => ({ fetchForecast: vi.fn() }));
 vi.mock("@/db", () => ({ default: { trip: { create: vi.fn() } } }));
 
 const write = vi.mocked(prisma.trip.create);
@@ -59,6 +62,7 @@ beforeEach(() => {
   vi.mocked(resolvePlace).mockResolvedValue({ ok: true, place: lisbonPlace });
   vi.mocked(fetchTripImage).mockReset();
   vi.mocked(fetchTripImage).mockResolvedValue(imageDataFixture);
+  vi.mocked(fetchForecast).mockReset();
   write.mockReset();
   write.mockResolvedValue(generatedTripFixture as never);
   submits(tripDataFixture);
@@ -99,10 +103,11 @@ describe("generateTrip — the request", () => {
     expect(sent().system).toEqual([
       { type: "text", text: buildSystemPrompt(), cache_control: { type: "ephemeral" } },
     ]);
-    const message = buildTripMessage(validTripRequest, {
-      name: "Lisboa Canonical",
-      country: "Portugal",
-    });
+    const message = buildTripMessage(
+      validTripRequest,
+      { name: "Lisboa Canonical", country: "Portugal" },
+      [],
+    );
     expect(sent().messages).toEqual([{ role: "user", content: message }]);
     expect(message).toContain("Lisboa Canonical, Portugal");
   });
@@ -153,6 +158,61 @@ describe("generateTrip — the row", () => {
   it("fails when the write fails", async () => {
     write.mockRejectedValue(new Error("connection refused"));
     await expect(generateTrip(validTripRequest)).rejects.toThrow("connection refused");
+  });
+});
+
+describe("generateTrip — the forecast", () => {
+  // Lisbon in May is UTC+1, so 11:00 UTC is its midday.
+  const at = (utc: string, celsius: number) =>
+    makeForecastEntry(0, {
+      dt: Date.parse(utc) / 1000,
+      timezone: 3600,
+      main: { ...makeForecastEntry(0).main, temp: celsius + 273.15 },
+    });
+  const byWeather = {
+    ...validTripRequest,
+    byWeather: true,
+    startDate: "2030-05-01",
+    endDate: "2030-05-02",
+  };
+
+  it("fetches nothing when the traveller didn't ask for it", async () => {
+    await generateTrip(validTripRequest);
+
+    expect(fetchForecast).not.toHaveBeenCalled();
+    expect(sent().messages[0].content).toContain("- None; plan for the usual weather");
+    expect(written().byWeather).toBe(false);
+  });
+
+  it("fetches at the resolved place and keeps only the trip's days", async () => {
+    vi.mocked(fetchForecast).mockResolvedValue([
+      at("2030-05-01T11:00:00Z", 21),
+      at("2030-05-02T11:00:00Z", 18),
+      at("2030-05-03T11:00:00Z", 30),
+    ]);
+    await generateTrip(byWeather);
+
+    expect(fetchForecast).toHaveBeenCalledWith({ lat: lisbonPlace.lat, lon: lisbonPlace.lng });
+    const message = sent().messages[0].content;
+    expect(message).toContain("- Wed 1 May: 21°C, Clouds (overcast clouds)");
+    expect(message).toContain("- Thu 2 May: 18°C");
+    expect(message).not.toContain("Fri 3 May");
+    expect(written().byWeather).toBe(true);
+  });
+
+  it("plans for the usual weather, and says so on the row, when OpenWeather fails", async () => {
+    vi.mocked(fetchForecast).mockRejectedValue(new Error("Error fetching forecast data"));
+    await generateTrip(byWeather);
+
+    expect(sent().messages[0].content).toContain("- None; plan for the usual weather");
+    expect(written().byWeather).toBe(false);
+  });
+
+  it("isn't planned by the weather when no reading falls inside the trip", async () => {
+    vi.mocked(fetchForecast).mockResolvedValue([at("2030-05-09T11:00:00Z", 21)]);
+    await generateTrip(byWeather);
+
+    expect(written().byWeather).toBe(false);
   });
 });
 

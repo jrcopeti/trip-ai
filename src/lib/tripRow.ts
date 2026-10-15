@@ -14,12 +14,15 @@ export function toTripRow({
   tripData,
   images,
   tripUrl,
+  byWeather,
 }: {
   request: TripRequest;
   place: Pick<Place, "lat" | "lng">;
   tripData: TripData;
   images: ImageDataTypes;
   tripUrl: string;
+  /** Whether a forecast reached the prompt, not whether the traveller asked for one. */
+  byWeather: boolean;
 }): Prisma.TripCreateInput {
   // Stored lowercased, as the form used to; the trip page capitalises them.
   const lower = (text: string) => text.trim().toLowerCase();
@@ -48,7 +51,7 @@ export function toTripRow({
     note: request.note ? lower(request.note) : null,
     // The request leaves it out on purpose (it never reaches the prompt); the form can't submit without it.
     agreement: true,
-    byWeather: !!request.forecast?.length,
+    byWeather,
     tripUrl,
     tripImages: images.tripImages,
     placeholder: images.placeholder,

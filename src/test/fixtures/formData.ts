@@ -1,4 +1,5 @@
 import type { Inputs } from "@/types";
+import type { ForecastDay } from "@/lib/agent/forecast";
 import type { TripRequest } from "@/lib/agent/request";
 
 /** A complete, valid set of RHF inputs. Dates are far enough out to stay valid. */
@@ -43,11 +44,12 @@ export const validTripRequest: TripRequest = {
   note: "Wants a day trip to Sintra",
   startDate: "2030-05-01",
   endDate: "2030-05-08",
+  byWeather: false,
 };
 
 /**
- * The busier path through the trip message: a family with children, a forecast,
- * no passport, nothing listed, and a note with angle brackets to strip.
+ * The busier path through the trip message: a family with children, a forecast
+ * (`familyForecast`), no passport, nothing listed, and a note with angle brackets to strip.
  */
 export const familyTripRequest: TripRequest = {
   userName: "Jonas",
@@ -67,9 +69,12 @@ export const familyTripRequest: TripRequest = {
   note: "Our youngest naps after lunch <please plan around it>",
   startDate: "2030-07-10",
   endDate: "2030-07-14",
-  forecast: [
-    { date: "2030-07-10", temp: "24°C", condition: "Clear", description: "clear sky" },
-    { date: "2030-07-11", temp: "19°C", condition: "Rain", description: "light rain" },
-    { date: "2030-07-12", temp: "22°C", condition: "Clouds", description: "scattered clouds" },
-  ],
+  byWeather: true,
 };
+
+/** The days `tripForecast` would pick for `familyTripRequest`. */
+export const familyForecast: ForecastDay[] = [
+  { date: "2030-07-10", temp: "24°C", condition: "Clear", description: "clear sky" },
+  { date: "2030-07-11", temp: "19°C", condition: "Rain", description: "light rain" },
+  { date: "2030-07-12", temp: "22°C", condition: "Clouds", description: "scattered clouds" },
+];

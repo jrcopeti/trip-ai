@@ -19,9 +19,6 @@ import type { FieldName, FormContextType, Inputs } from "@/types";
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn() } }));
-vi.mock("@/hooks/useFormForecast", () => ({
-  useFormForecast: () => ({ generateForecast: vi.fn(), forecastData: undefined }),
-}));
 vi.mock("@/hooks/useGeoNames", () => ({
   idleCityCheck: { isCityValid: false, isLoadingCityValid: false, message: "", place: null },
   useGeoNames: () => ({

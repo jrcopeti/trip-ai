@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import {
   forecastListFixture,
   geoNamesSearchFixture,
@@ -18,6 +20,23 @@ import {
  * two suites cannot drift apart.
  */
 export const useE2EFixtures = process.env.E2E_FIXTURES === "1";
+
+dayjs.extend(utc);
+
+/**
+ * The forecast fixture moved to start at the last three-hour mark in UTC, as a real one does:
+ * a trip planned around the weather keeps only the days inside its dates, which start today.
+ */
+export function forecastFixtureFromNow(now = dayjs()) {
+  const utcNow = now.utc();
+  const start = utcNow.startOf("hour").subtract(utcNow.hour() % 3, "hour").unix();
+  const shift = start - forecastListFixture[0].dt;
+  return forecastListFixture.map((reading) => ({
+    ...reading,
+    dt: reading.dt + shift,
+    dt_txt: dayjs.unix(reading.dt + shift).utc().format("YYYY-MM-DD HH:mm:ss"),
+  }));
+}
 
 export {
   forecastListFixture,

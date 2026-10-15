@@ -17,6 +17,7 @@ const row = (overrides: Partial<Parameters<typeof toTripRow>[0]> = {}) =>
     tripData: tripDataFixture,
     images: imageDataFixture,
     tripUrl: generatedTripFixture.tripUrl,
+    byWeather: false,
     ...overrides,
   });
 
@@ -38,10 +39,9 @@ describe("toTripRow", () => {
     expect(row().endDate).toEqual(new Date("2030-05-08T00:00:00.000Z"));
   });
 
-  it("is planned by the weather only when a forecast came with the request", () => {
-    expect(row().byWeather).toBe(false);
-    expect(row({ request: familyTripRequest }).byWeather).toBe(true);
-    expect(row({ request: { ...familyTripRequest, forecast: [] } }).byWeather).toBe(false);
+  it("is planned by the weather when a forecast was used, not when one was asked for", () => {
+    expect(row({ byWeather: true }).byWeather).toBe(true);
+    expect(row({ request: familyTripRequest, byWeather: false }).byWeather).toBe(false);
   });
 
   it("writes no passport or note when there is none", () => {

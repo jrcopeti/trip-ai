@@ -77,13 +77,21 @@ going one way.
 - If a branch grows past its concern mid-work, stop, propose a split, and move the rest
   to the next sub-branch rather than finishing it here.
 
-## Code comments
+## Descriptions and code comments
 
-Up to three lines, saying *why* — a constraint, a trap, a decision — with enough context
-that a reader doesn't have to go and look it up. Not what the code already says, and not
-how it got there (that is the commit message and the plan). No multi-paragraph docblocks:
-if it needs more than three lines, write it in `docs/design-notes.md` or the plan and leave
-a one-line pointer in the code.
+Write them assertively: plain statements of fact, no hedging, no narrating.
+
+- **A description** (the docblock on a function, type or module) says what it does and what
+  it guarantees, in that order. "Reduces OpenWeather's list to one reading per trip day, the
+  one closest to 12:00 at the destination. Dates and hours are the destination's." Not the
+  problem it was born from, and not how it works inside.
+- **A comment** goes only on a line a competent reader would misread or "fix": a trap, a
+  constraint, a non-obvious decision. It says what the line achieves and what breaks without
+  it. "Without `.utc()` dayjs would use the server's zone." Lines whose code is clear get none.
+- Both are up to three lines, complete enough that the reader needn't look anything up.
+  Never what the code already says, and never how it got there (that is the commit message
+  and the plan). Longer reasoning goes in `docs/design-notes.md` or the plan, with a one-line
+  pointer in the code.
 
 ## Commands
 
@@ -221,7 +229,7 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
   and its copy in `content.ts`. A record now; what binds is in `design-notes.md`.
 - **`docs/grounded-agent/PLAN.md`** — the **grounded agent**, in flight. Branch 1
   (new form fields, the city check and the prompt on the server, `claude-sonnet-5-5`) is
-  finished; branch 2 (the server-owned trip) is in progress, 2a–2d and 2e-a–2e-c merged, 2e-d (`form-draft`) staged; 3–7
+  finished; branch 2 (the server-owned trip) is in progress, 2a–2d and 2e-a–2e-d merged, 2e-e (`server-forecast`) staged; 3–7
   (metrics, tools, refine, evals, MCP) are next.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
@@ -251,22 +259,22 @@ architecture). A plan is for work in flight.
 The root `src/app/providers.tsx` keeps QueryClient, `MotionProvider` and the Toaster.
 `src/app/form/layout.tsx` renders **`FormProvider`** (`src/context/FormContext.tsx`), so the
 form's state goes when the traveller leaves `/form`. It owns the multi-step form — RHF and Zod
-(`FormDataSchema`), the step (`next`/`prev`), the city check, the weather choice — and runs two
-hooks of its own:
+(`FormDataSchema`), the step (`next`/`prev`), the city check, the weather choice — and runs one
+hook of its own:
 - **`useTripGeneration`** (`src/hooks/`) — the TanStack mutation that sends a `TripRequest` to
   `generateTrip` and redirects to `/trips/[tripUrl]`. Keyed (`generateTripKey`), so `Form` shows
   the loader for one that outlived the provider; its pending, error and reset reach `Form`
   through the fields context.
-- **`useFormForecast`** (`src/hooks/`) — the form's forecast for the prompt, fetched at
-  `cityCheck.place` through `forecastForForm` on the dates step. The trip page fetches its own
-  weather on the server (`loadWeather`).
+
+The form fetches no weather: the request carries the choice (`byWeather`), and the server fetches
+the forecast.
 
 ### Server-side modules (`"use server"` unless noted)
-- `src/app/api/anthropicApi.ts` — `generateTrip(request)`: re-validates the `TripRequest` (`src/lib/agent/request.ts`), resolves the city again with `resolvePlace`, builds the prompt on the server (`src/lib/agent/prompt.ts`) and calls `claude-sonnet-5-5` with the strict `submit_trip` tool (`src/lib/agent/submitTrip.ts`) and `tool_choice: auto`. A refusal, `max_tokens`, a missing call or output that fails `TripDataSchema` all throw. Alongside the model call it fetches the photos, then writes the row (`toTripRow`, `src/lib/tripRow.ts`) from the request, the place and the output, and returns it.
+- `src/app/api/anthropicApi.ts` — `generateTrip(request)`: re-validates the `TripRequest` (`src/lib/agent/request.ts`), resolves the city again with `resolvePlace`, builds the prompt on the server (`src/lib/agent/prompt.ts`) and calls `claude-sonnet-5-5` with the strict `submit_trip` tool (`src/lib/agent/submitTrip.ts`) and `tool_choice: auto`. A refusal, `max_tokens`, a missing call or output that fails `TripDataSchema` all throw. With `byWeather` it first fetches the forecast at the resolved place and keeps one reading per trip day, nearest midday in the destination's time (`tripForecast`, `src/lib/agent/forecast.ts`); a failed fetch plans without one. Alongside the model call it fetches the photos, then writes the row (`toTripRow`, `src/lib/tripRow.ts`) from the request, the place and the output — `byWeather` on the row means a forecast reached the prompt — and returns it.
 - `src/app/api/unsplashApi.ts` — not an action: `generateTrip` calls it with GeoNames' name for the place. Fetches 5 photos + a base64 plaiceholder blur of the first.
 - `src/app/api/openWeatherApi.ts` — not an action: `fetchWeather`/`fetchForecast({ lat, lon })`,
   OpenWeather at coordinates GeoNames already resolved (checked in range; no geocoding), cached
-  10 minutes. The form's forecast reaches it through `forecastForForm` (`forecastAction.ts`).
+  10 minutes. `generateTrip` calls `fetchForecast`; the browser has no route to OpenWeather.
   `src/components/trips/loadWeather.ts` calls both from `TripPage` at the row's `lat`/`lng`, and
   the weather sections read the promises with `use()` inside their own `<Suspense>`.
 - `src/app/api/geoNamesApi.ts` — `resolvePlace(city, countryCode)`: GeoNames search plus `matchCity` (`src/lib/place.ts`); returns the canonical place or a typed `not-found`/`unavailable`.
@@ -276,7 +284,7 @@ hooks of its own:
 ### Form data lifecycle
 `Inputs` (RHF's shape, derived from the Zod schema in `src/lib/schema.ts`; `requiredItems` as
 `{item: string}[]` for `useFieldArray`) is all the form holds. On submit `processForm` sends
-`toTripRequest(inputs, countryCode, forecast)` — the original spelling, calendar-day dates,
+`toTripRequest(inputs, countryCode, byWeather)` — the original spelling, calendar-day dates,
 flat `requiredItems` — to `generateTrip`, and the server builds the row from the request. Nothing
 is kept on the client after the submit.
 
@@ -284,7 +292,7 @@ is kept on the client after the submit.
 - `useSaveTrip(tripUrl)` — `handleYesAnswer`/`handleNoAnswer` call `setTripSaved(tripUrl, true/false)`; `isAnswered` once one lands
 - `useFormSteps`, `useFormFields`, `useCityCheck` — `FormContext`'s three memoised contexts,
   so a keystroke in the city re-renders only its readers; `useFormData` reads all three, for tests
-- `useTripGeneration`, `useFormForecast` — `FormProvider`'s two mutations (see State management)
+- `useTripGeneration` — `FormProvider`'s generation mutation (see State management)
 - `useCountries` — the country list (flag URLs, ISO codes) for the autocomplete; a TanStack query fetched once per session
 - `useGeoNames` — debounced city check, through the `resolvePlace` server action; run once in
   `FormProvider`, which hands it out as `cityCheck`

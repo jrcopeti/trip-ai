@@ -9,7 +9,6 @@ import type {
 } from "@/types";
 import { useCountries } from "@/hooks/useCountries";
 import { idleCityCheck, useGeoNames } from "@/hooks/useGeoNames";
-import { useFormForecast } from "@/hooks/useFormForecast";
 import { useTripGeneration } from "@/hooks/useTripGeneration";
 import {
   type Control,
@@ -143,7 +142,6 @@ function FormProvider({ children }: { children: React.ReactNode }) {
   } = useTripGeneration();
 
   const { countries } = useCountries();
-  const { generateForecast, forecastData } = useFormForecast();
 
   // `useWatch`, not `watch`: a root `watch` re-renders `useForm`'s host with a new
   // `formState` on every keystroke, and every context with it.
@@ -193,7 +191,6 @@ function FormProvider({ children }: { children: React.ReactNode }) {
 
   const stepValue = steps[currentStep].stepValue;
 
-  const place = cityCheck.place;
   const next = useCallback(async () => {
     const fields = steps[currentStep].fields;
     const output = await trigger(fields as FieldName[], {
@@ -201,13 +198,9 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     });
     if (!output) return;
 
-    // Next is disabled until step 2's check finds the city, so its place is here by the dates step.
-    if (isWeatherSelected && place && currentStep === steps.length - 3) {
-      generateForecast({ lat: place.lat, lon: place.lng });
-    }
     setPrevStep(currentStep);
     setCurrentStep((step) => step + 1);
-  }, [trigger, isWeatherSelected, place, currentStep, generateForecast]);
+  }, [trigger, currentStep]);
 
   const prev = useCallback(() => {
     if (currentStep > 0) {
@@ -237,14 +230,8 @@ function FormProvider({ children }: { children: React.ReactNode }) {
       countries.find((c) => c.value === data.country)?.code.toUpperCase() ?? "";
     // Nothing clears here: a failed generation leaves everything filled in for another
     // try, and a trip that comes back clears the draft and leaves /form.
-    generateTrip(
-      toTripRequest(
-        data,
-        submittedCode,
-        isWeatherSelected ? forecastData : undefined,
-      ),
-    );
-  }, [countries, generateTrip, isWeatherSelected, forecastData]);
+    generateTrip(toTripRequest(data, submittedCode, isWeatherSelected));
+  }, [countries, generateTrip, isWeatherSelected]);
 
   const stepsValue = useMemo(
     () => ({ currentStep, delta, stepValue, next, prev, startOver, isDraftRestored }),

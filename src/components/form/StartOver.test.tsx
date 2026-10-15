@@ -9,9 +9,6 @@ import { buttons, destination, personal, progress, startOver, stepCopy } from "@
 import toast from "react-hot-toast";
 
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
-vi.mock("@/hooks/useFormForecast", () => ({
-  useFormForecast: () => ({ generateForecast: vi.fn(), forecastData: undefined }),
-}));
 vi.mock("@/hooks/useTripGeneration", () => ({
   generateTripKey: ["generateTrip"],
   useTripGeneration: () => ({ generateTrip: vi.fn(), isPending: false, error: null, reset: vi.fn() }),

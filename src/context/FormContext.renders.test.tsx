@@ -40,16 +40,12 @@ vi.mock("@/app/api/geoNamesApi", () => ({
 }));
 // Stable across renders, as the real ones are (TanStack's `mutate`, the query's data):
 // a new function or array per render would change the context and void the measure.
-const { generateForecast, generateTrip, reset, countries } = vi.hoisted(() => ({
-  generateForecast: () => {},
+const { generateTrip, reset, countries } = vi.hoisted(() => ({
   generateTrip: () => {},
   reset: () => {},
   countries: [
     { value: "Portugal", label: "Portugal", code: "pt", flagUrl: "https://flagcdn.com/pt.svg" },
   ],
-}));
-vi.mock("@/hooks/useFormForecast", () => ({
-  useFormForecast: () => ({ generateForecast, forecastData: undefined }),
 }));
 vi.mock("@/hooks/useTripGeneration", () => ({
   generateTripKey: ["generateTrip"],
