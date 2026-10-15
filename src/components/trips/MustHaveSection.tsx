@@ -1,9 +1,6 @@
-import { useParams } from "next/navigation";
+import type { Trip } from "@prisma/client";
 import { FaCheck } from "react-icons/fa6";
 import { LuBackpack } from "react-icons/lu";
-import { useFormData } from "@/hooks/useFormData";
-import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
-import { useTripResponse } from "@/hooks/useTripResponse";
 import Reveal from "@/components/sorbet/Reveal";
 import StickerBadge from "@/components/sorbet/StickerBadge";
 import { Section, SectionHeading } from "./Section";
@@ -51,16 +48,11 @@ function Checklist({
   );
 }
 
-function MustHaveSection() {
-  const params = useParams();
-  const { trip } = useSingleSavedTrip({ params });
-  const { tripData: response } = useTripResponse();
-  const { formData } = useFormData();
-
-  const mustHave = trip?.mustHave || response?.mustHave || [];
-  // The traveller's own items come from the form, not the model. The form keeps
-  // an empty first row when nothing was added, so blanks are dropped.
-  const requiredItems = (trip?.requiredItems ?? formData.requiredItems ?? []).filter((item) => item.trim() !== "");
+function MustHaveSection({ trip }: { trip: Trip }) {
+  const { mustHave } = trip;
+  // The traveller's own items, not the model's. `toTripRow` drops blanks; rows from
+  // before #202 can still hold the form's empty first row.
+  const requiredItems = trip.requiredItems.filter((item) => item.trim() !== "");
 
   return (
     <Section ground="bg-white">

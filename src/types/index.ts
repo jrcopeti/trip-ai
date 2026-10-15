@@ -131,13 +131,10 @@ export interface FinalDataTypes extends Omit<Inputs, "requiredItems"> {
 }
 
 export interface TripContextType {
-  tripData: Trip | null;
   generateResponseAI: (request: TripRequest, options?: { onSuccess?: () => void }) => void;
   isPendingResponseAI: boolean;
   errorResponseAI: unknown;
   resetResponseAI: () => void;
-  isTripSaved: boolean;
-  setIsTripSaved: (value: boolean) => void;
 }
 
 export interface ImageDataTypes {
@@ -181,6 +178,3 @@ export interface ToggleActions {
   onHidden: () => void;
 }
 
-export interface Params {
-  id?: string | number;
-}

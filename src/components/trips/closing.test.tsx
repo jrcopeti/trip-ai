@@ -1,61 +1,90 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { ComponentProps } from "react";
 import userEvent from "@testing-library/user-event";
-import { screen, waitFor } from "@/test/render";
-import { renderGeneratedTrip, renderSavedTrip } from "@/test/trip";
+import { renderWithProviders, screen, waitFor } from "@/test/render";
 import { back } from "@/test/stubs/next";
 import { setTripSaved } from "@/db/actions";
-import { generatedTripFixture, makeTrip, tripDataFixture } from "@/test/fixtures";
+import { generatedTripFixture, tripDataFixture } from "@/test/fixtures";
 import SaveSection from "./SaveSection";
 import FinalSection from "./FinalSection";
 import { closing } from "./content";
 
-vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
-vi.mock("@/app/api/openWeatherApi", () => ({ fetchWeather: vi.fn(), fetchForecast: vi.fn() }));
-vi.mock("@/db/actions", () => ({ getSingleSavedTrip: vi.fn(), setTripSaved: vi.fn() }));
+vi.mock("@/db/actions", () => ({ setTripSaved: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("next/image", async () => ({
   default: (await import("@/test/stubs/next")).NextImage,
 }));
 
 const mockSave = vi.mocked(setTripSaved);
-const setIsTripSaved = vi.fn();
 
 beforeEach(() => {
   mockSave.mockReset();
   mockSave.mockResolvedValue(undefined);
-  setIsTripSaved.mockClear();
 });
 
+function renderSave(props: Partial<ComponentProps<typeof SaveSection>> = {}) {
+  const { tripUrl, saved, tripImages, placeholder, tip } = generatedTripFixture;
+  return renderWithProviders(
+    <SaveSection
+      tripUrl={tripUrl}
+      saved={saved}
+      image={tripImages[4]}
+      placeholder={placeholder}
+      tip={tip}
+      {...props}
+    />,
+  );
+}
+
+const expectWhatNext = () => {
+  expect(screen.getByRole("heading", { name: closing.saved.heading })).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: closing.save.yes })).not.toBeInTheDocument();
+};
+
 describe("SaveSection", () => {
-  it("leads with the generated trip's tip", () => {
-    renderGeneratedTrip(<SaveSection />);
+  it("leads with the trip's tip and asks", () => {
+    renderSave();
 
     expect(screen.getByText(tripDataFixture.tip)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: closing.save.question })).toBeInTheDocument();
   });
 
-  it("saves the written trip by its url on yes", async () => {
-    renderGeneratedTrip(<SaveSection />, { trip: { setIsTripSaved } });
+  it("saves the written trip by its url on yes, then moves on", async () => {
+    renderSave();
 
     await userEvent.click(screen.getByRole("button", { name: closing.save.yes }));
 
     await waitFor(() => expect(mockSave).toHaveBeenCalledTimes(1));
     expect(mockSave).toHaveBeenCalledWith(generatedTripFixture.tripUrl, true);
-    await waitFor(() => expect(setIsTripSaved).toHaveBeenCalledWith(true));
+    await waitFor(expectWhatNext);
   });
 
-  it("answers false on no", async () => {
-    renderGeneratedTrip(<SaveSection />, { trip: { setIsTripSaved } });
+  it("answers false on no, then moves on", async () => {
+    renderSave();
 
     await userEvent.click(screen.getByRole("button", { name: closing.save.no }));
 
     await waitFor(() => expect(mockSave).toHaveBeenCalledTimes(1));
     expect(mockSave).toHaveBeenCalledWith(generatedTripFixture.tripUrl, false);
+    await waitFor(expectWhatNext);
+  });
+
+  it("keeps asking when the write fails", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    mockSave.mockRejectedValue(new Error("No unsaved trip at that url"));
+    renderSave();
+
+    await userEvent.click(screen.getByRole("button", { name: closing.save.yes }));
+
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: closing.save.yes })).toBeEnabled(),
+    );
+    expect(screen.getByRole("heading", { name: closing.save.question })).toBeInTheDocument();
   });
 
   it("disables both answers while the trip is being written", async () => {
     mockSave.mockReturnValue(new Promise(() => {}));
-    renderGeneratedTrip(<SaveSection />);
+    renderSave();
 
     await userEvent.click(screen.getByRole("button", { name: closing.save.yes }));
 
@@ -65,10 +94,10 @@ describe("SaveSection", () => {
     expect(screen.getByRole("button", { name: closing.save.no })).toBeDisabled();
   });
 
-  it("offers the saved trips and a new trip once answered", () => {
-    renderGeneratedTrip(<SaveSection />, { trip: { isTripSaved: true } });
+  it("offers the saved trips and a new trip when the row is already saved", () => {
+    renderSave({ saved: true });
 
-    expect(screen.queryByRole("button", { name: closing.save.yes })).not.toBeInTheDocument();
+    expectWhatNext();
     expect(screen.getByRole("link", { name: closing.saved.view.label })).toHaveAttribute(
       "href",
       closing.saved.view.href,
@@ -81,14 +110,17 @@ describe("SaveSection", () => {
 });
 
 describe("FinalSection", () => {
-  it("leads with the saved trip's tip", async () => {
-    renderSavedTrip(<FinalSection />, { row: makeTrip({ tip: "Bring a scarf." }) });
+  const renderFinal = () =>
+    renderWithProviders(<FinalSection placeholder={null} tip="Bring a scarf." />);
 
-    expect(await screen.findByText("Bring a scarf.")).toBeInTheDocument();
+  it("leads with the trip's tip", () => {
+    renderFinal();
+
+    expect(screen.getByText("Bring a scarf.")).toBeInTheDocument();
   });
 
   it("goes back on Back", async () => {
-    renderSavedTrip(<FinalSection />);
+    renderFinal();
 
     await userEvent.click(screen.getByRole("button", { name: closing.final.back }));
 
@@ -96,7 +128,7 @@ describe("FinalSection", () => {
   });
 
   it("links to a new trip", () => {
-    renderSavedTrip(<FinalSection />);
+    renderFinal();
 
     expect(screen.getByRole("link", { name: closing.final.another.label })).toHaveAttribute(
       "href",

@@ -3,10 +3,11 @@ import {
   getLatestSavedTrips,
   getSavedTripsPage,
   getSingleSavedTrip,
+  getTripByUrl,
   setTripSaved,
 } from "@/db/actions";
 import prisma from "@/db";
-import { tripFixture, tripFixture2 } from "@/test/fixtures";
+import { generatedTripFixture, tripFixture, tripFixture2 } from "@/test/fixtures";
 import { SAVED_TRIPS_PAGE_SIZE } from "@/lib/constants";
 
 vi.mock("@/db", () => ({
@@ -179,11 +180,38 @@ describe("getLatestSavedTrips", () => {
   });
 });
 
+describe("getTripByUrl", () => {
+  it("looks the trip up by its url, saved or not", async () => {
+    vi.mocked(trip.findUnique).mockResolvedValue(generatedTripFixture);
+
+    await expect(getTripByUrl(generatedTripFixture.tripUrl)).resolves.toEqual(
+      generatedTripFixture,
+    );
+    expect(trip.findUnique).toHaveBeenCalledWith({
+      where: { tripUrl: generatedTripFixture.tripUrl },
+    });
+  });
+
+  it("returns null for a miss", async () => {
+    vi.mocked(trip.findUnique).mockResolvedValue(null);
+
+    await expect(getTripByUrl("ffffffffffff")).resolves.toBeNull();
+  });
+
+  it.each(["0a1b2c", "0A1B2C3D4E5F", "0a1b2c3d4e5f0", "' or 1=1 --"])(
+    "returns null for %j without a query",
+    async (tripUrl) => {
+      await expect(getTripByUrl(tripUrl)).resolves.toBeNull();
+      expect(trip.findUnique).not.toHaveBeenCalled();
+    },
+  );
+});
+
 describe("getSingleSavedTrip", () => {
-  it("looks a trip up by id, saved only", async () => {
+  it("looks a trip up by the route's id, saved only", async () => {
     vi.mocked(trip.findUnique).mockResolvedValue(tripFixture);
 
-    const result = await getSingleSavedTrip(1);
+    const result = await getSingleSavedTrip("1");
 
     expect(trip.findUnique).toHaveBeenCalledWith({
       where: { id: 1, saved: true },
@@ -194,13 +222,13 @@ describe("getSingleSavedTrip", () => {
   it("returns null for a miss", async () => {
     vi.mocked(trip.findUnique).mockResolvedValue(null);
 
-    await expect(getSingleSavedTrip(999)).resolves.toBeNull();
+    await expect(getSingleSavedTrip("999")).resolves.toBeNull();
   });
 
   it("returns null for an unsaved trip — the saved filter is part of the lookup", async () => {
     vi.mocked(trip.findUnique).mockResolvedValue(null);
 
-    const result = await getSingleSavedTrip(2);
+    const result = await getSingleSavedTrip("2");
 
     expect(trip.findUnique).toHaveBeenCalledWith({
       where: { id: 2, saved: true },
@@ -208,12 +236,22 @@ describe("getSingleSavedTrip", () => {
     expect(result).toBeNull();
   });
 
-  it("passes an undefined id straight through", async () => {
+  // Each was a Prisma validation error, so a 500, rather than the route's not-found page.
+  it.each(["abc", "", "0", "-1", "1.5", "1e3", "2147483648", "99999999999"])(
+    "returns null for %j without a query",
+    async (id) => {
+      await expect(getSingleSavedTrip(id)).resolves.toBeNull();
+      expect(trip.findUnique).not.toHaveBeenCalled();
+    },
+  );
+
+  it("still reads the largest id Postgres can hold", async () => {
     vi.mocked(trip.findUnique).mockResolvedValue(null);
 
-    await expect(getSingleSavedTrip(undefined)).resolves.toBeNull();
+    await getSingleSavedTrip("2147483647");
+
     expect(trip.findUnique).toHaveBeenCalledWith({
-      where: { id: undefined, saved: true },
+      where: { id: 2147483647, saved: true },
     });
   });
 });

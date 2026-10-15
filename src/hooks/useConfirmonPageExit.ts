@@ -1,14 +1,14 @@
 import { useEffect } from "react";
-import { useTripResponse } from "./useTripResponse";
 
+/**
+ * Asks before the page is left, for as long as the caller is mounted: the generation
+ * loader, since leaving drops the redirect to the trip the server is still writing.
+ */
 export function useConfirmOnPageExit() {
-  const { isTripSaved } = useTripResponse();
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
-      if (!isTripSaved) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
+      e.preventDefault();
+      e.returnValue = "";
     };
 
     window.addEventListener("beforeunload", handler);
@@ -16,5 +16,5 @@ export function useConfirmOnPageExit() {
     return () => {
       window.removeEventListener("beforeunload", handler);
     };
-  }, [isTripSaved]);
+  }, []);
 }

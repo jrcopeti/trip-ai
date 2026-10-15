@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import dayjs from "dayjs";
-import { cleanup, screen, within } from "@/test/render";
-import { renderGeneratedTrip, renderSavedTrip } from "@/test/trip";
+import { screen, within } from "@/test/render";
+import { stubSrc } from "@/test/imageStub";
+import { renderTripSection } from "@/test/trip";
 import {
   LOCAL_IMAGES,
+  generatedTripFixture,
   makeForecastEntry,
   makeTrip,
   tripDataFixture,
@@ -30,52 +32,39 @@ import {
   weather,
 } from "./content";
 import type { ObjectsListType } from "@/types";
+import type { Trip } from "@prisma/client";
 
-vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("@/app/api/openWeatherApi", () => ({ fetchWeather: vi.fn(), fetchForecast: vi.fn() }));
-vi.mock("@/db/actions", () => ({ getSingleSavedTrip: vi.fn(), setTripSaved: vi.fn() }));
-vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("next/image", async () => ({
   default: (await import("@/test/stubs/next")).NextImage,
 }));
 
 const generatedObjects = tripDataFixture.objectsList as ObjectsListType[];
-const savedObjects = tripFixture.objectsList as ObjectsListType[];
 const generatedTours = tripDataFixture.tours as { title: string; kind: string; description: string }[];
+const place = ({ city, country, countryCode }: Trip) => ({ city, country, countryCode });
 
 describe("TitleSection", () => {
   it("captions the large polaroid with the generated trip's title, as the h1", () => {
-    renderGeneratedTrip(<TitleSection />);
+    renderTripSection(<TitleSection trip={generatedTripFixture} />);
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(tripDataFixture.title!);
   });
 
-  it("captions it with the saved trip's title on the saved route", async () => {
-    renderSavedTrip(<TitleSection />, { row: makeTrip({ title: "A Week of Saved Light" }) });
+  it("opens with the kind of trip and its length", () => {
+    // The fixtures: 1 to 8 May — seven days.
+    renderTripSection(<TitleSection trip={makeTrip({ type: "adventure" })} />);
 
-    expect(
-      await screen.findByRole("heading", { level: 1, name: "A Week of Saved Light" }),
-    ).toBeInTheDocument();
-  });
-
-  it("opens with the kind of trip and its length, on both routes", async () => {
-    // The fixtures: a cultural trip, 1 to 8 May — seven days.
-    renderGeneratedTrip(<TitleSection />);
-    expect(screen.getByText("A cultural trip · 7 days")).toBeInTheDocument();
-    cleanup();
-
-    renderSavedTrip(<TitleSection />, { row: makeTrip({ type: "adventure" }) });
-    expect(await screen.findByText("An adventure trip · 7 days")).toBeInTheDocument();
+    expect(screen.getByText("An adventure trip · 7 days")).toBeInTheDocument();
   });
 
   it("counts a forecast trip's days from its real dates", async () => {
-    renderSavedTrip(<TitleSection />, { row: makeTrip({ byWeather: true }) });
+    renderTripSection(<TitleSection trip={makeTrip({ byWeather: true })} />);
 
     expect(await screen.findByText("A cultural trip · 7 days")).toBeInTheDocument();
   });
 
   it("puts the trip's first photo in the frame", async () => {
-    renderSavedTrip(<TitleSection />);
+    renderTripSection(<TitleSection trip={tripFixture} />);
 
     await screen.findByRole("heading", { level: 1, name: tripFixture.title! });
     // alt="" gives the photo the presentation role, so it is found by tag.
@@ -86,7 +75,7 @@ describe("TitleSection", () => {
   });
 
   it("lists destination, dates and traveller", async () => {
-    renderSavedTrip(<TitleSection />);
+    renderTripSection(<TitleSection trip={tripFixture} />);
 
     const start = dayjs(tripFixture.startDate).format("DD.MM.YYYY");
     const end = dayjs(tripFixture.endDate).format("DD.MM.YYYY");
@@ -96,7 +85,7 @@ describe("TitleSection", () => {
   });
 
   it("keeps a forecast trip's real dates and notes they followed the forecast", async () => {
-    renderSavedTrip(<TitleSection />, { row: makeTrip({ byWeather: true }) });
+    renderTripSection(<TitleSection trip={makeTrip({ byWeather: true })} />);
 
     const start = dayjs(tripFixture.startDate).format("DD.MM.YYYY");
     const end = dayjs(tripFixture.endDate).format("DD.MM.YYYY");
@@ -107,7 +96,7 @@ describe("TitleSection", () => {
   });
 
   it("adds no forecast note to a trip with chosen dates", async () => {
-    renderSavedTrip(<TitleSection />);
+    renderTripSection(<TitleSection trip={tripFixture} />);
 
     await screen.findByText("lisbon, Portugal");
     expect(screen.queryByText(title.byWeather)).not.toBeInTheDocument();
@@ -116,22 +105,17 @@ describe("TitleSection", () => {
 
 describe("DescriptionSection", () => {
   it("renders the generated description beside the second photo", () => {
-    const { container } = renderGeneratedTrip(<DescriptionSection />);
+    const { container } = renderTripSection(<DescriptionSection trip={generatedTripFixture} />);
 
     expect(screen.getByText(tripDataFixture.description!)).toBeInTheDocument();
     expect(container.querySelector("img")).toHaveAttribute("src", LOCAL_IMAGES[1]);
   });
 
-  it("renders the saved description", async () => {
-    renderSavedTrip(<DescriptionSection />, { row: makeTrip({ description: "Saved words." }) });
-
-    expect(await screen.findByText("Saved words.")).toBeInTheDocument();
-  });
 });
 
 describe("ToursSection", () => {
   it("shows the generated trip's first tour, titled", () => {
-    renderGeneratedTrip(<ToursSection />);
+    renderTripSection(<ToursSection trip={generatedTripFixture} />);
 
     const slide = screen.getByRole("group", { name: `1 of ${generatedTours.length}` });
     expect(slide).toHaveTextContent(generatedTours[0].description);
@@ -139,8 +123,8 @@ describe("ToursSection", () => {
     expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent(generatedTours[0].title);
   });
 
-  it("shows an older saved trip's plain-string tours", async () => {
-    renderSavedTrip(<ToursSection />, { row: makeTrip({ tours: ["Only this one."] }) });
+  it("shows an older trip's plain-string tours", async () => {
+    renderTripSection(<ToursSection trip={makeTrip({ tours: ["Only this one."] })} />);
 
     expect(await screen.findByRole("group")).toHaveTextContent("Only this one.");
   });
@@ -148,25 +132,23 @@ describe("ToursSection", () => {
 
 describe("PhotoSection", () => {
   it("shows the generated trip's third photo", () => {
-    const { container } = renderGeneratedTrip(<PhotoSection />);
+    const { container } = renderTripSection(<PhotoSection trip={generatedTripFixture} />);
 
     expect(container.querySelector("img")).toHaveAttribute("src", LOCAL_IMAGES[2]);
   });
 
-  it("shows the saved trip's third photo", async () => {
-    const { container } = renderSavedTrip(<PhotoSection />, {
-      row: makeTrip({ tripImages: ["/a.jpg", "/b.jpg", "/saved/third.jpg"] }),
-    });
-
-    await vi.waitFor(() =>
-      expect(container.querySelector("img")).toHaveAttribute("src", "/saved/third.jpg"),
+  it("falls back to a bundled photo when the search found fewer than three", () => {
+    const { container } = renderTripSection(
+      <PhotoSection trip={makeTrip({ tripImages: ["/a.jpg", "/b.jpg"] })} />,
     );
+
+    expect(container.querySelector("img")).toHaveAttribute("src", stubSrc("3.jpg"));
   });
 });
 
 describe("PackReadySection", () => {
   it("gives the date range", async () => {
-    renderSavedTrip(<PackReadySection />);
+    renderTripSection(<PackReadySection trip={tripFixture} />);
 
     const start = dayjs(tripFixture.startDate).format("DD.MM.YYYY");
     const end = dayjs(tripFixture.endDate).format("DD.MM.YYYY");
@@ -177,13 +159,13 @@ describe("PackReadySection", () => {
   });
 
   it("says the list is based on the weather when it is", async () => {
-    renderSavedTrip(<PackReadySection />, { row: makeTrip({ byWeather: true }) });
+    renderTripSection(<PackReadySection trip={makeTrip({ byWeather: true })} />);
 
     expect(await screen.findByText(new RegExp(packReady.byWeather))).toBeInTheDocument();
   });
 
   it("names the section in its heading", () => {
-    renderGeneratedTrip(<PackReadySection />);
+    renderTripSection(<PackReadySection trip={generatedTripFixture} />);
 
     expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
       packReady.heading.claim,
@@ -193,7 +175,7 @@ describe("PackReadySection", () => {
 
 describe("ObjectsSection", () => {
   it("renders one card per object, with its quantity and why", () => {
-    renderGeneratedTrip(<ObjectsSection />);
+    renderTripSection(<ObjectsSection trip={generatedTripFixture} />);
 
     const items = within(screen.getByRole("list")).getAllByRole("listitem");
     expect(items).toHaveLength(generatedObjects.length);
@@ -205,7 +187,7 @@ describe("ObjectsSection", () => {
   });
 
   it("gives neighbouring cards a different hover lean, eased with an overshoot", () => {
-    renderGeneratedTrip(<ObjectsSection />);
+    renderTripSection(<ObjectsSection trip={generatedTripFixture} />);
 
     const cards = screen.getAllByRole("article");
     const lean = (el: HTMLElement) => el.className.match(/hover:-?rotate-\S+/)?.[0];
@@ -215,16 +197,16 @@ describe("ObjectsSection", () => {
     expect(cards[0].className).toContain("motion-reduce:transition-none");
   });
 
-  it("renders the saved trip's list", async () => {
-    renderSavedTrip(<ObjectsSection />);
+  it("renders nothing for a row with no list", () => {
+    renderTripSection(<ObjectsSection trip={makeTrip({ objectsList: null })} />);
 
-    expect(await screen.findAllByRole("listitem")).toHaveLength(savedObjects.length);
+    expect(screen.queryAllByRole("listitem")).toHaveLength(0);
   });
 });
 
 describe("MustHaveSection", () => {
   it("checks off the must-have items and the ones the traveller asked for", () => {
-    renderGeneratedTrip(<MustHaveSection />);
+    renderTripSection(<MustHaveSection trip={generatedTripFixture} />);
 
     const mustList = screen.getByRole("heading", { name: mustHave.mustHave }).parentElement!;
     for (const item of tripDataFixture.mustHave) {
@@ -236,7 +218,7 @@ describe("MustHaveSection", () => {
   });
 
   it("turns a sticker where the photo used to be, hidden from assistive tech", () => {
-    const { container } = renderGeneratedTrip(<MustHaveSection />);
+    const { container } = renderTripSection(<MustHaveSection trip={generatedTripFixture} />);
 
     const ring = screen.getAllByText(new RegExp(mustHave.badge), { exact: false })[0];
     expect(ring.closest("[aria-hidden]")).not.toBeNull();
@@ -244,7 +226,7 @@ describe("MustHaveSection", () => {
   });
 
   it("gives neighbouring pills a different hover lean", () => {
-    renderGeneratedTrip(<MustHaveSection />);
+    renderTripSection(<MustHaveSection trip={generatedTripFixture} />);
 
     const mustList = screen.getByRole("heading", { name: mustHave.mustHave }).parentElement!;
     const pills = within(mustList).getAllByRole("listitem");
@@ -255,13 +237,13 @@ describe("MustHaveSection", () => {
   });
 
   it("drops blank required items and says so when none are left", async () => {
-    renderSavedTrip(<MustHaveSection />, { row: makeTrip({ requiredItems: [""] }) });
+    renderTripSection(<MustHaveSection trip={makeTrip({ requiredItems: [""] })} />);
 
     expect(await screen.findByText(mustHave.noRequired)).toBeInTheDocument();
   });
 
   it("keeps the real items when blanks are mixed in", async () => {
-    renderSavedTrip(<MustHaveSection />, { row: makeTrip({ requiredItems: ["", "hat"] }) });
+    renderTripSection(<MustHaveSection trip={makeTrip({ requiredItems: ["", "hat"] })} />);
 
     const requiredList = (
       await screen.findByRole("heading", { name: mustHave.required })
@@ -279,24 +261,13 @@ describe("WeatherSection", () => {
   });
 
   it("asks for the destination's weather", () => {
-    renderGeneratedTrip(<WeatherSection />, { weather: { generateWeather } });
+    renderTripSection(<WeatherSection {...place(generatedTripFixture)} />, { weather: { generateWeather } });
 
     expect(generateWeather).toHaveBeenCalledWith({ city: "lisbon", countryCode: "PT" });
   });
 
-  it("asks for the saved trip's destination on the saved route", async () => {
-    renderSavedTrip(<WeatherSection />, {
-      row: makeTrip({ city: "kyoto", country: "Japan", countryCode: "JP" }),
-      weather: { generateWeather },
-    });
-
-    await vi.waitFor(() =>
-      expect(generateWeather).toHaveBeenCalledWith({ city: "kyoto", countryCode: "JP" }),
-    );
-  });
-
   it("renders temperatures in Celsius, the condition and the metrics", () => {
-    renderGeneratedTrip(<WeatherSection />, {
+    renderTripSection(<WeatherSection {...place(generatedTripFixture)} />, {
       weather: { generateWeather, weatherData: weatherFixture },
     });
 
@@ -313,7 +284,7 @@ describe("WeatherSection", () => {
   });
 
   it("hides the weather icon from assistive tech, the condition being in the text", () => {
-    const { container } = renderGeneratedTrip(<WeatherSection />, {
+    const { container } = renderTripSection(<WeatherSection {...place(generatedTripFixture)} />, {
       weather: { generateWeather, weatherData: weatherFixture },
     });
 
@@ -325,14 +296,14 @@ describe("WeatherSection", () => {
   it("shows the loader on the first render, before the request has started", () => {
     // The request starts in an effect, after the first render: no data, nothing
     // pending yet. This used to flash "not available" for a frame.
-    renderGeneratedTrip(<WeatherSection />, { weather: { generateWeather } });
+    renderTripSection(<WeatherSection {...place(generatedTripFixture)} />, { weather: { generateWeather } });
 
     expect(screen.getByRole("status", { name: weather.loading })).toBeInTheDocument();
     expect(screen.queryByText(weather.unavailable)).not.toBeInTheDocument();
   });
 
   it("says so only when the request failed", () => {
-    renderGeneratedTrip(<WeatherSection />, {
+    renderTripSection(<WeatherSection {...place(generatedTripFixture)} />, {
       weather: { generateWeather, errorWeather: new Error("down") },
     });
 
@@ -353,13 +324,13 @@ describe("ForecastSection", () => {
   });
 
   it("asks for the destination's forecast", () => {
-    renderGeneratedTrip(<ForecastSection />, { weather: { generateDailyForecast } });
+    renderTripSection(<ForecastSection {...place(generatedTripFixture)} />, { weather: { generateDailyForecast } });
 
     expect(generateDailyForecast).toHaveBeenCalledWith({ city: "lisbon", countryCode: "PT" });
   });
 
   it("renders a card per day with its weekday and temperature", () => {
-    renderGeneratedTrip(<ForecastSection />, {
+    renderTripSection(<ForecastSection {...place(generatedTripFixture)} />, {
       weather: { generateDailyForecast, dailyForecastData: days },
     });
 
@@ -375,14 +346,14 @@ describe("ForecastSection", () => {
   });
 
   it("shows the loader until the first forecast arrives", () => {
-    renderGeneratedTrip(<ForecastSection />, { weather: { generateDailyForecast } });
+    renderTripSection(<ForecastSection {...place(generatedTripFixture)} />, { weather: { generateDailyForecast } });
 
     expect(screen.getByRole("status", { name: forecast.loading })).toBeInTheDocument();
     expect(screen.queryByText(forecast.unavailable)).not.toBeInTheDocument();
   });
 
   it("says so when the forecast came back with no days", () => {
-    renderGeneratedTrip(<ForecastSection />, {
+    renderTripSection(<ForecastSection {...place(generatedTripFixture)} />, {
       weather: { generateDailyForecast, dailyForecastData: [] },
     });
 
@@ -390,7 +361,7 @@ describe("ForecastSection", () => {
   });
 
   it("says so when the request failed", () => {
-    renderGeneratedTrip(<ForecastSection />, {
+    renderTripSection(<ForecastSection {...place(generatedTripFixture)} />, {
       weather: { generateDailyForecast, errorDailyForecast: new Error("down") },
     });
 
@@ -402,7 +373,7 @@ describe("FormDetailsSection", () => {
   const value = (label: string) => screen.getByText(label, { selector: "dt" }).nextElementSibling;
 
   it("lists what the traveller entered as terms and values, options by their label", async () => {
-    renderSavedTrip(<FormDetailsSection />);
+    renderTripSection(<FormDetailsSection trip={tripFixture} />);
     await screen.findByText("Couple");
 
     expect(value(details.labels.destination)).toHaveTextContent("lisbon, Portugal");
@@ -417,14 +388,14 @@ describe("FormDetailsSection", () => {
   });
 
   it("leaves out a passport the traveller didn't give", async () => {
-    renderSavedTrip(<FormDetailsSection />, { row: makeTrip({ passport: null }) });
+    renderTripSection(<FormDetailsSection trip={makeTrip({ passport: null })} />);
     await screen.findByText("Couple");
 
     expect(screen.queryByText(details.labels.passport, { selector: "dt" })).toBeNull();
   });
 
   it("shows the interests as chips, by their label", async () => {
-    renderSavedTrip(<FormDetailsSection />);
+    renderTripSection(<FormDetailsSection trip={tripFixture} />);
     await screen.findByText("Couple");
 
     const interests = screen.getByText(details.labels.interests, { selector: "dt" })
@@ -436,13 +407,13 @@ describe("FormDetailsSection", () => {
   });
 
   it("shows an interest no list offers any more as it was stored", async () => {
-    renderSavedTrip(<FormDetailsSection />, { row: makeTrip({ interests: ["gardening"] }) });
+    renderTripSection(<FormDetailsSection trip={makeTrip({ interests: ["gardening"] })} />);
 
     expect(await screen.findByText("gardening")).toBeInTheDocument();
   });
 
   it("shows the flag for the row's country code, named after the country", async () => {
-    renderSavedTrip(<FormDetailsSection />);
+    renderTripSection(<FormDetailsSection trip={tripFixture} />);
 
     expect(await screen.findByRole("img", { name: details.flag("Portugal") })).toHaveAttribute(
       "src",
@@ -451,25 +422,19 @@ describe("FormDetailsSection", () => {
   });
 
   it("says the duration follows the weather when it does", async () => {
-    renderSavedTrip(<FormDetailsSection />, { row: makeTrip({ byWeather: true }) });
+    renderTripSection(<FormDetailsSection trip={makeTrip({ byWeather: true })} />);
 
     expect(await screen.findByText(details.byWeather)).toBeInTheDocument();
   });
 
   it("drops blank interests rather than rendering an empty chip", async () => {
-    renderSavedTrip(<FormDetailsSection />, { row: makeTrip({ interests: [""] }) });
+    renderTripSection(<FormDetailsSection trip={makeTrip({ interests: [""] })} />);
     await screen.findByText("Couple");
 
     const interests = screen.getByText(details.labels.interests, { selector: "dt" })
       .nextElementSibling as HTMLElement;
     expect(within(interests).queryAllByRole("listitem")).toHaveLength(0);
     expect(interests).toHaveTextContent(details.none);
-  });
-
-  it("renders the generated route's form data", () => {
-    renderGeneratedTrip(<FormDetailsSection />);
-
-    expect(screen.getByText("wants a day trip to sintra")).toBeInTheDocument();
   });
 });
 

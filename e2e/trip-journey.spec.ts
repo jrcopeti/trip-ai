@@ -94,6 +94,20 @@ test.describe("trip journey", () => {
     await page.getByRole("button", { name: "Yes, save it" }).click();
     await expect(page.getByRole("heading", { name: "What next?" })).toBeVisible();
 
+    // Back restores the trip page from the router's cache, which must know it's saved:
+    // asking again would fail, as the row is no longer unsaved. Before any reload,
+    // which would refill that cache from the server.
+    await page.getByRole("link", { name: "View saved trips" }).click();
+    await expect(page).toHaveURL(/\/saved-trips$/);
+    await page.goBack();
+    await expect(page.getByRole("heading", { name: "What next?" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Yes, save it" })).toHaveCount(0);
+
+    // The answer is on the row, so a refresh doesn't ask again.
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "What next?" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Yes, save it" })).toHaveCount(0);
+
     await page.getByRole("link", { name: "View saved trips" }).click();
     await expect(page).toHaveURL(/\/saved-trips$/);
     await searchSavedTrips(page, SAVER);
@@ -118,6 +132,9 @@ test.describe("trip journey", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.setViewportSize({ width: 390, height: 844 });
     await generateTrip(page, DISCARDER);
+    // The trip is the row the server wrote, not client memory: a refresh keeps it.
+    await page.reload();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(tripDataFixture.title!);
     await noHorizontalScroll(page);
 
     // The tours are a carousel: one at a time, Next brings the second.

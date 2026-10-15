@@ -3,50 +3,47 @@ import { renderWithProviders, waitFor } from "@/test/render";
 import { useSaveTrip } from "@/hooks/useSaveTrip";
 import { setTripSaved } from "@/db/actions";
 import { generatedTripFixture } from "@/test/fixtures";
-import type { Trip } from "@prisma/client";
+import { refresh, resetNextStubs } from "@/test/stubs/next";
 
 vi.mock("@/db/actions", () => ({ setTripSaved: vi.fn() }));
-
-const setIsTripSaved = vi.fn();
-let tripData: Trip | null = generatedTripFixture;
-
-vi.mock("@/hooks/useTripResponse", () => ({
-  useTripResponse: () => ({ tripData, setIsTripSaved }),
-}));
+vi.mock("next/navigation", () => import("@/test/stubs/next"));
 
 const mockSave = vi.mocked(setTripSaved);
+const { tripUrl } = generatedTripFixture;
 
 let hook: ReturnType<typeof useSaveTrip>;
 
 function Probe() {
-  hook = useSaveTrip();
+  hook = useSaveTrip(tripUrl);
   return null;
 }
 
 beforeEach(() => {
-  tripData = generatedTripFixture;
+  resetNextStubs();
   mockSave.mockReset();
   mockSave.mockResolvedValue(undefined);
-  setIsTripSaved.mockClear();
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
 describe("useSaveTrip", () => {
-  it("saves the generated trip by its url, sending nothing else", async () => {
+  it("saves the trip by its url, sending nothing else", async () => {
     renderWithProviders(<Probe />);
+    expect(hook.isAnswered).toBe(false);
     hook.handleYesAnswer();
 
     await waitFor(() => expect(mockSave).toHaveBeenCalledTimes(1));
-    expect(mockSave).toHaveBeenCalledWith(generatedTripFixture.tripUrl, true);
-    await waitFor(() => expect(setIsTripSaved).toHaveBeenCalledWith(true));
+    expect(mockSave).toHaveBeenCalledWith(tripUrl, true);
+    await waitFor(() => expect(hook.isAnswered).toBe(true));
+    // So the router cache's copy of the page, rendered unsaved, is replaced.
+    expect(refresh).toHaveBeenCalledTimes(1);
   });
 
   it("answers no with the flag false, and marks the answer handled", async () => {
     renderWithProviders(<Probe />);
     hook.handleNoAnswer();
 
-    await waitFor(() => expect(mockSave).toHaveBeenCalledWith(generatedTripFixture.tripUrl, false));
-    await waitFor(() => expect(setIsTripSaved).toHaveBeenCalledWith(true));
+    await waitFor(() => expect(mockSave).toHaveBeenCalledWith(tripUrl, false));
+    await waitFor(() => expect(hook.isAnswered).toBe(true));
   });
 
   it("surfaces a failed write and leaves the question open", async () => {
@@ -55,16 +52,8 @@ describe("useSaveTrip", () => {
     hook.handleYesAnswer();
 
     await waitFor(() => expect(hook.saveTripError).toBeInstanceOf(Error));
-    expect(setIsTripSaved).not.toHaveBeenCalled();
-  });
-
-  it("fails without a call when there is no trip in hand", async () => {
-    tripData = null;
-    renderWithProviders(<Probe />);
-    hook.handleYesAnswer();
-
-    await waitFor(() => expect(hook.saveTripError).toBeInstanceOf(Error));
-    expect(mockSave).not.toHaveBeenCalled();
+    expect(hook.isAnswered).toBe(false);
+    expect(refresh).not.toHaveBeenCalled();
   });
 
   it("reports pending while the write is in flight", async () => {

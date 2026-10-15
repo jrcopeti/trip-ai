@@ -3,9 +3,6 @@ import { act, cleanup, renderWithProviders, screen } from "@/test/render";
 import LoaderResponseAI from "@/components/ui/LoaderResponseAI";
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
-// `useConfirmOnPageExit` reaches TripContext, which constructs the Anthropic
-// client at module scope — mocked at the boundary so nothing is constructed.
-vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 
 /** The rotation, in the component's order. */
 const messages = [
@@ -133,7 +130,7 @@ describe("LoaderResponseAI", () => {
     const addEventListener = vi.spyOn(window, "addEventListener");
     renderWithProviders(<LoaderResponseAI />);
 
-    // useConfirmOnPageExit: the trip is still generating and unsaved.
+    // useConfirmOnPageExit: leaving now loses the way to the trip being written.
     expect(addEventListener).toHaveBeenCalledWith(
       "beforeunload",
       expect.any(Function),

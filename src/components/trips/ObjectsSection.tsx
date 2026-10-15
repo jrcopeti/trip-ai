@@ -1,7 +1,5 @@
-import { useParams } from "next/navigation";
+import type { Trip } from "@prisma/client";
 import { LuPackage } from "react-icons/lu";
-import { useSingleSavedTrip } from "@/hooks/useSingleSavedTrip";
-import { useTripResponse } from "@/hooks/useTripResponse";
 import Reveal from "@/components/sorbet/Reveal";
 import TripCard from "@/components/sorbet/TripCard";
 import type { ObjectsListType } from "@/types";
@@ -10,13 +8,8 @@ import { objects as copy } from "./content";
 import { CARD_TINTS } from "@/components/sorbet/tints";
 import { CARD_DRIFT, drift } from "./drift";
 
-function ObjectsSection() {
-  const params = useParams();
-  const { trip } = useSingleSavedTrip({ params });
-  const { tripData: response } = useTripResponse();
-
-  const objectsList =
-    ((trip?.objectsList || response?.objectsList) as ObjectsListType[] | undefined) ?? [];
+function ObjectsSection({ trip }: { trip: Trip }) {
+  const objectsList = (trip.objectsList as ObjectsListType[] | null) ?? [];
 
   return (
     <Section ground="bg-sorbet-canvas">
