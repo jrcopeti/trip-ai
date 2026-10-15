@@ -37,7 +37,9 @@ export const fetchForecast = async (
 
   try {
     const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${process.env.OPEN_WEATHER_KEY}`;
-    return (await getJson(forecastUrl)).list;
+    // The offset comes once, on `city`; each reading gets it, so its day is named where it is.
+    const { list, city } = await getJson(forecastUrl);
+    return list.map((reading: DailyForecastDataTypes) => ({ ...reading, timezone: city.timezone }));
   } catch (error: unknown) {
     console.error("error", error);
     throw new Error("Error fetching forecast data");

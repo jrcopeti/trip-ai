@@ -458,6 +458,10 @@ its own, in this order (2f is independent and can land any time):
   now reads OpenWeather's icon code (`01d`/`01n`), day or night at the destination. And
   `openWeatherApi.ts` is no longer `"use server"`, so `fetchWeather` has no public endpoint;
   the form's forecast goes through a one-function action, `forecastForForm` (`forecastAction.ts`).
+  From its review: the forecast cards named each day in the renderer's zone, and they now render
+  on the server (UTC) and hydrate in the browser, so the names could disagree. `fetchForecast`
+  gives each reading the response's `city.timezone`, and the card names the day in the
+  destination's time, as the weather card already did.
 - **2e · `form-scoped`: the providers leave the app root.** `FormContext` moves to
   `src/app/form/layout.tsx`; `TripContext` becomes `useTripGeneration`; the form's forecast
   becomes a form-local hook; `formData`/`FinalDataTypes` go if nothing reads them; `providers.tsx`

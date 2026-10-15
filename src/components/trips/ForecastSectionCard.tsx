@@ -1,7 +1,9 @@
 import Image from "next/image";
 import suncloudy from "@/assets/weather/suncloudy.png";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { DailyForecastDataTypes } from "@/types";
+dayjs.extend(utc);
 
 /**
  * One day of the forecast: an offwhite card (the section ground is white) with
@@ -12,7 +14,12 @@ function ForecastSectionCard({
 }: {
   forecast: DailyForecastDataTypes;
 }) {
-  const day = dayjs.unix(forecast.dt).format("dddd");
+  // In the destination's time: rendered on the server and again in the browser, so never local.
+  const day = dayjs
+    .unix(forecast.dt)
+    .utc()
+    .add(forecast.timezone ?? 0, "s")
+    .format("dddd");
   const temperature = Math.round((forecast.main?.temp ?? 0) - 273.15);
   const weather = forecast.weather?.[0];
 

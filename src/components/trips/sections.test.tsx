@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import type { ReactElement } from "react";
 import { act, renderWithProviders, screen, within } from "@/test/render";
 import { stubSrc } from "@/test/imageStub";
@@ -37,6 +38,8 @@ import type { Trip } from "@prisma/client";
 vi.mock("next/image", async () => ({
   default: (await import("@/test/stubs/next")).NextImage,
 }));
+
+dayjs.extend(utc);
 
 const generatedObjects = tripDataFixture.objectsList as ObjectsListType[];
 const generatedTours = tripDataFixture.tours as { title: string; kind: string; description: string }[];
@@ -320,12 +323,32 @@ describe("ForecastSection", () => {
     const cards = await screen.findAllByRole("article");
     expect(cards).toHaveLength(2);
     expect(
-      within(cards[0]).getByRole("heading", { name: dayjs.unix(days[0].dt).format("dddd") }),
+      within(cards[0]).getByRole("heading", {
+        // In the destination's time: the fixture's offset is UTC+1.
+        name: dayjs.unix(days[0].dt).utc().add(3600, "s").format("dddd"),
+      }),
     ).toBeInTheDocument();
     // 290.15K + 4 for entry 4, + 12 for entry 12.
     expect(within(cards[0]).getByText("21")).toBeInTheDocument();
     expect(within(cards[1]).getByText("29")).toBeInTheDocument();
     expect(within(cards[0]).getByText("Clouds")).toBeInTheDocument();
+  });
+
+  // Rendered on the server and again in the browser: a day named in either's zone could differ.
+  it("names each day in the destination's time, never the renderer's", async () => {
+    const at1amUtc = Date.UTC(2030, 4, 4, 1, 0, 0) / 1000; // Saturday 4 May 2030, 01:00 UTC
+    await renderResolved(
+      <ForecastSection
+        forecast={Promise.resolve([
+          { ...makeForecastEntry(0), dt: at1amUtc, timezone: -3 * 3600 },
+          { ...makeForecastEntry(1), dt: at1amUtc + 3600, timezone: 3600 },
+        ])}
+      />,
+    );
+
+    const cards = await screen.findAllByRole("article");
+    expect(within(cards[0]).getByRole("heading")).toHaveTextContent("Friday");
+    expect(within(cards[1]).getByRole("heading")).toHaveTextContent("Saturday");
   });
 
   it("shows the heading and the loader while the forecast streams in", () => {
