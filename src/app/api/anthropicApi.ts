@@ -124,7 +124,7 @@ async function askForTrip(
   const trip = TripDataSchema.safeParse(input);
   if (!trip.success) {
     console.error("generateTrip: invalid trip", trip.error.flatten());
-    // TEMPORARY (2f diagnosis): the raw value of a list field that came as a string.
+    // TEMPORARY until the string is caught (PLAN.md, 2f): logs a list field that came as a string.
     for (const [field, value] of Object.entries(input as Record<string, unknown>)) {
       if (typeof value !== "string" || !["tours", "objectsList", "mustHave"].includes(field)) continue;
       let parseError = "parsed";
@@ -136,7 +136,7 @@ async function askForTrip(
       console.error(`DIAG ${field}: length ${value.length}; ${parseError}`);
       console.error(`DIAG ${field} head: ${JSON.stringify(value.slice(0, 300))}`);
       console.error(`DIAG ${field} tail: ${JSON.stringify(value.slice(-300))}`);
-      (await import("node:fs")).writeFileSync(`/tmp/claude-501/diag-${field}.txt`, value);
+      console.error(`DIAG ${field} raw:`, value);
     }
     throw new Error("The model returned an invalid trip");
   }

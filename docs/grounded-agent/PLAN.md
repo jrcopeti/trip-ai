@@ -680,8 +680,10 @@ its own, in this order (2h is independent and can land any time):
   real trips (40 tours): 108 to 125 words, the carousel 849px at 390.
   - Real runs (local database, real APIs, 2026-10-16): 1 failure in the first 2 (at 120 to
     140; the guard's warning did not fire, so the string was not a JSON list), then 8 of 8
-    fine at 110 to 130, none with a list sent as a string. A temporary log of the raw string
-    sits uncommitted in `generateTrip` until a failure is caught; it comes out before this merges.
+    fine at 110 to 130, none with a list sent as a string. A temporary log in `generateTrip`
+    stays until a failure is caught: for a list field that came as a string, its length, why
+    `JSON.parse` refused it, and the raw value (`DIAG` in the server log, dev or Vercel). Then a
+    branch fixes the bug from that string and removes the log.
   - Tests first: `generateTrip` writes the trip when any of the three lists arrives as a JSON
     string, and logs it; prose and a JSON object in `tours` still fail. `parseListFields` on its
     own: lists left alone, broken JSON and prose left as strings, other fields untouched,
