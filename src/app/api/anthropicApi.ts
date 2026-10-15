@@ -6,7 +6,12 @@ import prisma from "@/db";
 import { tripForecast, type ForecastDay } from "@/lib/agent/forecast";
 import { buildSystemPrompt, buildTripMessage } from "@/lib/agent/prompt";
 import { TripRequestSchema, type TripRequest } from "@/lib/agent/request";
-import { TripDataSchema, submitTripTool, type TripData } from "@/lib/agent/submitTrip";
+import {
+  TripDataSchema,
+  parseListFields,
+  submitTripTool,
+  type TripData,
+} from "@/lib/agent/submitTrip";
 import type { Place } from "@/lib/place";
 import { toTripRow } from "@/lib/tripRow";
 import { resolvePlace } from "./geoNamesApi";
@@ -113,9 +118,26 @@ async function askForTrip(
     throw new Error("The model did not return a trip");
   }
 
-  const trip = TripDataSchema.safeParse(call.input);
+  // `strict: true` still lets the model send a list as its JSON text now and then.
+  const { input, parsed } = parseListFields(call.input);
+  if (parsed.length > 0) console.warn("generateTrip: parsed lists sent as strings:", parsed);
+  const trip = TripDataSchema.safeParse(input);
   if (!trip.success) {
     console.error("generateTrip: invalid trip", trip.error.flatten());
+    // TEMPORARY (2f diagnosis): the raw value of a list field that came as a string.
+    for (const [field, value] of Object.entries(input as Record<string, unknown>)) {
+      if (typeof value !== "string" || !["tours", "objectsList", "mustHave"].includes(field)) continue;
+      let parseError = "parsed";
+      try {
+        JSON.parse(value);
+      } catch (e) {
+        parseError = String(e);
+      }
+      console.error(`DIAG ${field}: length ${value.length}; ${parseError}`);
+      console.error(`DIAG ${field} head: ${JSON.stringify(value.slice(0, 300))}`);
+      console.error(`DIAG ${field} tail: ${JSON.stringify(value.slice(-300))}`);
+      (await import("node:fs")).writeFileSync(`/tmp/claude-501/diag-${field}.txt`, value);
+    }
     throw new Error("The model returned an invalid trip");
   }
   return trip.data;

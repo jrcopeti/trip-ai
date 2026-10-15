@@ -229,7 +229,7 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
   and its copy in `content.ts`. A record now; what binds is in `design-notes.md`.
 - **`docs/grounded-agent/PLAN.md`** — the **grounded agent**, in flight. Branch 1
   (new form fields, the city check and the prompt on the server, `claude-sonnet-5-5`) is
-  finished; branch 2 (the server-owned trip) is in progress, 2a–2d and 2e-a–2e-d merged, 2e-e (`server-forecast`) staged; 3–7
+  finished; branch 2 (the server-owned trip) is in progress, 2a–2e-e merged, 2e-f (`background-generation`) under review, 2f (`fix-string-tours`) staged; 3–7
   (metrics, tools, refine, evals, MCP) are next.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and

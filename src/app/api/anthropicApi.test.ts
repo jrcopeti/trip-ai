@@ -247,6 +247,29 @@ describe("generateTrip — the answer", () => {
     await expect(generateTrip(validTripRequest)).rejects.toThrow(/invalid trip/);
   });
 
+  // Seen in dev despite `strict: true`: a list sent as its JSON text.
+  it.each(["tours", "objectsList", "mustHave"] as const)(
+    "writes the trip when %s arrives as a JSON string",
+    async (field) => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      submits({ ...tripDataFixture, [field]: JSON.stringify(tripDataFixture[field]) });
+
+      await generateTrip(validTripRequest);
+
+      expect(written()[field]).toEqual(tripDataFixture[field]);
+      // Logged, so how often it happens shows in the server's logs.
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("as strings"), [field]);
+    },
+  );
+
+  it.each([
+    ["prose in tours", { tours: "Five tours: the castle, the tram, the river…" }],
+    ["a JSON object in tours", { tours: JSON.stringify({ title: "x" }) }],
+  ])("still fails on %s", async (_, change) => {
+    submits({ ...tripDataFixture, ...change });
+    await expect(generateTrip(validTripRequest)).rejects.toThrow(/invalid trip/);
+  });
+
   it("fails when the API call itself fails", async () => {
     create.mockRejectedValue(new Error("network"));
     await expect(generateTrip(validTripRequest)).rejects.toThrow(/generating/);

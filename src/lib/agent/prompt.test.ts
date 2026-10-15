@@ -29,7 +29,7 @@ describe("buildSystemPrompt", () => {
   // The carousel renders a description as one <p>, as tall as the longest tour.
   it("sizes each tour for the carousel: a short title and one even paragraph", () => {
     expect(prompt).toContain("Title: up to six words");
-    expect(prompt).toContain("one paragraph of 100 to 120 words");
+    expect(prompt).toContain("one paragraph of 110 to 130 words");
     expect(prompt).toContain("Keep the five about the same length");
   });
 
