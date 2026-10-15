@@ -2,7 +2,7 @@
 
 import { createContext, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { fetchForecast } from "@/app/api/openWeatherApi";
+import { forecastForForm } from "@/app/api/forecastAction";
 import { selectDailyForecasts } from "@/lib/utils";
 import toast from "react-hot-toast";
 import CustomToaster from "@/components/ui/CustomToaster";
@@ -35,7 +35,7 @@ function WeatherProvider({ children }: { children: React.ReactNode }) {
     isPending: isPendingForecast,
     error: errorForecast,
   } = useMutation({
-    mutationFn: (coordinates: Coordinates) => fetchForecast(coordinates),
+    mutationFn: (coordinates: Coordinates) => forecastForForm(coordinates),
 
     onSuccess: (initialForecastData: ForecastDataTypes[]) => {
       const selectedForecasts = selectDailyForecasts(

@@ -145,8 +145,8 @@ Playwright.
   expected content is on screen, with a budget; that still pins the order, which is what
   the behaviour actually is.
 
-**Anything reading the clock must pin it.** `placeWeatherIcons`, `findStartIndex` and the
-schema's date refinements all compare against local time, so a UTC-anchored fixture
+**Anything reading the clock must pin it.** `findStartIndex` and the
+schema's date refinements both compare against local time, so a UTC-anchored fixture
 passes here and fails in CI. Use `vi.setSystemTime` with a *local* `Date`, and
 `FIXTURE_NOW` from the weather fixture for forecast work.
 
@@ -250,13 +250,14 @@ architecture). A plan is for work in flight.
 ### State management: three Context providers (nested in `src/app/providers.tsx`, inside `MotionProvider`)
 - **`FormContext`** (`src/context/FormContext.tsx`) — owns the entire multi-step form: RHF instance, Zod validation (`FormDataSchema`), step navigation (`next`/`prev`), and triggers the forecast fetch on the dates step.
 - **`TripContext`** (`src/context/TripContext.tsx`) — the TanStack Query mutation that sends a `TripRequest` to `generateTrip`, and its pending/error state for the form. Redirects to `/trips/[tripUrl]` on success.
-- **`WeatherContext`** (`src/context/WeatherContext.tsx`) — one TanStack Query mutation: the form's forecast for the prompt, at `cityCheck.place`. The trip page fetches its own weather on the server (`loadWeather`).
+- **`WeatherContext`** (`src/context/WeatherContext.tsx`) — one TanStack Query mutation: the form's forecast for the prompt, at `cityCheck.place`, through `forecastForForm`. The trip page fetches its own weather on the server (`loadWeather`).
 
 ### Server-side modules (`"use server"` unless noted)
 - `src/app/api/anthropicApi.ts` — `generateTrip(request)`: re-validates the `TripRequest` (`src/lib/agent/request.ts`), resolves the city again with `resolvePlace`, builds the prompt on the server (`src/lib/agent/prompt.ts`) and calls `claude-sonnet-5-5` with the strict `submit_trip` tool (`src/lib/agent/submitTrip.ts`) and `tool_choice: auto`. A refusal, `max_tokens`, a missing call or output that fails `TripDataSchema` all throw. Alongside the model call it fetches the photos, then writes the row (`toTripRow`, `src/lib/tripRow.ts`) from the request, the place and the output, and returns it.
 - `src/app/api/unsplashApi.ts` — not an action: `generateTrip` calls it with GeoNames' name for the place. Fetches 5 photos + a base64 plaiceholder blur of the first.
-- `src/app/api/openWeatherApi.ts` — `fetchWeather`/`fetchForecast({ lat, lon })`: OpenWeather at
-  coordinates GeoNames already resolved (checked in range; no geocoding), cached 10 minutes.
+- `src/app/api/openWeatherApi.ts` — not an action: `fetchWeather`/`fetchForecast({ lat, lon })`,
+  OpenWeather at coordinates GeoNames already resolved (checked in range; no geocoding), cached
+  10 minutes. The form's forecast reaches it through `forecastForForm` (`forecastAction.ts`).
   `src/components/trips/loadWeather.ts` calls both from `TripPage` at the row's `lat`/`lng`, and
   the weather sections read the promises with `use()` inside their own `<Suspense>`.
 - `src/app/api/geoNamesApi.ts` — `resolvePlace(city, countryCode)`: GeoNames search plus `matchCity` (`src/lib/place.ts`); returns the canonical place or a typed `not-found`/`unavailable`.

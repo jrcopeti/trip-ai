@@ -9,8 +9,7 @@ import {
 /**
  * The one concession production code makes to testing.
  *
- * The API modules are `"use server"`, so their outbound calls happen on the
- * server and Playwright's `page.route` cannot intercept them. Without this the
+ * The API modules run on the server, so their outbound calls happen there and Playwright's `page.route` cannot intercept them. Without this the
  * e2e suite would need live Anthropic, Unsplash, OpenWeather and GeoNames keys in CI — a
  * worse trade than a single environment-variable branch.
  *

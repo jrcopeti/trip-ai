@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, waitFor } from "@/test/render";
 import { WeatherProvider } from "@/context/WeatherContext";
 import { useWeather } from "@/hooks/useWeather";
-import { fetchForecast } from "@/app/api/openWeatherApi";
+import { forecastForForm } from "@/app/api/forecastAction";
 import {
   FIXTURE_NOW,
   forecastListFixture,
@@ -12,9 +12,9 @@ import {
 } from "@/test/fixtures";
 import type { WeatherContextType } from "@/types";
 
-vi.mock("@/app/api/openWeatherApi", () => ({ fetchForecast: vi.fn() }));
+vi.mock("@/app/api/forecastAction", () => ({ forecastForForm: vi.fn() }));
 
-const mockForecast = vi.mocked(fetchForecast);
+const mockForecast = vi.mocked(forecastForForm);
 
 const lisbon = { lat: lisbonPlace.lat, lon: lisbonPlace.lng };
 

@@ -7,9 +7,8 @@ import loadWeather from "./loadWeather";
 vi.mock("@/app/api/openWeatherApi", () => ({ fetchWeather: vi.fn(), fetchForecast: vi.fn() }));
 
 beforeEach(() => {
-  // placeWeatherIcons and selectDailyForecasts both read the clock; pin it to
-  // midday on the fixture's day so the day/night branch and the start index
-  // are the same on every machine.
+  // selectDailyForecasts reads the clock; pin it to midday on the fixture's
+  // day so the start index is the same on every machine.
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(FIXTURE_NOW);
   vi.mocked(fetchWeather).mockReset().mockResolvedValue(weatherFixture);

@@ -83,26 +83,19 @@ describe("placeWeatherIcons", () => {
 
   function atHour(hour: number) {
     vi.useFakeTimers();
-    const d = new Date(2030, 4, 1, hour, 0, 0);
-    vi.setSystemTime(d);
+    vi.setSystemTime(new Date(2030, 4, 1, hour, 0, 0));
   }
 
-  it("uses the sun for a clear day", () => {
-    atHour(12);
+  it("uses the sun for a clear day and the moon for a clear night", () => {
     expect(placeWeatherIcons("Clear", "01d")).toBe(stubSrc("sun.png"));
-  });
-
-  it("uses the sun at the 5am and 7pm edges of daytime", () => {
-    atHour(5);
-    expect(placeWeatherIcons("Clear", "01d")).toBe(stubSrc("sun.png"));
-    atHour(19);
-    expect(placeWeatherIcons("Clear", "01d")).toBe(stubSrc("sun.png"));
-  });
-
-  it("uses the moon for a clear night on either side of that window", () => {
-    atHour(4);
     expect(placeWeatherIcons("Clear", "01n")).toBe(stubSrc("moon.png"));
-    atHour(20);
+  });
+
+  // The code is day or night at the destination; the clock is the machine's, the server's in UTC.
+  it("goes by the icon code, never the clock of the machine running it", () => {
+    atHour(2);
+    expect(placeWeatherIcons("Clear", "01d")).toBe(stubSrc("sun.png"));
+    atHour(12);
     expect(placeWeatherIcons("Clear", "01n")).toBe(stubSrc("moon.png"));
   });
 

@@ -453,10 +453,11 @@ its own, in this order (2f is independent and can land any time):
   pending promises (rendered in an awaited `act`, which React 19 needs for `use()`), `TripPage`
   fetching at the row's coordinates; e2e: a saved trip's page streams in the fixture weather
   and five forecast days.
-  Left as found: `placeWeatherIcons` picks sun or moon for a clear sky by the clock of the
-  machine running it (the browser's before, now the server's, UTC on Vercel); OpenWeather's
-  icon code (`01d`/`01n`) has the destination's day or night. And `fetchWeather` no longer has
-  a client caller but stays an action, since the module is `"use server"` for `fetchForecast`.
+  From the wrap-up, also in this branch: `placeWeatherIcons` picked sun or moon for a clear sky
+  by the clock of the machine running it (the browser's, then the server's, UTC on Vercel); it
+  now reads OpenWeather's icon code (`01d`/`01n`), day or night at the destination. And
+  `openWeatherApi.ts` is no longer `"use server"`, so `fetchWeather` has no public endpoint;
+  the form's forecast goes through a one-function action, `forecastForForm` (`forecastAction.ts`).
 - **2e · `form-scoped`: the providers leave the app root.** `FormContext` moves to
   `src/app/form/layout.tsx`; `TripContext` becomes `useTripGeneration`; the form's forecast
   becomes a form-local hook; `formData`/`FinalDataTypes` go if nothing reads them; `providers.tsx`

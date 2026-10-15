@@ -1,4 +1,5 @@
-"use server";
+// Not a server action: the trip page calls these on the server, and the form's forecast goes
+// through `forecastForForm` (`forecastAction.ts`), so `fetchWeather` has no public endpoint.
 import { z } from "zod";
 import {
   forecastListFixture,
@@ -12,7 +13,7 @@ import type {
 } from "@/types";
 
 // Always a place GeoNames resolved (the row's, or the form's city check), never OpenWeather's
-// own geocoding. Checked here too: an action is a public endpoint, and these go into the URL.
+// own geocoding. Checked here: the form's arrive through a public action, and both go into the URL.
 const CoordinatesSchema = z.object({
   lat: z.number().min(-90).max(90),
   lon: z.number().min(-180).max(180),
