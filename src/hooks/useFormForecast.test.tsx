@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, waitFor } from "@/test/render";
-import { WeatherProvider } from "@/context/WeatherContext";
-import { useWeather } from "@/hooks/useWeather";
+import { useFormForecast } from "@/hooks/useFormForecast";
 import { forecastForForm } from "@/app/api/forecastAction";
+import toast from "react-hot-toast";
 import {
   FIXTURE_NOW,
   forecastListFixture,
@@ -10,27 +10,23 @@ import {
   makeForecastEntry,
   weatherFixture,
 } from "@/test/fixtures";
-import type { WeatherContextType } from "@/types";
 
 vi.mock("@/app/api/forecastAction", () => ({ forecastForForm: vi.fn() }));
+vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn() } }));
 
 const mockForecast = vi.mocked(forecastForForm);
 
 const lisbon = { lat: lisbonPlace.lat, lon: lisbonPlace.lng };
 
-let ctx: WeatherContextType;
+let ctx: ReturnType<typeof useFormForecast>;
 
 function Probe() {
-  ctx = useWeather();
+  ctx = useFormForecast();
   return null;
 }
 
 function renderWeather() {
-  return renderWithProviders(
-    <WeatherProvider>
-      <Probe />
-    </WeatherProvider>,
-  );
+  return renderWithProviders(<Probe />);
 }
 
 beforeEach(() => {
@@ -39,6 +35,7 @@ beforeEach(() => {
   // so the start index is the same on every machine.
   vi.setSystemTime(FIXTURE_NOW);
   mockForecast.mockReset();
+  vi.mocked(toast.custom).mockClear();
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
@@ -46,7 +43,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("WeatherContext — forecast for the prompt", () => {
+describe("useFormForecast — the forecast for the prompt", () => {
   it("starts empty", () => {
     renderWeather();
     expect(ctx.forecastData).toBeUndefined();
@@ -104,15 +101,16 @@ describe("WeatherContext — forecast for the prompt", () => {
     });
   });
 
-  it("surfaces the error and leaves forecastData undefined on failure", async () => {
+  it("says so and leaves forecastData undefined on failure", async () => {
     mockForecast.mockRejectedValue(new Error("Error fetching forecast data"));
     renderWeather();
 
     ctx.generateForecast(lisbon);
 
     await waitFor(() => {
-      expect(ctx.errorForecast).toBeInstanceOf(Error);
+      expect(console.error).toHaveBeenCalled();
     });
+    expect(toast.custom).toHaveBeenCalledTimes(1);
     expect(ctx.forecastData).toBeUndefined();
   });
 });

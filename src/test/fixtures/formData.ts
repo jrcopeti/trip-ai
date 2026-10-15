@@ -1,4 +1,4 @@
-import type { FinalDataTypes, Inputs } from "@/types";
+import type { Inputs } from "@/types";
 import type { TripRequest } from "@/lib/agent/request";
 
 /** A complete, valid set of RHF inputs. Dates are far enough out to stay valid. */
@@ -21,19 +21,6 @@ export const validInputs: Inputs = {
   startDate: "2030-05-01T00:00:00.000Z",
   endDate: "2030-05-08T00:00:00.000Z",
   agreement: true,
-};
-
-/** The same data as `processForm` keeps it, with the place `cityCheck` resolved. */
-export const finalFormData: FinalDataTypes = {
-  ...validInputs,
-  userName: "ana",
-  city: "lisbon",
-  note: "wants a day trip to sintra",
-  requiredItems: ["camera", "walking shoes"],
-  byWeather: false,
-  countryCode: "PT",
-  lat: 38.71667,
-  lng: -9.13333,
 };
 
 /** `validInputs` as `toTripRequest` sends it, original case kept. */

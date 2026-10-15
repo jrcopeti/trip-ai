@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
 import { makeQueryClient, renderWithProviders, screen } from "@/test/render";
-import FormProviders from "@/app/form/providers";
+import { FormProvider } from "@/context/FormContext";
 import { useFormData } from "@/hooks/useFormData";
 import Form from "@/components/form/Form";
 import { generateTrip } from "@/app/api/anthropicApi";
@@ -38,10 +38,10 @@ function Probe() {
 }
 
 const tree = (
-  <FormProviders>
+  <FormProvider>
     <Probe />
     <Form />
-  </FormProviders>
+  </FormProvider>
 );
 
 beforeEach(() => {
@@ -49,7 +49,7 @@ beforeEach(() => {
   vi.mocked(generateTrip).mockReset();
 });
 
-// The providers unmount with /form, but the generation outlives them and still redirects.
+// The provider unmounts with /form, but the generation outlives them and still redirects.
 describe("Form — a generation still running when /form mounts again", () => {
   it("shows the loader rather than an empty form that could be sent twice", async () => {
     vi.mocked(generateTrip).mockReturnValue(new Promise(() => {}));
@@ -58,7 +58,8 @@ describe("Form — a generation still running when /form mounts again", () => {
     await act(async () => {
       ctx.processForm(validInputs, undefined);
     });
-    expect(screen.getByText("Generating your trip")).toBeInTheDocument();
+    // TanStack notifies on its next tick; "Plan my trip" also re-renders through RHF's `formState`.
+    expect(await screen.findByText("Generating your trip")).toBeInTheDocument();
     first.unmount();
 
     renderWithProviders(tree, { queryClient });

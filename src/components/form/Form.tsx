@@ -1,8 +1,7 @@
 "use client";
 
 import { useIsMutating } from "@tanstack/react-query";
-import { useTripResponse } from "@/hooks/useTripResponse";
-import { generateTripKey } from "@/context/TripContext";
+import { generateTripKey } from "@/hooks/useTripGeneration";
 import { useFormFields } from "@/hooks/useFormData";
 
 import ProgressBar from "./Progress";
@@ -19,23 +18,23 @@ import LoaderResponseAI from "../ui/LoaderResponseAI";
 import { failure } from "./content";
 
 function Form() {
-  const { isPendingResponseAI, errorResponseAI, resetResponseAI } = useTripResponse();
-  const { handleSubmit, processForm } = useFormFields();
+  const { handleSubmit, processForm, isGenerationPending, generationError, resetGeneration } =
+    useFormFields();
   // Also one from before /form last unmounted: the form behind it would send a second trip.
   const isGenerating = useIsMutating({ mutationKey: generateTripKey }) > 0;
 
-  if (isPendingResponseAI || isGenerating) {
+  if (isGenerationPending || isGenerating) {
     return <LoaderResponseAI />;
   }
 
-  if (errorResponseAI) {
+  if (generationError) {
     // Clearing the error shows the form again, still on the review step with
     // every answer: it is cleared only when a trip comes back.
     return (
       <NotFoundComponent
         message={failure.message}
         button={failure.button}
-        onAction={resetResponseAI}
+        onAction={resetGeneration}
       />
     );
   }

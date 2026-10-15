@@ -1,6 +1,5 @@
 "use client";
 
-import { createContext } from "react";
 import { generateTrip } from "@/app/api/anthropicApi";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -8,30 +7,16 @@ import toast from "react-hot-toast";
 import ErrorToaster from "@/components/ui/ErrorToaster";
 import CustomToaster from "@/components/ui/CustomToaster";
 import type { TripRequest } from "@/lib/agent/request";
-import type { TripContextType } from "@/types";
-
-const defaultContextValue: TripContextType = {
-  generateResponseAI: async () => {},
-  isPendingResponseAI: false,
-  errorResponseAI: null,
-  resetResponseAI: () => {},
-};
-
-const TripContext = createContext<TripContextType>(defaultContextValue);
 
 // Keyed so `Form` can see a generation that outlived the provider: one left running
 // when the traveller left /form still redirects when it lands.
 const generateTripKey = ["generateTrip"];
 
-function TripProvider({ children }: { children: React.ReactNode }) {
+/** Sends the trip request; `FormProvider` runs it once and hands `Form` its error. */
+function useTripGeneration() {
   const router = useRouter();
 
-  const {
-    mutate: generateResponseAI,
-    isPending: isPendingResponseAI,
-    error: errorResponseAI,
-    reset: resetResponseAI,
-  } = useMutation({
+  const { mutate, isPending, error, reset } = useMutation({
     mutationKey: generateTripKey,
     mutationFn: (request: TripRequest) => generateTrip(request),
 
@@ -49,18 +34,7 @@ function TripProvider({ children }: { children: React.ReactNode }) {
     },
   });
 
-  return (
-    <TripContext.Provider
-      value={{
-        generateResponseAI,
-        isPendingResponseAI,
-        errorResponseAI,
-        resetResponseAI,
-      }}
-    >
-      {children}
-    </TripContext.Provider>
-  );
+  return { generate: mutate, isPending, error, reset };
 }
 
-export { TripProvider, TripContext, generateTripKey };
+export { useTripGeneration, generateTripKey };

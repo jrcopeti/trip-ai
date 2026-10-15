@@ -14,14 +14,15 @@ import type { FieldName, FormContextType, Inputs, SelectedForecastDataTypes } fr
 
 const generateForecast = vi.fn();
 let forecastData: SelectedForecastDataTypes[] | undefined;
-const generateResponseAI = vi.fn();
+const generate = vi.fn();
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
-vi.mock("@/hooks/useWeather", () => ({
-  useWeather: () => ({ generateForecast, forecastData }),
+vi.mock("@/hooks/useFormForecast", () => ({
+  useFormForecast: () => ({ generateForecast, forecastData }),
 }));
-vi.mock("@/hooks/useTripResponse", () => ({
-  useTripResponse: () => ({ generateResponseAI }),
+vi.mock("@/hooks/useTripGeneration", () => ({
+  generateTripKey: ["generateTrip"],
+  useTripGeneration: () => ({ generate, isPending: false, error: null, reset: vi.fn() }),
 }));
 vi.mock("@/app/api/geoNamesApi", () => ({ resolvePlace: vi.fn() }));
 vi.mock("@/hooks/useCountries", () => ({
@@ -86,7 +87,7 @@ beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.setSystemTime(new Date(2030, 3, 1, 12, 0, 0));
   generateForecast.mockClear();
-  generateResponseAI.mockReset();
+  generate.mockReset();
   forecastData = undefined;
   resetNextStubs("/form");
   return () => vi.useRealTimers();
@@ -383,26 +384,14 @@ describe("FormContext — processForm", () => {
 
   it("sends the trip request, with the submitted country's code", async () => {
     await submitWith();
-    expect(generateResponseAI).toHaveBeenCalledTimes(1);
-    expect(generateResponseAI.mock.calls[0][0]).toEqual(validTripRequest);
+    expect(generate).toHaveBeenCalledTimes(1);
+    expect(generate.mock.calls[0][0]).toEqual(validTripRequest);
   });
 
   it("keeps the traveller's own spelling in the request", async () => {
     await submitWith({ userName: "  Ana  ", city: " Lisbon ", note: "  Sintra, please " });
-    const request = generateResponseAI.mock.calls[0][0];
+    const request = generate.mock.calls[0][0];
     expect(request).toMatchObject({ userName: "Ana", city: "Lisbon", note: "Sintra, please" });
-  });
-
-  it("lowercases and trims the name, city and note into formData", async () => {
-    await submitWith({ userName: "  Ana  ", city: "  Lisbon ", note: "  Sintra  " });
-    expect(ctx.formData.userName).toBe("ana");
-    expect(ctx.formData.city).toBe("lisbon");
-    expect(ctx.formData.note).toBe("sintra");
-  });
-
-  it("flattens requiredItems into lowercase strings", async () => {
-    await submitWith({ requiredItems: [{ item: " Camera " }, { item: "Shoes" }] });
-    expect(ctx.formData.requiredItems).toEqual(["camera", "shoes"]);
   });
 
   // A failed generation only shows a toast: the traveller can press "Plan my trip" again.
@@ -437,13 +426,13 @@ describe("FormContext — processForm", () => {
     await act(async () => {
       ctx.processForm(validInputs, undefined);
     });
-    expect(generateResponseAI.mock.calls[0][0].forecast).toEqual([
+    expect(generate.mock.calls[0][0].forecast).toEqual([
       { date: "2030-05-01", temp: "21°C", condition: "Clear", description: "clear sky" },
     ]);
   });
 
   it("sends no forecast when weather is not selected", async () => {
     await submitWith();
-    expect(generateResponseAI.mock.calls[0][0].forecast).toBeUndefined();
+    expect(generate.mock.calls[0][0].forecast).toBeUndefined();
   });
 });

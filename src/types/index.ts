@@ -2,7 +2,6 @@ import z from "zod";
 import { FormDataSchema } from "@/lib/schema";
 import { Control, FieldErrors, SubmitHandler } from "react-hook-form";
 import { Trip } from "@prisma/client";
-import type { TripRequest } from "@/lib/agent/request";
 import type { Place } from "@/lib/place";
 
 export type Inputs = z.infer<typeof FormDataSchema>;
@@ -67,19 +66,6 @@ export interface Coordinates {
   lon: number;
 }
 
-export interface FetchResponseAIParams {
-  prompt: string;
-  city: string;
-  country?: string;
-}
-
-export interface WeatherContextType {
-  forecastData?: SelectedForecastDataTypes[];
-  generateForecast: (coordinates: Coordinates) => void;
-  isPendingForecast: boolean;
-  errorForecast: unknown;
-}
-
 export interface FormStepsContextType {
   currentStep: number;
   delta: number;
@@ -88,8 +74,6 @@ export interface FormStepsContextType {
   prev: () => void;
 }
 export interface FormFieldsContextType {
-  formData: FinalDataTypes;
-  setFormData: (data: FinalDataTypes) => void;
   control: Control<Inputs> | undefined;
   errors: FieldErrors<Inputs>;
   isValid: boolean;
@@ -106,6 +90,10 @@ export interface FormFieldsContextType {
   setValue: (name: FieldName, value: string) => void;
   isWeatherSelected: boolean;
   setIsWeatherSelected: (value: boolean) => void;
+  /** This form's generation: `Form` shows the loader, then a failure until `resetGeneration`. */
+  isGenerationPending: boolean;
+  generationError: unknown;
+  resetGeneration: () => void;
 }
 export interface CityCheckContextType {
   countryCode?: string;
@@ -114,22 +102,6 @@ export interface CityCheckContextType {
 export type FormContextType = FormStepsContextType &
   FormFieldsContextType &
   CityCheckContextType;
-export interface FinalDataTypes extends Omit<Inputs, "requiredItems"> {
-  requiredItems: string[];
-  // Kept from the submit: the form resets once the traveller leaves /form, before the save.
-  byWeather: boolean;
-  countryCode: string;
-  lat: number | null;
-  lng: number | null;
-}
-
-export interface TripContextType {
-  generateResponseAI: (request: TripRequest) => void;
-  isPendingResponseAI: boolean;
-  errorResponseAI: unknown;
-  resetResponseAI: () => void;
-}
-
 export interface ImageDataTypes {
   /** In the order the trip page shows them; `placeholder` is the blur of the first. */
   tripImages: string[];
