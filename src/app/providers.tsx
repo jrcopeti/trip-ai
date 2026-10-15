@@ -3,9 +3,6 @@ import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "react-hot-toast";
-import { TripProvider } from "@/context/TripContext";
-import { WeatherProvider } from "@/context/WeatherContext";
-import { FormProvider } from "@/context/FormContext";
 import MotionProvider from "@/components/sorbet/MotionProvider";
 
 interface ProvidersProps {
@@ -39,14 +36,8 @@ function Providers({ children }: ProvidersProps) {
             duration: 5000,
           }}
         />
-        <WeatherProvider>
-          <TripProvider>
-            <FormProvider>
-              {children}
-              {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-            </FormProvider>
-          </TripProvider>
-        </WeatherProvider>
+        {children}
+        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       </MotionProvider>
     </QueryClientProvider>
   );

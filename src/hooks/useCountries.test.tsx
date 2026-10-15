@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { renderWithProviders, waitFor } from "@/test/render";
+import { makeQueryClient, renderWithProviders, waitFor } from "@/test/render";
 import { useCountries } from "@/hooks/useCountries";
 
 const mockGet = vi.fn();
@@ -10,6 +10,11 @@ let hook: ReturnType<typeof useCountries>;
 
 function Probe() {
   hook = useCountries();
+  return null;
+}
+
+function OtherReader() {
+  useCountries();
   return null;
 }
 
@@ -116,5 +121,32 @@ describe("useCountries", () => {
       expect(hook.isLoading).toBe(false);
     });
     expect(hook.countries).toHaveLength(1);
+  });
+
+  // The step 1 and step 2 comboboxes and FormProvider all read it.
+  it("asks the CDN once for every reader", async () => {
+    answer({ pt: "Portugal" });
+    renderWithProviders(
+      <>
+        <Probe />
+        <OtherReader />
+        <OtherReader />
+      </>,
+    );
+
+    await waitFor(() => expect(hook.countries).toHaveLength(1));
+    expect(mockGet).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the list when /form mounts again", async () => {
+    answer({ pt: "Portugal" });
+    const queryClient = makeQueryClient();
+    const first = renderWithProviders(<Probe />, { queryClient });
+    await waitFor(() => expect(hook.countries).toHaveLength(1));
+    first.unmount();
+
+    renderWithProviders(<Probe />, { queryClient });
+    expect(hook.countries).toHaveLength(1);
+    expect(mockGet).toHaveBeenCalledTimes(1);
   });
 });

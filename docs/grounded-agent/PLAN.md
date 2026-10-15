@@ -478,7 +478,7 @@ its own, in this order (2f is independent and can land any time):
   on the server (UTC) and hydrate in the browser, so the names could disagree. `fetchForecast`
   gives each reading the response's `city.timezone`, and the card names the day in the
   destination's time, as the weather card already did.
-- **2e · the providers leave the app root — split 2e-a, 2e-b, 2e-c.** Born of an audit of the
+- **2e · the providers leave the app root — split 2e-a, 2e-b, 2e-c, 2e-d.** Born of an audit of the
   three contexts. Cost found: all three providers wrap every route but only `/form` reads them,
   so `FormProvider` runs `useForm`/`useFieldArray`/`useGeoNames` everywhere and `useCountries`
   does a raw, uncached `fetch("https://flagcdn.com/en/codes.json")` on every page load; and the
@@ -490,6 +490,18 @@ its own, in this order (2f is independent and can land any time):
     the provider unmounting resets the state — check the empty-step-1 flash during `router.replace`
     does not come back. `useCountries` becomes a TanStack Query (`staleTime: Infinity`), so the
     flagcdn call is made once and only on `/form`. Biggest win; ships first.
+    **Status: done on `form-scoped`, staged, not committed.** As built: `src/app/form/layout.tsx`
+    renders `FormProviders` (`form/providers.tsx`: Weather, Trip, Form); the root keeps
+    QueryClient, MotionProvider and Toaster. With `clearOnLeave` gone, so is the per-call
+    `onSuccess` on `generateResponseAI` that only it used. `useCountries` is a query
+    (`staleTime` and `gcTime: Infinity`), one request for its three readers, kept across visits
+    to `/form` in a session; a failed request now retries (TanStack's default), still logged.
+    Behaviour change: leaving `/form` mid-fill and coming back starts a fresh form (it used to
+    keep the answers). Checked in the browser: submit → loader → trip page draws no form step
+    in between. Tests: the layout provides the form and the root doesn't (nor fetches
+    flagcdn), a remount starts fresh, `useCountries` asks once across readers and remounts;
+    e2e: no flagcdn request on `/` or `/about`, and "New trip" after a saved trip is an empty
+    step 1.
   - **2e-b · `form-context-split`: stop re-rendering everything on a keystroke.** Memoise the
     value and split it into steps (`currentStep, delta, stepValue, next, prev`), rhf (`control,
     errors, fields, append/insert/remove, setValue, handleSubmit`) and city (`cityCheck,
@@ -500,10 +512,23 @@ its own, in this order (2f is independent and can land any time):
   - **2e-c · `form-state-dead`: what nothing reads goes.** `formData`/`setFormData`/
     `FinalDataTypes`; `TripContext` becomes `useTripGeneration`; the form's forecast becomes a
     form-local hook (`WeatherContext` goes). CLAUDE.md's architecture section is rewritten.
+  - **2e-d · `form-draft`: the answers survive leaving `/form`, and "Start over" clears them.**
+    Since 2e-a, a nav link mid-form loses the answers (the layout unmounts); a reload always did.
+    The answers (RHF values), the step and the weather choice are saved to `sessionStorage` as they
+    change and restored when `/form` mounts. The draft clears when a trip comes back (before the
+    redirect) and with the tab; a failed generation keeps it, as today. A draft that survives
+    leaves no way to start afresh, so the same branch adds **"Start over"**: a quiet button beside
+    Back in `FormButtons`, shown once the form is dirty or past step 1, behind a **confirm dialog**
+    ("Clear your answers?"). Confirming runs `reset(defaultFormData)`, step 0, the weather choice
+    off, and removes the draft; the city check follows the empty city. Tests: a remount restores
+    the answers and step; a successful trip clears the draft and a failed one keeps it; "Start
+    over" asks, cancel keeps everything, confirm clears the form and the storage. e2e: fill two
+    steps, go to About and back, the answers are there; start over, step 1 is empty. After 2e-b,
+    which reshapes the context this hooks into; independent of 2e-c.
   - **Zustand: evaluated, not adopted.** react-hook-form owns the form state (uncontrolled,
     ref-based) and TanStack Query owns the server state; a store would mirror RHF's. What is left
     is `currentStep`, `prevStep` and `isWeatherSelected`. Revisit only for a draft that survives a
-    refresh, or form state read across routes.
+    refresh, or form state read across routes. (2e-d's draft is `sessionStorage` beside RHF, not a store.)
 - **2f · `request-checks`: findings 2 and 3.** Passport checked with `oneOf` against the
   countries; required items refuse line breaks, on the server and the form.
 - **2g · dependencies: Renovate keeps them current, a branch each for the breaking ones.**

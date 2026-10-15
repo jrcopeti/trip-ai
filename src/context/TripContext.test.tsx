@@ -99,27 +99,6 @@ describe("TripContext", () => {
     expect(replace).not.toHaveBeenCalled();
   });
 
-  it("runs the caller's onSuccess once the trip is back", async () => {
-    mockFetch.mockResolvedValue(generatedTripFixture);
-    const onSuccess = vi.fn();
-    renderTrip();
-
-    ctx.generateResponseAI(validTripRequest, { onSuccess });
-
-    await waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1));
-  });
-
-  it("skips the caller's onSuccess when the call fails", async () => {
-    mockFetch.mockRejectedValue(new Error("The city could not be resolved: unavailable"));
-    const onSuccess = vi.fn();
-    renderTrip();
-
-    ctx.generateResponseAI(validTripRequest, { onSuccess });
-
-    await waitFor(() => expect(ctx.errorResponseAI).toBeInstanceOf(Error));
-    expect(onSuccess).not.toHaveBeenCalled();
-  });
-
   it("clears the error on reset, so the form can show again", async () => {
     mockFetch.mockRejectedValue(new Error("The model did not return a trip"));
     renderTrip();

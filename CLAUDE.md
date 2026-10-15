@@ -221,7 +221,7 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
   and its copy in `content.ts`. A record now; what binds is in `design-notes.md`.
 - **`docs/grounded-agent/PLAN.md`** — the **grounded agent**, in flight. Branch 1
   (new form fields, the city check and the prompt on the server, `claude-sonnet-5-5`) is
-  finished; branch 2 (the server-owned trip) is in progress, 2a–2c merged, 2d in PR #208; 3–7
+  finished; branch 2 (the server-owned trip) is in progress, 2a–2d merged, 2e-a (`form-scoped`) staged; 3–7
   (metrics, tools, refine, evals, MCP) are next.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
@@ -247,7 +247,7 @@ architecture). A plan is for work in flight.
    read on the server (`getSingleSavedTrip`). Both routes render `TripPage` with the row as
    a `trip` prop; each has a `loading.tsx` with the squiggle `Loader`.
 
-### State management: three Context providers (nested in `src/app/providers.tsx`, inside `MotionProvider`)
+### State management: three Context providers, scoped to `/form` (`src/app/form/layout.tsx` → `form/providers.tsx`); the root `src/app/providers.tsx` keeps QueryClient, `MotionProvider` and the Toaster
 - **`FormContext`** (`src/context/FormContext.tsx`) — owns the entire multi-step form: RHF instance, Zod validation (`FormDataSchema`), step navigation (`next`/`prev`), and triggers the forecast fetch on the dates step.
 - **`TripContext`** (`src/context/TripContext.tsx`) — the TanStack Query mutation that sends a `TripRequest` to `generateTrip`, and its pending/error state for the form. Redirects to `/trips/[tripUrl]` on success.
 - **`WeatherContext`** (`src/context/WeatherContext.tsx`) — one TanStack Query mutation: the form's forecast for the prompt, at `cityCheck.place`, through `forecastForForm`. The trip page fetches its own weather on the server (`loadWeather`).
@@ -270,7 +270,7 @@ architecture). A plan is for work in flight.
 ### Key custom hooks
 - `useSaveTrip(tripUrl)` — `handleYesAnswer`/`handleNoAnswer` call `setTripSaved(tripUrl, true/false)`; `isAnswered` once one lands
 - `useFormData`, `useTripResponse` — context consumers
-- `useCountries` — fetches country list (flag URLs, ISO codes) for the autocomplete
+- `useCountries` — the country list (flag URLs, ISO codes) for the autocomplete; a TanStack query fetched once per session
 - `useGeoNames` — debounced city check, through the `resolvePlace` server action; run once in
   `FormProvider`, which hands it out as `cityCheck`
 
