@@ -189,8 +189,9 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     });
     if (!output) return;
 
-    if (isWeatherSelected && countryCode && currentStep === steps.length - 3) {
-      generateForecast({ city: cityWatch, countryCode });
+    // Next is disabled until step 2's check finds the city, so its place is here by the dates step.
+    if (isWeatherSelected && cityCheck.place && currentStep === steps.length - 3) {
+      generateForecast({ lat: cityCheck.place.lat, lon: cityCheck.place.lng });
     }
     setPrevStep(currentStep);
     setCurrentStep((step) => step + 1);

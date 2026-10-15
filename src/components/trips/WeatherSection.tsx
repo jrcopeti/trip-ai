@@ -1,8 +1,7 @@
 "use client";
-import { useEffect } from "react";
+import { Suspense, use } from "react";
 import Image from "next/image";
 import type { Trip } from "@prisma/client";
-import { useWeather } from "@/hooks/useWeather";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import suncloudy from "@/assets/weather/suncloudy.png";
@@ -15,36 +14,48 @@ import Reveal from "@/components/sorbet/Reveal";
 import SquiggleLoader from "@/components/sorbet/SquiggleLoader";
 import { Section, SectionHeading, SectionNotice } from "./Section";
 import { weather as copy } from "./content";
+import type { WeatherDataTypes } from "@/types";
 dayjs.extend(utc);
 
 const toCelsius = (kelvin?: number) => Math.round((kelvin ?? 0) - 273.15);
 
-/** Fetched in the browser by place until grounded-agent 2d fetches it on the server. */
-function WeatherSection({ city, country, countryCode }: Pick<Trip, "city" | "country" | "countryCode">) {
-  const { generateWeather, weatherData, errorWeather } = useWeather();
-
-  useEffect(() => {
-    generateWeather({ city, countryCode });
-  }, [generateWeather, city, countryCode]);
-
+/** The weather is fetched on the server (`loadWeather`); the heading shows while it streams in. */
+function WeatherSection({
+  city,
+  country,
+  weather,
+}: Pick<Trip, "city" | "country"> & { weather: Promise<WeatherDataTypes | null> }) {
   return (
     <Section ground="bg-sorbet-offwhite">
       <SectionHeading eyebrow={copy.eyebrow} heading={copy.heading} />
-      {weatherData ? (
-        <WeatherCard weatherData={weatherData} place={`${city}, ${country}`} />
-      ) : !errorWeather ? (
-        // Loading until there is weather or an error — including the first render,
-        // before the effect above has even started the request.
-        <div role="status" aria-label={copy.loading} className="mt-12">
-          <SquiggleLoader className="h-12 w-20" />
-        </div>
-      ) : (
-        <SectionNotice>
-          <BiMessageSquareError aria-hidden className="text-sorbet-alert" />
-          {copy.unavailable}
-        </SectionNotice>
-      )}
+      <Suspense
+        fallback={
+          <div role="status" aria-label={copy.loading} className="mt-12">
+            <SquiggleLoader className="h-12 w-20" />
+          </div>
+        }
+      >
+        <CurrentWeather weather={weather} place={`${city}, ${country}`} />
+      </Suspense>
     </Section>
+  );
+}
+
+function CurrentWeather({
+  weather,
+  place,
+}: {
+  weather: Promise<WeatherDataTypes | null>;
+  place: string;
+}) {
+  const weatherData = use(weather);
+  return weatherData ? (
+    <WeatherCard weatherData={weatherData} place={place} />
+  ) : (
+    <SectionNotice>
+      <BiMessageSquareError aria-hidden className="text-sorbet-alert" />
+      {copy.unavailable}
+    </SectionNotice>
   );
 }
 
@@ -58,7 +69,7 @@ function WeatherCard({
   weatherData,
   place,
 }: {
-  weatherData: NonNullable<ReturnType<typeof useWeather>["weatherData"]>;
+  weatherData: WeatherDataTypes;
   place: string;
 }) {
   const { weatherIconSrc, main, sys, wind } = weatherData;

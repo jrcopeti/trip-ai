@@ -217,7 +217,23 @@ describe("FormContext — prev()", () => {
 describe("FormContext — fetch triggers", () => {
   const datesStep = steps.length - 3; // step 5, "Dates and Weather"
 
-  it("fetches the forecast when leaving the dates step with weather selected", async () => {
+  it("fetches the forecast at the place step 2 resolved, when leaving the dates step with weather selected", async () => {
+    vi.mocked(resolvePlace).mockResolvedValue({ ok: true, place: lisbonPlace });
+    renderForm();
+    await advanceTo(datesStep);
+    await waitFor(() => expect(ctx.cityCheck.place).toEqual(lisbonPlace), { timeout: 2000 });
+    await act(async () => {
+      ctx.setIsWeatherSelected(true);
+    });
+    await fillStep(datesStep);
+    await act(async () => {
+      await ctx.next();
+    });
+
+    expect(generateForecast).toHaveBeenCalledWith({ lat: lisbonPlace.lat, lon: lisbonPlace.lng });
+  });
+
+  it("does not fetch the forecast without a resolved place", async () => {
     renderForm();
     await advanceTo(datesStep);
     await act(async () => {
@@ -228,10 +244,8 @@ describe("FormContext — fetch triggers", () => {
       await ctx.next();
     });
 
-    expect(generateForecast).toHaveBeenCalledWith({
-      city: validInputs.city,
-      countryCode: "PT",
-    });
+    expect(ctx.cityCheck.place).toBeNull();
+    expect(generateForecast).not.toHaveBeenCalled();
   });
 
   it("does not fetch the forecast when weather is not selected", async () => {

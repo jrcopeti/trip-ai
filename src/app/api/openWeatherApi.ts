@@ -1,63 +1,57 @@
 "use server";
+import { z } from "zod";
 import {
   forecastListFixture,
   useE2EFixtures,
   weatherFixture,
 } from "./e2eFixtures";
-import { resolvePlace } from "./geoNamesApi";
 import type {
+  Coordinates,
   WeatherApiResponse,
-  FetchForecastParams,
-  FetchWeatherParams,
   DailyForecastDataTypes,
 } from "@/types";
 
-// The weather is for the place GeoNames confirmed on step 2, never OpenWeather's own guess at
-// "city,country": its geocoder takes ISO codes, not names, and nothing checked its first hit.
-async function coordinatesOf(city: string, countryCode: string) {
-  const resolved = await resolvePlace(city, countryCode);
-  if (!resolved.ok) throw new Error(`No place for ${city}, ${countryCode}: ${resolved.error}`);
-  return { lat: resolved.place.lat, lon: resolved.place.lng };
-}
+// Always a place GeoNames resolved (the row's, or the form's city check), never OpenWeather's
+// own geocoding. Checked here too: an action is a public endpoint, and these go into the URL.
+const CoordinatesSchema = z.object({
+  lat: z.number().min(-90).max(90),
+  lon: z.number().min(-180).max(180),
+});
+
+// Readings change about every ten minutes, so a trip page reloaded within that reuses them.
+const REVALIDATE_SECONDS = 600;
 
 // `fetch` resolves on a 4xx/5xx, so a bad key or quota error has to be thrown here.
 async function getJson(url: string) {
-  const response = await fetch(url);
+  const response = await fetch(url, { next: { revalidate: REVALIDATE_SECONDS } });
   if (!response.ok) throw new Error(`OpenWeather: ${response.status}`);
   return response.json();
 }
 
-export const fetchForecast = async ({
-  city,
-  countryCode,
-}: FetchForecastParams): Promise<DailyForecastDataTypes[]> => {
+export const fetchForecast = async (
+  coordinates: Coordinates,
+): Promise<DailyForecastDataTypes[]> => {
+  const { lat, lon } = CoordinatesSchema.parse(coordinates);
   if (useE2EFixtures) return forecastListFixture;
 
-  let forecast;
-
   try {
-    const { lat, lon } = await coordinatesOf(city, countryCode);
     const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${process.env.OPEN_WEATHER_KEY}`;
-    forecast = (await getJson(forecastUrl)).list;
-    return forecast;
+    return (await getJson(forecastUrl)).list;
   } catch (error: unknown) {
     console.error("error", error);
     throw new Error("Error fetching forecast data");
   }
 };
 
-export const fetchWeather = async ({
-  city,
-  countryCode,
-}: FetchWeatherParams): Promise<WeatherApiResponse> => {
+export const fetchWeather = async (
+  coordinates: Coordinates,
+): Promise<WeatherApiResponse> => {
+  const { lat, lon } = CoordinatesSchema.parse(coordinates);
   if (useE2EFixtures) return weatherFixture;
 
-  let weather;
   try {
-    const { lat, lon } = await coordinatesOf(city, countryCode);
     const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${process.env.OPEN_WEATHER_KEY}`;
-    weather = await getJson(weatherUrl);
-    return weather;
+    return await getJson(weatherUrl);
   } catch (error: unknown) {
     console.error(error);
     throw new Error("Error fetching weather data");

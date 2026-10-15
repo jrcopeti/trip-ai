@@ -221,7 +221,7 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
   and its copy in `content.ts`. A record now; what binds is in `design-notes.md`.
 - **`docs/grounded-agent/PLAN.md`** — the **grounded agent**, in flight. Branch 1
   (new form fields, the city check and the prompt on the server, `claude-sonnet-5-5`) is
-  finished; branch 2 (the server-owned trip) is in progress, 2a–2c merged or staged; 3–7
+  finished; branch 2 (the server-owned trip) is in progress, 2a–2c merged, 2d staged; 3–7
   (metrics, tools, refine, evals, MCP) are next.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
@@ -250,13 +250,15 @@ architecture). A plan is for work in flight.
 ### State management: three Context providers (nested in `src/app/providers.tsx`, inside `MotionProvider`)
 - **`FormContext`** (`src/context/FormContext.tsx`) — owns the entire multi-step form: RHF instance, Zod validation (`FormDataSchema`), step navigation (`next`/`prev`), and triggers the forecast fetch on the dates step.
 - **`TripContext`** (`src/context/TripContext.tsx`) — the TanStack Query mutation that sends a `TripRequest` to `generateTrip`, and its pending/error state for the form. Redirects to `/trips/[tripUrl]` on success.
-- **`WeatherContext`** (`src/context/WeatherContext.tsx`) — three separate TanStack Query mutations: current weather, 5-day forecast, and daily forecast.
+- **`WeatherContext`** (`src/context/WeatherContext.tsx`) — one TanStack Query mutation: the form's forecast for the prompt, at `cityCheck.place`. The trip page fetches its own weather on the server (`loadWeather`).
 
 ### Server-side modules (`"use server"` unless noted)
 - `src/app/api/anthropicApi.ts` — `generateTrip(request)`: re-validates the `TripRequest` (`src/lib/agent/request.ts`), resolves the city again with `resolvePlace`, builds the prompt on the server (`src/lib/agent/prompt.ts`) and calls `claude-sonnet-5-5` with the strict `submit_trip` tool (`src/lib/agent/submitTrip.ts`) and `tool_choice: auto`. A refusal, `max_tokens`, a missing call or output that fails `TripDataSchema` all throw. Alongside the model call it fetches the photos, then writes the row (`toTripRow`, `src/lib/tripRow.ts`) from the request, the place and the output, and returns it.
 - `src/app/api/unsplashApi.ts` — not an action: `generateTrip` calls it with GeoNames' name for the place. Fetches 5 photos + a base64 plaiceholder blur of the first.
-- `src/app/api/openWeatherApi.ts` — fetches current weather and forecast from OpenWeather at
-  the coordinates `resolvePlace` returns for `{ city, countryCode }`.
+- `src/app/api/openWeatherApi.ts` — `fetchWeather`/`fetchForecast({ lat, lon })`: OpenWeather at
+  coordinates GeoNames already resolved (checked in range; no geocoding), cached 10 minutes.
+  `src/components/trips/loadWeather.ts` calls both from `TripPage` at the row's `lat`/`lng`, and
+  the weather sections read the promises with `use()` inside their own `<Suspense>`.
 - `src/app/api/geoNamesApi.ts` — `resolvePlace(city, countryCode)`: GeoNames search plus `matchCity` (`src/lib/place.ts`); returns the canonical place or a typed `not-found`/`unavailable`.
 - `src/db/actions.ts` — Prisma server actions: `setTripSaved` (flips an unsaved row's flag, once), `getSavedTripsPage` (18 saved trips per page plus the total, for the "Show more" grid), `getTripByUrl` and `getSingleSavedTrip` (each takes the route's string and returns null for one it could never match), `getLatestSavedTrips` (the landing hero's three newest).
 - `src/db/index.ts` — singleton Prisma client.
