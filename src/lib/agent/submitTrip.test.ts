@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { tripDataFixture } from "@/test/fixtures";
 import { TOUR_KINDS } from "@/lib/tourKinds";
-import { TripDataSchema, submitTripTool } from "./submitTrip";
+import { TripDataSchema, parseListFields, submitTripTool } from "./submitTrip";
 
 type JsonSchema = Record<string, unknown>;
 
@@ -58,5 +58,42 @@ describe("TripDataSchema", () => {
     expect(parse({ tours: [...tours, tours[0]] })).toBe(false);
     expect(parse({ objectsList: items.slice(0, 5) })).toBe(false);
     expect(parse({ objectsList: Array(16).fill(items[0]) })).toBe(false);
+  });
+});
+
+describe("parseListFields", () => {
+  const tours = tripDataFixture.tours as unknown[];
+
+  it("parses a list sent as JSON text, and names it", () => {
+    const { input, parsed } = parseListFields({ ...tripDataFixture, tours: JSON.stringify(tours) });
+
+    expect(input).toEqual(tripDataFixture);
+    expect(parsed).toEqual(["tours"]);
+  });
+
+  it("leaves lists that are already lists, and parses nothing", () => {
+    expect(parseListFields(tripDataFixture)).toEqual({ input: tripDataFixture, parsed: [] });
+  });
+
+  it.each([
+    ["prose", "the castle, then the tram"],
+    ["broken JSON", '[{"title": "x"'],
+    ["a JSON object", '{"title": "x"}'],
+  ])("leaves %s as the string, for the schema to refuse", (_, value) => {
+    const { input, parsed } = parseListFields({ ...tripDataFixture, tours: value });
+
+    expect(input).toMatchObject({ tours: value });
+    expect(parsed).toEqual([]);
+    expect(TripDataSchema.safeParse(input).success).toBe(false);
+  });
+
+  it("touches no field but the lists", () => {
+    const { input } = parseListFields({ ...tripDataFixture, title: "[1, 2]" });
+    expect(input).toMatchObject({ title: "[1, 2]" });
+  });
+
+  it("passes through input that is not an object", () => {
+    expect(parseListFields(null)).toEqual({ input: null, parsed: [] });
+    expect(parseListFields("text")).toEqual({ input: "text", parsed: [] });
   });
 });

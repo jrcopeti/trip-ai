@@ -29,6 +29,33 @@ export const TripDataSchema = z.object({
 
 export type TripData = z.infer<typeof TripDataSchema>;
 
+const LIST_FIELDS = ["objectsList", "mustHave", "tours"] as const;
+
+/**
+ * Returns `submit_trip`'s input with each list field that arrived as JSON text parsed back
+ * into its list, and the names of the fields it parsed. Anything else is left for
+ * `TripDataSchema` to judge, so prose or a JSON object in a list field still fails.
+ */
+export function parseListFields(input: unknown): { input: unknown; parsed: string[] } {
+  if (typeof input !== "object" || input === null) return { input, parsed: [] };
+  const fields: Record<string, unknown> = { ...input };
+  const parsed: string[] = [];
+  for (const field of LIST_FIELDS) {
+    const value = fields[field];
+    if (typeof value !== "string") continue;
+    try {
+      const list: unknown = JSON.parse(value);
+      if (Array.isArray(list)) {
+        fields[field] = list;
+        parsed.push(field);
+      }
+    } catch {
+      // Not JSON: left as the string, which the schema refuses.
+    }
+  }
+  return { input: fields, parsed };
+}
+
 // Strict tool schemas reject array-length and string-length keywords, so the
 // counts live in the descriptions and the system prompt, and Zod enforces them.
 export const submitTripTool: Anthropic.Tool = {
@@ -70,7 +97,7 @@ export const submitTripTool: Anthropic.Tool = {
             kind: { type: "string", enum: [...TOUR_KINDS], description: "What kind of tour it is." },
             description: {
               type: "string",
-              description: "One paragraph of 100 to 120 words: what it is and why it suits this trip.",
+              description: "One paragraph of 110 to 130 words: what it is and why it suits this trip.",
             },
           },
           required: ["title", "kind", "description"],

@@ -67,13 +67,13 @@ a phase ends with a review of `README.md` against everything the phase changed, 
 a reader would care about: text and descriptions (features, how it works, stack, setup, env
 vars, commands) and screenshots of anything visible. Sub-branches such as 2b or 2d do not touch
 the README. A phase with nothing visible still gets the review and reports "no README change".
-Phase 2 gets its own last branch, 2h, which also catches up anything from phase 1 the README
+Phase 2 gets its own last branch, 2j, which also catches up anything from phase 1 the README
 doesn't yet say.
 - Screenshots come from the Playwright MCP tools, saved in `public/screenshots/`, named
   `desktop-<page>[-<step>].png` / `mobile-<page>[-<step>].png`.
 - **Laptop shots are all one size: a 1440 × 900 viewport, viewport capture, never full-page**,
   so every desktop image is 1440 × 900. (Today's set varies from 668 to 1196 px tall; retake
-  those the phase touches; the rest in 2h.)
+  those the phase touches; the rest in 2j.)
 - **Phone shots are 390 × 844, at most four in a row** (`width="24%"`; today's row uses 19%).
   A set of more than four wraps onto another row.
 - Alt text says what is in frame; the README's captions say what the phase added.
@@ -136,11 +136,8 @@ Left from branch 1, for the branch named or for later:
 - No retry when the model skips `submit_trip`; branch 4's loop owns this.
 - Parked: tabbing into `CountryComboBox` opens its list at once (on step 1 it covers the age
   chips), and HeroUI's popover still fades out under reduced motion.
-- Parked: `submit_trip` returned `tours` as a string despite `strict: true` (seen once in dev,
-  2026-10-15: "Expected array, received string"), so the trip failed with "invalid trip". Fix:
-  before `TripDataSchema` runs, an array field that arrives as a string parsing to an array is
-  replaced by the parsed array; Zod still checks it, so prose still fails. Tests first: tours as
-  a JSON string writes the trip; prose in `tours` still fails.
+- `submit_trip` returned `tours` as a string despite `strict: true` (seen in dev, 2026-10-15:
+  "Expected array, received string"), so the trip failed with "invalid trip". Fixed in 2f.
 
 
 Too much for one reviewable PR (data model, form UI, GeoNames, prompt and model in one diff),
@@ -413,7 +410,7 @@ and reseeded on the new shape. Neon was cleared and pushed when it merged. `pris
 uses `db push`, so it is left alone here.
 
 The rest of 2 (the server-owned trip) builds on this shape, in four sub-branches, each green on
-its own, in this order (2f is independent and can land any time):
+its own, in this order (2h is independent and can land any time):
 
 - **2b · `trip-write`: generation writes the row; save and discard flip a flag.**
   `generateTrip` makes the `tripUrl`, fetches the photos (searching GeoNames' name for the place,
@@ -649,37 +646,6 @@ its own, in this order (2f is independent and can land any time):
     - *Half-hour offsets.* `local.hour()` drops the minutes, so at +5:30 "nearest midday" is
       off by 30 minutes, which only decides between two readings that would tie. Fix: measure in
       minutes, `Math.abs(local.hour() * 60 + local.minute() - 720)`.
-- **2f · `request-checks`: findings 2 and 3.** Passport checked with `oneOf` against the
-  countries; required items refuse line breaks, on the server and the form.
-- **2g · dependencies: Renovate keeps them current, a branch each for the breaking ones.**
-  Evaluated: both. Nothing prompts an update today (no Dependabot or Renovate config), and
-  `npm outdated` shows the lockfile behind — `next` 16.2.6 → 16.4.1, `react` 19.2.6 → 19.3.1,
-  `@heroui/react` 3.0.5 → 3.2.6, `react-hook-form` 7.76 → 7.90, TanStack Query, Tailwind. CI
-  (typecheck, build, unit, e2e) is what makes automated PRs safe to merge. Breaking bumps need
-  code, not a merge button: Prisma 5 → 7, `@hookform/resolvers` 3 → 5 (tied to zod),
-  `@anthropic-ai/sdk` 0.100 → 0.134 (pre-1.0, touches `anthropicApi.ts`), `framer-motion` 12 → 14,
-  `react-day-picker` 9 → 10, `eslint` 9 → 10 (lint is already broken, so parked with it).
-  - **2g-a · `deps-minor`: clear the backlog by hand.** Every non-major bump in one PR, so
-    Renovate's first PR isn't enormous. Run `deps-safe`; green is `npx next typegen && npx tsc
-    --noEmit`, `npm test`, `npm run build`, `npm run test:e2e`; browser-check `/form`, a trip
-    page and `/saved-trips` (design-notes' gotchas on HeroUI and Tailwind bumps). Split off
-    `next`, `react`/`react-dom` + their `@types`, and `@heroui/react` if one breaks.
-  - **2g-b · `renovate`: `renovate.json`.** One weekly PR for all non-major bumps; separate PRs for
-    `next`, `react`/`react-dom` + `@types`, `@heroui/react`, `@anthropic-ai/sdk`, `prisma` +
-    `@prisma/client`; majors held behind the dependency dashboard until approved; security
-    updates immediately; GitHub Actions versions included. Installing the Renovate app and
-    the repository's branch protection are outward-facing — ask first. Bot PRs run the same four
-    required checks (e2e needs no secrets). Merged by hand after a look at the diff; no automerge.
-  - **2g-c… · the majors, one branch each, by request, in this order:** `@anthropic-ai/sdk`
-    (touches the agent, so it goes before 3–7 build on it), `@hookform/resolvers` with zod,
-    `framer-motion`, `react-day-picker`, Prisma 7 (schema, client generation, the Neon
-    adapter, the e2e push script). Each: plan note on what changed, tests with the change.
-  - Order: 2g-a → 2g-b → majors. Independent of 2e/2f and of branches 3–7, except that the SDK
-    major should land before 3.
-- **2h · `readme-phase-2`: the README, caught up.** Review `README.md` against phases 1 and 2:
-  the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
-  weather by coordinates, the form-scoped providers, architecture and commands. Retake the
-  screenshots that changed at the sizes above.
 - **2e-f · `background-generation`: leaving the loader doesn't lose the trip.** From 2e-a's
   review. The loader covers the nav, so the way out mid-generation is the browser's Back, a soft
   navigation: no `beforeunload`, and the generation keeps running with nothing on screen saying so.
@@ -690,7 +656,7 @@ its own, in this order (2f is independent and can land any time):
     without asking, so a second form or a saved trip being read isn't pulled away. `onSuccess`
     stops redirecting on its own when the traveller is off `/form`; on `/form` it redirects as today.
   - Stop: marks the generation stopped and removes it from the mutation cache; `onSuccess` and
-    `onError` check the mark, so a stopped one shows nothing when it lands. Until 2i this is the
+    `onError` check the mark, so a stopped one shows nothing when it lands. Until 2g this is the
     browser only: the server still finishes the call (billed) and writes an unsaved row.
   - Failure while away: the toast becomes the failure message with a link to `/form`, where 2e-d's
     draft restores the answers (closes 2e-a's second-review finding).
@@ -700,7 +666,29 @@ its own, in this order (2f is independent and can land any time):
   - Tests: the toast off `/form` and not on it; View opens the trip; Stop means nothing on arrival;
     a failure shows the failure toast; the toast at 390 and by keyboard. e2e: submit, Back, the
     toast shows, View opens the trip.
-- **2i · `trip-route`: generation through a route that can be stopped.** Brings branch 4's transport
+- **2f · `fix-string-tours`: a list sent as a string no longer loses the trip; longer tours.**
+  The bug parked under branch 1, seen twice now (2026-10-15 and 2026-10-16, in dev): despite
+  `strict: true`, `submit_trip` sometimes sends `tours` as its JSON text, so `TripDataSchema`
+  refuses it and the traveller gets "invalid trip". A guard before the schema,
+  `parseListFields` (`src/lib/agent/submitTrip.ts`): each list field (`objectsList`,
+  `mustHave`, `tours`) that is a string parsing to an array is replaced by that array, and
+  `generateTrip` logs which fields it parsed. Anything else stays as it came, so prose, broken
+  JSON or a JSON object in a list field still fails. In the same branch, since it is the same
+  output: tours came back under 90 words against the asked 100 to 120. 120 to 140 came back
+  at 121 to 129 but made the tours carousel 910px tall at 390, over the screen, with its arrows
+  scrolled away; the prompt and the tool's description ask for **110 to 130**. Measured over 8
+  real trips (40 tours): 108 to 125 words, the carousel 849px at 390.
+  - Real runs (local database, real APIs, 2026-10-16): 1 failure in the first 2 (at 120 to
+    140; the guard's warning did not fire, so the string was not a JSON list), then 8 of 8
+    fine at 110 to 130, none with a list sent as a string. A temporary log in `generateTrip`
+    stays until a failure is caught: for a list field that came as a string, its length, why
+    `JSON.parse` refused it, and the raw value (`DIAG` in the server log, dev or Vercel). Then a
+    branch fixes the bug from that string and removes the log.
+  - Tests first: `generateTrip` writes the trip when any of the three lists arrives as a JSON
+    string, and logs it; prose and a JSON object in `tours` still fail. `parseListFields` on its
+    own: lists left alone, broken JSON and prose left as strings, other fields untouched,
+    non-object input passed through. The prompt test and snapshot carry the new count.
+- **2g · `trip-route`: generation through a route that can be stopped.** Brings branch 4's transport
   forward, for today's single call. `POST /api/trip` (`src/app/api/trip/route.ts`) replaces the
   `generateTrip` server action for the form: the same validation, `resolvePlace`, prompt and row,
   but the Claude call is streamed (`client.messages.stream(...)`, read with `finalMessage()`) and
@@ -714,8 +702,39 @@ its own, in this order (2f is independent and can land any time):
   - Tests: an aborted request aborts the SDK stream (mocked at `anthropicApi`) and writes no row;
     `done` carries the url; a refusal, `max_tokens` or a bad request is an `error` event. e2e: the
     fixture path (`E2E_FIXTURES=1`) answers as a fixture stream; Stop leaves no row.
-- **Order from here:** 2e-b → 2e-d → 2e-e → 2e-f → 2i, with 2e-c any time after 2e-b; then 2f, 2g, 2h
-  as planned, and branch 3. 2i comes after 2e-f, so Stop exists before it can stop the server.
+- **2h · `request-checks`: findings 2 and 3.** Passport checked with `oneOf` against the
+  countries; required items refuse line breaks, on the server and the form.
+- **2i · dependencies: Renovate keeps them current, a branch each for the breaking ones.**
+  Evaluated: both. Nothing prompts an update today (no Dependabot or Renovate config), and
+  `npm outdated` shows the lockfile behind — `next` 16.2.6 → 16.4.1, `react` 19.2.6 → 19.3.1,
+  `@heroui/react` 3.0.5 → 3.2.6, `react-hook-form` 7.76 → 7.90, TanStack Query, Tailwind. CI
+  (typecheck, build, unit, e2e) is what makes automated PRs safe to merge. Breaking bumps need
+  code, not a merge button: Prisma 5 → 7, `@hookform/resolvers` 3 → 5 (tied to zod),
+  `@anthropic-ai/sdk` 0.100 → 0.134 (pre-1.0, touches `anthropicApi.ts`), `framer-motion` 12 → 14,
+  `react-day-picker` 9 → 10, `eslint` 9 → 10 (lint is already broken, so parked with it).
+  - **2i-a · `deps-minor`: clear the backlog by hand.** Every non-major bump in one PR, so
+    Renovate's first PR isn't enormous. Run `deps-safe`; green is `npx next typegen && npx tsc
+    --noEmit`, `npm test`, `npm run build`, `npm run test:e2e`; browser-check `/form`, a trip
+    page and `/saved-trips` (design-notes' gotchas on HeroUI and Tailwind bumps). Split off
+    `next`, `react`/`react-dom` + their `@types`, and `@heroui/react` if one breaks.
+  - **2i-b · `renovate`: `renovate.json`.** One weekly PR for all non-major bumps; separate PRs for
+    `next`, `react`/`react-dom` + `@types`, `@heroui/react`, `@anthropic-ai/sdk`, `prisma` +
+    `@prisma/client`; majors held behind the dependency dashboard until approved; security
+    updates immediately; GitHub Actions versions included. Installing the Renovate app and
+    the repository's branch protection are outward-facing — ask first. Bot PRs run the same four
+    required checks (e2e needs no secrets). Merged by hand after a look at the diff; no automerge.
+  - **2i-c… · the majors, one branch each, by request, in this order:** `@anthropic-ai/sdk`
+    (touches the agent, so it goes before 3–7 build on it), `@hookform/resolvers` with zod,
+    `framer-motion`, `react-day-picker`, Prisma 7 (schema, client generation, the Neon
+    adapter, the e2e push script). Each: plan note on what changed, tests with the change.
+  - Order: 2i-a → 2i-b → majors. Independent of 2e/2h and of branches 3–7, except that the SDK
+    major should land before 3.
+- **2j · `readme-phase-2`: the README, caught up.** Review `README.md` against phases 1 and 2:
+  the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
+  weather by coordinates, the form-scoped providers, architecture and commands. Retake the
+  screenshots that changed at the sizes above.
+- **Order from here:** 2e-f → 2f → 2g → 2h → 2i → 2j, and branch 3. 2g comes after 2e-f, so
+  Stop exists before it can stop the server.
 
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`
@@ -785,7 +804,7 @@ branch's diff.
 - `src/lib/agent/cost.ts`: a pricing table (Sonnet 5.5 input, output, cache read/write, $ per web
   search) and `costOf(usage)`, unit-tested.
 - `recordGeneration()` is called from a `finally` in the agent, so failures are logged too — and
-  stopped ones (2i): `ok: false`, `stopReason: "aborted"`, and the usage that had arrived. A stream
+  stopped ones (2g): `ok: false`, `stopReason: "aborted"`, and the usage that had arrived. A stream
   stopped early may never report its final usage, so that row's cost is an estimate.
 - Rate limit: count `Generation` rows by `ipHash` in the last hour (e.g. 5 per hour), and return a
   typed error the form shows as a toast. No Redis. Stopped generations count, or starting and
@@ -815,7 +834,7 @@ branch's diff.
   `estCost`; plus `weatherSummary`, `entryRequirements {summary, sources[]}` (only when a passport
   is given), and `sources[] {title, url}`. Prisma columns: `sources Json?`, `entryRequirements Json?`;
   `tours Json` already holds the richer shape.
-- Streaming: the route and its SSE are 2i's; the loop runs inside it and adds `step` events
+- Streaming: the route and its SSE are 2g's; the loop runs inside it and adds `step` events
   ("Checking the weather in Lisbon…"), with `maxDuration = 300`. `LoaderResponseAI` and 2e-f's
   toast show the real steps in place of the canned ones.
 - Stopping: the request's `signal` reaches every iteration's Claude call and every tool's HTTP
@@ -851,7 +870,7 @@ branch's diff.
 
 ### 7 · `agent-mcp`: trip-ai as an MCP server
 - `src/app/api/mcp/route.ts` using `@modelcontextprotocol/sdk` (Streamable HTTP), with tools
-  `plan_trip` (calls the agent function 2i split out, not the HTTP route; logged as `kind: mcp`), `list_saved_trips` and `get_saved_trip`
+  `plan_trip` (calls the agent function 2g split out, not the HTTP route; logged as `kind: mcp`), `list_saved_trips` and `get_saved_trip`
   (reusing `getSavedTripsPage` and `getSingleSavedTrip` from `src/db/actions.ts`).
 - Bearer-token auth (`MCP_TOKEN`), since `plan_trip` spends money, and the same rate limit.
 - README: how to add it to Claude Desktop / Claude Code.
