@@ -27,6 +27,7 @@ loadEnvConfig(process.cwd());
 /** Names only this spec uses, so its rows are the only ones it touches. */
 const SAVER = "Journeysave";
 const DISCARDER = "Journeydiscard";
+const LEAVER = "Journeyleave";
 
 test.skip(
   !!process.env.PLAYWRIGHT_BASE_URL,
@@ -41,7 +42,7 @@ async function deleteOwnRows() {
   const prisma = new PrismaClient();
   try {
     await prisma.trip.deleteMany({
-      where: { userName: { in: [SAVER, DISCARDER].map((n) => n.toLowerCase()) } },
+      where: { userName: { in: [SAVER, DISCARDER, LEAVER].map((n) => n.toLowerCase()) } },
     });
   } finally {
     await prisma.$disconnect();
@@ -190,5 +191,45 @@ test.describe("trip journey", () => {
     await page.goto("/saved-trips");
     await searchSavedTrips(page, DISCARDER);
     await expect(page.getByText("No trips found")).toBeVisible();
+  });
+
+  test("leaving mid-generation keeps it, and a toast opens the trip", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await stubLookups(page);
+    // A soft navigation into /form, so the page's JS keeps running throughout.
+    await page.goto("/about");
+    await page.getByRole("link", { name: "New trip" }).first().click();
+    await expect(page).toHaveURL(/\/form$/);
+    await walkAllSteps(page, LEAVER);
+
+    // Generation is a server action, a POST to /form; hold it until the traveller is away.
+    let release = () => {};
+    const held = new Promise<void>((r) => (release = r));
+    await page.route("**/form", async (route) => {
+      if (route.request().method() === "POST") await held;
+      await route.continue();
+    });
+    await page.getByRole("button", { name: "Plan my trip" }).click();
+    await expect(
+      page.getByText("You can keep browsing while we plan it; reloading or closing the tab stops it."),
+    ).toBeVisible();
+
+    // The loader covers the nav; its link is the way out, a soft navigation.
+    await page.getByRole("link", { name: "Browse saved trips" }).click();
+    await expect(page).toHaveURL(/\/saved-trips$/);
+    await expect(page.getByRole("status").filter({ hasText: "Your trip is being planned" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Stop" })).toBeVisible();
+    await noHorizontalScroll(page);
+
+    release();
+    const view = page.getByRole("link", { name: "View" });
+    await expect(view).toBeVisible();
+    // Nobody is moved without asking.
+    await expect(page).toHaveURL(/\/saved-trips$/);
+
+    await view.click();
+    await expect(page).toHaveURL(/\/trips\/[0-9a-f]{12}$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(tripDataFixture.title!);
+    await expect(view).toBeHidden();
   });
 });

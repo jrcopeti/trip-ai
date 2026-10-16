@@ -1,19 +1,45 @@
 "use client";
 
 import { generateTrip } from "@/app/api/anthropicApi";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, type QueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import ErrorToaster from "@/components/ui/ErrorToaster";
 import CustomToaster from "@/components/ui/CustomToaster";
+import { FailedToast, GENERATION_TOAST, ReadyToast } from "@/components/ui/GenerationToasts";
 import type { TripRequest } from "@/lib/agent/request";
 import { clearFormDraft } from "@/lib/formDraft";
 
-// Keyed so `Form` can see a generation that outlived the provider: one left running
-// when the traveller left /form still redirects when it lands.
+// Keyed so `Form` and `GenerationToast` can see a generation that outlived the provider.
 const generateTripKey = ["generateTrip"];
 
-/** Sends the trip request; `FormProvider` runs it once and hands `Form` its error. */
+/** Requests the traveller stopped; their landing is ignored. Keyed by the request object. */
+const stoppedRequests = new WeakSet<object>();
+
+// The provider that started the call may be long unmounted, so this reads the live
+// location; its `usePathname` would still say /form.
+const isOnForm = () => window.location.pathname === "/form";
+
+/**
+ * Stops waiting for the pending generation: it leaves the mutation cache, so nothing shows
+ * it, and its landing does nothing. The server still finishes the call and writes an
+ * unsaved row (2g stops that).
+ */
+function stopGeneration(queryClient: QueryClient) {
+  const cache = queryClient.getMutationCache();
+  for (const mutation of cache.findAll({ mutationKey: generateTripKey, status: "pending" })) {
+    const request = mutation.state.variables;
+    if (typeof request === "object" && request) stoppedRequests.add(request);
+    cache.remove(mutation);
+  }
+  toast.dismiss(GENERATION_TOAST);
+}
+
+/**
+ * Sends the trip request; `FormProvider` runs it once and hands `Form` its error. On `/form`
+ * a trip that comes back opens; anywhere else the traveller gets a toast to open it, and a
+ * failure a toast back to the form.
+ */
 function useTripGeneration() {
   const router = useRouter();
 
@@ -23,14 +49,27 @@ function useTripGeneration() {
 
     // The server wrote the row and chose its url; the trip page reads it from there.
     // The answers are spent, so the draft goes; a failure keeps it for another try.
-    onSuccess: (trip) => {
+    onSuccess: (trip, request) => {
+      if (stoppedRequests.has(request)) return;
       clearFormDraft();
+      if (!isOnForm()) {
+        toast.custom(<ReadyToast tripUrl={trip.tripUrl} />, {
+          id: GENERATION_TOAST,
+          duration: Infinity,
+        });
+        return;
+      }
       toast.custom(<CustomToaster message="Your trip has been generated!" />);
       router.replace(`/trips/${trip.tripUrl}`);
     },
 
-    onError: (error) => {
+    onError: (error, request) => {
+      if (stoppedRequests.has(request)) return;
       console.error(error);
+      if (!isOnForm()) {
+        toast.custom(<FailedToast />, { id: GENERATION_TOAST, duration: Infinity });
+        return;
+      }
       toast.custom(
         <ErrorToaster message="There was an error generating your trip. Please try again." />,
       );
@@ -40,4 +79,4 @@ function useTripGeneration() {
   return { generateTrip: mutate, isPending, error, reset };
 }
 
-export { useTripGeneration, generateTripKey };
+export { useTripGeneration, generateTripKey, stopGeneration };

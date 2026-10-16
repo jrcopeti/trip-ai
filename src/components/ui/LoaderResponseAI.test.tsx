@@ -126,14 +126,24 @@ describe("LoaderResponseAI", () => {
     expect(ring.closest("[aria-hidden]")).not.toBeNull();
   });
 
-  it("warns before the page is abandoned mid-generation", () => {
-    const addEventListener = vi.spyOn(window, "addEventListener");
+  // The warning before a reload moved to `GenerationToast`, which holds it while any
+  // generation is pending, on /form or off it.
+  it("says the traveller can leave, and what ends the generation", () => {
     renderWithProviders(<LoaderResponseAI />);
 
-    // useConfirmOnPageExit: leaving now loses the way to the trip being written.
-    expect(addEventListener).toHaveBeenCalledWith(
-      "beforeunload",
-      expect.any(Function),
+    expect(
+      screen.getByText(
+        "You can keep browsing while we plan it; reloading or closing the tab stops it.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("offers a way out to keep browsing, since it covers the nav", () => {
+    renderWithProviders(<LoaderResponseAI />);
+
+    expect(screen.getByRole("link", { name: "Browse saved trips" })).toHaveAttribute(
+      "href",
+      "/saved-trips",
     );
   });
 });

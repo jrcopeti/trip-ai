@@ -1,7 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders, screen, waitFor } from "@/test/render";
 import { useIsMutating } from "@tanstack/react-query";
-import { generateTripKey, useTripGeneration } from "@/hooks/useTripGeneration";
+import toast, { Toaster } from "react-hot-toast";
+import { generateTripKey, stopGeneration, useTripGeneration } from "@/hooks/useTripGeneration";
 import { generateTrip } from "@/app/api/anthropicApi";
 import { generatedTripFixture, validInputs, validTripRequest } from "@/test/fixtures";
 import { replace, resetNextStubs } from "@/test/stubs/next";
@@ -22,11 +23,27 @@ function Probe() {
 }
 
 function renderTrip() {
-  return renderWithProviders(<Probe />);
+  return renderWithProviders(
+    <>
+      <Toaster />
+      <Probe />
+    </>,
+  );
 }
 
+/** Where the traveller is when the trip lands; the hook reads the live location. */
+function visit(path: string) {
+  window.history.replaceState(null, "", path);
+}
+
+afterEach(() => {
+  toast.remove();
+  visit("/");
+});
+
 beforeEach(() => {
-  resetNextStubs();
+  resetNextStubs("/form");
+  visit("/form");
   mockFetch.mockReset();
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -126,5 +143,94 @@ describe("useTripGeneration", () => {
 
     ctx.reset();
     await waitFor(() => expect(ctx.error).toBeNull());
+  });
+
+  describe("once the traveller has left /form", () => {
+    it("offers the trip instead of moving them to it", async () => {
+      mockFetch.mockResolvedValue(generatedTripFixture);
+      renderTrip();
+
+      ctx.generateTrip(validTripRequest);
+      visit("/saved-trips");
+
+      const view = await screen.findByRole("link", { name: "View" });
+      expect(screen.getByRole("status")).toHaveTextContent("Your trip is ready");
+      expect(view).toHaveAttribute("href", `/trips/${generatedTripFixture.tripUrl}`);
+      expect(replace).not.toHaveBeenCalled();
+    });
+
+    it("clears the draft when the trip lands there too", async () => {
+      writeFormDraft({ values: validInputs, step: 6, isWeatherSelected: false });
+      mockFetch.mockResolvedValue(generatedTripFixture);
+      renderTrip();
+
+      ctx.generateTrip(validTripRequest);
+      visit("/about");
+
+      await screen.findByRole("link", { name: "View" });
+      expect(readFormDraft()).toBeNull();
+    });
+
+    it("turns a failure into a way back to the form, where the draft waits", async () => {
+      const draft = { values: validInputs, step: 6, isWeatherSelected: false };
+      writeFormDraft(draft);
+      mockFetch.mockRejectedValue(new Error("The model did not return a trip"));
+      renderTrip();
+
+      ctx.generateTrip(validTripRequest);
+      visit("/about");
+
+      const back = await screen.findByRole("link", { name: "Back to the form" });
+      expect(screen.getByRole("alert")).toHaveTextContent("There was an error generating your trip.");
+      expect(back).toHaveAttribute("href", "/form");
+      expect(readFormDraft()).toEqual(draft);
+    });
+  });
+
+  describe("stopped", () => {
+    function pendingCall() {
+      let settle = { resolve: (_: typeof generatedTripFixture) => {}, reject: (_: Error) => {} };
+      mockFetch.mockReturnValue(
+        new Promise((resolve, reject) => {
+          settle = { resolve, reject };
+        }),
+      );
+      return () => settle;
+    }
+
+    it("is no longer pending, and its trip shows nothing when it lands", async () => {
+      const settle = pendingCall();
+      const draft = { values: validInputs, step: 6, isWeatherSelected: false };
+      writeFormDraft(draft);
+      const { queryClient } = renderTrip();
+
+      ctx.generateTrip(validTripRequest);
+      visit("/about");
+      await waitFor(() => expect(screen.getByTestId("pending")).toHaveTextContent("true"));
+
+      stopGeneration(queryClient);
+      await waitFor(() => expect(screen.getByTestId("pending")).toHaveTextContent("false"));
+
+      settle().resolve(generatedTripFixture);
+      await new Promise((r) => setTimeout(r, 20));
+      expect(screen.queryByRole("status")).toBeNull();
+      expect(replace).not.toHaveBeenCalled();
+      // Stopped, not spent: the answers are still there for another try.
+      expect(readFormDraft()).toEqual(draft);
+    });
+
+    it("shows no failure when it fails after", async () => {
+      const settle = pendingCall();
+      const { queryClient } = renderTrip();
+
+      ctx.generateTrip(validTripRequest);
+      await waitFor(() => expect(screen.getByTestId("pending")).toHaveTextContent("true"));
+
+      stopGeneration(queryClient);
+      settle().reject(new Error("The model did not return a trip"));
+      await new Promise((r) => setTimeout(r, 20));
+      expect(screen.queryByRole("alert")).toBeNull();
+      expect(console.error).not.toHaveBeenCalled();
+    });
   });
 });

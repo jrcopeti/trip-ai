@@ -666,6 +666,32 @@ its own, in this order (2h is independent and can land any time):
   - Tests: the toast off `/form` and not on it; View opens the trip; Stop means nothing on arrival;
     a failure shows the failure toast; the toast at 390 and by keyboard. e2e: submit, Back, the
     toast shows, View opens the trip.
+  - **Status: done on `background-generation`, staged, not committed.** One branch, no split:
+    a single concern. As built: `GenerationToast` (`ui/`, in the root providers) watches
+    `useIsMutating` on `generateTripKey` and `usePathname`; while one is pending off `/form` it
+    shows `PlanningToast` under one toast id, and dismisses it on `/form`. The stages
+    (`GenerationToasts.tsx`: planning, ready, failed) replace each other in place under that id;
+    ready and failed stay until dismissed. `useTripGeneration`'s `onSuccess`/`onError` decide by
+    `window.location.pathname`, since the provider that started the call may be unmounted and its
+    `usePathname` stale: on `/form`, as before; elsewhere, the ready or failed toast. A trip that
+    lands anywhere clears the draft; a failure keeps it, so "Back to the form" reopens the review
+    step filled in. `stopGeneration` marks the request (a `WeakSet` keyed by the request object;
+    the mutation's own `onSuccess` still runs after removal) and removes the mutation; a stopped
+    one keeps its draft. `useConfirmOnPageExit(isActive)` moved from the loader to
+    `GenerationToast`, so a reload asks while a generation is pending on any route, not only on
+    the loader. The loader carries the plan's note under the message. Copy in
+    `form/content.ts` (`generation`).
+    Tests: `GenerationToast.test` (planning off `/form`, nothing on it, ready without moving,
+    Stop by keyboard then nothing on arrival, `beforeunload` only while pending);
+    `useTripGeneration.test` (off `/form`: ready toast, draft cleared, failure toast with the
+    draft kept; stopped: nothing on success or failure, draft kept). e2e (journey, 390): `/about`
+    → New trip → submit with the POST held → "Browse saved trips" → planning toast with Stop → release → View,
+    still on `/saved-trips` → the trip. Checked in the browser at 1440, 768 and 390 with reduced motion:
+    planning, ready, failed → back to step 7 with the answers, Stop then a reload that no longer
+    asks.
+    From review: the loader covers the nav, so the note's "keep browsing" had no way out but the
+    browser's Back. The loader now has a quiet "Browse saved trips" link under the note, a soft
+    navigation; the e2e leaves through it.
 - **2f · `fix-string-tours`: a list sent as a string no longer loses the trip; longer tours.**
   The bug parked under branch 1, seen twice now (2026-10-15 and 2026-10-16, in dev): despite
   `strict: true`, `submit_trip` sometimes sends `tours` as its JSON text, so `TripDataSchema`

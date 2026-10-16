@@ -229,7 +229,7 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
   and its copy in `content.ts`. A record now; what binds is in `design-notes.md`.
 - **`docs/grounded-agent/PLAN.md`** — the **grounded agent**, in flight. Branch 1
   (new form fields, the city check and the prompt on the server, `claude-sonnet-5-5`) is
-  finished; branch 2 (the server-owned trip) is in progress, 2a–2e-e merged, 2e-f (`background-generation`) under review, 2f (`fix-string-tours`) staged; 3–7
+  finished; branch 2 (the server-owned trip) is in progress, 2a–2e-e and 2f merged, 2e-f (`background-generation`) staged; 3–7
   (metrics, tools, refine, evals, MCP) are next.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
@@ -256,15 +256,18 @@ architecture). A plan is for work in flight.
    a `trip` prop; each has a `loading.tsx` with the squiggle `Loader`.
 
 ### State management: one provider, scoped to `/form`
-The root `src/app/providers.tsx` keeps QueryClient, `MotionProvider` and the Toaster.
+The root `src/app/providers.tsx` keeps QueryClient, `MotionProvider`, the Toaster and
+`GenerationToast`, which follows a generation the traveller left `/form` during (a toast with
+Stop, then View or a way back to the form) and asks before a reload while one is pending.
 `src/app/form/layout.tsx` renders **`FormProvider`** (`src/context/FormContext.tsx`), so the
 form's state goes when the traveller leaves `/form`. It owns the multi-step form — RHF and Zod
 (`FormDataSchema`), the step (`next`/`prev`), the city check, the weather choice — and runs one
 hook of its own:
 - **`useTripGeneration`** (`src/hooks/`) — the TanStack mutation that sends a `TripRequest` to
-  `generateTrip` and redirects to `/trips/[tripUrl]`. Keyed (`generateTripKey`), so `Form` shows
-  the loader for one that outlived the provider; its pending, error and reset reach `Form`
-  through the fields context.
+  `generateTrip` and, on `/form`, redirects to `/trips/[tripUrl]`; off it, the trip or the failure
+  arrives as a toast. Keyed (`generateTripKey`), so `Form` shows the loader and `GenerationToast`
+  the toast for one that outlived the provider; `stopGeneration` drops it from the cache and
+  ignores its landing. Its pending, error and reset reach `Form` through the fields context.
 
 The form fetches no weather: the request carries the choice (`byWeather`), and the server fetches
 the forecast.

@@ -336,6 +336,7 @@ spell the same, since the intro's flight to the nav scales by the word's width.
 | `SiteNav` | `ui/` | The nav, on every route. See below. |
 | `SiteFooter` | `ui/` | The ink footer. Rendered per page, not by the layout. |
 | `NotFoundComponent`, `Loader`, `LoaderResponseAI`, `CustomToaster`, `ErrorToaster`, `ButtonBackOutlined` | `ui/` | Shell pieces, in the system. |
+| `GenerationToasts` (planning, ready, failed) | `ui/` | The white toast card with nav-sized pills; a custom toast gets no live region from react-hot-toast, so the card carries `role`. |
 | `StickerBadge` | `sorbet/` | Decorative: circular text on `<textPath>`, slow spin. Takes `icon: ReactNode`. On the landing and the `/saved-trips` header. |
 | `Squiggle` | `landing/` | Decorative: ink loop, draws on. Optional `play` gate. |
 | `Intro`, `IntroContext` | `landing/` | Once a day per browser, by cookie (`introCookie.ts`). See "The intro". |
