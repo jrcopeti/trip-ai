@@ -692,6 +692,13 @@ its own, in this order (2h is independent and can land any time):
     From review: the loader covers the nav, so the note's "keep browsing" had no way out but the
     browser's Back. The loader now has a quiet "Browse saved trips" link under the note, a soft
     navigation; the e2e leaves through it.
+    Changes after the first commit: the planning toast has **View** beside Stop, back to `/form`
+    and its loader. Stop replaces it with "Your trip was cancelled" (an alert, 5s). A trip that
+    lands says "Your trip has been generated!" everywhere: with View, unless the traveller is on
+    that trip's page or is being sent there from `/form`. Off `/form` it stays until dismissed.
+    The loader's note reads "You can keep browsing while we plan your trip but reloading or
+    closing the tab stops it." Stop marks the request object, so tests send a copy of the shared
+    fixture per call. e2e: the planning toast's View reaches the loader, and the journey leaves again.
 - **2f · `fix-string-tours`: a list sent as a string no longer loses the trip; longer tours.**
   The bug parked under branch 1, seen twice now (2026-10-15 and 2026-10-16, in dev): despite
   `strict: true`, `submit_trip` sometimes sends `tours` as its JSON text, so `TripDataSchema`

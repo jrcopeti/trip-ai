@@ -19,7 +19,8 @@ let start: () => void;
 // Stands in for the form: starts the generation, and reports pending as `Form` reads it.
 function Starter() {
   const { generateTrip } = useTripGeneration();
-  start = () => generateTrip(validTripRequest);
+  // A fresh object per call, as `processForm` sends: Stop marks the request object itself.
+  start = () => generateTrip({ ...validTripRequest });
   const pending = useIsMutating({ mutationKey: generateTripKey }) > 0;
   return <span data-testid="pending">{String(pending)}</span>;
 }
@@ -62,6 +63,8 @@ describe("GenerationToast", () => {
 
     expect(await screen.findByRole("status")).toHaveTextContent("Your trip is being planned");
     expect(screen.getByRole("button", { name: "Stop" })).toBeInTheDocument();
+    // Back to /form, where the loader shows the generation.
+    expect(screen.getByRole("link", { name: "View" })).toHaveAttribute("href", "/form");
   });
 
   it("shows nothing on /form, where the loader says it", async () => {
@@ -80,13 +83,14 @@ describe("GenerationToast", () => {
 
     settle(generatedTripFixture);
 
-    const view = await screen.findByRole("link", { name: "View" });
+    await screen.findByText("Your trip has been generated!");
+    const view = screen.getByRole("link", { name: "View" });
     expect(view).toHaveAttribute("href", `/trips/${generatedTripFixture.tripUrl}`);
     expect(screen.queryByText("Your trip is being planned")).toBeNull();
     expect(replace).not.toHaveBeenCalled();
   });
 
-  it("stops by keyboard: nothing is pending and nothing shows when the trip lands", async () => {
+  it("stops by keyboard: it says so, and nothing shows when the trip lands", async () => {
     const user = userEvent.setup();
     renderAt("/about");
     start();
@@ -97,12 +101,27 @@ describe("GenerationToast", () => {
     await user.keyboard("{Enter}");
 
     await waitFor(() => expect(screen.getByTestId("pending")).toHaveTextContent("false"));
-    await waitFor(() => expect(screen.queryByText("Your trip is being planned")).toBeNull());
+    expect(await screen.findByRole("alert")).toHaveTextContent("Your trip was cancelled");
+    expect(screen.queryByText("Your trip is being planned")).toBeNull();
 
     settle(generatedTripFixture);
     await new Promise((r) => setTimeout(r, 20));
+    expect(screen.queryByText("Your trip has been generated!")).toBeNull();
     expect(screen.queryByRole("link", { name: "View" })).toBeNull();
     expect(replace).not.toHaveBeenCalled();
+  });
+
+  // Landing while the traveller happens to be on that trip's page: nothing to open.
+  it("offers no View on the trip's own page", async () => {
+    renderAt(`/trips/${generatedTripFixture.tripUrl}`);
+    start();
+    await screen.findByText("Your trip is being planned");
+
+    settle(generatedTripFixture);
+
+    await screen.findByText("Your trip has been generated!");
+    expect(screen.queryByRole("link", { name: "View" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Dismiss" })).toBeInTheDocument();
   });
 
   it("asks before a reload while a generation is pending, and not after", async () => {

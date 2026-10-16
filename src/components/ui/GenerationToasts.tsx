@@ -1,5 +1,7 @@
+"use client";
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import toast from "react-hot-toast";
 import { BiMessageSquareDots, BiMessageSquareX } from "react-icons/bi";
 import SquiggleLoader from "@/components/sorbet/SquiggleLoader";
@@ -28,7 +30,7 @@ function ToastCard({
   icon: ReactNode;
   message: string;
   role?: "status" | "alert";
-  children: ReactNode;
+  children?: ReactNode;
 }) {
   return (
     <div
@@ -39,7 +41,7 @@ function ToastCard({
         {icon}
         {message}
       </p>
-      <div className="flex items-center justify-end gap-2">{children}</div>
+      {children && <div className="flex items-center justify-end gap-2">{children}</div>}
     </div>
   );
 }
@@ -53,20 +55,58 @@ export function PlanningToast({ onStop }: { onStop: () => void }) {
       <button type="button" onClick={onStop} className={limePill}>
         {copy.stop}
       </button>
+      {/* /form shows the loader while a generation is pending, and `GenerationToast` drops this toast there. */}
+      <Link href="/form" className={inkPill}>
+        {copy.view}
+      </Link>
     </ToastCard>
   );
 }
 
-export function ReadyToast({ tripUrl }: { tripUrl: string }) {
+/**
+ * The trip has landed. View opens it from anywhere but its own page; `opensItself` is the
+ * redirect from /form, which hides View on /form too, since the traveller is already on the way.
+ * Shown from elsewhere, it stays until dismissed.
+ */
+export function ReadyToast({ tripUrl, opensItself = false }: { tripUrl: string; opensItself?: boolean }) {
+  const pathname = usePathname();
+  const tripPath = `/trips/${tripUrl}`;
+  const showView = pathname !== tripPath && !(opensItself && pathname === "/form");
+  const actions =
+    opensItself && !showView ? undefined : (
+      <>
+        {!opensItself && (
+          <button type="button" onClick={dismiss} className={quietButton}>
+            {copy.dismiss}
+          </button>
+        )}
+        {showView && (
+          <Link href={tripPath} onClick={dismiss} className={inkPill}>
+            {copy.view}
+          </Link>
+        )}
+      </>
+    );
+
   return (
     <ToastCard icon={<BiMessageSquareDots aria-hidden size={22} className="shrink-0" />} message={copy.ready}>
-      <button type="button" onClick={dismiss} className={quietButton}>
-        {copy.dismiss}
-      </button>
-      <Link href={`/trips/${tripUrl}`} onClick={dismiss} className={inkPill}>
-        {copy.view}
-      </Link>
+      {actions}
     </ToastCard>
+  );
+}
+
+/** Shown in place of `PlanningToast` when the traveller stops the generation. */
+export function CancelledToast() {
+  return (
+    <ToastCard
+      role="alert"
+      icon={
+        <span aria-hidden className="shrink-0 text-sorbet-alert">
+          <BiMessageSquareX size={22} />
+        </span>
+      }
+      message={copy.cancelled}
+    />
   );
 }
 

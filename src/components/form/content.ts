@@ -134,11 +134,12 @@ export const failure = {
 export const generation = {
   planning: "Your trip is being planned",
   stop: "Stop",
-  ready: "Your trip is ready",
+  ready: "Your trip has been generated!",
   view: "View",
   failed: "There was an error generating your trip.",
+  cancelled: "Your trip was cancelled",
   backToForm: "Back to the form",
   dismiss: "Dismiss",
-  loaderNote: "You can keep browsing while we plan it; reloading or closing the tab stops it.",
+  loaderNote: "You can keep browsing while we plan your trip but reloading or closing the tab stops it.",
   loaderLink: "Browse saved trips",
 };

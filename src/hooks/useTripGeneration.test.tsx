@@ -5,7 +5,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { generateTripKey, stopGeneration, useTripGeneration } from "@/hooks/useTripGeneration";
 import { generateTrip } from "@/app/api/anthropicApi";
 import { generatedTripFixture, validInputs, validTripRequest } from "@/test/fixtures";
-import { replace, resetNextStubs } from "@/test/stubs/next";
+import { replace, resetNextStubs, routerState } from "@/test/stubs/next";
 import { readFormDraft, writeFormDraft } from "@/lib/formDraft";
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
@@ -31,9 +31,10 @@ function renderTrip() {
   );
 }
 
-/** Where the traveller is when the trip lands; the hook reads the live location. */
+/** Where the traveller is when the trip lands: the hook reads the live location, the toast the router's. */
 function visit(path: string) {
   window.history.replaceState(null, "", path);
+  routerState.pathname = path;
 }
 
 afterEach(() => {
@@ -77,6 +78,18 @@ describe("useTripGeneration", () => {
   });
 
   // The answers are spent; coming back to /form starts a new trip.
+  // The traveller is on the way to the trip, so the toast offers no View.
+  it("says the trip was generated, without a View, as it opens it", async () => {
+    mockFetch.mockResolvedValue(generatedTripFixture);
+    renderTrip();
+
+    ctx.generateTrip(validTripRequest);
+
+    expect(await screen.findByRole("status")).toHaveTextContent("Your trip has been generated!");
+    expect(replace).toHaveBeenCalledWith(`/trips/${generatedTripFixture.tripUrl}`);
+    expect(screen.queryByRole("link", { name: "View" })).toBeNull();
+  });
+
   it("clears the form's draft when the trip comes back", async () => {
     writeFormDraft({ values: validInputs, step: 6, isWeatherSelected: false });
     mockFetch.mockResolvedValue(generatedTripFixture);
@@ -154,7 +167,7 @@ describe("useTripGeneration", () => {
       visit("/saved-trips");
 
       const view = await screen.findByRole("link", { name: "View" });
-      expect(screen.getByRole("status")).toHaveTextContent("Your trip is ready");
+      expect(screen.getByRole("status")).toHaveTextContent("Your trip has been generated!");
       expect(view).toHaveAttribute("href", `/trips/${generatedTripFixture.tripUrl}`);
       expect(replace).not.toHaveBeenCalled();
     });
@@ -188,6 +201,7 @@ describe("useTripGeneration", () => {
   });
 
   describe("stopped", () => {
+    // Each sends a copy: Stop marks the request object, and the fixture is shared by every test.
     function pendingCall() {
       let settle = { resolve: (_: typeof generatedTripFixture) => {}, reject: (_: Error) => {} };
       mockFetch.mockReturnValue(
@@ -204,32 +218,35 @@ describe("useTripGeneration", () => {
       writeFormDraft(draft);
       const { queryClient } = renderTrip();
 
-      ctx.generateTrip(validTripRequest);
+      ctx.generateTrip({ ...validTripRequest });
       visit("/about");
       await waitFor(() => expect(screen.getByTestId("pending")).toHaveTextContent("true"));
 
       stopGeneration(queryClient);
       await waitFor(() => expect(screen.getByTestId("pending")).toHaveTextContent("false"));
 
+      expect(await screen.findByRole("alert")).toHaveTextContent("Your trip was cancelled");
+
       settle().resolve(generatedTripFixture);
       await new Promise((r) => setTimeout(r, 20));
-      expect(screen.queryByRole("status")).toBeNull();
+      expect(screen.queryByText("Your trip has been generated!")).toBeNull();
       expect(replace).not.toHaveBeenCalled();
       // Stopped, not spent: the answers are still there for another try.
       expect(readFormDraft()).toEqual(draft);
     });
 
-    it("shows no failure when it fails after", async () => {
+    it("shows the cancellation, not a failure, when it fails after", async () => {
       const settle = pendingCall();
       const { queryClient } = renderTrip();
 
-      ctx.generateTrip(validTripRequest);
+      ctx.generateTrip({ ...validTripRequest });
       await waitFor(() => expect(screen.getByTestId("pending")).toHaveTextContent("true"));
 
       stopGeneration(queryClient);
       settle().reject(new Error("The model did not return a trip"));
       await new Promise((r) => setTimeout(r, 20));
-      expect(screen.queryByRole("alert")).toBeNull();
+      expect(screen.getByRole("alert")).toHaveTextContent("Your trip was cancelled");
+      expect(screen.queryByText(/error generating your trip/)).toBeNull();
       expect(console.error).not.toHaveBeenCalled();
     });
   });

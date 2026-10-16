@@ -133,7 +133,7 @@ describe("LoaderResponseAI", () => {
 
     expect(
       screen.getByText(
-        "You can keep browsing while we plan it; reloading or closing the tab stops it.",
+        "You can keep browsing while we plan your trip but reloading or closing the tab stops it.",
       ),
     ).toBeInTheDocument();
   });

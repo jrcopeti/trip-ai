@@ -5,8 +5,12 @@ import { useMutation, type QueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import ErrorToaster from "@/components/ui/ErrorToaster";
-import CustomToaster from "@/components/ui/CustomToaster";
-import { FailedToast, GENERATION_TOAST, ReadyToast } from "@/components/ui/GenerationToasts";
+import {
+  CancelledToast,
+  FailedToast,
+  GENERATION_TOAST,
+  ReadyToast,
+} from "@/components/ui/GenerationToasts";
 import type { TripRequest } from "@/lib/agent/request";
 import { clearFormDraft } from "@/lib/formDraft";
 
@@ -21,9 +25,9 @@ const stoppedRequests = new WeakSet<object>();
 const isOnForm = () => window.location.pathname === "/form";
 
 /**
- * Stops waiting for the pending generation: it leaves the mutation cache, so nothing shows
- * it, and its landing does nothing. The server still finishes the call and writes an
- * unsaved row (2g stops that).
+ * Stops waiting for the pending generation: it leaves the mutation cache, its landing does
+ * nothing, and a toast says it was cancelled. The server still finishes the call and writes
+ * an unsaved row (2g stops that).
  */
 function stopGeneration(queryClient: QueryClient) {
   const cache = queryClient.getMutationCache();
@@ -32,7 +36,8 @@ function stopGeneration(queryClient: QueryClient) {
     if (typeof request === "object" && request) stoppedRequests.add(request);
     cache.remove(mutation);
   }
-  toast.dismiss(GENERATION_TOAST);
+  // Replaces the persistent planning toast in place, so its `Infinity` duration must be overridden.
+  toast.custom(<CancelledToast />, { id: GENERATION_TOAST, duration: 5000 });
 }
 
 /**
@@ -59,7 +64,7 @@ function useTripGeneration() {
         });
         return;
       }
-      toast.custom(<CustomToaster message="Your trip has been generated!" />);
+      toast.custom(<ReadyToast tripUrl={trip.tripUrl} opensItself />);
       router.replace(`/trips/${trip.tripUrl}`);
     },
 

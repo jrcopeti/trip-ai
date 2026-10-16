@@ -211,18 +211,29 @@ test.describe("trip journey", () => {
     });
     await page.getByRole("button", { name: "Plan my trip" }).click();
     await expect(
-      page.getByText("You can keep browsing while we plan it; reloading or closing the tab stops it."),
+      page.getByText("You can keep browsing while we plan your trip but reloading or closing the tab stops it."),
     ).toBeVisible();
 
     // The loader covers the nav; its link is the way out, a soft navigation.
     await page.getByRole("link", { name: "Browse saved trips" }).click();
     await expect(page).toHaveURL(/\/saved-trips$/);
-    await expect(page.getByRole("status").filter({ hasText: "Your trip is being planned" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Stop" })).toBeVisible();
+    const planning = page.getByRole("status").filter({ hasText: "Your trip is being planned" });
+    await expect(planning).toBeVisible();
+    await expect(planning.getByRole("button", { name: "Stop" })).toBeVisible();
     await noHorizontalScroll(page);
 
+    // The planning toast's View goes back to the loader; the toast gives way to it there.
+    await planning.getByRole("link", { name: "View" }).click();
+    await expect(page).toHaveURL(/\/form$/);
+    await expect(page.getByRole("link", { name: "Browse saved trips" })).toBeVisible();
+    await expect(planning).toBeHidden();
+    await page.getByRole("link", { name: "Browse saved trips" }).click();
+    await expect(page).toHaveURL(/\/saved-trips$/);
+    await expect(planning).toBeVisible();
+
     release();
-    const view = page.getByRole("link", { name: "View" });
+    const ready = page.getByRole("status").filter({ hasText: "Your trip has been generated!" });
+    const view = ready.getByRole("link", { name: "View" });
     await expect(view).toBeVisible();
     // Nobody is moved without asking.
     await expect(page).toHaveURL(/\/saved-trips$/);
