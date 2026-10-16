@@ -688,6 +688,7 @@ its own, in this order (2h is independent and can land any time):
     string, and logs it; prose and a JSON object in `tours` still fail. `parseListFields` on its
     own: lists left alone, broken JSON and prose left as strings, other fields untouched,
     non-object input passed through. The prompt test and snapshot carry the new count.
+  - Sonnet 5.5 against Opus 5.5 on the same trip (cost, output, recommendation): `models-comparison.md`.
 - **2g · `trip-route`: generation through a route that can be stopped.** Brings branch 4's transport
   forward, for today's single call. `POST /api/trip` (`src/app/api/trip/route.ts`) replaces the
   `generateTrip` server action for the form: the same validation, `resolvePlace`, prompt and row,
