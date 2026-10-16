@@ -699,6 +699,54 @@ its own, in this order (2h is independent and can land any time):
     The loader's note reads "You can keep browsing while we plan your trip but reloading or
     closing the tab stops it." Stop marks the request object, so tests send a copy of the shared
     fixture per call. e2e: the planning toast's View reaches the loader, and the journey leaves again.
+    From the review of both commits (the two findings about Next queueing server actions were
+    refuted in the browser: a search answered in 1s while the generation was held 15s):
+    - Accepted, not fixed: the redirect-or-toast choice reads `window.location`, which changes
+      only once a navigation commits. A trip landing in the few hundred milliseconds after the
+      loader's "Browse saved trips" is clicked still opens the trip. Rare, harmless (the traveller
+      lands on their new trip), and a fix meant a module-level flag tying the loader to the hook.
+    - The finished trip's toast has its own id (`RESULT_TOAST`): starting the next trip on `/form`
+      no longer dismisses it, and a newer result replaces it, so there is one at most. The planning
+      card is removed, not dismissed, when the result arrives, so two View links never overlap.
+    - The planning toast is shown once per generation, not re-created on each route.
+    - Stop marks the generation (a token from `onMutate`), not the request object; the tests'
+      copies went. The on-`/form` failure toast reads `failure.message`.
+    - The planning toast's Stop button is labelled **Cancel**, matching "Your trip was cancelled";
+      the code keeps `stopGeneration`.
+    - `ToastCard` (`ui/`) is the one toast card; `CustomToaster` and `ErrorToaster` wrap it,
+      without their own fade (react-hot-toast animates every toast already).
+- **2e-g · `one-open-trip`: one unanswered trip at a time, per browser.** From 2e-f's review.
+  With the result toast capped at one, a traveller could generate trip after trip without ever
+  looking at them. Rule: while a trip they generated is unanswered (neither "Yes, save it" nor
+  "No, thanks"), this browser can't plan another.
+  - **Per browser, not in the database.** There are no accounts, so the server can't tell one
+    visitor from another: a database-wide rule would let one abandoned trip block everyone. And
+    the database can't tell unanswered from discarded anyway (both are `saved: false`). The open
+    trip's url lives in `localStorage` (`trip-ai:open-trip:v1`), every access in a try, as
+    `formDraft` does; it survives reloads and tabs. It guides, it doesn't guard: a private window
+    gets around it. Protection against spam is branch 3's rate limit, on the server.
+  - **Set** when a trip lands, by `useTripGeneration`'s `onSuccess`, on `/form` or off it.
+    Never for a stopped generation (its landing is ignored) or a failed one. **Cleared** when
+    either answer lands (`useSaveTrip`). A saved trip opened later from `/saved-trips` never
+    counts as open.
+  - **On `/form`:** with an open trip stored, "Plan my trip" is disabled and a note beside it
+    says to answer that trip first ("Save or discard your last trip before planning another."),
+    with a quiet **View** button to `/trips/<url>`. Copy in `form/content.ts`.
+  - **Nothing is blocked by a trip that's gone.** On mount, `/form` checks the stored url with
+    `getTripByUrl`: no row, or a row already saved, clears it, and the form works as usual.
+    Until the check answers, the stored trip counts as open, so the button never flashes on.
+    A View link to a deleted trip lands on `/trips/[tripUrl]`'s existing not-found page ("This
+    trip is no longer available."). Rows are only deleted outside the app today (by hand, or the
+    e2e seed); a future clean-up of old unanswered trips needs nothing more.
+  - **The toast cap stays:** one result toast, a newer one replacing it.
+  - Tests: the store (round trip, malformed, throwing storage); a landed trip is stored, a
+    stopped or failed one isn't; either answer clears it; `/form` with an open trip disables
+    "Plan my trip" and shows the note and View; a stored url with no row, or a saved row, is
+    cleared and blocks nothing. e2e: generate, go back to `/form` and fill it: the button is off
+    and View opens the trip; answer it, and the next trip can be planned.
+  - Open question for the build: the note shows on the review step, beside the button. A
+    traveller learns of the block only after filling seven steps; showing the note from step 1
+    may be kinder.
 - **2f · `fix-string-tours`: a list sent as a string no longer loses the trip; longer tours.**
   The bug parked under branch 1, seen twice now (2026-10-15 and 2026-10-16, in dev): despite
   `strict: true`, `submit_trip` sometimes sends `tours` as its JSON text, so `TripDataSchema`
@@ -767,8 +815,8 @@ its own, in this order (2h is independent and can land any time):
   the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
   weather by coordinates, the form-scoped providers, architecture and commands. Retake the
   screenshots that changed at the sizes above.
-- **Order from here:** 2e-f → 2f → 2g → 2h → 2i → 2j, and branch 3. 2g comes after 2e-f, so
-  Stop exists before it can stop the server.
+- **Order from here:** 2e-f → 2e-g → 2g → 2h → 2i → 2j (2f merged), and branch 3. 2g comes
+  after 2e-f, so Stop exists before it can stop the server.
 
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`

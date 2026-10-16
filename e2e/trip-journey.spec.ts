@@ -219,7 +219,7 @@ test.describe("trip journey", () => {
     await expect(page).toHaveURL(/\/saved-trips$/);
     const planning = page.getByRole("status").filter({ hasText: "Your trip is being planned" });
     await expect(planning).toBeVisible();
-    await expect(planning.getByRole("button", { name: "Stop" })).toBeVisible();
+    await expect(planning.getByRole("button", { name: "Cancel" })).toBeVisible();
     await noHorizontalScroll(page);
 
     // The planning toast's View goes back to the loader; the toast gives way to it there.

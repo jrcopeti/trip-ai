@@ -4,6 +4,7 @@ import { useIsMutating } from "@tanstack/react-query";
 import toast, { Toaster } from "react-hot-toast";
 import { renderWithProviders, screen, waitFor } from "@/test/render";
 import GenerationToast from "@/components/ui/GenerationToast";
+import { GENERATION_TOAST } from "@/components/ui/GenerationToasts";
 import { generateTripKey, useTripGeneration } from "@/hooks/useTripGeneration";
 import { generateTrip } from "@/app/api/anthropicApi";
 import { generatedTripFixture, validTripRequest } from "@/test/fixtures";
@@ -19,8 +20,7 @@ let start: () => void;
 // Stands in for the form: starts the generation, and reports pending as `Form` reads it.
 function Starter() {
   const { generateTrip } = useTripGeneration();
-  // A fresh object per call, as `processForm` sends: Stop marks the request object itself.
-  start = () => generateTrip({ ...validTripRequest });
+  start = () => generateTrip(validTripRequest);
   const pending = useIsMutating({ mutationKey: generateTripKey }) > 0;
   return <span data-testid="pending">{String(pending)}</span>;
 }
@@ -62,7 +62,7 @@ describe("GenerationToast", () => {
     start();
 
     expect(await screen.findByRole("status")).toHaveTextContent("Your trip is being planned");
-    expect(screen.getByRole("button", { name: "Stop" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
     // Back to /form, where the loader shows the generation.
     expect(screen.getByRole("link", { name: "View" })).toHaveAttribute("href", "/form");
   });
@@ -97,7 +97,7 @@ describe("GenerationToast", () => {
     await screen.findByText("Your trip is being planned");
 
     await user.tab();
-    expect(screen.getByRole("button", { name: "Stop" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus();
     await user.keyboard("{Enter}");
 
     await waitFor(() => expect(screen.getByTestId("pending")).toHaveTextContent("false"));
@@ -139,5 +139,71 @@ describe("GenerationToast", () => {
     await waitFor(() =>
       expect(remove).toHaveBeenCalledWith("beforeunload", expect.any(Function)),
     );
+  });
+
+  // Re-creating it on each route would re-announce it to a screen reader.
+  it("shows the planning toast once, however often the traveller changes route", async () => {
+    const custom = vi.spyOn(toast, "custom");
+    const { rerender } = renderAt("/about");
+    start();
+    await screen.findByText("Your trip is being planned");
+
+    for (const path of ["/saved-trips", "/saved-trips/1", "/about"]) {
+      routerState.pathname = path;
+      rerender(
+        <>
+          <Toaster />
+          <GenerationToast />
+          <Starter />
+        </>,
+      );
+    }
+
+    const planning = custom.mock.calls.filter(([, options]) => options?.id === GENERATION_TOAST);
+    expect(planning).toHaveLength(1);
+  });
+
+  // Only the latest finished trip keeps a toast; starting a new one on /form removes nothing.
+  it("keeps the last trip's toast through the next generation, then replaces it", async () => {
+    const second = { ...generatedTripFixture, tripUrl: "f0e1d2c3b4a5" };
+    let settleSecond: (trip: typeof generatedTripFixture) => void = () => {};
+    mockGenerate.mockReset();
+    mockGenerate.mockResolvedValueOnce(generatedTripFixture);
+    mockGenerate.mockReturnValueOnce(new Promise((r) => (settleSecond = r)));
+    const tree = (
+      <>
+        <Toaster />
+        <GenerationToast />
+        <Starter />
+      </>
+    );
+    const { rerender } = renderAt("/about");
+
+    start();
+    await screen.findByText("Your trip has been generated!");
+
+    // On /form, the second generation starts; the first trip's View stays.
+    routerState.pathname = "/form";
+    window.history.replaceState(null, "", "/form");
+    rerender(tree);
+    start();
+    await waitFor(() => expect(screen.getByTestId("pending")).toHaveTextContent("true"));
+    // Past react-hot-toast's 1s exit, after which a dismissed toast leaves the page.
+    await new Promise((r) => setTimeout(r, 1100));
+    expect(screen.getByRole("link", { name: "View" })).toHaveAttribute(
+      "href",
+      `/trips/${generatedTripFixture.tripUrl}`,
+    );
+
+    // It lands off /form: one result toast, the newer trip's.
+    routerState.pathname = "/about";
+    window.history.replaceState(null, "", "/about");
+    rerender(tree);
+    settleSecond(second);
+
+    await waitFor(() =>
+      expect(screen.getByRole("link", { name: "View" })).toHaveAttribute("href", `/trips/${second.tripUrl}`),
+    );
+    expect(screen.getAllByText("Your trip has been generated!")).toHaveLength(1);
   });
 });

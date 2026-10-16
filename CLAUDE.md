@@ -258,7 +258,7 @@ architecture). A plan is for work in flight.
 ### State management: one provider, scoped to `/form`
 The root `src/app/providers.tsx` keeps QueryClient, `MotionProvider`, the Toaster and
 `GenerationToast`, which follows a generation the traveller left `/form` during (a toast with
-Stop, then View or a way back to the form) and asks before a reload while one is pending.
+Cancel and View, then View or a way back to the form) and asks before a reload while one is pending.
 `src/app/form/layout.tsx` renders **`FormProvider`** (`src/context/FormContext.tsx`), so the
 form's state goes when the traveller leaves `/form`. It owns the multi-step form — RHF and Zod
 (`FormDataSchema`), the step (`next`/`prev`), the city check, the weather choice — and runs one

@@ -133,7 +133,7 @@ export const failure = {
 /** The generation once the traveller has left `/form`: the toast that follows them. */
 export const generation = {
   planning: "Your trip is being planned",
-  stop: "Stop",
+  cancel: "Cancel",
   ready: "Your trip has been generated!",
   view: "View",
   failed: "There was an error generating your trip.",

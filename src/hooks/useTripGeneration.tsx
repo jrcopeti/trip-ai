@@ -10,15 +10,17 @@ import {
   FailedToast,
   GENERATION_TOAST,
   ReadyToast,
+  RESULT_TOAST,
 } from "@/components/ui/GenerationToasts";
+import { failure } from "@/components/form/content";
 import type { TripRequest } from "@/lib/agent/request";
 import { clearFormDraft } from "@/lib/formDraft";
 
 // Keyed so `Form` and `GenerationToast` can see a generation that outlived the provider.
 const generateTripKey = ["generateTrip"];
 
-/** Requests the traveller stopped; their landing is ignored. Keyed by the request object. */
-const stoppedRequests = new WeakSet<object>();
+/** Generations the traveller stopped, by the token `onMutate` gives each; their landing is ignored. */
+const stoppedGenerations = new WeakSet<object>();
 
 // The provider that started the call may be long unmounted, so this reads the live
 // location; its `usePathname` would still say /form.
@@ -32,8 +34,8 @@ const isOnForm = () => window.location.pathname === "/form";
 function stopGeneration(queryClient: QueryClient) {
   const cache = queryClient.getMutationCache();
   for (const mutation of cache.findAll({ mutationKey: generateTripKey, status: "pending" })) {
-    const request = mutation.state.variables;
-    if (typeof request === "object" && request) stoppedRequests.add(request);
+    const token = mutation.state.context;
+    if (token) stoppedGenerations.add(token);
     cache.remove(mutation);
   }
   // Replaces the persistent planning toast in place, so its `Infinity` duration must be overridden.
@@ -51,33 +53,37 @@ function useTripGeneration() {
   const { mutate, isPending, error, reset } = useMutation({
     mutationKey: generateTripKey,
     mutationFn: (request: TripRequest) => generateTrip(request),
+    // A fresh object per call, so a stop marks this generation and no other.
+    onMutate: () => ({}),
 
     // The server wrote the row and chose its url; the trip page reads it from there.
     // The answers are spent, so the draft goes; a failure keeps it for another try.
-    onSuccess: (trip, request) => {
-      if (stoppedRequests.has(request)) return;
+    onSuccess: (trip, _request, token) => {
+      if (stoppedGenerations.has(token)) return;
       clearFormDraft();
       if (!isOnForm()) {
-        toast.custom(<ReadyToast tripUrl={trip.tripUrl} />, {
-          id: GENERATION_TOAST,
-          duration: Infinity,
-        });
+        // Removed, not dismissed: a dismissed card lingers through its exit, a second View beside this one.
+        toast.remove(GENERATION_TOAST);
+        toast.custom(<ReadyToast tripUrl={trip.tripUrl} />, { id: RESULT_TOAST, duration: Infinity });
         return;
       }
-      toast.custom(<ReadyToast tripUrl={trip.tripUrl} opensItself />);
+      // An earlier result may hold this id with an `Infinity` duration, which an update keeps.
+      toast.custom(<ReadyToast tripUrl={trip.tripUrl} opensItself />, {
+        id: RESULT_TOAST,
+        duration: 5000,
+      });
       router.replace(`/trips/${trip.tripUrl}`);
     },
 
-    onError: (error, request) => {
-      if (stoppedRequests.has(request)) return;
+    onError: (error, _request, token) => {
+      if (token && stoppedGenerations.has(token)) return;
       console.error(error);
       if (!isOnForm()) {
-        toast.custom(<FailedToast />, { id: GENERATION_TOAST, duration: Infinity });
+        toast.remove(GENERATION_TOAST);
+        toast.custom(<FailedToast />, { id: RESULT_TOAST, duration: Infinity });
         return;
       }
-      toast.custom(
-        <ErrorToaster message="There was an error generating your trip. Please try again." />,
-      );
+      toast.custom(<ErrorToaster message={failure.message} />);
     },
   });
 

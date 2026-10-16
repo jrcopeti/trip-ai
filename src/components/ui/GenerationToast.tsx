@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useIsMutating, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -18,13 +18,22 @@ function GenerationToast() {
   const isGenerating = useIsMutating({ mutationKey: generateTripKey }) > 0;
   useConfirmOnPageExit(isGenerating);
 
+  // Shown once per generation: re-creating it on each route would re-announce it.
+  const isShown = useRef(false);
+
   useEffect(() => {
-    // Not dismissed when it settles: by then the ready or failed toast has taken its place.
-    if (!isGenerating) return;
-    if (pathname === "/form") {
-      toast.dismiss(GENERATION_TOAST);
+    // Not dismissed when it settles: by then the result or cancelled toast has taken over.
+    if (!isGenerating) {
+      isShown.current = false;
       return;
     }
+    if (pathname === "/form") {
+      toast.dismiss(GENERATION_TOAST);
+      isShown.current = false;
+      return;
+    }
+    if (isShown.current) return;
+    isShown.current = true;
     toast.custom(<PlanningToast onStop={() => stopGeneration(queryClient)} />, {
       id: GENERATION_TOAST,
       duration: Infinity,

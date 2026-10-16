@@ -1,50 +1,26 @@
 "use client";
-import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import toast from "react-hot-toast";
-import { BiMessageSquareDots, BiMessageSquareX } from "react-icons/bi";
 import SquiggleLoader from "@/components/sorbet/SquiggleLoader";
 import { generation as copy } from "@/components/form/content";
 import { focusTriad, quietButton } from "@/components/form/styles";
+import ToastCard from "./ToastCard";
 
-/** One id for every stage of a generation's toast, so each stage replaces the last in place. */
+/** The generation in flight: planning, then cancelled if stopped. Each replaces the last in place. */
 export const GENERATION_TOAST = "trip-generation";
+
+/**
+ * The latest finished generation, ready or failed. Its own id, so the next generation's planning
+ * toast can't dismiss it, and one id, so a newer result replaces it rather than stacking.
+ */
+export const RESULT_TOAST = "trip-generation-result";
 
 const smallPill = `inline-flex cursor-pointer items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold transition-transform hover:scale-[1.03] motion-reduce:transition-none ${focusTriad}`;
 const inkPill = `${smallPill} bg-sorbet-ink text-sorbet-offwhite`;
 const limePill = `${smallPill} bg-sorbet-lime text-sorbet-ink`;
 
-const dismiss = () => toast.dismiss(GENERATION_TOAST);
-
-/**
- * The card each stage shows. react-hot-toast portals to the document root, outside any
- * page's `font-sorbet`, and gives a custom toast no live region, so the card brings both.
- */
-function ToastCard({
-  icon,
-  message,
-  role = "status",
-  children,
-}: {
-  icon: ReactNode;
-  message: string;
-  role?: "status" | "alert";
-  children?: ReactNode;
-}) {
-  return (
-    <div
-      role={role}
-      className="flex w-[min(24rem,calc(100vw-2rem))] flex-col gap-3 rounded-2xl bg-sorbet-white px-5 py-4 font-sorbet text-sorbet-ink antialiased shadow-[0_18px_40px_-24px_rgba(48,46,45,0.55)]"
-    >
-      <p className="flex items-center gap-2.5 text-base font-semibold">
-        {icon}
-        {message}
-      </p>
-      {children && <div className="flex items-center justify-end gap-2">{children}</div>}
-    </div>
-  );
-}
+const dismissResult = () => toast.dismiss(RESULT_TOAST);
 
 export function PlanningToast({ onStop }: { onStop: () => void }) {
   return (
@@ -53,7 +29,7 @@ export function PlanningToast({ onStop }: { onStop: () => void }) {
       message={copy.planning}
     >
       <button type="button" onClick={onStop} className={limePill}>
-        {copy.stop}
+        {copy.cancel}
       </button>
       {/* /form shows the loader while a generation is pending, and `GenerationToast` drops this toast there. */}
       <Link href="/form" className={inkPill}>
@@ -72,59 +48,40 @@ export function ReadyToast({ tripUrl, opensItself = false }: { tripUrl: string; 
   const pathname = usePathname();
   const tripPath = `/trips/${tripUrl}`;
   const showView = pathname !== tripPath && !(opensItself && pathname === "/form");
-  const actions =
-    opensItself && !showView ? undefined : (
-      <>
-        {!opensItself && (
-          <button type="button" onClick={dismiss} className={quietButton}>
-            {copy.dismiss}
-          </button>
-        )}
-        {showView && (
-          <Link href={tripPath} onClick={dismiss} className={inkPill}>
-            {copy.view}
-          </Link>
-        )}
-      </>
-    );
+  const showDismiss = !opensItself;
 
   return (
-    <ToastCard icon={<BiMessageSquareDots aria-hidden size={22} className="shrink-0" />} message={copy.ready}>
-      {actions}
+    <ToastCard message={copy.ready}>
+      {(showDismiss || showView) && (
+        <>
+          {showDismiss && (
+            <button type="button" onClick={dismissResult} className={quietButton}>
+              {copy.dismiss}
+            </button>
+          )}
+          {showView && (
+            <Link href={tripPath} onClick={dismissResult} className={inkPill}>
+              {copy.view}
+            </Link>
+          )}
+        </>
+      )}
     </ToastCard>
   );
 }
 
 /** Shown in place of `PlanningToast` when the traveller stops the generation. */
 export function CancelledToast() {
-  return (
-    <ToastCard
-      role="alert"
-      icon={
-        <span aria-hidden className="shrink-0 text-sorbet-alert">
-          <BiMessageSquareX size={22} />
-        </span>
-      }
-      message={copy.cancelled}
-    />
-  );
+  return <ToastCard tone="alert" message={copy.cancelled} />;
 }
 
 export function FailedToast() {
   return (
-    <ToastCard
-      role="alert"
-      icon={
-        <span aria-hidden className="shrink-0 text-sorbet-alert">
-          <BiMessageSquareX size={22} />
-        </span>
-      }
-      message={copy.failed}
-    >
-      <button type="button" onClick={dismiss} className={quietButton}>
+    <ToastCard tone="alert" message={copy.failed}>
+      <button type="button" onClick={dismissResult} className={quietButton}>
         {copy.dismiss}
       </button>
-      <Link href="/form" onClick={dismiss} className={inkPill}>
+      <Link href="/form" onClick={dismissResult} className={inkPill}>
         {copy.backToForm}
       </Link>
     </ToastCard>
