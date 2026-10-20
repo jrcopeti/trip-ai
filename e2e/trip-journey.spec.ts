@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { loadEnvConfig } from "@next/env";
 import { PrismaClient } from "@prisma/client";
 import { tripDataFixture } from "../src/test/fixtures/tripData";
+import { E2E_TRIP_HOLD_MS } from "../src/app/api/e2eFixtures";
 import { mayWriteToDatabase } from "../scripts/localDatabase";
 import { noHorizontalScroll, stubLookups, walkAllSteps } from "./formWalk";
 
@@ -29,6 +30,7 @@ const SAVER = "Journeysave";
 const DISCARDER = "Journeydiscard";
 const LEAVER = "Journeyleave";
 const CANCELLER = "Journeycancel";
+const STOPPER = "Journeystop";
 
 test.skip(
   !!process.env.PLAYWRIGHT_BASE_URL,
@@ -43,7 +45,7 @@ async function deleteOwnRows() {
   const prisma = new PrismaClient();
   try {
     await prisma.trip.deleteMany({
-      where: { userName: { in: [SAVER, DISCARDER, LEAVER, CANCELLER].map((n) => n.toLowerCase()) } },
+      where: { userName: { in: [SAVER, DISCARDER, LEAVER, CANCELLER, STOPPER].map((n) => n.toLowerCase()) } },
     });
   } finally {
     await prisma.$disconnect();
@@ -295,5 +297,22 @@ test.describe("trip journey", () => {
     } finally {
       release();
     }
+  });
+
+  test("Cancel stops the generation on the server: no row is written", async ({ page }) => {
+    await stubLookups(page);
+    await page.goto("/form");
+    await walkAllSteps(page, STOPPER);
+
+    const generation = page.waitForRequest((r) => r.url().endsWith("/api/trip"));
+    await page.getByRole("button", { name: "Plan my trip" }).click();
+    await generation;
+    await page.getByRole("button", { name: "Cancel" }).click();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Review and submit");
+
+    // Absence can't be polled for: wait out the fixture's hold, by which time an unstopped
+    // generation has written its row.
+    await page.waitForTimeout(E2E_TRIP_HOLD_MS + 2000);
+    expect(await savedFlags(STOPPER)).toEqual([]);
   });
 });

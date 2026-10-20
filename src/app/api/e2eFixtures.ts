@@ -1,3 +1,4 @@
+import { setTimeout } from "node:timers/promises";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {
@@ -22,6 +23,15 @@ import {
 export const useE2EFixtures = process.env.E2E_FIXTURES === "1";
 
 dayjs.extend(utc);
+
+/** How long the fixture trip takes to come back, so a Cancel can land while it is in flight. */
+export const E2E_TRIP_HOLD_MS = 2000;
+
+/** The fixture trip, after `E2E_TRIP_HOLD_MS`; rejects as soon as `signal` aborts. */
+export async function heldTripDataFixture(signal?: AbortSignal) {
+  await setTimeout(E2E_TRIP_HOLD_MS, undefined, { signal });
+  return tripDataFixture;
+}
 
 /**
  * The forecast fixture moved to start at the last three-hour mark in UTC, as a real one does:

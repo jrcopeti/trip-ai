@@ -1,6 +1,9 @@
 import { generateTrip } from "@/app/api/anthropicApi";
 import { TripRequestSchema } from "@/lib/agent/request";
 
+// A generation with a long answer outlasts the platform's shorter defaults.
+export const maxDuration = 300;
+
 const fail = (status: number, error: string) => Response.json({ error }, { status });
 
 /**
@@ -29,10 +32,11 @@ export async function POST(request: Request) {
   if (!parsed.success) return fail(400, "The trip request is not valid");
 
   try {
-    const trip = await generateTrip(parsed.data);
+    const trip = await generateTrip(parsed.data, request.signal);
     return Response.json({ tripUrl: trip.tripUrl });
   } catch (error) {
-    console.error(error);
+    // A cancelled generation fails by design, and nobody is left to answer.
+    if (!request.signal.aborted) console.error(error);
     return fail(500, "The trip could not be generated");
   }
 }

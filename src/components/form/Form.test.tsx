@@ -19,7 +19,6 @@ import {
 import { LIMITS } from "@/lib/schema";
 import type { FieldName, FormContextType } from "@/types";
 
-vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("@/hooks/useTripGeneration", () => ({
   useTripGeneration: () => ({ generateTrip: vi.fn(), cancel: vi.fn(), clearFailure: vi.fn() }),
   useGenerationState: <T,>(select: (state: { pending: null; trip: null; failure: null }) => T) =>

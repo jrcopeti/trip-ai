@@ -27,9 +27,47 @@ describe("POST /api/trip", () => {
 
     const response = await post(JSON.stringify(validTripRequest));
 
-    expect(mockGenerate).toHaveBeenCalledWith(validTripRequest);
+    expect(mockGenerate).toHaveBeenCalledWith(validTripRequest, expect.any(AbortSignal));
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ tripUrl: generatedTripFixture.tripUrl });
+  });
+
+  it("hands generation the request's signal, so a disconnect aborts it", async () => {
+    mockGenerate.mockResolvedValue(generatedTripFixture);
+    const client = new AbortController();
+
+    await POST(
+      new Request("http://localhost/api/trip", {
+        method: "POST",
+        body: JSON.stringify(validTripRequest),
+        headers: { "content-type": "application/json" },
+        signal: client.signal,
+      }),
+    );
+    const signal = mockGenerate.mock.calls[0][1]!;
+    expect(signal.aborted).toBe(false);
+    client.abort();
+
+    expect(signal.aborted).toBe(true);
+  });
+
+  it("logs nothing when generation fails because the client has gone", async () => {
+    const client = new AbortController();
+    mockGenerate.mockImplementation(async () => {
+      client.abort();
+      throw new Error("Request was aborted.");
+    });
+
+    await POST(
+      new Request("http://localhost/api/trip", {
+        method: "POST",
+        body: JSON.stringify(validTripRequest),
+        headers: { "content-type": "application/json" },
+        signal: client.signal,
+      }),
+    );
+
+    expect(console.error).not.toHaveBeenCalled();
   });
 
   it("answers 500, and logs, when generation fails", async () => {

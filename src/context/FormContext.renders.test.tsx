@@ -34,7 +34,6 @@ vi.mock("@/components/form/FormStep2", async (importOriginal) => {
   const { default: Real } = await importOriginal<typeof import("@/components/form/FormStep2")>();
   return { default: () => <Counted id="step2" of={Real} /> };
 });
-vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("@/app/api/geoNamesApi", () => ({
   resolvePlace: vi.fn().mockResolvedValue({ ok: false, error: "not-found" }),
 }));

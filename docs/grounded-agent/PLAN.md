@@ -895,22 +895,39 @@ its own, in this order (2h is independent and can land any time):
     own: lists left alone, broken JSON and prose left as strings, other fields untouched,
     non-object input passed through. The prompt test and snapshot carry the new count.
   - Sonnet 5.5 against Opus 5.5 on the same trip (cost, output, recommendation): `models-comparison.md`.
-- **2g · `trip-route`: generation through a route that can be stopped.** Brings branch 4's transport
-  forward, for today's single call. *2e-f already moved the form to `POST /api/trip` with an
-  aborted `fetch` (see its PR #218 notes); what's left is the server side.* The route keeps
-  the same validation, `resolvePlace`, prompt and row, but the Claude call is streamed (`client.messages.stream(...)`, read with `finalMessage()`) and
-  takes the request's `signal`. The response is SSE with `done` (the trip url) and `error` events
-  only; branch 4 adds `step`. Stop (2e-f) and leaving the page abort the fetch, which aborts the
-  stream: the output not yet written isn't billed (input is, as it's read at the start), no photos
-  are fetched after it, and no row is written. A server action can't be aborted from the client,
-  and a non-streamed call runs to the end however the client leaves, hence both changes.
-  `maxDuration` for the route in `vercel.json`. The agent itself (request → trip row) becomes a
-  function the route calls, so MCP (branch 7) and evals (6) call it directly.
-  - The landing logic already lives at the root (`GenerationProvider`, from 2e-f's rebuild), and
-    the client already aborts; 2g passes the route's `request.signal` into the stream.
-  - Tests: an aborted request aborts the SDK stream (mocked at `anthropicApi`) and writes no row;
-    `done` carries the url; a refusal, `max_tokens` or a bad request is an `error` event. e2e: the
-    fixture path (`E2E_FIXTURES=1`) answers as a fixture stream; Stop leaves no row.
+- **2g · `trip-route`: a cancelled generation stops on the server.** Since 2e-f (PR #218) the
+  form calls `POST /api/trip` with a `fetch` it aborts on Cancel, but the server still finishes
+  the call: the whole output is billed, the photos fetched and the row written. 2g passes the
+  abort on. Scoped down on 2026-10-20, after #218: the JSON response stays (`{ tripUrl }`, or an
+  error status), and server-sent events (`done`/`error`/`step`) move to branch 4, which needs
+  them for its steps.
+  1. The route passes its `request.signal` into `generateTrip`.
+  2. The Claude call is streamed (`client.messages.stream(...)`, read with `finalMessage()`) and
+     takes the signal: output not yet written isn't billed (input is, as it's read at the start).
+  3. Once aborted, nothing more starts and no row is written: `generateTrip` checks the signal
+     after `resolvePlace` (before the photos), after the forecast (before the model) and after
+     the photos (before the write). GeoNames, OpenWeather and Unsplash don't take the signal:
+     they're quick, unbilled, and OpenWeather's fetch is cached.
+  4. `generateTrip` leaves the `"use server"` file, so `/api/trip` is the only way in from the
+     browser. The agent (request → trip row) is a function the route calls, and MCP (branch 7)
+     and evals (6) call it directly.
+  - **Prove the abort first.** Before anything relies on it: a failing e2e (Cancel → no row
+    written for that request) shows that `request.signal` aborts when the client disconnects from
+    Next's route handler, under `npm run start`. If it doesn't, stop and rethink before building.
+  - **The browser keeps its plain "(500)".** The cause stays in the server log, which on Vercel
+    is enough to find it (it was, for a production failure on 2026-10-20); no reason codes in the
+    response. Branch 3 records every outcome durably, since runtime logs are kept briefly.
+  - `maxDuration = 300` on the route, so a long call isn't cut by the platform's default.
+  - The browser no longer logs a failed generation (`GenerationContext`): it only ever saw
+    "(500)". The route doesn't log a cancelled one either.
+  - **Built (2026-10-20):** the proof first (the e2e failed with a row written, then passed once
+    the route handed on `request.signal`), then 1–4 with their unit tests. The e2e fixture trip
+    now takes 2 seconds (`E2E_TRIP_HOLD_MS`) and stops on the signal, so a Cancel lands mid-call.
+  - Tests: an aborted signal aborts the SDK stream (mocked at the SDK) and writes no row nor waits
+    on the photos; a signal aborted before the call never starts it; the route hands its
+    `request.signal` on; the existing failures (refusal, `max_tokens`, no call, invalid trip) still
+    throw from the stream's final message. e2e: Cancel leaves no row (the fixture path,
+    `E2E_FIXTURES=1`, waits on the signal so a Cancel lands mid-call).
 - **2h · `request-checks`: findings 2 and 3.** Passport checked with `oneOf` against the
   countries; required items refuse line breaks, on the server and the form.
 - **2i · dependencies: Renovate keeps them current, a branch each for the breaking ones.**
@@ -942,8 +959,8 @@ its own, in this order (2h is independent and can land any time):
   the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
   weather by coordinates, the form-scoped providers, architecture and commands. Retake the
   screenshots that changed at the sizes above.
-- **Order from here:** 2e-f → 2e-g → 2g → 2h → 2i → 2j (2f merged), and branch 3. 2g comes
-  after 2e-f, so Stop exists before it can stop the server.
+- **Order from here:** 2g → 2e-g → 2h → 2i → 2j (2e-f and 2f merged), and branch 3. 2g goes
+  before 2e-g: they're independent, and 2g stops paying for cancelled generations.
 
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`
@@ -1043,7 +1060,8 @@ branch's diff.
   `estCost`; plus `weatherSummary`, `entryRequirements {summary, sources[]}` (only when a passport
   is given), and `sources[] {title, url}`. Prisma columns: `sources Json?`, `entryRequirements Json?`;
   `tours Json` already holds the richer shape.
-- Streaming: the route and its SSE are 2g's; the loop runs inside it and adds `step` events
+- Streaming: the route answers in server-sent events (`done`, `error`, and `step`; moved here from
+  2g, which kept the JSON response); the loop runs inside it and emits `step` events
   ("Checking the weather in Lisbon…"), with `maxDuration = 300`. `LoaderResponseAI` and 2e-f's
   toast show the real steps in place of the canned ones.
 - Stopping: the request's `signal` reaches every iteration's Claude call and every tool's HTTP
