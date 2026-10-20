@@ -5,16 +5,17 @@ const fail = (status: number, error: string) => Response.json({ error }, { statu
 
 /**
  * Generates the trip for a `TripRequest` sent as JSON, writes it unsaved and answers
- * `{ tripUrl }`: 415 for another content type, 403 for a browser request from another page
- * than this site's, 400 for a body that isn't a valid request, 500 when generation fails.
+ * `{ tripUrl }`: 415 for another content type, 403 when the browser's `Sec-Fetch-Site` names
+ * another site, 400 for a body that isn't a valid request, 500 when generation fails.
  */
 export async function POST(request: Request) {
-  // JSON can't be sent cross-site without a preflight, which fails: the route sends no CORS headers.
+  // The cross-site guard: JSON can't be sent cross-site without a preflight, which fails while
+  // the route sends no CORS headers and has no OPTIONS handler. Adding either removes it.
   const type = request.headers.get("content-type")?.toLowerCase();
   if (!type?.startsWith("application/json")) return fail(415, "Send the request as application/json");
 
   // Set by the browser, not the page, and unaffected by proxies or the referrer policy. Absent
-  // when no browser sent the request.
+  // when no browser, or one without Fetch Metadata, sent the request.
   const site = request.headers.get("sec-fetch-site");
   if (site !== null && site !== "same-origin") return fail(403, "Not from this site");
 
