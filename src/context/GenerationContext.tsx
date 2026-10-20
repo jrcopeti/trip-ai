@@ -91,11 +91,7 @@ export function GenerationProvider({ children }: { children: React.ReactNode }) 
           .then(
             (trip) =>
               dispatch({ type: "land", token, tripUrl: trip.tripUrl, pathname: latest.current.pathname }),
-            (error) => {
-              // An aborted (cancelled or superseded) call's failure is nobody's concern.
-              if (store.getState().pending === token) console.error(error);
-              dispatch({ type: "fail", token, pathname: latest.current.pathname });
-            },
+            () => dispatch({ type: "fail", token, pathname: latest.current.pathname }),
           )
           .finally(() => controllers.delete(token));
       },

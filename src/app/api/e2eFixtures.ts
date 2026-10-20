@@ -23,6 +23,24 @@ export const useE2EFixtures = process.env.E2E_FIXTURES === "1";
 
 dayjs.extend(utc);
 
+/** How long the fixture trip takes to come back, so a Cancel can land while it is in flight. */
+export const E2E_TRIP_HOLD_MS = 2000;
+
+/** The fixture trip, after `E2E_TRIP_HOLD_MS`; rejects with the signal's reason as it aborts. */
+export function heldTripDataFixture(signal?: AbortSignal) {
+  return new Promise<typeof tripDataFixture>((resolve, reject) => {
+    const timer = setTimeout(() => resolve(tripDataFixture), E2E_TRIP_HOLD_MS);
+    signal?.addEventListener(
+      "abort",
+      () => {
+        clearTimeout(timer);
+        reject(signal.reason);
+      },
+      { once: true },
+    );
+  });
+}
+
 /**
  * The forecast fixture moved to start at the last three-hour mark in UTC, as a real one does:
  * a trip planned around the weather keeps only the days inside its dates, which start today.

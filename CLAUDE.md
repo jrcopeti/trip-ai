@@ -165,7 +165,8 @@ not one already on 3100, which fails the run (stop it first). With `PLAYWRIGHT_B
 set, no server starts and the trip journey skips, since that site's database is unknown. The one production concession to
 testing: the API modules return a fixture when `E2E_FIXTURES=1`
 (`src/app/api/e2eFixtures.ts`) — those calls are server-side, so `page.route` cannot
-reach them, and the alternative is live API keys in CI.
+reach them, and the alternative is live API keys in CI. The fixture trip comes back after
+`E2E_TRIP_HOLD_MS` (2s) and stops on the request's abort, so a Cancel can land mid-generation.
 
 **The e2e database is `E2E_DATABASE_URL`**, defaulting to the local `trip-ai-e2e-pg`
 container at CI's address (`scripts/localDatabase.ts`, which loads the `.env` files the way
@@ -229,7 +230,7 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
   and its copy in `content.ts`. A record now; what binds is in `design-notes.md`.
 - **`docs/grounded-agent/PLAN.md`** — the **grounded agent**, in flight. Branch 1
   (new form fields, the city check and the prompt on the server, `claude-sonnet-5-5`) is
-  finished; branch 2 (the server-owned trip) is in progress, 2a–2e-e and 2f merged, 2e-f (`background-generation`) in review; 3–7
+  finished; branch 2 (the server-owned trip) is in progress, 2a–2e-f and 2f merged, 2g (`trip-route`) in review; 3–7
   (metrics, tools, refine, evals, MCP) are next.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
@@ -349,8 +350,8 @@ The form fetches no weather: the request carries the choice (`byWeather`), and t
 the forecast.
 
 ### Server-side modules (`"use server"` unless noted)
-- `src/app/api/trip/route.ts` — not an action: `POST /api/trip`, a `TripRequest` body → `generateTrip` → `{ tripUrl }`. 415 unless sent as `application/json` (any case), so a cross-site page can't send it without a failing preflight, and 403 when the browser's `Sec-Fetch-Site` says it came from anywhere but this site (absent when no browser sent it; set by the browser, so proxies and the referrer policy don't matter), 400 for a body that isn't a valid request, 500 when generation fails. The browser's only way to generate; a `fetch` can be aborted and doesn't queue behind other server actions. Aborting ends the browser's wait only: the server finishes the call and writes its row (2g passes the signal on).
-- `src/app/api/anthropicApi.ts` — `generateTrip(request)`: re-validates the `TripRequest` (`src/lib/agent/request.ts`), resolves the city again with `resolvePlace`, builds the prompt on the server (`src/lib/agent/prompt.ts`) and calls `claude-sonnet-5-5` with the strict `submit_trip` tool (`src/lib/agent/submitTrip.ts`) and `tool_choice: auto`. A refusal, `max_tokens`, a missing call or output that fails `TripDataSchema` all throw. With `byWeather` it first fetches the forecast at the resolved place and keeps one reading per trip day, nearest midday in the destination's time (`tripForecast`, `src/lib/agent/forecast.ts`); a failed fetch plans without one. Alongside the model call it fetches the photos, then writes the row (`toTripRow`, `src/lib/tripRow.ts`) from the request, the place and the output — `byWeather` on the row means a forecast reached the prompt — and returns it.
+- `src/app/api/trip/route.ts` — not an action: `POST /api/trip`, a `TripRequest` body → `generateTrip` → `{ tripUrl }`. 415 unless sent as `application/json` (any case), so a cross-site page can't send it without a failing preflight, and 403 when the browser's `Sec-Fetch-Site` says it came from anywhere but this site (absent when no browser sent it; set by the browser, so proxies and the referrer policy don't matter), 400 for a body that isn't a valid request, 500 when generation fails. The browser's only way to generate; a `fetch` can be aborted and doesn't queue behind other server actions. Passes its `request.signal` to `generateTrip`, so a cancelled request stops the generation, and logs no error for the abort itself (a real failure landing as the client goes is still logged). `maxDuration` 300, over `vercel.json`'s 60s for the rest; on Hobby that needs the project's Fluid compute, which is on.
+- `src/app/api/anthropicApi.ts` — not an action, so `/api/trip` is the only way in from the browser: `generateTrip(request, signal?)`: re-validates the `TripRequest` (`src/lib/agent/request.ts`), resolves the city again with `resolvePlace`, builds the prompt on the server (`src/lib/agent/prompt.ts`) and calls `claude-sonnet-5-5`, streamed and read with `finalMessage()`, with the strict `submit_trip` tool (`src/lib/agent/submitTrip.ts`) and `tool_choice: auto`. Once `signal` aborts, the call stops, nothing more starts, no row is written unless the insert had begun, and it rejects with the signal's reason. A refusal, `max_tokens`, a missing call or output that fails `TripDataSchema` all throw. With `byWeather` it first fetches the forecast at the resolved place and keeps one reading per trip day, nearest midday in the destination's time (`tripForecast`, `src/lib/agent/forecast.ts`); a failed fetch plans without one. Alongside the model call it fetches the photos, then writes the row (`toTripRow`, `src/lib/tripRow.ts`) from the request, the place and the output — `byWeather` on the row means a forecast reached the prompt — and returns it.
 - `src/app/api/unsplashApi.ts` — not an action: `generateTrip` calls it with GeoNames' name for the place. Fetches 5 photos + a base64 plaiceholder blur of the first.
 - `src/app/api/openWeatherApi.ts` — not an action: `fetchWeather`/`fetchForecast({ lat, lon })`,
   OpenWeather at coordinates GeoNames already resolved (checked in range; no geocoding), cached

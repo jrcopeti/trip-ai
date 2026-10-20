@@ -139,7 +139,8 @@ describe("GenerationProvider", () => {
       expect(await screen.findByRole("alert")).toHaveTextContent(failure.message);
       expect(readFormDraft()).toEqual(draft);
       expect(replace).not.toHaveBeenCalled();
-      expect(console.error).toHaveBeenCalledTimes(1);
+      // The cause is in the server's log; the browser's console gets nothing.
+      expect(console.error).not.toHaveBeenCalled();
     });
 
     it("clears the failure on clearFailure, so the form shows again", async () => {

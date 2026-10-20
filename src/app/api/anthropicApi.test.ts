@@ -14,15 +14,19 @@ import { resolvePlace } from "./geoNamesApi";
 import { fetchTripImage } from "./unsplashApi";
 import { fetchForecast } from "./openWeatherApi";
 
-const create = vi.fn();
+/** The streamed call's final message; `stream` is the call itself. */
+const finalMessage = vi.fn();
+const stream = vi.fn((_body: unknown, _options?: { signal?: AbortSignal }) => ({ finalMessage }));
 
 vi.mock("@anthropic-ai/sdk", () => {
   class APIError extends Error {
     status = 500;
   }
+  class APIUserAbortError extends APIError {}
   class Anthropic {
     static APIError = APIError;
-    messages = { create };
+    static APIUserAbortError = APIUserAbortError;
+    messages = { stream };
   }
   return { default: Anthropic };
 });
@@ -37,7 +41,7 @@ const { generateTrip } = await import("./anthropicApi");
 
 /** A response whose only block is a `submit_trip` call with `input`. */
 function submits(input: unknown, stop_reason = "tool_use") {
-  create.mockResolvedValue({
+  finalMessage.mockResolvedValue({
     stop_reason,
     stop_details: null,
     usage: {},
@@ -46,7 +50,7 @@ function submits(input: unknown, stop_reason = "tool_use") {
 }
 
 function sent() {
-  return create.mock.calls.at(-1)![0];
+  return stream.mock.calls.at(-1)![0] as Record<string, any>;
 }
 
 /** The row handed to Prisma. */
@@ -58,7 +62,8 @@ beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date(2030, 3, 1, 12, 0, 0));
   vi.spyOn(console, "error").mockImplementation(() => {});
-  create.mockReset();
+  finalMessage.mockReset();
+  stream.mockClear();
   vi.mocked(resolvePlace).mockResolvedValue({ ok: true, place: lisbonPlace });
   vi.mocked(fetchTripImage).mockReset();
   vi.mocked(fetchTripImage).mockResolvedValue(imageDataFixture);
@@ -78,7 +83,7 @@ describe("generateTrip — the request", () => {
     await expect(generateTrip("plan me a trip")).rejects.toThrow();
 
     expect(resolvePlace).not.toHaveBeenCalled();
-    expect(create).not.toHaveBeenCalled();
+    expect(stream).not.toHaveBeenCalled();
     expect(write).not.toHaveBeenCalled();
   });
 
@@ -87,7 +92,7 @@ describe("generateTrip — the request", () => {
 
     await expect(generateTrip(validTripRequest)).rejects.toThrow();
     expect(resolvePlace).toHaveBeenCalledWith("Lisbon", "PT");
-    expect(create).not.toHaveBeenCalled();
+    expect(stream).not.toHaveBeenCalled();
     expect(fetchTripImage).not.toHaveBeenCalled();
     expect(write).not.toHaveBeenCalled();
   });
@@ -229,7 +234,7 @@ describe("generateTrip — the answer", () => {
   });
 
   it("fails when the model answers without calling submit_trip", async () => {
-    create.mockResolvedValue({
+    finalMessage.mockResolvedValue({
       stop_reason: "end_turn",
       stop_details: null,
       usage: {},
@@ -271,7 +276,97 @@ describe("generateTrip — the answer", () => {
   });
 
   it("fails when the API call itself fails", async () => {
-    create.mockRejectedValue(new Error("network"));
+    finalMessage.mockRejectedValue(new Error("network"));
     await expect(generateTrip(validTripRequest)).rejects.toThrow(/generating/);
+  });
+});
+
+describe("generateTrip — stopped", () => {
+  /** A model call that rejects with `error` once `signal` aborts; the SDK's own is APIUserAbortError. */
+  async function heldUntilAborted(signal: AbortSignal, error?: Error) {
+    const { default: Anthropic } = await import("@anthropic-ai/sdk");
+    finalMessage.mockImplementation(
+      () =>
+        new Promise((_, reject) =>
+          signal.addEventListener("abort", () =>
+            reject(error ?? new Anthropic.APIUserAbortError()),
+          ),
+        ),
+    );
+  }
+
+  it("streams the model's call with the signal", async () => {
+    const controller = new AbortController();
+    await generateTrip(validTripRequest, controller.signal);
+
+    expect(stream.mock.calls[0][1]).toEqual({ signal: controller.signal });
+  });
+
+  it("aborted during the model's call: rejects with the signal's reason, writes nothing, doesn't wait on the photos, logs nothing", async () => {
+    const controller = new AbortController();
+    await heldUntilAborted(controller.signal);
+    vi.mocked(fetchTripImage).mockReturnValue(new Promise(() => {}));
+
+    const generation = generateTrip(validTripRequest, controller.signal);
+    await vi.waitFor(() => expect(finalMessage).toHaveBeenCalled());
+    controller.abort();
+
+    await expect(generation).rejects.toBe(controller.signal.reason);
+    expect(write).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
+  });
+
+  it("aborted during the model's call that fails for its own reason: logs it", async () => {
+    const { default: Anthropic } = await import("@anthropic-ai/sdk");
+    const controller = new AbortController();
+    await heldUntilAborted(controller.signal, new Anthropic.APIError(529, undefined, "overloaded", undefined));
+
+    const generation = generateTrip(validTripRequest, controller.signal);
+    await vi.waitFor(() => expect(finalMessage).toHaveBeenCalled());
+    controller.abort();
+
+    await expect(generation).rejects.not.toBe(controller.signal.reason);
+    expect(console.error).toHaveBeenCalled();
+  });
+
+  it("aborted before it starts: rejects with the signal's reason, resolving nothing and calling nothing", async () => {
+    const controller = new AbortController();
+    controller.abort();
+
+    await expect(generateTrip(validTripRequest, controller.signal)).rejects.toBe(
+      controller.signal.reason,
+    );
+    expect(resolvePlace).not.toHaveBeenCalled();
+    expect(stream).not.toHaveBeenCalled();
+    expect(fetchTripImage).not.toHaveBeenCalled();
+    expect(write).not.toHaveBeenCalled();
+  });
+
+  it("aborted during a city lookup that then fails: rejects with the signal's reason", async () => {
+    const controller = new AbortController();
+    vi.mocked(resolvePlace).mockImplementation(async () => {
+      controller.abort();
+      return { ok: false, error: "unavailable" };
+    });
+
+    await expect(generateTrip(validTripRequest, controller.signal)).rejects.toBe(
+      controller.signal.reason,
+    );
+  });
+
+  it("aborted while the photos load: writes nothing", async () => {
+    const controller = new AbortController();
+    let photosArrive = () => {};
+    vi.mocked(fetchTripImage).mockReturnValue(
+      new Promise((resolve) => (photosArrive = () => resolve(imageDataFixture))),
+    );
+
+    const generation = generateTrip(validTripRequest, controller.signal);
+    await vi.waitFor(() => expect(finalMessage).toHaveBeenCalled());
+    controller.abort();
+    photosArrive();
+
+    await expect(generation).rejects.toBe(controller.signal.reason);
+    expect(write).not.toHaveBeenCalled();
   });
 });

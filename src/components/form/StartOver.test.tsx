@@ -8,7 +8,6 @@ import { validInputs } from "@/test/fixtures";
 import { buttons, destination, personal, progress, startOver, stepCopy } from "@/components/form/content";
 import toast from "react-hot-toast";
 
-vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("@/hooks/useTripGeneration", () => ({
   useTripGeneration: () => ({ generateTrip: vi.fn(), cancel: vi.fn(), clearFailure: vi.fn() }),
   useGenerationState: <T,>(select: (state: { pending: null; trip: null; failure: null }) => T) =>

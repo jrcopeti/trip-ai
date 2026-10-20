@@ -7,12 +7,13 @@ vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 
 const mockGenerate = vi.mocked(generateTrip);
 
-const post = (body: string, headers: Record<string, string> = {}) =>
+const post = (body: string, headers: Record<string, string> = {}, signal?: AbortSignal) =>
   POST(
     new Request("http://localhost/api/trip", {
       method: "POST",
       body,
       headers: { "content-type": "application/json", ...headers },
+      signal,
     }),
   );
 
@@ -27,9 +28,45 @@ describe("POST /api/trip", () => {
 
     const response = await post(JSON.stringify(validTripRequest));
 
-    expect(mockGenerate).toHaveBeenCalledWith(validTripRequest);
+    expect(mockGenerate).toHaveBeenCalledWith(validTripRequest, expect.any(AbortSignal));
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ tripUrl: generatedTripFixture.tripUrl });
+  });
+
+  it("hands generation the request's signal, so a disconnect aborts it", async () => {
+    mockGenerate.mockResolvedValue(generatedTripFixture);
+    const client = new AbortController();
+
+    await post(JSON.stringify(validTripRequest), {}, client.signal);
+    const signal = mockGenerate.mock.calls[0][1]!;
+    expect(signal.aborted).toBe(false);
+    client.abort();
+
+    expect(signal.aborted).toBe(true);
+  });
+
+  it("logs nothing when generation stops because the client has gone", async () => {
+    const client = new AbortController();
+    mockGenerate.mockImplementation(async (_request, signal) => {
+      client.abort();
+      throw signal!.reason;
+    });
+
+    await post(JSON.stringify(validTripRequest), {}, client.signal);
+
+    expect(console.error).not.toHaveBeenCalled();
+  });
+
+  it("still logs a real failure that lands as the client goes", async () => {
+    const client = new AbortController();
+    mockGenerate.mockImplementation(async () => {
+      client.abort();
+      throw new Error("The write failed");
+    });
+
+    await post(JSON.stringify(validTripRequest), {}, client.signal);
+
+    expect(console.error).toHaveBeenCalled();
   });
 
   it("answers 500, and logs, when generation fails", async () => {

@@ -1,6 +1,10 @@
 import { generateTrip } from "@/app/api/anthropicApi";
 import { TripRequestSchema } from "@/lib/agent/request";
 
+// A generation takes up to ~70s, past `vercel.json`'s 60. Over 60 on Hobby needs the project's
+// Fluid compute on, or the deploy fails.
+export const maxDuration = 300;
+
 const fail = (status: number, error: string) => Response.json({ error }, { status });
 
 /**
@@ -29,10 +33,12 @@ export async function POST(request: Request) {
   if (!parsed.success) return fail(400, "The trip request is not valid");
 
   try {
-    const trip = await generateTrip(parsed.data);
+    const trip = await generateTrip(parsed.data, request.signal);
     return Response.json({ tripUrl: trip.tripUrl });
   } catch (error) {
-    console.error(error);
+    // A cancelled generation rejects with the signal's reason, and nobody is left to answer. A
+    // real failure that lands as the client goes is still logged.
+    if (error !== request.signal.reason) console.error(error);
     return fail(500, "The trip could not be generated");
   }
 }

@@ -1,4 +1,3 @@
-"use server";
 import Anthropic from "@anthropic-ai/sdk";
 import { randomBytes } from "node:crypto";
 import type { Trip } from "@prisma/client";
@@ -17,18 +16,19 @@ import { toTripRow } from "@/lib/tripRow";
 import { resolvePlace } from "./geoNamesApi";
 import { fetchForecast } from "./openWeatherApi";
 import { fetchTripImage } from "./unsplashApi";
-import { tripDataFixture, useE2EFixtures } from "./e2eFixtures";
+import { heldTripDataFixture, useE2EFixtures } from "./e2eFixtures";
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
 /**
- * A server action is a public endpoint, so the request is checked again here
- * and the city resolved again, whatever the browser already did. Writes the
- * trip unsaved and returns the row; the traveller's answer only flips `saved`.
+ * Plans the trip for `input`, writes it unsaved and returns the row. The request is checked and
+ * the city resolved again, whatever the browser did. Once `signal` aborts it stops the model's
+ * call, starts nothing more, writes no row unless the write had begun, and rejects with the
+ * signal's reason.
  */
-export async function generateTrip(input: unknown): Promise<Trip> {
+export async function generateTrip(input: unknown, signal?: AbortSignal): Promise<Trip> {
   const request = TripRequestSchema.safeParse(input);
   if (!request.success) {
     console.error("generateTrip: invalid request", request.error.flatten());
@@ -36,7 +36,9 @@ export async function generateTrip(input: unknown): Promise<Trip> {
   }
   const req = request.data;
 
+  signal?.throwIfAborted();
   const resolved = await resolvePlace(req.city, req.countryCode);
+  signal?.throwIfAborted();
   if (!resolved.ok) throw new Error(`The city could not be resolved: ${resolved.error}`);
 
   // Searched by GeoNames' name, not the raw spelling; a trip without photos is still a trip.
@@ -45,9 +47,12 @@ export async function generateTrip(input: unknown): Promise<Trip> {
     placeholder: null,
   }));
   const forecast = req.byWeather ? await forecastFor(req, resolved.place) : [];
+  signal?.throwIfAborted();
   const tripData = useE2EFixtures
-    ? (tripDataFixture as TripData)
-    : await askForTrip(req, resolved.place, forecast);
+    ? ((await heldTripDataFixture(signal)) as TripData)
+    : await askForTrip(req, resolved.place, forecast, signal);
+  const photos = await images;
+  signal?.throwIfAborted();
 
   // 48 random bits: `tripUrl` is unique, so a clash would fail the write.
   const tripUrl = randomBytes(6).toString("hex");
@@ -56,7 +61,7 @@ export async function generateTrip(input: unknown): Promise<Trip> {
       request: req,
       place: resolved.place,
       tripData,
-      images: await images,
+      images: photos,
       tripUrl,
       byWeather: forecast.length > 0,
     }),
@@ -78,19 +83,28 @@ async function askForTrip(
   req: TripRequest,
   place: Place,
   forecast: ForecastDay[],
+  signal?: AbortSignal,
 ): Promise<TripData> {
   let response: Anthropic.Message;
   try {
-    response = await client.messages.create({
-      model: "claude-sonnet-5-5",
-      max_tokens: 16000,
-      system: [{ type: "text", text: buildSystemPrompt(), cache_control: { type: "ephemeral" } }],
-      messages: [{ role: "user", content: buildTripMessage(req, place, forecast) }],
-      tools: [submitTripTool],
-      // Sonnet 5.5 rejects a forced tool choice; the prompt asks for submit_trip and `strict` keeps its shape.
-      tool_choice: { type: "auto" },
-    });
+    // Streamed so an abort ends the call where it is: a `create` call runs to its end, all of
+    // its output billed, whenever the client leaves.
+    const stream = client.messages.stream(
+      {
+        model: "claude-sonnet-5-5",
+        max_tokens: 16000,
+        system: [{ type: "text", text: buildSystemPrompt(), cache_control: { type: "ephemeral" } }],
+        messages: [{ role: "user", content: buildTripMessage(req, place, forecast) }],
+        tools: [submitTripTool],
+        // Sonnet 5.5 rejects a forced tool choice; the prompt asks for submit_trip and `strict` keeps its shape.
+        tool_choice: { type: "auto" },
+      },
+      { signal },
+    );
+    response = await stream.finalMessage();
   } catch (error: unknown) {
+    // Stopped by the traveller, not failed: nothing to report, and the route knows it by the reason.
+    if (error instanceof Anthropic.APIUserAbortError && signal?.aborted) throw signal.reason;
     if (error instanceof Anthropic.APIError) {
       console.error(`Anthropic API error ${error.status}:`, error.message);
     } else {

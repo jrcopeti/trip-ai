@@ -29,6 +29,8 @@ const SAVER = "Journeysave";
 const DISCARDER = "Journeydiscard";
 const LEAVER = "Journeyleave";
 const CANCELLER = "Journeycancel";
+const STOPPER = "Journeystop";
+const CONTROL = "Journeycontrol";
 
 test.skip(
   !!process.env.PLAYWRIGHT_BASE_URL,
@@ -43,7 +45,7 @@ async function deleteOwnRows() {
   const prisma = new PrismaClient();
   try {
     await prisma.trip.deleteMany({
-      where: { userName: { in: [SAVER, DISCARDER, LEAVER, CANCELLER].map((n) => n.toLowerCase()) } },
+      where: { userName: { in: [SAVER, DISCARDER, LEAVER, CANCELLER, STOPPER, CONTROL].map((n) => n.toLowerCase()) } },
     });
   } finally {
     await prisma.$disconnect();
@@ -295,5 +297,28 @@ test.describe("trip journey", () => {
     } finally {
       release();
     }
+  });
+
+  test("Cancel stops the generation on the server: no row is written", async ({ page }) => {
+    await stubLookups(page);
+    await page.goto("/form");
+    await walkAllSteps(page, STOPPER);
+
+    const generation = page.waitForRequest((r) => r.url().endsWith("/api/trip"));
+    await page.getByRole("button", { name: "Plan my trip" }).click();
+    await generation;
+    await page.getByRole("button", { name: "Cancel" }).click();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Review and submit");
+
+    // Absence can't be polled for, so a control generation, started after the cancelled one
+    // and held as long, writes its row; by then an unstopped one would have written its own.
+    const control = await page.context().newPage();
+    try {
+      await generateTrip(control, CONTROL);
+    } finally {
+      await control.close();
+    }
+    expect(await savedFlags(CONTROL)).toEqual([false]);
+    expect(await savedFlags(STOPPER)).toEqual([]);
   });
 });
