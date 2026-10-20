@@ -89,6 +89,31 @@ describe("POST /api/trip", () => {
     expect(response.status).toBe(200);
   });
 
+  it("falls back to the host when the forwarded host is empty", async () => {
+    mockGenerate.mockResolvedValue(generatedTripFixture);
+
+    const response = await post(JSON.stringify(validTripRequest), {
+      origin: "http://localhost",
+      "x-forwarded-host": "",
+    });
+
+    expect(response.status).toBe(200);
+  });
+
+  it("answers 403 when there's no host to compare an origin with", async () => {
+    const request = new Request("http://localhost/api/trip", {
+      method: "POST",
+      body: JSON.stringify(validTripRequest),
+      headers: { "content-type": "application/json", origin: "null" },
+    });
+    request.headers.delete("host");
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(403);
+    expect(mockGenerate).not.toHaveBeenCalled();
+  });
+
   it("takes JSON whatever the content type's case", async () => {
     mockGenerate.mockResolvedValue(generatedTripFixture);
 

@@ -292,6 +292,9 @@ test.describe("trip journey", () => {
       });
       await page.getByRole("textbox", { name: /city/i }).fill("Porto");
       await check;
+
+      // Let the held request through: a cancelled generation's landing must change nothing.
+      release();
       await expect(page).toHaveURL(/\/form$/);
       await expect(page.getByText("Your trip has been generated!")).toBeHidden();
     } finally {

@@ -25,9 +25,11 @@ export async function POST(request: Request) {
   // As Next checks a server action's: the origin against the host the browser asked for, the
   // first of a proxy chain's forwarded hosts. A request with no origin isn't from a browser page.
   const origin = request.headers.get("origin");
+  // `||`, not `??`: an empty forwarded host falls back too, or every request would be refused.
   const host =
-    request.headers.get("x-forwarded-host")?.split(",")[0].trim() ?? request.headers.get("host");
-  if (origin !== null && originHost(origin) !== host) return fail(403, "Not from this site");
+    request.headers.get("x-forwarded-host")?.split(",")[0].trim() || request.headers.get("host");
+  // No host: an opaque origin's null would otherwise equal it.
+  if (origin !== null && (!host || originHost(origin) !== host)) return fail(403, "Not from this site");
 
   let body: unknown;
   try {

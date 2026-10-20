@@ -306,10 +306,15 @@ What each action does, from any state (anything not listed leaves that part as i
 | `route` anywhere else | `opening` becomes `ready` (left before the redirect); a seen failure dropped | — |
 | `clearFailure` | no failure | — |
 
-The loader shows on `/form` while one is in flight or a trip is `opening`. A reload or a closed tab
-asks first only while one is in flight (`asksBeforeReload`): a prompt can't tell a reload from the
-redirect to a landed trip falling back to a full load. The planning toast shows while one is in
-flight, off `/form`. The trip and failure toasts, by route:
+The loader on `/form` (`isLoading`) and the prompt before a reload or a closed tab (`asksBeforeReload`):
+
+| State | Loader on `/form` | Asks before a reload |
+|---|---|---|
+| one in flight | yes | yes |
+| none in flight, trip `opening` | yes | no: a prompt can't tell a reload from the redirect falling back to a full load |
+| anything else | no | no |
+
+The planning toast shows while one is in flight, off `/form`. The trip and failure toasts, by route:
 
 | State | `/form` | the trip's page | elsewhere |
 |---|---|---|---|
@@ -330,6 +335,9 @@ Two limits, accepted:
 - `opening` ends only on reaching the trip's page or leaving `/form`. Nothing on the loader can
   keep the traveller on `/form` meanwhile: it covers the nav, offers no Cancel while opening, and
   its one link leaves `/form`.
+
+The route's origin check assumes no `Referrer-Policy: no-referrer`: under it the browser sends
+`Origin: null` on the app's own POST, and `/api/trip` would refuse every generation with a 403.
 
 Every custom toast goes through **`showToast`** (`ui/ToastCard.tsx`), which hides a dismissed one
 at once, and none is removed (`toast.remove` under the cursor leaves the Toaster paused);

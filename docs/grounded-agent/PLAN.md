@@ -813,9 +813,16 @@ its own, in this order (2h is independent and can land any time):
       a proxy chain's forwarded hosts, as Next does; takes `application/json` in any case; and
       passes the parsed request on.
     - `TRIP_URL` lives once, in `src/lib/constants.ts`, for `requestTrip` and `db/actions.ts`.
-    - The reload rule is `asksBeforeReload` in `generation.ts`, with its own table and a line in
-      CLAUDE.md. A reload while a landed trip is `opening` loses its link until 2e-g stores it.
+    - The reload rule is `asksBeforeReload` in `generation.ts`, with its own test table, and a
+      table in CLAUDE.md beside `isLoading`'s. A reload while a landed trip is `opening` loses its link until 2e-g stores it.
     - The Cancel e2e releases its held request in a `finally`.
+    From the review of `18677f6`:
+    - An empty `x-forwarded-host` falls back to `host` (`||`), and a request with no host at all
+      is refused rather than matching an opaque origin's null.
+    - The Cancel e2e lets the held request through before its last two checks again, so they
+      catch a cancelled generation's landing; the `finally` stays as a backstop.
+    - CLAUDE.md tables the loader and the reload prompt, and notes the route's dependence on no
+      `Referrer-Policy: no-referrer`.
 - **2e-g · `one-open-trip`: one unanswered trip at a time, per browser.** From 2e-f's review.
   With the result toast capped at one, a traveller could generate trip after trip without ever
   looking at them. Rule: while a trip they generated is unanswered (neither "Yes, save it" nor
