@@ -9,7 +9,7 @@ import { GENERATION_TOAST, PlanningToast } from "./GenerationToasts";
 
 /**
  * Follows a generation off `/form`: while one is pending anywhere else, a persistent toast
- * says so and offers Stop. On `/form` the loader shows instead. Its arrival and failure
+ * says so and offers Cancel. On `/form` the loader shows instead. Its arrival and failure
  * replace this toast from `useTripGeneration`. Asks before a reload while one is pending.
  */
 function GenerationToast() {
@@ -28,7 +28,8 @@ function GenerationToast() {
       return;
     }
     if (pathname === "/form") {
-      toast.dismiss(GENERATION_TOAST);
+      // Removed, not dismissed: a dismissed toast stays clickable for its 1s exit, its Cancel under the loader.
+      toast.remove(GENERATION_TOAST);
       isShown.current = false;
       return;
     }

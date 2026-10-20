@@ -17,6 +17,13 @@ describe("ToastCard", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("Your trip was cancelled");
   });
 
+  it("marks a finished result with the green check, announced politely", () => {
+    const { container } = render(<ToastCard tone="success" message="Your trip has been generated!" />);
+
+    expect(screen.getByRole("status")).toHaveTextContent("Your trip has been generated!");
+    expect(container.querySelector("[aria-hidden].text-sorbet-success svg")).not.toBeNull();
+  });
+
   // A message alone sizes to its text; actions need room, so they get a fixed width.
   it("widens only when it carries actions", () => {
     render(

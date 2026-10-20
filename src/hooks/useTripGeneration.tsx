@@ -1,6 +1,7 @@
 "use client";
 
 import { generateTrip } from "@/app/api/anthropicApi";
+import { useCallback } from "react";
 import { useMutation, type QueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -19,8 +20,12 @@ import { clearFormDraft } from "@/lib/formDraft";
 // Keyed so `Form` and `GenerationToast` can see a generation that outlived the provider.
 const generateTripKey = ["generateTrip"];
 
-/** Generations the traveller stopped, by the token `onMutate` gives each; their landing is ignored. */
+/** Generations the traveller stopped, by the token each is sent with; their landing is ignored. */
 const stoppedGenerations = new WeakSet<object>();
+
+// The token travels in the variables, which TanStack stores the moment the call starts,
+// so a stop at any point after `mutate` finds it.
+type Generation = { request: TripRequest; token: object };
 
 // The provider that started the call may be long unmounted, so this reads the live
 // location; its `usePathname` would still say /form.
@@ -34,8 +39,8 @@ const isOnForm = () => window.location.pathname === "/form";
 function stopGeneration(queryClient: QueryClient) {
   const cache = queryClient.getMutationCache();
   for (const mutation of cache.findAll({ mutationKey: generateTripKey, status: "pending" })) {
-    const token = mutation.state.context;
-    if (token) stoppedGenerations.add(token);
+    const generation = mutation.state.variables as Generation | undefined;
+    if (generation) stoppedGenerations.add(generation.token);
     cache.remove(mutation);
   }
   // Replaces the persistent planning toast in place, so its `Infinity` duration must be overridden.
@@ -52,13 +57,11 @@ function useTripGeneration() {
 
   const { mutate, isPending, error, reset } = useMutation({
     mutationKey: generateTripKey,
-    mutationFn: (request: TripRequest) => generateTrip(request),
-    // A fresh object per call, so a stop marks this generation and no other.
-    onMutate: () => ({}),
+    mutationFn: ({ request }: Generation) => generateTrip(request),
 
     // The server wrote the row and chose its url; the trip page reads it from there.
     // The answers are spent, so the draft goes; a failure keeps it for another try.
-    onSuccess: (trip, _request, token) => {
+    onSuccess: (trip, { token }) => {
       if (stoppedGenerations.has(token)) return;
       clearFormDraft();
       if (!isOnForm()) {
@@ -75,8 +78,8 @@ function useTripGeneration() {
       router.replace(`/trips/${trip.tripUrl}`);
     },
 
-    onError: (error, _request, token) => {
-      if (token && stoppedGenerations.has(token)) return;
+    onError: (error, { token }) => {
+      if (stoppedGenerations.has(token)) return;
       console.error(error);
       if (!isOnForm()) {
         toast.remove(GENERATION_TOAST);
@@ -87,7 +90,10 @@ function useTripGeneration() {
     },
   });
 
-  return { generateTrip: mutate, isPending, error, reset };
+  // A fresh token per call, so a stop marks this generation and no other.
+  const start = useCallback((request: TripRequest) => mutate({ request, token: {} }), [mutate]);
+
+  return { generateTrip: start, isPending, error, reset };
 }
 
 export { useTripGeneration, generateTripKey, stopGeneration };

@@ -238,6 +238,20 @@ describe("useTripGeneration", () => {
       expect(readFormDraft()).toEqual(draft);
     });
 
+    // TanStack marks the call pending before its callbacks run; a stop in that gap still counts.
+    it("shows nothing when stopped the moment it starts", async () => {
+      const settle = pendingCall();
+      const { queryClient } = renderTrip();
+
+      ctx.generateTrip(validTripRequest);
+      stopGeneration(queryClient);
+
+      settle().resolve(generatedTripFixture);
+      await new Promise((r) => setTimeout(r, 20));
+      expect(screen.queryByText("Your trip has been generated!")).toBeNull();
+      expect(replace).not.toHaveBeenCalled();
+    });
+
     it("shows the cancellation, not a failure, when it fails after", async () => {
       const settle = pendingCall();
       const { queryClient } = renderTrip();

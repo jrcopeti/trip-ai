@@ -126,8 +126,6 @@ describe("LoaderResponseAI", () => {
     expect(ring.closest("[aria-hidden]")).not.toBeNull();
   });
 
-  // The warning before a reload moved to `GenerationToast`, which holds it while any
-  // generation is pending, on /form or off it.
   it("says the traveller can leave, and what ends the generation", () => {
     renderWithProviders(<LoaderResponseAI />);
 

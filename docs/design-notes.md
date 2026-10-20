@@ -48,6 +48,7 @@ page's use of them.
 | `sorbet-indigo` | `#5a4dff` | Unused since the hero's eyebrow became a plain label. Kept as a token; reach for it only for a single deliberate accent. |
 | `sorbet-white` | `#ffffff` | Section grounds, card fills, chip fills, the polaroid frame. |
 | `sorbet-alert` | `#c2150c` | Error glyphs and field errors. The only red in the system. |
+| `sorbet-success` | `#1e7d34` | The check on a finished result's toast ("Your trip has been generated!"). The only green; a glyph, never a fill. |
 
 ### Section grounds alternate
 
@@ -336,7 +337,7 @@ spell the same, since the intro's flight to the nav scales by the word's width.
 | `SiteNav` | `ui/` | The nav, on every route. See below. |
 | `SiteFooter` | `ui/` | The ink footer. Rendered per page, not by the layout. |
 | `NotFoundComponent`, `Loader`, `LoaderResponseAI`, `ButtonBackOutlined` | `ui/` | Shell pieces, in the system. |
-| `ToastCard`, and on it `CustomToaster`, `ErrorToaster` and `GenerationToasts` (planning, cancelled, ready, failed) | `ui/` | Every toast is one white card with the system's shadow, an info or alert glyph and optional nav-sized pills below. A custom toast gets no live region from react-hot-toast, so the card carries `role` (`status`, or `alert` for the alert tone). It sizes to its text, and takes a fixed width only when it has actions. |
+| `ToastCard`, and on it `CustomToaster`, `ErrorToaster` and `GenerationToasts` (planning, cancelled, ready, failed) | `ui/` | Every toast is one white card with the system's shadow, an info, success (green check) or alert glyph and optional nav-sized pills below. A custom toast gets no live region from react-hot-toast, so the card carries `role` (`status`, or `alert` for the alert tone). It sizes to its text, and takes a fixed width only when it has actions. |
 | `StickerBadge` | `sorbet/` | Decorative: circular text on `<textPath>`, slow spin. Takes `icon: ReactNode`. On the landing and the `/saved-trips` header. |
 | `Squiggle` | `landing/` | Decorative: ink loop, draws on. Optional `play` gate. |
 | `Intro`, `IntroContext` | `landing/` | Once a day per browser, by cookie (`introCookie.ts`). See "The intro". |

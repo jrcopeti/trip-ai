@@ -715,6 +715,20 @@ its own, in this order (2h is independent and can land any time):
       the code keeps `stopGeneration`.
     - `ToastCard` (`ui/`) is the one toast card; `CustomToaster` and `ErrorToaster` wrap it,
       without their own fade (react-hot-toast animates every toast already).
+    From the third review:
+    - A stop in the instant after `mutate`, before TanStack runs its callbacks, still counts: the
+      token is created at the call site and sent in the variables (`{ request, token }`), which
+      TanStack stores as the call starts. `onMutate` and its guard are gone.
+    - Back on `/form`, the planning toast is removed, not dismissed: a dismissed toast stays
+      clickable through react-hot-toast's 1s exit, and its Cancel sat invisible under the loader.
+    - The ready toast carries a green check (`ToastCard`'s `success` tone, `sorbet-success`).
+    - Accepted, not fixed: a failure after the traveller returned to the loader through View
+      shows the review step with the answers restored and the failure toast, not the "Try again"
+      panel; the fresh form never ran the call, so it has no error. They submit again from there.
+      Fixing it meant reading errors from the shared cache and clearing them on "Try again".
+    - Parked as its own branch: screen readers may not announce a toast whose `role="status"`
+      region arrives already filled. Every toast is affected (the city check too), and before
+      2e-f none had a live region. Fix: one permanent announcement region in the root providers.
 - **2e-g · `one-open-trip`: one unanswered trip at a time, per browser.** From 2e-f's review.
   With the result toast capped at one, a traveller could generate trip after trip without ever
   looking at them. Rule: while a trip they generated is unanswered (neither "Yes, save it" nor
@@ -781,6 +795,11 @@ its own, in this order (2h is independent and can land any time):
   and a non-streamed call runs to the end however the client leaves, hence both changes.
   `maxDuration` for the route in `vercel.json`. The agent itself (request → trip row) becomes a
   function the route calls, so MCP (branch 7) and evals (6) call it directly.
+  - **Replaces 2e-f's workarounds, deletes rather than works around them** (from 2e-f's review):
+    the landing logic moves out of `useTripGeneration`, a provider that may be unmounted, into the
+    root (`GenerationToast` or a root-level owner). That retires `stoppedGenerations` and its
+    token (the real abort replaces them) and `isOnForm()`'s live-location read. 2e-f's toast and
+    loader tests stay as they are and must stay green.
   - Tests: an aborted request aborts the SDK stream (mocked at `anthropicApi`) and writes no row;
     `done` carries the url; a refusal, `max_tokens` or a bad request is an `error` event. e2e: the
     fixture path (`E2E_FIXTURES=1`) answers as a fixture stream; Stop leaves no row.

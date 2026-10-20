@@ -51,7 +51,7 @@ export function ReadyToast({ tripUrl, opensItself = false }: { tripUrl: string; 
   const showDismiss = !opensItself;
 
   return (
-    <ToastCard message={copy.ready}>
+    <ToastCard tone="success" message={copy.ready}>
       {(showDismiss || showView) && (
         <>
           {showDismiss && (

@@ -76,6 +76,26 @@ describe("GenerationToast", () => {
     expect(screen.queryByText("Your trip is being planned")).toBeNull();
   });
 
+  // A dismissed toast stays clickable through its 1s exit; under the loader, Cancel must not be.
+  it("leaves the page at once when the traveller returns to /form", async () => {
+    const { rerender } = renderAt("/about");
+    start();
+    await screen.findByText("Your trip is being planned");
+
+    routerState.pathname = "/form";
+    window.history.replaceState(null, "", "/form");
+    rerender(
+      <>
+        <Toaster />
+        <GenerationToast />
+        <Starter />
+      </>,
+    );
+
+    await waitFor(() => expect(screen.queryByRole("button", { name: "Cancel" })).toBeNull());
+    expect(screen.getByTestId("pending")).toHaveTextContent("true");
+  });
+
   it("becomes the way to the trip when it lands, without moving the traveller", async () => {
     renderAt("/saved-trips");
     start();
