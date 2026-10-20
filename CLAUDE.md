@@ -270,8 +270,7 @@ for the whole app, so it outlives `/form`:
   (`src/app/api/trip/route.ts`, which calls `generateTrip`), with an `AbortController` per
   generation. Not a server action: Next runs those one at a time, so a cancelled one would hold
   every later one (the city check, the next try) until the server finished it. It redirects a trip
-  that lands on `/form` to `/trips/[tripUrl]`, and asks before a reload while one is in flight
-  (not after: a prompt can't tell a reload from its own redirect falling back to a full load).
+  that lands on `/form` to `/trips/[tripUrl]`, and asks before a reload while one is in flight (`asksBeforeReload`).
 - **`GenerationToast`** is the only code that shows or dismisses the generation's toasts: it
   keeps them equal to `toastsFor(state, pathname)` (planning off `/form`, the ready trip until
   its page, an unseen failure off `/form`), each under its own id.
@@ -307,8 +306,10 @@ What each action does, from any state (anything not listed leaves that part as i
 | `route` anywhere else | `opening` becomes `ready` (left before the redirect); a seen failure dropped | — |
 | `clearFailure` | no failure | — |
 
-The loader shows on `/form` while one is in flight or a trip is `opening`. The planning toast shows
-while one is in flight, off `/form`. The trip and failure toasts, by route:
+The loader shows on `/form` while one is in flight or a trip is `opening`. A reload or a closed tab
+asks first only while one is in flight (`asksBeforeReload`): a prompt can't tell a reload from the
+redirect to a landed trip falling back to a full load. The planning toast shows while one is in
+flight, off `/form`. The trip and failure toasts, by route:
 
 | State | `/form` | the trip's page | elsewhere |
 |---|---|---|---|
@@ -316,7 +317,7 @@ while one is in flight, off `/form`. The trip and failure toasts, by route:
 | failure unseen | — | failed | failed |
 | trip `opening`, failure seen | — | — | — |
 
-These three tables are `transition`, `isLoading` and `toastsFor` in `src/lib/generation.ts`, and
+These tables are `transition`, `isLoading`, `asksBeforeReload` and `toastsFor` in `src/lib/generation.ts`, and
 `src/lib/generation.test.ts` asserts every row from every state. A change to one row changes all
 three places: the code, its test table and this section. "The trip's page" is that trip's own
 page; another trip's page is "elsewhere".
@@ -343,7 +344,7 @@ The form fetches no weather: the request carries the choice (`byWeather`), and t
 the forecast.
 
 ### Server-side modules (`"use server"` unless noted)
-- `src/app/api/trip/route.ts` — not an action: `POST /api/trip`, a `TripRequest` body → `generateTrip` → `{ tripUrl }`. 415 unless sent as `application/json` and 403 from another origin (together, the cross-site protection a server action has built in), 400 for a body that isn't a valid request, 500 when generation fails. The browser's only way to generate; a `fetch` can be aborted and doesn't queue behind other server actions.
+- `src/app/api/trip/route.ts` — not an action: `POST /api/trip`, a `TripRequest` body → `generateTrip` → `{ tripUrl }`. 415 unless sent as `application/json` (any case) and 403 from another origin, an opaque one included, compared with the first of a proxy chain's forwarded hosts (together, the cross-site protection a server action has built in), 400 for a body that isn't a valid request, 500 when generation fails. The browser's only way to generate; a `fetch` can be aborted and doesn't queue behind other server actions.
 - `src/app/api/anthropicApi.ts` — `generateTrip(request)`: re-validates the `TripRequest` (`src/lib/agent/request.ts`), resolves the city again with `resolvePlace`, builds the prompt on the server (`src/lib/agent/prompt.ts`) and calls `claude-sonnet-5-5` with the strict `submit_trip` tool (`src/lib/agent/submitTrip.ts`) and `tool_choice: auto`. A refusal, `max_tokens`, a missing call or output that fails `TripDataSchema` all throw. With `byWeather` it first fetches the forecast at the resolved place and keeps one reading per trip day, nearest midday in the destination's time (`tripForecast`, `src/lib/agent/forecast.ts`); a failed fetch plans without one. Alongside the model call it fetches the photos, then writes the row (`toTripRow`, `src/lib/tripRow.ts`) from the request, the place and the output — `byWeather` on the row means a forecast reached the prompt — and returns it.
 - `src/app/api/unsplashApi.ts` — not an action: `generateTrip` calls it with GeoNames' name for the place. Fetches 5 photos + a base64 plaiceholder blur of the first.
 - `src/app/api/openWeatherApi.ts` — not an action: `fetchWeather`/`fetchForecast({ lat, lon })`,

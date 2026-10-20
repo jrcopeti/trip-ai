@@ -1,10 +1,7 @@
 "use server";
 import { Prisma, Trip } from "@prisma/client";
 import prisma from "@/db";
-import { SAVED_TRIPS_PAGE_SIZE } from "@/lib/constants";
-
-// `generateTrip`'s format: 12 hex characters.
-const TRIP_URL = /^[0-9a-f]{12}$/;
+import { SAVED_TRIPS_PAGE_SIZE, TRIP_URL } from "@/lib/constants";
 
 /**
  * The traveller's answer to "save this trip?". `generateTrip` already wrote the row, so

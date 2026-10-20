@@ -10,4 +10,7 @@ const getChosenHour = () => new Date().getHours();
  */
 const SAVED_TRIPS_PAGE_SIZE = 18;
 
-export { defaultPlaceholder, getChosenHour, SAVED_TRIPS_PAGE_SIZE };
+/** A trip's url, as `generateTrip` makes it from 6 random bytes: 12 hex characters. */
+const TRIP_URL = /^[0-9a-f]{12}$/;
+
+export { defaultPlaceholder, getChosenHour, SAVED_TRIPS_PAGE_SIZE, TRIP_URL };

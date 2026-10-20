@@ -253,7 +253,7 @@ test.describe("trip journey", () => {
     await page.goto("/form");
     await walkAllSteps(page, CANCELLER);
 
-    // Held, so Cancel is pressed while the generation is still pending; released at the end.
+    // Held, so Cancel is pressed while the generation is still pending.
     let release = () => {};
     const held = new Promise<void>((r) => (release = r));
     await page.route("**/api/trip", async (route) => {
@@ -261,37 +261,41 @@ test.describe("trip journey", () => {
       // The page aborted it by then, so there's nothing left to continue.
       await route.continue().catch(() => {});
     });
-    const generation = page.waitForRequest((r) => r.url().endsWith("/api/trip"));
-    await page.getByRole("button", { name: "Plan my trip" }).click();
-    // Out and back through the planning toast's View: the toast leaves from under the cursor.
-    await page.getByRole("link", { name: "Browse saved trips" }).click();
-    await page
-      .getByRole("status")
-      .filter({ hasText: "Your trip is being planned" })
-      .getByRole("link", { name: "View" })
-      .click();
-    await page.getByRole("button", { name: "Cancel" }).click();
+    // Released however the test ends, so no handler is left waiting through teardown.
+    try {
+      const generation = page.waitForRequest((r) => r.url().endsWith("/api/trip"));
+      await page.getByRole("button", { name: "Plan my trip" }).click();
+      // Out and back through the planning toast's View: the toast leaves from under the cursor.
+      await page.getByRole("link", { name: "Browse saved trips" }).click();
+      await page
+        .getByRole("status")
+        .filter({ hasText: "Your trip is being planned" })
+        .getByRole("link", { name: "View" })
+        .click();
+      await page.getByRole("button", { name: "Cancel" }).click();
 
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Review and submit");
-    await expect(page.getByText(CANCELLER)).toBeVisible();
-    const cancelled = page.getByRole("alert").filter({ hasText: "Your trip was cancelled" });
-    await expect(cancelled).toBeVisible();
-    // Shows and goes, as every timed toast must.
-    await expect(cancelled).toBeHidden({ timeout: 9000 });
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText("Review and submit");
+      await expect(page.getByText(CANCELLER)).toBeVisible();
+      const cancelled = page.getByRole("alert").filter({ hasText: "Your trip was cancelled" });
+      await expect(cancelled).toBeVisible();
+      // Shows and goes, as every timed toast must.
+      await expect(cancelled).toBeHidden({ timeout: 9000 });
 
-    // The request is aborted, not left running: nothing lands, and the form's own server
-    // actions (the city check) aren't queued behind it, as they would be behind a server action.
-    const request = await generation;
-    await expect.poll(() => request.failure()?.errorText ?? null).not.toBeNull();
-    for (let i = 0; i < 5; i++) await page.getByRole("button", { name: "Back" }).click();
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Destination");
-    const check = page.waitForRequest((r) => r.method() === "POST" && r.url().endsWith("/form"), {
-      timeout: 5000,
-    });
-    await page.getByRole("textbox", { name: /city/i }).fill("Porto");
-    await check;
-    release();
-    await expect(page).toHaveURL(/\/form$/);
-    await expect(page.getByText("Your trip has been generated!")).toBeHidden();
+      // The request is aborted, not left running: nothing lands, and the form's own server
+      // actions (the city check) aren't queued behind it, as they would be behind a server action.
+      const request = await generation;
+      await expect.poll(() => request.failure()?.errorText ?? null).not.toBeNull();
+      for (let i = 0; i < 5; i++) await page.getByRole("button", { name: "Back" }).click();
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText("Destination");
+      const check = page.waitForRequest((r) => r.method() === "POST" && r.url().endsWith("/form"), {
+        timeout: 5000,
+      });
+      await page.getByRole("textbox", { name: /city/i }).fill("Porto");
+      await check;
+      await expect(page).toHaveURL(/\/form$/);
+      await expect(page.getByText("Your trip has been generated!")).toBeHidden();
+    } finally {
+      release();
+    }
   });
 });

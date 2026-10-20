@@ -808,6 +808,14 @@ its own, in this order (2h is independent and can land any time):
       is 2e-g's to keep across reloads.
     - `TRIP_TOAST`'s id is "trip-generation-trip"; `GenerationToast` keeps each card in a ref, so
       its effects depend on `[id, key]` only.
+    From the review of `add921c`:
+    - The route answers 403, not a crash, to an opaque `Origin: null`; compares with the first of
+      a proxy chain's forwarded hosts, as Next does; takes `application/json` in any case; and
+      passes the parsed request on.
+    - `TRIP_URL` lives once, in `src/lib/constants.ts`, for `requestTrip` and `db/actions.ts`.
+    - The reload rule is `asksBeforeReload` in `generation.ts`, with its own table and a line in
+      CLAUDE.md. A reload while a landed trip is `opening` loses its link until 2e-g stores it.
+    - The Cancel e2e releases its held request in a `finally`.
 - **2e-g · `one-open-trip`: one unanswered trip at a time, per browser.** From 2e-f's review.
   With the result toast capped at one, a traveller could generate trip after trip without ever
   looking at them. Rule: while a trip they generated is unanswered (neither "Yes, save it" nor
@@ -818,10 +826,14 @@ its own, in this order (2h is independent and can land any time):
     trip's url lives in `localStorage` (`trip-ai:open-trip:v1`), every access in a try, as
     `formDraft` does; it survives reloads and tabs. It guides, it doesn't guard: a private window
     gets around it. Protection against spam is branch 3's rate limit, on the server.
-  - **Set** when a trip lands, by `useTripGeneration`'s `onSuccess`, on `/form` or off it.
-    Never for a stopped generation (its landing is ignored) or a failed one. **Cleared** when
-    either answer lands (`useSaveTrip`). A saved trip opened later from `/saved-trips` never
-    counts as open.
+  - **Set** when a trip lands, on `/form` or off it: a `rememberTrip` effect of `land` in
+    `transition` (`src/lib/generation.ts`, since 2e-f's rebuild), beside `clearDraft`, with its
+    rows in the tables and in CLAUDE.md. Never for a cancelled or superseded generation (its
+    landing changes nothing) or a failed one. **Cleared** when either answer lands
+    (`useSaveTrip`). A saved trip opened later from `/saved-trips` never counts as open.
+  - **Closes 2e-f's reload gap.** The reload warning stops once a trip lands, and the draft is
+    cleared then; a reload while the trip is `opening`, or after a `ready` trip's toast, used to
+    lose its only link. With the url stored at the landing, `/form` offers View after the reload.
   - **On `/form`:** with an open trip stored, "Plan my trip" is disabled and a note beside it
     says to answer that trip first ("Save or discard your last trip before planning another."),
     with a quiet **View** button to `/trips/<url>`. Copy in `form/content.ts`.

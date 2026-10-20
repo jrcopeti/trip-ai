@@ -70,6 +70,35 @@ describe("POST /api/trip", () => {
     expect(proxied.status).toBe(200);
   });
 
+  it("answers 403, not a crash, to the opaque origin a sandboxed page sends", async () => {
+    const response = await post(JSON.stringify(validTripRequest), { origin: "null" });
+
+    expect(response.status).toBe(403);
+    expect(mockGenerate).not.toHaveBeenCalled();
+  });
+
+  // Behind chained proxies the header is a list; the first entry is the host the browser asked for.
+  it("compares the origin with the first of several forwarded hosts", async () => {
+    mockGenerate.mockResolvedValue(generatedTripFixture);
+
+    const response = await post(JSON.stringify(validTripRequest), {
+      origin: "https://trip.example",
+      "x-forwarded-host": "trip.example, internal.lb",
+    });
+
+    expect(response.status).toBe(200);
+  });
+
+  it("takes JSON whatever the content type's case", async () => {
+    mockGenerate.mockResolvedValue(generatedTripFixture);
+
+    const response = await post(JSON.stringify(validTripRequest), {
+      "content-type": "Application/JSON; charset=utf-8",
+    });
+
+    expect(response.status).toBe(200);
+  });
+
   it("answers 400 to JSON that isn't a valid trip request, without generating", async () => {
     const response = await post(JSON.stringify({ ...validTripRequest, travellers: "a crowd" }));
 

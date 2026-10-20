@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  asksBeforeReload,
   isLoading,
   toastsFor,
   transition,
@@ -176,6 +177,13 @@ describe("transition", () => {
 describe("isLoading", () => {
   it.each(cases)("%s, %s, %s", (p, t, f) => {
     expect(isLoading(state(p, t, f))).toBe(p === "pending" || t === "opening");
+  });
+});
+
+describe("asksBeforeReload", () => {
+  // Only in flight: a prompt can't tell a reload from the redirect falling back to a full load.
+  it.each(cases)("%s, %s, %s", (p, t, f) => {
+    expect(asksBeforeReload(state(p, t, f))).toBe(p === "pending");
   });
 });
 

@@ -1,6 +1,6 @@
 /**
  * The trip generation as one state, the one in flight and the last trip and failure: `transition`
- * changes it and returns the effects to run, `isLoading` and `toastsFor` say what it shows.
+ * changes it and returns the effects to run; `isLoading`, `asksBeforeReload` and `toastsFor` follow.
  * As tables, each row asserted: CLAUDE.md, "The generation's state, as tables".
  */
 
@@ -116,6 +116,12 @@ export function transition(state: GenerationState, action: GenerationAction): Tr
 /** Whether `/form` shows the loader: a generation in flight, or its trip on the way. */
 export const isLoading = (state: GenerationState) =>
   state.pending !== null || state.trip?.kind === "opening";
+
+/**
+ * Whether a reload or a closed tab asks first: only while one is in flight. A prompt can't tell
+ * a reload from the redirect to a landed trip falling back to a full page load.
+ */
+export const asksBeforeReload = (state: GenerationState) => state.pending !== null;
 
 export type GenerationToasts = {
   planning: boolean;

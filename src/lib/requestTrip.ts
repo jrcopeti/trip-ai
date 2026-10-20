@@ -1,7 +1,5 @@
 import type { TripRequest } from "@/lib/agent/request";
-
-// `generateTrip`'s format: 12 hex characters.
-const TRIP_URL = /^[0-9a-f]{12}$/;
+import { TRIP_URL } from "@/lib/constants";
 
 /**
  * Asks `POST /api/trip` for a trip and resolves to its url; `signal` aborts the request. Rejects
