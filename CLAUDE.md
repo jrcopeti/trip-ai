@@ -262,16 +262,68 @@ for the whole app, so it outlives `/form`:
 - Its state is one value, in a zustand store created per provider (never module-level: it
   would be shared across server requests and tests), changed only by `transition`
   (`src/lib/generation.ts`, pure): the
-  generation in flight, by a token, and the last result. Each transition returns at most one
-  effect (clear the draft, open the trip, say it was cancelled or failed), which the provider
-  runs. A landing whose token isn't the one in flight changes nothing.
+  generation in flight, by a token, and the last result (`ready`, `opening` on the way to its
+  page, or `failed`). Each transition returns its effects (clear the draft, open the trip, say
+  it was cancelled or failed), which the provider runs. A landing whose token isn't the one in
+  flight changes nothing.
 - It makes the call to `generateTrip`, redirects a trip that lands on `/form` to
   `/trips/[tripUrl]`, and asks before a reload while one is pending.
 - **`GenerationToast`** is the only code that shows or dismisses the generation's toasts: it
   keeps them equal to `toastsFor(state, pathname)` (planning off `/form`, the ready trip until
   its page, a failure off `/form`).
-- **`useTripGeneration`** (`src/hooks/`) reads it: `state`, `generateTrip`, `cancel`,
-  `clearResult`. `Form` shows the loader while one is pending and the failure panel after one failed.
+- **`useTripGeneration`** (`src/hooks/`) returns the stable actions (`generateTrip`, `cancel`,
+  `clearResult`); **`useGenerationState(selector)`** reads the state through a zustand selector.
+  `Form` shows the loader while one is pending or opening, and the failure panel after one failed.
+
+#### The generation's state, as tables
+
+The state is a generation in flight (a token, or none) and a last result:
+
+| Result | Meaning |
+|---|---|
+| none | nothing to show |
+| `ready` | landed off `/form`; a toast offers it |
+| `opening` | landed on `/form`; the traveller is being sent to it, and the loader stays until its page |
+| `failed`, unseen | failed; its toast shows off `/form` |
+| `failed`, `seenOnForm` | the failure panel on `/form` has shown it; its toast doesn't come back |
+
+What each action does, from any state (anything not listed leaves the state as it is):
+
+| Action | Next state | Effects, in order |
+|---|---|---|
+| `start` (token) | that token in flight; a failed result dropped | — |
+| `land` on `/form`, the token in flight | none in flight; `opening` | clear the draft, open the trip |
+| `land` elsewhere, the token in flight | none in flight; `ready` | clear the draft |
+| `fail` on `/form`, the token in flight | none in flight; `failed`, seen | the failure alert |
+| `fail` elsewhere, the token in flight | none in flight; `failed`, unseen | — |
+| `land` / `fail`, any other token | unchanged (cancelled or superseded) | — |
+| `cancel`, one in flight | none in flight | "Your trip was cancelled" |
+| `route` to `/form` | an unseen failure becomes seen | — |
+| `route` to the result's trip page | `ready` or `opening` cleared | — |
+| `route` anywhere else | `opening` becomes `ready` (left before the redirect) | — |
+| `clearResult` | no result | — |
+
+The loader shows on `/form` while one is in flight or `opening`. The planning toast shows while
+one is in flight, off `/form`. The result toast, by route:
+
+| Result | `/form` | its trip's page | elsewhere |
+|---|---|---|---|
+| `ready` | ready, with View | — | ready, with View |
+| `failed`, unseen | — | failed | failed |
+| none, `opening`, `failed` seen | — | — | — |
+
+These three tables are `transition`, `isLoading` and `toastsFor` in `src/lib/generation.ts`, and
+`src/lib/generation.test.ts` asserts every row from every state. A change to one row changes all
+three places: the code, its test table and this section. "Its trip's page" is that trip's own
+page; another trip's page is "elsewhere".
+
+Two limits, accepted:
+- `land` and `fail` read the router's path as of the last committed navigation. A trip landing
+  while a navigation is still committing is decided against the page being left: off `/form`
+  it opens the trip; onto `/form` it shows the ready toast over the form.
+- `opening` ends only on reaching the trip's page or leaving `/form`. Nothing on the loader can
+  keep the traveller on `/form` meanwhile: it covers the nav, offers no Cancel while opening, and
+  its one link leaves `/form`.
 
 Every custom toast goes through **`showToast`** (`ui/ToastCard.tsx`), which hides a dismissed one
 at once, and none is removed (`toast.remove` under the cursor leaves the Toaster paused);
@@ -308,7 +360,7 @@ is kept on the client after the submit.
 - `useSaveTrip(tripUrl)` — `handleYesAnswer`/`handleNoAnswer` call `setTripSaved(tripUrl, true/false)`; `isAnswered` once one lands
 - `useFormSteps`, `useFormFields`, `useCityCheck` — `FormContext`'s three memoised contexts,
   so a keystroke in the city re-renders only its readers; `useFormData` reads all three, for tests
-- `useTripGeneration` — the app's trip generation, from `GenerationProvider` (see State management)
+- `useTripGeneration`, `useGenerationState` — the app's trip generation: its actions, and its state by selector (see State management)
 - `useCountries` — the country list (flag URLs, ISO codes) for the autocomplete; a TanStack query fetched once per session
 - `useGeoNames` — debounced city check, through the `resolvePlace` server action; run once in
   `FormProvider`, which hands it out as `cityCheck`

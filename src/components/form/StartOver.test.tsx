@@ -10,12 +10,9 @@ import toast from "react-hot-toast";
 
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("@/hooks/useTripGeneration", () => ({
-  useTripGeneration: () => ({
-    state: { pending: null, result: null },
-    generateTrip: vi.fn(),
-    cancel: vi.fn(),
-    clearResult: vi.fn(),
-  }),
+  useTripGeneration: () => ({ generateTrip: vi.fn(), cancel: vi.fn(), clearResult: vi.fn() }),
+  useGenerationState: <T,>(select: (state: { pending: null; result: null }) => T) =>
+    select({ pending: null, result: null }),
 }));
 const { geoNames } = vi.hoisted(() => ({
   geoNames: vi.fn(() => ({ isCityValid: true, isLoadingCityValid: false, message: "", place: null })),

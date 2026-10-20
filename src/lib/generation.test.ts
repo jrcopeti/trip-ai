@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  isLoading,
   toastsFor,
   transition,
   type GenerationAction,
@@ -13,14 +14,17 @@ import {
 const A = { name: "in flight" };
 const B = { name: "another" };
 const URL = "a1b2c3d4e5f6";
-const OTHER_URL = "f6e5d4c3b2a1";
+const NEW_URL = "f6e5d4c3b2a1";
+const TRIP = `/trips/${URL}`;
+// Another trip's page is "elsewhere": only the result's own page clears it or hides its toast.
+const OTHER_TRIP = `/trips/${NEW_URL}`;
 
 const results = {
   none: null,
-  readyFresh: { kind: "ready", tripUrl: URL, fresh: true },
-  readySettled: { kind: "ready", tripUrl: URL, fresh: false },
-  failedFresh: { kind: "failed", fresh: true },
-  failedSettled: { kind: "failed", fresh: false },
+  ready: { kind: "ready", tripUrl: URL },
+  opening: { kind: "opening", tripUrl: URL },
+  failedUnseen: { kind: "failed", seenOnForm: false },
+  failedSeen: { kind: "failed", seenOnForm: true },
 } satisfies Record<string, GenerationResult | null>;
 type ResultName = keyof typeof results;
 const resultNames = Object.keys(results) as ResultName[];
@@ -37,17 +41,17 @@ const cases = (["idle", "pending"] as PendingName[]).flatMap((p) =>
   resultNames.map((r) => [p, r] as const),
 );
 
-/** An expectation: the next state, or "same" for the very same object, and the effect. */
-type Expected = { next: GenerationState | "same"; effect?: GenerationEffect };
+/** An expectation: the next state, or "same" for the very same object, and the effects. */
+type Expected = { next: GenerationState | "same"; effects?: GenerationEffect[] };
 
 function check(action: GenerationAction, expected: (p: PendingName, r: ResultName) => Expected) {
   it.each(cases)("from %s with %s", (p, r) => {
     const before = state(p, r);
-    const { state: after, effect } = transition(before, action);
+    const { state: after, effects } = transition(before, action);
     const want = expected(p, r);
     if (want.next === "same") expect(after).toBe(before);
     else expect(after).toEqual(want.next);
-    expect(effect).toEqual(want.effect);
+    expect(effects).toEqual(want.effects ?? []);
   });
 }
 
@@ -59,83 +63,84 @@ describe("transition", () => {
     }));
   });
 
-  describe("land, for the generation in flight", () => {
-    check({ type: "land", token: A, tripUrl: OTHER_URL }, (p) =>
+  describe("land on /form, for the generation in flight", () => {
+    check({ type: "land", token: A, tripUrl: NEW_URL, pathname: "/form" }, (p) =>
       p === "pending"
         ? {
-            next: { pending: null, result: { kind: "ready", tripUrl: OTHER_URL, fresh: true } },
-            effect: { type: "clearDraft" },
+            next: { pending: null, result: { kind: "opening", tripUrl: NEW_URL } },
+            effects: [{ type: "clearDraft" }, { type: "open", tripUrl: NEW_URL }],
           }
         : { next: "same" },
     );
   });
 
-  describe("land, for any other generation (cancelled, or replaced)", () => {
-    check({ type: "land", token: B, tripUrl: OTHER_URL }, () => ({ next: "same" }));
-  });
-
-  describe("fail, for the generation in flight", () => {
-    check({ type: "fail", token: A }, (p) =>
+  describe("land elsewhere, for the generation in flight", () => {
+    check({ type: "land", token: A, tripUrl: NEW_URL, pathname: "/saved-trips" }, (p) =>
       p === "pending"
-        ? { next: { pending: null, result: { kind: "failed", fresh: true } } }
+        ? {
+            next: { pending: null, result: { kind: "ready", tripUrl: NEW_URL } },
+            effects: [{ type: "clearDraft" }],
+          }
         : { next: "same" },
     );
   });
 
+  describe("land, for any other generation (cancelled, or superseded)", () => {
+    check({ type: "land", token: B, tripUrl: NEW_URL, pathname: "/form" }, () => ({ next: "same" }));
+  });
+
+  describe("fail on /form, for the generation in flight", () => {
+    check({ type: "fail", token: A, pathname: "/form" }, (p) =>
+      p === "pending"
+        ? {
+            next: { pending: null, result: results.failedSeen },
+            effects: [{ type: "failedOnForm" }],
+          }
+        : { next: "same" },
+    );
+  });
+
+  describe("fail elsewhere, for the generation in flight", () => {
+    check({ type: "fail", token: A, pathname: "/about" }, (p) =>
+      p === "pending" ? { next: { pending: null, result: results.failedUnseen } } : { next: "same" },
+    );
+  });
+
   describe("fail, for any other generation", () => {
-    check({ type: "fail", token: B }, () => ({ next: "same" }));
+    check({ type: "fail", token: B, pathname: "/form" }, () => ({ next: "same" }));
   });
 
   describe("cancel", () => {
     check({ type: "cancel" }, (p, r) =>
       p === "pending"
-        ? { next: { pending: null, result: results[r] }, effect: { type: "cancelled" } }
+        ? { next: { pending: null, result: results[r] }, effects: [{ type: "cancelled" }] }
         : { next: "same" },
     );
   });
 
   describe("route to /form", () => {
-    check({ type: "route", pathname: "/form" }, (p, r) => {
-      const pending = pendings[p];
-      switch (r) {
-        case "readyFresh":
-          return { next: { pending, result: null }, effect: { type: "open", tripUrl: URL } };
-        case "failedFresh":
-          return { next: { pending, result: results.failedSettled }, effect: { type: "failedOnForm" } };
-        default:
-          return { next: "same" };
-      }
-    });
+    check({ type: "route", pathname: "/form" }, (p, r) =>
+      r === "failedUnseen"
+        ? { next: { pending: pendings[p], result: results.failedSeen } }
+        : { next: "same" },
+    );
   });
 
-  describe("route to the ready trip's page", () => {
-    check({ type: "route", pathname: `/trips/${URL}` }, (p, r) => {
-      const pending = pendings[p];
-      switch (r) {
-        case "readyFresh":
-          return { next: { pending, result: results.readySettled } };
-        case "readySettled":
-          return { next: { pending, result: null } };
-        case "failedFresh":
-          return { next: { pending, result: results.failedSettled } };
-        default:
-          return { next: "same" };
-      }
-    });
+  describe("route to the result's trip page", () => {
+    check({ type: "route", pathname: TRIP }, (p, r) =>
+      r === "ready" || r === "opening"
+        ? { next: { pending: pendings[p], result: null } }
+        : { next: "same" },
+    );
   });
 
-  describe("route anywhere else", () => {
-    check({ type: "route", pathname: "/saved-trips" }, (p, r) => {
-      const pending = pendings[p];
-      switch (r) {
-        case "readyFresh":
-          return { next: { pending, result: results.readySettled } };
-        case "failedFresh":
-          return { next: { pending, result: results.failedSettled } };
-        default:
-          return { next: "same" };
-      }
-    });
+  describe.each(["/saved-trips", OTHER_TRIP])("route anywhere else: %s", (pathname) => {
+    check({ type: "route", pathname }, (p, r) =>
+      // Left before the redirect arrived: the trip is offered instead.
+      r === "opening"
+        ? { next: { pending: pendings[p], result: results.ready } }
+        : { next: "same" },
+    );
   });
 
   describe("clearResult", () => {
@@ -145,18 +150,25 @@ describe("transition", () => {
   });
 });
 
+describe("isLoading", () => {
+  it.each(cases)("%s with %s", (p, r) => {
+    expect(isLoading(state(p, r))).toBe(p === "pending" || r === "opening");
+  });
+});
+
 describe("toastsFor", () => {
-  const routes = ["/form", `/trips/${URL}`, "/saved-trips"] as const;
+  const routes = ["/form", TRIP, OTHER_TRIP, "/saved-trips"] as const;
+  type Route = (typeof routes)[number];
   const ready = { kind: "ready", tripUrl: URL } as const;
   const failed = { kind: "failed" } as const;
 
-  /** What each result shows on each route; a fresh one shows nothing until it settles. */
-  const resultToast: Record<ResultName, Record<(typeof routes)[number], unknown>> = {
-    none: { "/form": null, [`/trips/${URL}`]: null, "/saved-trips": null },
-    readyFresh: { "/form": null, [`/trips/${URL}`]: null, "/saved-trips": null },
-    readySettled: { "/form": ready, [`/trips/${URL}`]: null, "/saved-trips": ready },
-    failedFresh: { "/form": null, [`/trips/${URL}`]: null, "/saved-trips": null },
-    failedSettled: { "/form": null, [`/trips/${URL}`]: failed, "/saved-trips": failed },
+  /** The result toast each result shows on each route. */
+  const resultToast: Record<ResultName, Record<Route, unknown>> = {
+    none: { "/form": null, [TRIP]: null, [OTHER_TRIP]: null, "/saved-trips": null },
+    ready: { "/form": ready, [TRIP]: null, [OTHER_TRIP]: ready, "/saved-trips": ready },
+    opening: { "/form": null, [TRIP]: null, [OTHER_TRIP]: null, "/saved-trips": null },
+    failedUnseen: { "/form": null, [TRIP]: failed, [OTHER_TRIP]: failed, "/saved-trips": failed },
+    failedSeen: { "/form": null, [TRIP]: null, [OTHER_TRIP]: null, "/saved-trips": null },
   };
 
   const rows = cases.flatMap(([p, r]) => routes.map((route) => [p, r, route] as const));

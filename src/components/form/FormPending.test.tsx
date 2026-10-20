@@ -6,21 +6,24 @@ import { GenerationProvider } from "@/context/GenerationContext";
 import { useFormData } from "@/hooks/useFormData";
 import Form from "@/components/form/Form";
 import { generateTrip } from "@/app/api/anthropicApi";
-import { validInputs } from "@/test/fixtures";
+import { generatedTripFixture, validInputs } from "@/test/fixtures";
+import { readFormDraft } from "@/lib/formDraft";
 import { stepCopy } from "@/components/form/content";
-import { resetNextStubs } from "@/test/stubs/next";
+import { replace, resetNextStubs, routerState } from "@/test/stubs/next";
 import type { FormContextType } from "@/types";
 
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn(), dismiss: vi.fn() } }));
 vi.mock("@/components/ui/LoaderResponseAI", () => ({
-  default: ({ onCancel }: { onCancel: () => void }) => (
+  default: ({ onCancel }: { onCancel?: () => void }) => (
     <>
       <p>Generating your trip</p>
-      <button type="button" onClick={onCancel}>
-        Cancel
-      </button>
+      {onCancel && (
+        <button type="button" onClick={onCancel}>
+          Cancel
+        </button>
+      )}
     </>
   ),
 }));
@@ -91,6 +94,28 @@ describe("Form — a generation still running when /form mounts again", () => {
 
     act(() => screen.getByRole("button", { name: "Cancel" }).click());
 
+    expect(screen.queryByText("Generating your trip")).toBeNull();
+    expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+  });
+
+  // Not the spent form between the landing and the trip's page: it would flash, and its
+  // fields re-registering could write back the draft the landing cleared.
+  it("keeps the loader up while the landed trip is on its way, until its page", async () => {
+    vi.mocked(generateTrip).mockResolvedValue(generatedTripFixture);
+    const { rerender } = renderWithProviders(tree());
+    await act(async () => {
+      ctx.processForm(validInputs, undefined);
+    });
+
+    expect(replace).toHaveBeenCalledWith(`/trips/${generatedTripFixture.tripUrl}`);
+    expect(screen.getByText("Generating your trip")).toBeInTheDocument();
+    // The trip exists and is on its way: there is nothing left to cancel.
+    expect(screen.queryByRole("button", { name: "Cancel" })).toBeNull();
+    expect(readFormDraft()).toBeNull();
+
+    // Kept mounted, so the loader can only go because arriving cleared the trip on its way.
+    routerState.pathname = `/trips/${generatedTripFixture.tripUrl}`;
+    rerender(tree());
     expect(screen.queryByText("Generating your trip")).toBeNull();
     expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
   });

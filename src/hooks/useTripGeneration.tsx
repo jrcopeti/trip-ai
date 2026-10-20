@@ -1,10 +1,24 @@
 "use client";
 import { useContext } from "react";
-import { GenerationContext, type GenerationContextValue } from "@/context/GenerationContext";
+import { useStore } from "zustand";
+import { GenerationContext, type GenerationActions } from "@/context/GenerationContext";
+import type { GenerationState } from "@/lib/generation";
 
-/** The app's trip generation: its state, and the calls that change it (`GenerationProvider`). */
-export function useTripGeneration(): GenerationContextValue {
+function useGenerationContext() {
   const value = useContext(GenerationContext);
-  if (!value) throw new Error("useTripGeneration needs GenerationProvider (the root providers)");
+  if (!value) throw new Error("The trip generation needs GenerationProvider (the root providers)");
   return value;
+}
+
+/** The calls that change the app's trip generation; stable, so reading them re-renders nothing. */
+export function useTripGeneration(): GenerationActions {
+  return useGenerationContext().actions;
+}
+
+/**
+ * The part of the generation's state `selector` picks; re-renders only when that changes.
+ * `selector` returns a primitive or a piece of the state, never a new object.
+ */
+export function useGenerationState<T>(selector: (state: GenerationState) => T): T {
+  return useStore(useGenerationContext().store, selector);
 }

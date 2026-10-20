@@ -41,18 +41,15 @@ vi.mock("@/app/api/geoNamesApi", () => ({
 // Stable across renders, as the real ones are (the provider's callbacks, the query's data):
 // a new function or array per render would change the context and void the measure.
 const { generation, countries } = vi.hoisted(() => ({
-  generation: {
-    state: { pending: null, result: null },
-    generateTrip: () => {},
-    cancel: () => {},
-    clearResult: () => {},
-  },
+  generation: { generateTrip: () => {}, cancel: () => {}, clearResult: () => {} },
   countries: [
     { value: "Portugal", label: "Portugal", code: "pt", flagUrl: "https://flagcdn.com/pt.svg" },
   ],
 }));
 vi.mock("@/hooks/useTripGeneration", () => ({
   useTripGeneration: () => generation,
+  useGenerationState: <T,>(select: (state: { pending: null; result: null }) => T) =>
+    select({ pending: null, result: null }),
 }));
 vi.mock("@/hooks/useCountries", () => ({
   useCountries: () => ({ countries, isLoading: false }),

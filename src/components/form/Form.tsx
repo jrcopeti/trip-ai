@@ -1,6 +1,7 @@
 "use client";
 
-import { useTripGeneration } from "@/hooks/useTripGeneration";
+import { useGenerationState, useTripGeneration } from "@/hooks/useTripGeneration";
+import { isLoading } from "@/lib/generation";
 import { useFormFields, useFormSteps } from "@/hooks/useFormData";
 
 import ProgressBar from "./Progress";
@@ -20,13 +21,18 @@ function Form() {
   const { handleSubmit, processForm } = useFormFields();
   const { isDraftRestored } = useFormSteps();
   // The app's generation, not this form's: one started before /form last unmounted counts too.
-  const { state, cancel, clearResult } = useTripGeneration();
+  const { cancel, clearResult } = useTripGeneration();
+  // Through the redirect too: a trip on its way keeps the loader, not the spent form, on screen.
+  const loading = useGenerationState(isLoading);
+  const inFlight = useGenerationState((state) => state.pending !== null);
+  const failed = useGenerationState((state) => state.result?.kind === "failed");
 
-  if (state.pending) {
-    return <LoaderResponseAI onCancel={cancel} />;
+  if (loading) {
+    // While the trip is on its way to its page there's nothing left to cancel.
+    return <LoaderResponseAI onCancel={inFlight ? cancel : undefined} />;
   }
 
-  if (state.result?.kind === "failed") {
+  if (failed) {
     // "Try again" shows the form again, on the review step with every answer: the draft
     // is cleared only when a trip comes back.
     return (

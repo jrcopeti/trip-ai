@@ -747,27 +747,36 @@ its own, in this order (2h is independent and can land any time):
     **Rebuilt on one state (from the audit after the fifth review).** Every review found a new
     timing case because five places changed the same toasts, `Form` read two disagreeing
     "pending" flags (its own mutation, and the cache), and a trip's landing ran in a provider that
-    might be gone. Rebuilt on this branch, nothing the traveller sees changes:
+    might be gone. Rebuilt on this branch. The cards, copy and buttons are as before; what the
+    traveller sees change: the loader stays up from a landing on `/form` until the trip's page
+    (without Cancel, as nothing is left to cancel), leaving before the redirect offers the trip in
+    a toast, a failure comes back to `/form` as the failure panel, and once that panel has shown
+    it, its toast doesn't return. The design:
     - **One state, one pure transition function** (`src/lib/generation.ts`): the generation in
-      flight (a token, or none) and the last result (ready with its url, or failed; fresh until
-      the root has seen the route it landed on). `start`, `land`, `fail`, `cancel`, `route`
-      (the current path) and `clearResult` each return the next state and at most one effect
-      (`clearDraft`, `open`, `failedOnForm`, `cancelled`). A landing whose token isn't the one in
-      flight changes nothing, so a cancelled generation's trip lands to nothing by construction.
+      flight (a token, or none) and the last result: `ready` (landed off `/form`, offered by a
+      toast), `opening` (landed on `/form`, the traveller on the way: the loader stays up until
+      the trip's page, and leaving first turns it `ready`), or `failed` (`seenOnForm` once the
+      failure panel showed it, after which its toast doesn't come back). `land` and `fail` carry
+      the path the traveller is on, so the redirect-or-toast choice is made as the call settles.
+      `start`, `land`, `fail`, `cancel`, `route` and `clearResult` each return the next state and
+      its effects, in order (`clearDraft`, `open`, `failedOnForm`, `cancelled`). A landing whose
+      token isn't the one in flight changes nothing.
     - **One pure toast function**, `toastsFor(state, pathname)`: planning off `/form` while
-      pending; the settled ready result except on its trip's page; the settled failure off `/form`.
+      pending; the ready trip except on its page; an unseen failure off `/form`.
     - **`GenerationProvider`** (`src/context/GenerationContext.tsx`, in the root providers, never
       unmounted) holds the state in a zustand store created per provider (a module-level one would be
-      shared across server requests and tests), makes the call (no TanStack mutation), runs the effects and
-      redirects from `/form` with the router's own path. `GenerationToast` is the only code that
+      shared across server requests and tests), makes the call (no TanStack mutation) and runs the
+      effects. Its context is stable: `useTripGeneration()` returns the actions, and readers pick
+      state with `useGenerationState(selector)`, so `FormProvider`, which only sends, never
+      re-renders on a transition. `GenerationToast` is the only code that
       shows or dismisses the generation's toasts, from `toastsFor`; nothing calls `toast.remove`.
       Cancelled, opened and the on-`/form` failure are timed notices under one id.
-    - **`Form` reads that state**: pending shows the loader, failed the failure panel (also after
+    - **`Form` reads that state**: pending or opening shows the loader, failed the failure panel (also after
       coming back through View or "Back to the form"); Cancel and "Try again" are one call each.
     - **`showToast`** (`ToastCard.tsx`) shows every custom toast, the city check's and saving's
       too: a dismissed one is `invisible` and `inert` at once, as react-hot-toast doesn't animate
       a custom toast out and keeps it in the page 1s.
-    - Tests: every transition from every state, and `toastsFor` on every route, as tables; the
+    - Tests: every transition from every state, `isLoading`, and `toastsFor` on every route, as tables; the
       provider's behaviour (redirect, toasts, draft, cancel, failure, reload warning) as before;
       e2e checks the planning card is hidden by visibility, not by the accessibility tree.
     - Still accepted: a trip landing in the moment a navigation away from `/form` is committing

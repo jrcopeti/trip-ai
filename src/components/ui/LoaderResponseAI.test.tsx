@@ -136,6 +136,13 @@ describe("LoaderResponseAI", () => {
     ).toBeInTheDocument();
   });
 
+  it("offers no Cancel when there is nothing to cancel", () => {
+    renderWithProviders(<LoaderResponseAI />);
+
+    expect(screen.queryByRole("button", { name: "Cancel" })).toBeNull();
+    expect(screen.getByRole("link", { name: "Browse saved trips" })).toBeInTheDocument();
+  });
+
   it("cancels the generation from its Cancel button", () => {
     const onCancel = vi.fn();
     renderWithProviders(<LoaderResponseAI onCancel={onCancel} />);
