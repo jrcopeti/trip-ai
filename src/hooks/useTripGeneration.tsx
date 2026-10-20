@@ -33,12 +33,14 @@ const isOnForm = () => window.location.pathname === "/form";
 
 /**
  * Stops waiting for the pending generation: it leaves the mutation cache, its landing does
- * nothing, and a toast says it was cancelled. The server still finishes the call and writes
- * an unsaved row (2g stops that).
+ * nothing, and a toast says it was cancelled. With none pending, it does nothing. The server
+ * still finishes the call and writes an unsaved row (2g stops that).
  */
 function stopGeneration(queryClient: QueryClient) {
   const cache = queryClient.getMutationCache();
-  for (const mutation of cache.findAll({ mutationKey: generateTripKey, status: "pending" })) {
+  const pending = cache.findAll({ mutationKey: generateTripKey, status: "pending" });
+  if (pending.length === 0) return;
+  for (const mutation of pending) {
     const generation = mutation.state.variables as Generation | undefined;
     if (generation) stoppedGenerations.add(generation.token);
     cache.remove(mutation);

@@ -272,7 +272,7 @@ test.describe("trip journey", () => {
     await expect(page.getByText(CANCELLER)).toBeVisible();
     const cancelled = page.getByRole("alert").filter({ hasText: "Your trip was cancelled" });
     await expect(cancelled).toBeVisible();
-    // Shows and goes: a Toaster left paused by the removed toast kept it up for good.
+    // Shows and goes, as every timed toast must.
     await expect(cancelled).toBeHidden({ timeout: 9000 });
 
     // Its trip lands to nothing: no toast, no redirect.

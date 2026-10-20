@@ -29,17 +29,18 @@ function GenerationToast() {
     }
     if (pathname === "/form") {
       // Dismissed, not removed: a toast removed under the cursor gets no mouseleave, so the
-      // Toaster stays paused and every later toast stays up. Dismissed, it's inert (below).
+      // Toaster stays paused and every later toast stays up. Dismissed, it's hidden and inert (below).
       toast.dismiss(GENERATION_TOAST);
       isShown.current = false;
       return;
     }
     if (isShown.current) return;
     isShown.current = true;
-    // Inert through its exit, so its Cancel can't be reached by click or keyboard under the loader.
+    // A custom toast gets no exit animation: dismissed, it would stay drawn for react-hot-toast's
+    // 1s remove delay. Hidden and inert at once, its Cancel is neither seen nor reached.
     toast.custom(
       (t) => (
-        <div inert={!t.visible}>
+        <div inert={!t.visible} className={t.visible ? undefined : "opacity-0"}>
           <PlanningToast onStop={() => stopGeneration(queryClient)} />
         </div>
       ),

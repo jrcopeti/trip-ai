@@ -238,6 +238,21 @@ describe("useTripGeneration", () => {
       expect(readFormDraft()).toEqual(draft);
     });
 
+    // A Cancel pressed just as the trip landed: it is already on its way to the trip page.
+    it("says nothing was cancelled when nothing was pending", async () => {
+      mockFetch.mockResolvedValue(generatedTripFixture);
+      const { queryClient } = renderTrip();
+
+      ctx.generateTrip(validTripRequest);
+      await waitFor(() =>
+        expect(replace).toHaveBeenCalledWith(`/trips/${generatedTripFixture.tripUrl}`),
+      );
+      stopGeneration(queryClient);
+
+      await new Promise((r) => setTimeout(r, 20));
+      expect(screen.queryByText("Your trip was cancelled")).toBeNull();
+    });
+
     // TanStack marks the call pending before its callbacks run; a stop in that gap still counts.
     it("shows nothing when stopped the moment it starts", async () => {
       const settle = pendingCall();

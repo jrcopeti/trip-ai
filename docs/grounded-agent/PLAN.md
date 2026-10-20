@@ -714,13 +714,15 @@ its own, in this order (2h is independent and can land any time):
     - The planning toast's Stop button is labelled **Cancel**, matching "Your trip was cancelled";
       the code keeps `stopGeneration`.
     - `ToastCard` (`ui/`) is the one toast card; `CustomToaster` and `ErrorToaster` wrap it,
-      without their own fade (react-hot-toast animates every toast already).
+      without their own fade. (react-hot-toast animates only its built-in toasts; a custom one
+      appears and leaves unanimated. A shared fade on `ToastCard` is possible follow-up work.)
     From the third review:
     - A stop in the instant after `mutate`, before TanStack runs its callbacks, still counts: the
       token is created at the call site and sent in the variables (`{ request, token }`), which
       TanStack stores as the call starts. `onMutate` and its guard are gone.
-    - Back on `/form`, the planning toast is dismissed and goes `inert` for its 1s exit, so its
-      Cancel takes no click or key under the loader. (Removing it instead, as first done here, broke
+    - Back on `/form`, the planning toast is dismissed, and at once hidden (`opacity-0`) and `inert`
+      for react-hot-toast's 1s remove delay, so its Cancel is neither seen nor reached over the
+      loader. A dismissed custom toast isn't animated out. (Removing it instead, as first done here, broke
       every later toast: the Toaster pauses on `mouseenter`, and a toast removed under the cursor
       after View gets no `mouseleave`, so "Your trip was cancelled" never left.)
     - The ready toast carries a green check in a message square (`BiMessageSquareCheck`, the
@@ -738,7 +740,8 @@ its own, in this order (2h is independent and can land any time):
       closes itself on that trip's page. 2e-g adds a second way back, from `/form`.
     - The loader has **Cancel** beside "Browse saved trips": `Form` stops the generation
       (`stopGeneration`) and resets its own mutation, so the form shows again on the review step
-      with the answers, and "Your trip was cancelled" shows. Its trip lands to nothing.
+      with the answers, and "Your trip was cancelled" shows. Its trip lands to nothing. With
+      nothing pending (a Cancel as the trip lands), `stopGeneration` does nothing and says nothing.
     - The loader and toasts use pills, not quiet text buttons: Cancel and Dismiss lime, the way
       onward (View, Browse saved trips, Back to the form) ink.
 - **2e-g · `one-open-trip`: one unanswered trip at a time, per browser.** From 2e-f's review.

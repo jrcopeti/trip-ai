@@ -76,8 +76,9 @@ describe("GenerationToast", () => {
     expect(screen.queryByText("Your trip is being planned")).toBeNull();
   });
 
-  // It fades out over 1s; under the loader its Cancel must take no click or key meanwhile.
-  it("goes inert at once when the traveller returns to /form", async () => {
+  // It stays in the page for react-hot-toast's 1s remove delay, unanimated; over the loader it
+  // must be neither seen nor reached meanwhile.
+  it("is hidden and inert at once when the traveller returns to /form", async () => {
     const { rerender } = renderAt("/about");
     start();
     await screen.findByText("Your trip is being planned");
@@ -92,9 +93,11 @@ describe("GenerationToast", () => {
       </>,
     );
 
-    await waitFor(() =>
-      expect(screen.getByRole("button", { name: "Cancel" }).closest("[inert]")).not.toBeNull(),
-    );
+    await waitFor(() => {
+      const wrapper = screen.getByRole("button", { name: "Cancel" }).closest("[inert]");
+      expect(wrapper).not.toBeNull();
+      expect(wrapper).toHaveClass("opacity-0");
+    });
     expect(screen.getByTestId("pending")).toHaveTextContent("true");
   });
 
