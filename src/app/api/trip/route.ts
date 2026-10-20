@@ -3,33 +3,20 @@ import { TripRequestSchema } from "@/lib/agent/request";
 
 const fail = (status: number, error: string) => Response.json({ error }, { status });
 
-/** The host the browser's `origin` names, or null for an opaque ("null") or malformed one. */
-function originHost(origin: string) {
-  try {
-    return new URL(origin).host;
-  } catch {
-    return null;
-  }
-}
-
 /**
- * Generates the trip for a `TripRequest` sent as JSON from this site, writes it unsaved and
- * answers `{ tripUrl }`: 415 for another content type, 403 for another origin, 400 for a body
- * that isn't a valid request, 500 when generation fails.
+ * Generates the trip for a `TripRequest` sent as JSON, writes it unsaved and answers
+ * `{ tripUrl }`: 415 for another content type, 403 for a browser request from another page
+ * than this site's, 400 for a body that isn't a valid request, 500 when generation fails.
  */
 export async function POST(request: Request) {
   // JSON can't be sent cross-site without a preflight, which fails: the route sends no CORS headers.
   const type = request.headers.get("content-type")?.toLowerCase();
   if (!type?.startsWith("application/json")) return fail(415, "Send the request as application/json");
 
-  // As Next checks a server action's: the origin against the host the browser asked for, the
-  // first of a proxy chain's forwarded hosts. A request with no origin isn't from a browser page.
-  const origin = request.headers.get("origin");
-  // `||`, not `??`: an empty forwarded host falls back too, or every request would be refused.
-  const host =
-    request.headers.get("x-forwarded-host")?.split(",")[0].trim() || request.headers.get("host");
-  // No host: an opaque origin's null would otherwise equal it.
-  if (origin !== null && (!host || originHost(origin) !== host)) return fail(403, "Not from this site");
+  // Set by the browser, not the page, and unaffected by proxies or the referrer policy. Absent
+  // when no browser sent the request.
+  const site = request.headers.get("sec-fetch-site");
+  if (site !== null && site !== "same-origin") return fail(403, "Not from this site");
 
   let body: unknown;
   try {

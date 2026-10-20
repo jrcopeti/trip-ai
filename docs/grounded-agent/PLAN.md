@@ -819,10 +819,15 @@ its own, in this order (2h is independent and can land any time):
     From the review of `18677f6`:
     - An empty `x-forwarded-host` falls back to `host` (`||`), and a request with no host at all
       is refused rather than matching an opaque origin's null.
-    - The Cancel e2e lets the held request through before its last two checks again, so they
-      catch a cancelled generation's landing; the `finally` stays as a backstop.
-    - CLAUDE.md tables the loader and the reload prompt, and notes the route's dependence on no
-      `Referrer-Policy: no-referrer`.
+    - CLAUDE.md tables the loader and the reload prompt.
+    From the review of `ec680d2`:
+    - **The origin check is `Sec-Fetch-Site`, not a host comparison.** Comparing `Origin` with
+      the host kept failing on proxy layouts, host case, ports, opaque origins and the referrer
+      policy. The browser sets `Sec-Fetch-Site` itself (checked: the server receives
+      `same-origin` on the app's own request); anything else is a 403, and its absence (no
+      browser) passes, as the content type still has to be JSON.
+    - The Cancel e2e no longer lets the aborted request through to check a landing: an aborted
+      request can't land, and the stale-landing rows of the unit tables pin that.
 - **2e-g · `one-open-trip`: one unanswered trip at a time, per browser.** From 2e-f's review.
   With the result toast capped at one, a traveller could generate trip after trip without ever
   looking at them. Rule: while a trip they generated is unanswered (neither "Yes, save it" nor

@@ -281,8 +281,8 @@ test.describe("trip journey", () => {
       // Shows and goes, as every timed toast must.
       await expect(cancelled).toBeHidden({ timeout: 9000 });
 
-      // The request is aborted, not left running: nothing lands, and the form's own server
-      // actions (the city check) aren't queued behind it, as they would be behind a server action.
+      // The request is aborted, so nothing can land (a stale landing is the unit tables' to pin),
+      // and the form's own server actions (the city check) aren't queued behind it.
       const request = await generation;
       await expect.poll(() => request.failure()?.errorText ?? null).not.toBeNull();
       for (let i = 0; i < 5; i++) await page.getByRole("button", { name: "Back" }).click();
@@ -292,11 +292,6 @@ test.describe("trip journey", () => {
       });
       await page.getByRole("textbox", { name: /city/i }).fill("Porto");
       await check;
-
-      // Let the held request through: a cancelled generation's landing must change nothing.
-      release();
-      await expect(page).toHaveURL(/\/form$/);
-      await expect(page.getByText("Your trip has been generated!")).toBeHidden();
     } finally {
       release();
     }

@@ -12,7 +12,7 @@ const post = (body: string, headers: Record<string, string> = {}) =>
     new Request("http://localhost/api/trip", {
       method: "POST",
       body,
-      headers: { host: "localhost", "content-type": "application/json", ...headers },
+      headers: { "content-type": "application/json", ...headers },
     }),
   );
 
@@ -50,68 +50,32 @@ describe("POST /api/trip", () => {
     expect(mockGenerate).not.toHaveBeenCalled();
   });
 
-  it("answers 403 to a request from another origin, without generating", async () => {
-    const response = await post(JSON.stringify(validTripRequest), { origin: "https://elsewhere.example" });
-
-    expect(response.status).toBe(403);
-    expect(mockGenerate).not.toHaveBeenCalled();
-  });
-
-  it("accepts its own origin, and the forwarded host a proxy sets", async () => {
+  // What the browser sends with the app's own fetch; a page can't set or forge it.
+  it("accepts a same-origin request", async () => {
     mockGenerate.mockResolvedValue(generatedTripFixture);
 
-    const own = await post(JSON.stringify(validTripRequest), { origin: "http://localhost" });
-    const proxied = await post(JSON.stringify(validTripRequest), {
-      origin: "https://trip.example",
-      "x-forwarded-host": "trip.example",
-    });
-
-    expect(own.status).toBe(200);
-    expect(proxied.status).toBe(200);
-  });
-
-  it("answers 403, not a crash, to the opaque origin a sandboxed page sends", async () => {
-    const response = await post(JSON.stringify(validTripRequest), { origin: "null" });
-
-    expect(response.status).toBe(403);
-    expect(mockGenerate).not.toHaveBeenCalled();
-  });
-
-  // Behind chained proxies the header is a list; the first entry is the host the browser asked for.
-  it("compares the origin with the first of several forwarded hosts", async () => {
-    mockGenerate.mockResolvedValue(generatedTripFixture);
-
-    const response = await post(JSON.stringify(validTripRequest), {
-      origin: "https://trip.example",
-      "x-forwarded-host": "trip.example, internal.lb",
-    });
+    const response = await post(JSON.stringify(validTripRequest), { "sec-fetch-site": "same-origin" });
 
     expect(response.status).toBe(200);
   });
 
-  it("falls back to the host when the forwarded host is empty", async () => {
+  it.each(["cross-site", "same-site", "none"])(
+    "answers 403 to a request the browser marks %s, without generating",
+    async (site) => {
+      const response = await post(JSON.stringify(validTripRequest), { "sec-fetch-site": site });
+
+      expect(response.status).toBe(403);
+      expect(mockGenerate).not.toHaveBeenCalled();
+    },
+  );
+
+  // No browser said where it came from (curl, a server); the content type still has to be JSON.
+  it("accepts a request without Sec-Fetch-Site", async () => {
     mockGenerate.mockResolvedValue(generatedTripFixture);
 
-    const response = await post(JSON.stringify(validTripRequest), {
-      origin: "http://localhost",
-      "x-forwarded-host": "",
-    });
+    const response = await post(JSON.stringify(validTripRequest));
 
     expect(response.status).toBe(200);
-  });
-
-  it("answers 403 when there's no host to compare an origin with", async () => {
-    const request = new Request("http://localhost/api/trip", {
-      method: "POST",
-      body: JSON.stringify(validTripRequest),
-      headers: { "content-type": "application/json", origin: "null" },
-    });
-    request.headers.delete("host");
-
-    const response = await POST(request);
-
-    expect(response.status).toBe(403);
-    expect(mockGenerate).not.toHaveBeenCalled();
   });
 
   it("takes JSON whatever the content type's case", async () => {
