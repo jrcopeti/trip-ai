@@ -79,7 +79,11 @@ describe("transition", () => {
       p === "pending"
         ? {
             next: { pending: null, trip: opening(NEW_URL), failure: failures[f] },
-            effects: [{ type: "clearDraft" }, { type: "open", tripUrl: NEW_URL }],
+            effects: [
+              { type: "clearDraft" },
+              { type: "rememberTrip", tripUrl: NEW_URL },
+              { type: "open", tripUrl: NEW_URL },
+            ],
           }
         : { next: "same" },
     );
@@ -90,7 +94,7 @@ describe("transition", () => {
       p === "pending"
         ? {
             next: { pending: null, trip: ready(NEW_URL), failure: failures[f] },
-            effects: [{ type: "clearDraft" }],
+            effects: [{ type: "clearDraft" }, { type: "rememberTrip", tripUrl: NEW_URL }],
           }
         : { next: "same" },
     );

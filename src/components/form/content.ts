@@ -33,6 +33,12 @@ export const buttons = {
   submit: "Plan my trip",
 };
 
+/** At the top of every step while this browser's last trip is unanswered. */
+export const openTrip = {
+  note: "Your last trip is waiting for an answer. Save or discard it before planning another. Your answers stay in this tab.",
+  view: "View trip",
+};
+
 export const startOver = {
   button: "Start over",
   heading: "Clear your answers?",

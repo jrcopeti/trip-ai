@@ -871,7 +871,42 @@ its own, in this order (2h is independent and can land any time):
     and View opens the trip; answer it, and the next trip can be planned.
   - Open question for the build: the note shows on the review step, beside the button. A
     traveller learns of the block only after filling seven steps; showing the note from step 1
-    may be kinder.
+    may be kinder. Built as planned, on the review step; the walk's answers stay in the draft,
+    so after answering the trip the form reopens on them, ready to send.
+  - **Built (2026-10-20).** `src/lib/openTrip.ts` (read, remember, forget-if-it's-this-one, and
+    a subscription that also hears other tabs, so answering in one frees `/form` in another);
+    `useOpenTrip` (`useSyncExternalStore` plus a TanStack query on `getTripByUrl`, which
+    reduces the row to "still open" in the query); the `rememberTrip` effect after `clearDraft`
+    on both `land` rows. The note sits on its own row under the pills (beside the button it
+    pushed "Plan my trip" to a second row at 1440), and is the button's `aria-describedby`.
+    `forgetOpenTrip` clears only the trip it is given, so answering an older trip's page
+    doesn't free a newer one. e2e: `walkAllSteps` takes `{ held: true }`.
+  - **From the first commit's report (2026-10-21):**
+    - **The traveller learns on step 1.** Chosen over disabling Next (a dead form until they
+      answer) and a dialog on opening `/form` (an interruption that, once closable, blocks no
+      more than a notice). `OpenTripNotice` (`form/`), a lavender card above the progress bar on
+      every step: "Your last trip is waiting for an answer…", with a **View trip** pill. Only
+      "Plan my trip" is held back, described by the notice; the note under the pills is gone.
+      Not a live region: it is there on load, not announced later.
+    - **The check reads one flag:** `isTripOpen(tripUrl)` (`db/actions.ts`, `select: { saved:
+      true }`), not `getTripByUrl`, which sent the whole row to the browser.
+    - `GenerationProvider`'s description no longer says the server finishes an aborted call (2g).
+    - Pre-existing and not fixed here: under the full suite, `GenerationContext.test`'s "the
+      planning toast is shown once…" fails about 1 run in 5 (and once a `StartOver.test` case),
+      on `main` too; each passes alone. Worth its own look.
+  - **Review of `f06a15e`**, all four fixed:
+    - Two tabs could each plan a trip while the other's was in flight, and the second landing
+      replaced the first's url, so the first was untracked. The store is a list now (oldest
+      first, a trip once, capped at 10); `useOpenTrip` checks each and offers the newest still
+      open, then the next once that's answered.
+    - The notice promised kept answers, but the draft is per tab: it says "Your answers stay in
+      this tab." now.
+    - The check no longer refetches on window focus: answers happen in this browser, and other
+      tabs are heard through the `storage` event.
+    - The Cancel e2e's city-check probe matches the action by its "Porto" argument, as the
+      open-trip check also posts to `/form`.
+    - Seen once in the e2e runs, and passing on rerun: `saved-trips.spec`'s "the detail page
+      streams in the weather" (not touched here).
 - **2f · `fix-string-tours`: a list sent as a string no longer loses the trip; longer tours.**
   The bug parked under branch 1, seen twice now (2026-10-15 and 2026-10-16, in dev): despite
   `strict: true`, `submit_trip` sometimes sends `tours` as its JSON text, so `TripDataSchema`
@@ -981,7 +1016,7 @@ its own, in this order (2h is independent and can land any time):
   the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
   weather by coordinates, the form-scoped providers, architecture and commands. Retake the
   screenshots that changed at the sizes above.
-- **Order from here:** 2g → 2e-g → 2h → 2i → 2j (2e-f and 2f merged), and branch 3. 2g goes
+- **Order from here:** 2e-g → 2h → 2i → 2j (2e-f, 2f and 2g merged), and branch 3. 2g goes
   before 2e-g: they're independent, and 2g stops paying for cancelled generations.
 
 What's wrong today:

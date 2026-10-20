@@ -43,8 +43,11 @@ export async function fillStepOne(page: Page, name = "Ana") {
   await pickCountry(page, /passport/i, "Brazil");
 }
 
-/** Fills every step and stops at an enabled "Plan my trip". */
-export async function walkAllSteps(page: Page, name = "Ana") {
+/**
+ * Fills every step and stops at an enabled "Plan my trip", or, with `held`, at one held back
+ * by this browser's unanswered trip.
+ */
+export async function walkAllSteps(page: Page, name = "Ana", { held = false } = {}) {
   await expect(heading(page)).toHaveText("Personal information");
   await expect(page.getByText("Step 1 of 7")).toBeVisible();
   await fillStepOne(page, name);
@@ -92,6 +95,7 @@ export async function walkAllSteps(page: Page, name = "Ana") {
   const submit = page.getByRole("button", { name: "Plan my trip" });
   await expect(submit).toBeDisabled();
   await page.locator("label", { hasText: /I agree/ }).click();
-  await expect(submit).toBeEnabled();
+  if (held) await expect(submit).toBeDisabled();
+  else await expect(submit).toBeEnabled();
   await noHorizontalScroll(page);
 }

@@ -31,6 +31,7 @@ const LEAVER = "Journeyleave";
 const CANCELLER = "Journeycancel";
 const STOPPER = "Journeystop";
 const CONTROL = "Journeycontrol";
+const HOLDER = "Journeyhold";
 
 test.skip(
   !!process.env.PLAYWRIGHT_BASE_URL,
@@ -45,7 +46,7 @@ async function deleteOwnRows() {
   const prisma = new PrismaClient();
   try {
     await prisma.trip.deleteMany({
-      where: { userName: { in: [SAVER, DISCARDER, LEAVER, CANCELLER, STOPPER, CONTROL].map((n) => n.toLowerCase()) } },
+      where: { userName: { in: [SAVER, DISCARDER, LEAVER, CANCELLER, STOPPER, CONTROL, HOLDER].map((n) => n.toLowerCase()) } },
     });
   } finally {
     await prisma.$disconnect();
@@ -289,9 +290,12 @@ test.describe("trip journey", () => {
       await expect.poll(() => request.failure()?.errorText ?? null).not.toBeNull();
       for (let i = 0; i < 5; i++) await page.getByRole("button", { name: "Back" }).click();
       await expect(page.getByRole("heading", { level: 1 })).toHaveText("Destination");
-      const check = page.waitForRequest((r) => r.method() === "POST" && r.url().endsWith("/form"), {
-        timeout: 5000,
-      });
+      // The city check's own action, by its argument: any other action on /form (the open-trip
+      // check) posts there too, and would pass this while the city check sat queued.
+      const check = page.waitForRequest(
+        (r) => r.method() === "POST" && r.url().endsWith("/form") && !!r.postData()?.includes('"Porto"'),
+        { timeout: 5000 },
+      );
       await page.getByRole("textbox", { name: /city/i }).fill("Porto");
       await check;
     } finally {
@@ -320,5 +324,33 @@ test.describe("trip journey", () => {
     }
     expect(await savedFlags(CONTROL)).toEqual([false]);
     expect(await savedFlags(STOPPER)).toEqual([]);
+  });
+
+  test("an unanswered trip holds back the next one until it's answered", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await generateTrip(page, HOLDER);
+    const tripUrl = page.url();
+    const notice = page.getByText("Your last trip is waiting for an answer.", { exact: false });
+
+    // A fresh load of /form, as after a reload: the open trip is this browser's, not the tab's.
+    // The traveller hears of it on step 1, and can still fill the form in.
+    await page.goto("/form");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Personal information");
+    await expect(notice).toBeVisible();
+    await noHorizontalScroll(page);
+    await walkAllSteps(page, HOLDER, { held: true });
+    await expect(notice).toBeVisible();
+
+    await page.getByRole("link", { name: "View trip" }).click();
+    await expect(page).toHaveURL(tripUrl);
+    await page.getByRole("button", { name: "No, thanks" }).click();
+    await expect(page.getByRole("heading", { name: "What next?" })).toBeVisible();
+
+    // The held-back answers waited in the draft: the form reopens on them, free to send.
+    await page.goto("/form");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Review and submit");
+    await expect(page.getByText(HOLDER)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Plan my trip" })).toBeEnabled();
+    await expect(notice).toHaveCount(0);
   });
 });

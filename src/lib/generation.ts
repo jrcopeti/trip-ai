@@ -32,6 +32,7 @@ export type GenerationAction =
 export type GenerationEffect =
   | { type: "abort"; token: object }
   | { type: "clearDraft" }
+  | { type: "rememberTrip"; tripUrl: string }
   | { type: "open"; tripUrl: string }
   | { type: "failedOnForm" }
   | { type: "cancelled" };
@@ -79,12 +80,12 @@ export function transition(state: GenerationState, action: GenerationAction): Tr
       if (action.pathname === FORM_PATH) {
         return {
           state: { ...state, pending: null, trip: { kind: "opening", tripUrl } },
-          effects: [{ type: "clearDraft" }, { type: "open", tripUrl }],
+          effects: [{ type: "clearDraft" }, { type: "rememberTrip", tripUrl }, { type: "open", tripUrl }],
         };
       }
       return {
         state: { ...state, pending: null, trip: { kind: "ready", tripUrl } },
-        effects: [{ type: "clearDraft" }],
+        effects: [{ type: "clearDraft" }, { type: "rememberTrip", tripUrl }],
       };
     }
 
