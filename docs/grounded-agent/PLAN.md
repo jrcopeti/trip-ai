@@ -920,7 +920,10 @@ its own, in this order (2h is independent and can land any time):
   - **The browser keeps its plain "(500)".** The cause stays in the server log, which on Vercel
     is enough to find it (it was, for a production failure on 2026-10-20); no reason codes in the
     response. Branch 3 records every outcome durably, since runtime logs are kept briefly.
-  - `maxDuration = 300` on the route, so a long call isn't cut by the platform's default.
+  - `maxDuration = 300` on the route, over `vercel.json`'s 60s: Sonnet 5.5 took 38–69s over 8
+    runs (`models-comparison.md`). The first deploy failed with it ("between 1 and 60 for plan
+    hobby"), as the project ran without Fluid compute; Fluid is on since 2026-10-20, which allows
+    300s on Hobby.
   - The browser no longer logs a failed generation (`GenerationContext`): it only ever saw
     "(500)". The route doesn't log a cancelled one either.
   - **Built (2026-10-20):** the proof first (the e2e failed with a row written, then passed once
@@ -934,8 +937,8 @@ its own, in this order (2h is independent and can land any time):
     removed); the route tests' requests go through `post()`. Left as is: a failure that never
     reaches the server (offline, a malformed 200) is now logged nowhere, as the browser's
     console was only ever the traveller's; the 2s hold on every e2e generation; no
-    `server-only` guard (the package isn't installed); `maxDuration` 300 (the default with
-    Fluid compute).
+    `server-only` guard (the package isn't installed); `maxDuration` 300 (wrongly at
+    first: it failed the Hobby deploy until Fluid compute was on, see above).
   - **Review of `8fc3831`**, fixed: a cancel during a city lookup that then failed was logged as
     a failure (the signal is checked before the lookup's error now). Left as is, by choice: the
     rest were about whether a rare cancel prints a log line (an abort the SDK reports otherwise,

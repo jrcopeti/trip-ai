@@ -1,7 +1,8 @@
 import { generateTrip } from "@/app/api/anthropicApi";
 import { TripRequestSchema } from "@/lib/agent/request";
 
-// A generation with a long answer outlasts the platform's shorter defaults.
+// A generation takes up to ~70s, past `vercel.json`'s 60. Over 60 on Hobby needs the project's
+// Fluid compute on, or the deploy fails.
 export const maxDuration = 300;
 
 const fail = (status: number, error: string) => Response.json({ error }, { status });
