@@ -43,10 +43,19 @@ export const tints = {
   lime: "data-selected:bg-sorbet-lime-punch",
 } as const;
 
-/** Pills used as buttons inside the form. */
-export const inkPill = `inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-sorbet-ink px-7 py-3.5 text-base font-semibold text-sorbet-offwhite transition-transform hover:scale-[1.03] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 motion-reduce:transition-none ${focusTriad}`;
+const pill = `inline-flex cursor-pointer items-center justify-center gap-2 rounded-full font-semibold transition-transform hover:scale-[1.03] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 motion-reduce:transition-none ${focusTriad}`;
+const ink = "bg-sorbet-ink text-sorbet-offwhite";
+const lime = "bg-sorbet-lime text-sorbet-ink";
 
-export const limePill = `inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-sorbet-lime px-7 py-3.5 text-base font-semibold text-sorbet-ink transition-transform hover:scale-[1.03] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 motion-reduce:transition-none ${focusTriad}`;
+/** Pills used as buttons inside the form. */
+export const inkPill = `${pill} px-7 py-3.5 text-base ${ink}`;
+
+export const limePill = `${pill} px-7 py-3.5 text-base ${lime}`;
+
+/** The same pills at nav size, for a toast's actions. */
+export const smallInkPill = `${pill} px-5 py-2.5 text-sm ${ink}`;
+
+export const smallLimePill = `${pill} px-5 py-2.5 text-sm ${lime}`;
 
 /** A quiet text button, for a secondary action beside the pills. */
 export const quietButton = `cursor-pointer rounded-full px-2 py-1 text-sm font-semibold text-sorbet-ink/70 underline underline-offset-4 transition-colors hover:text-sorbet-ink motion-reduce:transition-none ${focusTriad}`;

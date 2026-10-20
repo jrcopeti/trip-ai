@@ -5,17 +5,20 @@ import { act, renderWithProviders, screen, waitFor } from "@/test/render";
 import { GenerationProvider, type GenerationActions } from "@/context/GenerationContext";
 import { useGenerationState, useTripGeneration } from "@/hooks/useTripGeneration";
 import type { GenerationState } from "@/lib/generation";
-import { PLANNING_TOAST, RESULT_TOAST } from "@/components/ui/GenerationToasts";
-import { generateTrip } from "@/app/api/anthropicApi";
+import { FAILURE_TOAST, PLANNING_TOAST, TRIP_TOAST } from "@/components/ui/GenerationToasts";
+import { requestTrip } from "@/lib/requestTrip";
 import { generatedTripFixture, validInputs, validTripRequest } from "@/test/fixtures";
 import { replace, resetNextStubs, routerState } from "@/test/stubs/next";
 import { readFormDraft, writeFormDraft } from "@/lib/formDraft";
 import { failure } from "@/components/form/content";
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
-vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
+vi.mock("@/lib/requestTrip", () => ({ requestTrip: vi.fn() }));
 
-const mockGenerate = vi.mocked(generateTrip);
+const mockGenerate = vi.mocked(requestTrip);
+const idle = { pending: null, trip: null, failure: null };
+/** The signal the n-th call was sent with. */
+const signalOf = (n: number) => mockGenerate.mock.calls[n][1];
 const trip = generatedTripFixture;
 const draft = { values: validInputs, step: 6, isWeatherSelected: false };
 
@@ -81,14 +84,14 @@ afterEach(() => {
 describe("GenerationProvider", () => {
   it("starts with nothing pending", () => {
     renderAt("/form");
-    expect(ctx.state).toEqual({ pending: null, result: null });
+    expect(ctx.state).toEqual(idle);
   });
 
   it("passes the request straight through to the API module", async () => {
     heldCall();
     renderAt("/form");
     await start();
-    expect(mockGenerate).toHaveBeenCalledWith(validTripRequest);
+    expect(mockGenerate).toHaveBeenCalledWith(validTripRequest, expect.any(AbortSignal));
     expect(screen.getByTestId("pending")).toHaveTextContent("true");
   });
 
@@ -106,10 +109,10 @@ describe("GenerationProvider", () => {
       expect(screen.queryByRole("link", { name: "View" })).toBeNull();
       expect(readFormDraft()).toBeNull();
       // On its way until the trip's page is reached, so /form keeps the loader up meanwhile.
-      expect(ctx.state.result).toEqual({ kind: "opening", tripUrl: trip.tripUrl });
+      expect(ctx.state.trip).toEqual({ kind: "opening", tripUrl: trip.tripUrl });
 
       visit(`/trips/${trip.tripUrl}`);
-      expect(ctx.state).toEqual({ pending: null, result: null });
+      expect(ctx.state).toEqual(idle);
     });
 
     it("offers the trip instead if the traveller leaves before the redirect arrives", async () => {
@@ -120,7 +123,7 @@ describe("GenerationProvider", () => {
 
       visit("/saved-trips");
 
-      expect(ctx.state.result).toEqual({ kind: "ready", tripUrl: trip.tripUrl });
+      expect(ctx.state.trip).toEqual({ kind: "ready", tripUrl: trip.tripUrl });
       await waitFor(() => expect(shownViews()).toHaveLength(1));
     });
 
@@ -132,22 +135,22 @@ describe("GenerationProvider", () => {
 
       await call.fail();
 
-      expect(ctx.state.result).toEqual({ kind: "failed", seenOnForm: true });
+      expect(ctx.state.failure).toEqual({ seenOnForm: true });
       expect(await screen.findByRole("alert")).toHaveTextContent(failure.message);
       expect(readFormDraft()).toEqual(draft);
       expect(replace).not.toHaveBeenCalled();
       expect(console.error).toHaveBeenCalledTimes(1);
     });
 
-    it("clears the failure on clearResult, so the form shows again", async () => {
+    it("clears the failure on clearFailure, so the form shows again", async () => {
       const call = heldCall();
       renderAt("/form");
       await start();
       await call.fail();
 
-      act(() => ctx.clearResult());
+      act(() => ctx.clearFailure());
 
-      expect(ctx.state).toEqual({ pending: null, result: null });
+      expect(ctx.state).toEqual(idle);
     });
   });
 
@@ -196,7 +199,7 @@ describe("GenerationProvider", () => {
 
       visit(`/trips/${trip.tripUrl}`);
 
-      await waitFor(() => expect(ctx.state.result).toBeNull());
+      await waitFor(() => expect(ctx.state.trip).toBeNull());
       expect(screen.getByText("Your trip has been generated!").closest(".invisible")).not.toBeNull();
     });
 
@@ -222,7 +225,7 @@ describe("GenerationProvider", () => {
 
       await userEvent.click(await screen.findByRole("button", { name: "Dismiss" }));
 
-      expect(ctx.state.result).toBeNull();
+      expect(ctx.state.failure).toBeNull();
     });
 
     it("hands the failure to the form's panel on /form, and doesn't toast it again after", async () => {
@@ -235,11 +238,13 @@ describe("GenerationProvider", () => {
 
       visit("/form");
       // The failure panel shows it there; the toast steps aside, for good.
-      expect(ctx.state.result).toEqual({ kind: "failed", seenOnForm: true });
+      expect(ctx.state.failure).toEqual({ seenOnForm: true });
       expect(screen.getByRole("link", { name: "Back to the form" }).closest(".invisible")).not.toBeNull();
 
+      // Left without "Try again": the failure goes, and with it any toast or panel.
       visit("/about");
-      const failedToasts = custom.mock.calls.filter(([, options]) => options?.id === RESULT_TOAST);
+      expect(ctx.state.failure).toBeNull();
+      const failedToasts = custom.mock.calls.filter(([, options]) => options?.id === FAILURE_TOAST);
       expect(failedToasts).toHaveLength(1);
     });
   });
@@ -261,7 +266,7 @@ describe("GenerationProvider", () => {
       expect(await screen.findByRole("alert")).toHaveTextContent("Your trip was cancelled");
 
       await call.land();
-      expect(ctx.state).toEqual({ pending: null, result: null });
+      expect(ctx.state).toEqual(idle);
       expect(screen.queryByText("Your trip has been generated!")).toBeNull();
       expect(replace).not.toHaveBeenCalled();
       expect(readFormDraft()).toEqual(draft);
@@ -276,7 +281,7 @@ describe("GenerationProvider", () => {
       await call.fail();
 
       expect(screen.getByRole("alert")).toHaveTextContent("Your trip was cancelled");
-      expect(ctx.state.result).toBeNull();
+      expect(ctx.state.failure).toBeNull();
       expect(console.error).not.toHaveBeenCalled();
     });
 
@@ -291,7 +296,19 @@ describe("GenerationProvider", () => {
       await call.land();
 
       expect(replace).not.toHaveBeenCalled();
-      expect(ctx.state).toEqual({ pending: null, result: null });
+      expect(ctx.state).toEqual(idle);
+    });
+
+    // Aborted, not just ignored: a request left running would hold the server's work for nothing.
+    it("aborts the request it cancels", async () => {
+      heldCall();
+      renderAt("/form");
+      await start();
+      expect(signalOf(0).aborted).toBe(false);
+
+      act(() => ctx.cancel());
+
+      expect(signalOf(0).aborted).toBe(true);
     });
 
     it("with nothing pending, says nothing", async () => {
@@ -317,6 +334,35 @@ describe("GenerationProvider", () => {
       expect(replace).toHaveBeenCalledTimes(1);
       expect(replace).toHaveBeenCalledWith(`/trips/${trip.tripUrl}`);
     });
+  });
+
+  it("aborts a superseded request", async () => {
+    heldCall();
+    heldCall();
+    renderAt("/form");
+    await start();
+    await start();
+
+    expect(signalOf(0).aborted).toBe(true);
+    expect(signalOf(1).aborted).toBe(false);
+  });
+
+  // Nothing else links to an unanswered trip: a failure after it must not take its toast.
+  it("keeps the last trip's toast when the next generation fails", async () => {
+    const firstCall = heldCall();
+    const secondCall = heldCall();
+    const { visit } = renderAt("/about");
+    await start();
+    await firstCall.land();
+    await waitFor(() => expect(shownViews()).toHaveLength(1));
+
+    visit("/form");
+    await start();
+    await secondCall.fail();
+
+    expect(ctx.state.trip).toEqual({ kind: "ready", tripUrl: trip.tripUrl });
+    expect(ctx.state.failure).toEqual({ seenOnForm: true });
+    expect(shownViews().map((link) => link.getAttribute("href"))).toEqual([`/trips/${trip.tripUrl}`]);
   });
 
   it("lets only the latest generation land when one supersedes another", async () => {
@@ -379,6 +425,21 @@ describe("GenerationProvider", () => {
     expect(removeListener).toHaveBeenCalledWith("beforeunload", expect.any(Function));
   });
 
+  // The draft is gone by then, and only this page knows where the trip went.
+  it("still asks before a reload while a trip landed on /form is on its way", async () => {
+    const removeListener = vi.spyOn(window, "removeEventListener");
+    const call = heldCall();
+    const { visit } = renderAt("/form");
+    await start();
+
+    await call.land();
+    expect(ctx.state.trip).toEqual({ kind: "opening", tripUrl: trip.tripUrl });
+    expect(removeListener).not.toHaveBeenCalledWith("beforeunload", expect.any(Function));
+
+    visit(`/trips/${trip.tripUrl}`);
+    expect(removeListener).toHaveBeenCalledWith("beforeunload", expect.any(Function));
+  });
+
   // The newer trip's toast replaces the older one in place: no dismissal in between to blink.
   it("swaps one ready toast for the next without dismissing it first", async () => {
     const firstCall = heldCall();
@@ -392,7 +453,7 @@ describe("GenerationProvider", () => {
     await start();
     await secondCall.land({ ...trip, tripUrl: "f0e1d2c3b4a5" });
 
-    expect(dismiss).not.toHaveBeenCalledWith(RESULT_TOAST);
+    expect(dismiss).not.toHaveBeenCalledWith(TRIP_TOAST);
     expect(shownViews().map((link) => link.getAttribute("href"))).toEqual(["/trips/f0e1d2c3b4a5"]);
   });
 

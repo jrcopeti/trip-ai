@@ -21,11 +21,11 @@ function Form() {
   const { handleSubmit, processForm } = useFormFields();
   const { isDraftRestored } = useFormSteps();
   // The app's generation, not this form's: one started before /form last unmounted counts too.
-  const { cancel, clearResult } = useTripGeneration();
+  const { cancel, clearFailure } = useTripGeneration();
   // Through the redirect too: a trip on its way keeps the loader, not the spent form, on screen.
   const loading = useGenerationState(isLoading);
   const inFlight = useGenerationState((state) => state.pending !== null);
-  const failed = useGenerationState((state) => state.result?.kind === "failed");
+  const failed = useGenerationState((state) => state.failure !== null);
 
   if (loading) {
     // While the trip is on its way to its page there's nothing left to cancel.
@@ -36,7 +36,7 @@ function Form() {
     // "Try again" shows the form again, on the review step with every answer: the draft
     // is cleared only when a trip comes back.
     return (
-      <NotFoundComponent message={failure.message} button={failure.button} onAction={clearResult} />
+      <NotFoundComponent message={failure.message} button={failure.button} onAction={clearFailure} />
     );
   }
 

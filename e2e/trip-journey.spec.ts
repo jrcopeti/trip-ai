@@ -203,11 +203,11 @@ test.describe("trip journey", () => {
     await expect(page).toHaveURL(/\/form$/);
     await walkAllSteps(page, LEAVER);
 
-    // Generation is a server action, a POST to /form; hold it until the traveller is away.
+    // Generation is a POST to /api/trip; hold it until the traveller is away.
     let release = () => {};
     const held = new Promise<void>((r) => (release = r));
-    await page.route("**/form", async (route) => {
-      if (route.request().method() === "POST") await held;
+    await page.route("**/api/trip", async (route) => {
+      await held;
       await route.continue();
     });
     await page.getByRole("button", { name: "Plan my trip" }).click();
@@ -253,13 +253,9 @@ test.describe("trip journey", () => {
     await page.goto("/form");
     await walkAllSteps(page, CANCELLER);
 
-    // Held, so Cancel is pressed while the generation is still pending.
-    let release = () => {};
-    const held = new Promise<void>((r) => (release = r));
-    await page.route("**/form", async (route) => {
-      if (route.request().method() === "POST") await held;
-      await route.continue();
-    });
+    // Held for good, so Cancel is pressed while the generation is still pending.
+    await page.route("**/api/trip", () => new Promise(() => {}));
+    const aborted = page.waitForEvent("requestfailed", (r) => r.url().endsWith("/api/trip"));
     await page.getByRole("button", { name: "Plan my trip" }).click();
     // Out and back through the planning toast's View: the toast leaves from under the cursor.
     await page.getByRole("link", { name: "Browse saved trips" }).click();
@@ -277,10 +273,16 @@ test.describe("trip journey", () => {
     // Shows and goes, as every timed toast must.
     await expect(cancelled).toBeHidden({ timeout: 9000 });
 
-    // Its trip lands to nothing: no toast, no redirect.
-    const landed = page.waitForResponse((r) => r.request().method() === "POST" && r.url().endsWith("/form"));
-    release();
-    await landed;
+    // The request is aborted, not left running: nothing lands, and the form's own server
+    // actions (the city check) aren't queued behind it, as they would be behind a server action.
+    await aborted;
+    for (let i = 0; i < 5; i++) await page.getByRole("button", { name: "Back" }).click();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Destination");
+    const check = page.waitForRequest((r) => r.method() === "POST" && r.url().endsWith("/form"), {
+      timeout: 5000,
+    });
+    await page.getByRole("textbox", { name: /city/i }).fill("Porto");
+    await check;
     await expect(page).toHaveURL(/\/form$/);
     await expect(page.getByText("Your trip has been generated!")).toBeHidden();
   });

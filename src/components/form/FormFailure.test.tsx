@@ -7,7 +7,7 @@ import { GenerationProvider } from "@/context/GenerationContext";
 import { useWatch } from "react-hook-form";
 import { useFormData } from "@/hooks/useFormData";
 import Form from "@/components/form/Form";
-import { generateTrip } from "@/app/api/anthropicApi";
+import { requestTrip } from "@/lib/requestTrip";
 import { steps } from "@/data";
 import { generatedTripFixture, validInputs } from "@/test/fixtures";
 import { failure, stepCopy } from "@/components/form/content";
@@ -17,7 +17,7 @@ import type { FieldName, FormContextType, Inputs } from "@/types";
 
 // The real FormProvider and the app's generation, so its failure and "Try again"
 // drive what Form shows. Only the server action and the browser-side lookups are mocked.
-vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
+vi.mock("@/lib/requestTrip", () => ({ requestTrip: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn(), dismiss: vi.fn() } }));
 vi.mock("@/hooks/useGeoNames", () => ({
@@ -38,7 +38,7 @@ vi.mock("@/hooks/useCountries", () => ({
   }),
 }));
 
-const mockGenerate = vi.mocked(generateTrip);
+const mockGenerate = vi.mocked(requestTrip);
 let ctx: FormContextType;
 let values: Inputs;
 

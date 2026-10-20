@@ -1,21 +1,24 @@
 /**
- * The trip generation as one state, the one in flight and the last result: `transition` changes
- * it and returns the effects to run, `isLoading` and `toastsFor` say what it shows on a route.
+ * The trip generation as one state, the one in flight and the last trip and failure: `transition`
+ * changes it and returns the effects to run, `isLoading` and `toastsFor` say what it shows.
  * As tables, each row asserted: CLAUDE.md, "The generation's state, as tables".
  */
 
-export type GenerationResult =
+export type GenerationTrip =
   /** Landed off `/form`: offered by a toast until its page is reached. */
   | { kind: "ready"; tripUrl: string }
   /** Landed on `/form`: the traveller is being sent to it, and the loader stays till they arrive. */
-  | { kind: "opening"; tripUrl: string }
-  /** `seenOnForm` once the failure panel on `/form` has shown it; its toast doesn't come back. */
-  | { kind: "failed"; seenOnForm: boolean };
+  | { kind: "opening"; tripUrl: string };
+
+/** `seenOnForm` once the failure panel on `/form` has shown it; its toast doesn't come back. */
+export type GenerationFailure = { seenOnForm: boolean };
 
 export type GenerationState = {
   /** The token of the generation in flight; null when none is. */
   pending: object | null;
-  result: GenerationResult | null;
+  /** The last trip that landed, until its page is reached. A failure never displaces it. */
+  trip: GenerationTrip | null;
+  failure: GenerationFailure | null;
 };
 
 export type GenerationAction =
@@ -24,21 +27,37 @@ export type GenerationAction =
   | { type: "fail"; token: object; pathname: string }
   | { type: "cancel" }
   | { type: "route"; pathname: string }
-  | { type: "clearResult" };
+  | { type: "clearFailure" };
 
 export type GenerationEffect =
+  | { type: "abort"; token: object }
   | { type: "clearDraft" }
   | { type: "open"; tripUrl: string }
   | { type: "failedOnForm" }
   | { type: "cancelled" };
 
-export const idleGeneration: GenerationState = { pending: null, result: null };
+export const idleGeneration: GenerationState = { pending: null, trip: null, failure: null };
 
 export const FORM_PATH = "/form";
 export const tripPath = (tripUrl: string) => `/trips/${tripUrl}`;
 
 type Transition = { state: GenerationState; effects: GenerationEffect[] };
 const same = (state: GenerationState): Transition => ({ state, effects: [] });
+
+/** The trip and failure as `pathname` leaves them; the very same objects when unchanged. */
+function routed(state: GenerationState, pathname: string): GenerationState {
+  let { trip, failure } = state;
+  if (trip && pathname === tripPath(trip.tripUrl)) trip = null;
+  // Left before the redirect arrived (Back, a link): the trip is offered instead.
+  else if (trip?.kind === "opening" && pathname !== FORM_PATH) {
+    trip = { kind: "ready", tripUrl: trip.tripUrl };
+  }
+  if (failure && pathname === FORM_PATH && !failure.seenOnForm) failure = { seenOnForm: true };
+  // Seen, then left without "Try again": the draft still holds the answers.
+  else if (failure?.seenOnForm && pathname !== FORM_PATH) failure = null;
+  if (trip === state.trip && failure === state.failure) return state;
+  return { ...state, trip, failure };
+}
 
 /**
  * The next state for `action`, and the effects it calls for, in order. Returns the same state
@@ -48,13 +67,10 @@ const same = (state: GenerationState): Transition => ({ state, effects: [] });
 export function transition(state: GenerationState, action: GenerationAction): Transition {
   switch (action.type) {
     case "start":
-      // A new attempt supersedes a failure; a ready trip keeps its toast until the next lands.
+      // A new attempt supersedes the one in flight and a failure; the last trip keeps its toast.
       return {
-        state: {
-          pending: action.token,
-          result: state.result?.kind === "failed" ? null : state.result,
-        },
-        effects: [],
+        state: { ...state, pending: action.token, failure: null },
+        effects: state.pending ? [{ type: "abort", token: state.pending }] : [],
       };
 
     case "land": {
@@ -62,12 +78,12 @@ export function transition(state: GenerationState, action: GenerationAction): Tr
       const { tripUrl } = action;
       if (action.pathname === FORM_PATH) {
         return {
-          state: { pending: null, result: { kind: "opening", tripUrl } },
+          state: { ...state, pending: null, trip: { kind: "opening", tripUrl } },
           effects: [{ type: "clearDraft" }, { type: "open", tripUrl }],
         };
       }
       return {
-        state: { pending: null, result: { kind: "ready", tripUrl } },
+        state: { ...state, pending: null, trip: { kind: "ready", tripUrl } },
         effects: [{ type: "clearDraft" }],
       };
     }
@@ -76,44 +92,36 @@ export function transition(state: GenerationState, action: GenerationAction): Tr
       if (action.token !== state.pending) return same(state);
       const onForm = action.pathname === FORM_PATH;
       return {
-        state: { pending: null, result: { kind: "failed", seenOnForm: onForm } },
+        state: { ...state, pending: null, failure: { seenOnForm: onForm } },
         effects: onForm ? [{ type: "failedOnForm" }] : [],
       };
     }
 
     case "cancel":
       if (state.pending === null) return same(state);
-      return { state: { ...state, pending: null }, effects: [{ type: "cancelled" }] };
+      return {
+        state: { ...state, pending: null },
+        effects: [{ type: "abort", token: state.pending }, { type: "cancelled" }],
+      };
 
-    case "route": {
-      const { result } = state;
-      const { pathname } = action;
-      if (!result) return same(state);
-      if (result.kind === "failed") {
-        if (result.seenOnForm || pathname !== FORM_PATH) return same(state);
-        return { state: { ...state, result: { ...result, seenOnForm: true } }, effects: [] };
-      }
-      if (pathname === tripPath(result.tripUrl)) return { state: { ...state, result: null }, effects: [] };
-      // Left before the redirect arrived (Back, a link): the trip is offered instead.
-      if (result.kind === "opening" && pathname !== FORM_PATH) {
-        return { state: { ...state, result: { kind: "ready", tripUrl: result.tripUrl } }, effects: [] };
-      }
-      return same(state);
-    }
+    case "route":
+      return same(routed(state, action.pathname));
 
-    case "clearResult":
-      if (!state.result) return same(state);
-      return { state: { ...state, result: null }, effects: [] };
+    case "clearFailure":
+      if (!state.failure) return same(state);
+      return { state: { ...state, failure: null }, effects: [] };
   }
 }
 
 /** Whether `/form` shows the loader: a generation in flight, or its trip on the way. */
 export const isLoading = (state: GenerationState) =>
-  state.pending !== null || state.result?.kind === "opening";
+  state.pending !== null || state.trip?.kind === "opening";
 
 export type GenerationToasts = {
   planning: boolean;
-  result: { kind: "ready"; tripUrl: string } | { kind: "failed" } | null;
+  /** The ready trip's url, for its toast. */
+  trip: string | null;
+  failure: boolean;
 };
 
 /**
@@ -122,13 +130,10 @@ export type GenerationToasts = {
  * failure panel there has shown it.
  */
 export function toastsFor(state: GenerationState, pathname: string): GenerationToasts {
-  const planning = state.pending !== null && pathname !== FORM_PATH;
-  const { result } = state;
-  if (result?.kind === "ready" && pathname !== tripPath(result.tripUrl)) {
-    return { planning, result: { kind: "ready", tripUrl: result.tripUrl } };
-  }
-  if (result?.kind === "failed" && !result.seenOnForm && pathname !== FORM_PATH) {
-    return { planning, result: { kind: "failed" } };
-  }
-  return { planning, result: null };
+  const { pending, trip, failure } = state;
+  return {
+    planning: pending !== null && pathname !== FORM_PATH,
+    trip: trip?.kind === "ready" && pathname !== tripPath(trip.tripUrl) ? trip.tripUrl : null,
+    failure: failure !== null && !failure.seenOnForm && pathname !== FORM_PATH,
+  };
 }

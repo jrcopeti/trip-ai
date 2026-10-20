@@ -5,14 +5,14 @@ import { FormProvider } from "@/context/FormContext";
 import { GenerationProvider } from "@/context/GenerationContext";
 import { useFormData } from "@/hooks/useFormData";
 import Form from "@/components/form/Form";
-import { generateTrip } from "@/app/api/anthropicApi";
+import { requestTrip } from "@/lib/requestTrip";
 import { generatedTripFixture, validInputs } from "@/test/fixtures";
 import { readFormDraft } from "@/lib/formDraft";
 import { stepCopy } from "@/components/form/content";
 import { replace, resetNextStubs, routerState } from "@/test/stubs/next";
 import type { FormContextType } from "@/types";
 
-vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
+vi.mock("@/lib/requestTrip", () => ({ requestTrip: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn(), dismiss: vi.fn() } }));
 vi.mock("@/components/ui/LoaderResponseAI", () => ({
@@ -61,13 +61,13 @@ const tree = (onForm = true) => (
 
 beforeEach(() => {
   resetNextStubs("/form");
-  vi.mocked(generateTrip).mockReset();
+  vi.mocked(requestTrip).mockReset();
 });
 
 // /form's provider unmounts with the route; the generation, in the root's, outlives it.
 describe("Form — a generation still running when /form mounts again", () => {
   it("shows the loader rather than an empty form that could be sent twice", async () => {
-    vi.mocked(generateTrip).mockReturnValue(new Promise(() => {}));
+    vi.mocked(requestTrip).mockReturnValue(new Promise(() => {}));
     const { rerender } = renderWithProviders(tree());
     await act(async () => {
       ctx.processForm(validInputs, undefined);
@@ -86,7 +86,7 @@ describe("Form — a generation still running when /form mounts again", () => {
 
   // The step and answers are the provider's, so the form reopens where it was sent from.
   it("goes back to the form when the loader's Cancel is pressed", async () => {
-    vi.mocked(generateTrip).mockReturnValue(new Promise(() => {}));
+    vi.mocked(requestTrip).mockReturnValue(new Promise(() => {}));
     renderWithProviders(tree());
     await act(async () => {
       ctx.processForm(validInputs, undefined);
@@ -101,7 +101,7 @@ describe("Form — a generation still running when /form mounts again", () => {
   // Not the spent form between the landing and the trip's page: it would flash, and its
   // fields re-registering could write back the draft the landing cleared.
   it("keeps the loader up while the landed trip is on its way, until its page", async () => {
-    vi.mocked(generateTrip).mockResolvedValue(generatedTripFixture);
+    vi.mocked(requestTrip).mockResolvedValue(generatedTripFixture);
     const { rerender } = renderWithProviders(tree());
     await act(async () => {
       ctx.processForm(validInputs, undefined);

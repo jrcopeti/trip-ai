@@ -21,9 +21,9 @@ import type { FieldName, FormContextType } from "@/types";
 
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("@/hooks/useTripGeneration", () => ({
-  useTripGeneration: () => ({ generateTrip: vi.fn(), cancel: vi.fn(), clearResult: vi.fn() }),
-  useGenerationState: <T,>(select: (state: { pending: null; result: null }) => T) =>
-    select({ pending: null, result: null }),
+  useTripGeneration: () => ({ generateTrip: vi.fn(), cancel: vi.fn(), clearFailure: vi.fn() }),
+  useGenerationState: <T,>(select: (state: { pending: null; trip: null; failure: null }) => T) =>
+    select({ pending: null, trip: null, failure: null }),
 }));
 vi.mock("@/hooks/useGeoNames", () => ({
   idleCityCheck: { isCityValid: false, isLoadingCityValid: false, message: "", place: null },

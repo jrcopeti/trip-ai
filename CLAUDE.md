@@ -248,7 +248,7 @@ architecture). A plan is for work in flight.
 
 ### User flow
 1. `/form` — multi-step form (7 steps, managed by `FormContext`)
-2. On submit: `generateTrip` writes the `Trip` row (`saved: false`) → redirect to `/trips/[tripUrl]` (12 random hex characters, chosen on the server; `tripUrl` is unique)
+2. On submit: `POST /api/trip` runs `generateTrip`, which writes the `Trip` row (`saved: false`) → redirect to `/trips/[tripUrl]` (12 random hex characters, chosen on the server; `tripUrl` is unique)
 3. `/trips/[tripUrl]` reads the row on the server (`getTripByUrl`), so a refresh keeps it;
    save or discard → `setTripSaved(tripUrl, saved)` flips the flag
 4. `/saved-trips` — lists all saved trips; `/saved-trips/[id]` — single saved trip, also
@@ -261,66 +261,70 @@ The root `src/app/providers.tsx` keeps QueryClient, `MotionProvider`, the Toaste
 for the whole app, so it outlives `/form`:
 - Its state is one value, in a zustand store created per provider (never module-level: it
   would be shared across server requests and tests), changed only by `transition`
-  (`src/lib/generation.ts`, pure): the
-  generation in flight, by a token, and the last result (`ready`, `opening` on the way to its
-  page, or `failed`). Each transition returns its effects (clear the draft, open the trip, say
-  it was cancelled or failed), which the provider runs. A landing whose token isn't the one in
-  flight changes nothing.
-- It makes the call to `generateTrip`, redirects a trip that lands on `/form` to
-  `/trips/[tripUrl]`, and asks before a reload while one is pending.
+  (`src/lib/generation.ts`, pure): the generation in flight, by a token, the last trip
+  (`ready`, or `opening` on the way to its page) and the last failure, each in its own slot so
+  neither displaces the other. Each transition returns its effects (abort a request, clear the
+  draft, open the trip, say it was cancelled or failed), which the provider runs. A landing
+  whose token isn't the one in flight changes nothing.
+- It asks for the trip with `requestTrip` (`src/lib/`): `fetch` to `POST /api/trip`
+  (`src/app/api/trip/route.ts`, which calls `generateTrip`), with an `AbortController` per
+  generation. Not a server action: Next runs those one at a time, so a cancelled one would hold
+  every later one (the city check, the next try) until the server finished it. It redirects a trip
+  that lands on `/form` to `/trips/[tripUrl]`, and asks before a reload while `/form` would load.
 - **`GenerationToast`** is the only code that shows or dismisses the generation's toasts: it
   keeps them equal to `toastsFor(state, pathname)` (planning off `/form`, the ready trip until
-  its page, a failure off `/form`).
+  its page, an unseen failure off `/form`), each under its own id.
 - **`useTripGeneration`** (`src/hooks/`) returns the stable actions (`generateTrip`, `cancel`,
-  `clearResult`); **`useGenerationState(selector)`** reads the state through a zustand selector.
-  `Form` shows the loader while one is pending or opening, and the failure panel after one failed.
+  `clearFailure`); **`useGenerationState(selector)`** reads the state through a zustand selector.
+  `Form` shows the loader while one is in flight or a trip is opening, and the failure panel while
+  there's a failure.
 
 #### The generation's state, as tables
 
-The state is a generation in flight (a token, or none) and a last result:
+The state is a generation in flight (a token, or none), a last trip and a last failure:
 
-| Result | Meaning |
-|---|---|
-| none | nothing to show |
-| `ready` | landed off `/form`; a toast offers it |
-| `opening` | landed on `/form`; the traveller is being sent to it, and the loader stays until its page |
-| `failed`, unseen | failed; its toast shows off `/form` |
-| `failed`, `seenOnForm` | the failure panel on `/form` has shown it; its toast doesn't come back |
+| Slot | Value | Meaning |
+|---|---|---|
+| trip | `ready` | landed off `/form`; a toast offers it until its page |
+| trip | `opening` | landed on `/form`; the traveller is being sent to it, and the loader stays until its page |
+| failure | unseen | its toast shows off `/form` |
+| failure | `seenOnForm` | the failure panel on `/form` has shown it; leaving `/form` drops it |
 
-What each action does, from any state (anything not listed leaves the state as it is):
+What each action does, from any state (anything not listed leaves that part as it is):
 
 | Action | Next state | Effects, in order |
 |---|---|---|
-| `start` (token) | that token in flight; a failed result dropped | — |
-| `land` on `/form`, the token in flight | none in flight; `opening` | clear the draft, open the trip |
-| `land` elsewhere, the token in flight | none in flight; `ready` | clear the draft |
-| `fail` on `/form`, the token in flight | none in flight; `failed`, seen | the failure alert |
-| `fail` elsewhere, the token in flight | none in flight; `failed`, unseen | — |
+| `start` (token) | that token in flight; the failure dropped | abort the one in flight, if any |
+| `land` on `/form`, the token in flight | none in flight; trip `opening` | clear the draft, open the trip |
+| `land` elsewhere, the token in flight | none in flight; trip `ready` | clear the draft |
+| `fail` on `/form`, the token in flight | none in flight; failure seen | the failure alert |
+| `fail` elsewhere, the token in flight | none in flight; failure unseen | — |
 | `land` / `fail`, any other token | unchanged (cancelled or superseded) | — |
-| `cancel`, one in flight | none in flight | "Your trip was cancelled" |
+| `cancel`, one in flight | none in flight | abort it, "Your trip was cancelled" |
 | `route` to `/form` | an unseen failure becomes seen | — |
-| `route` to the result's trip page | `ready` or `opening` cleared | — |
-| `route` anywhere else | `opening` becomes `ready` (left before the redirect) | — |
-| `clearResult` | no result | — |
+| `route` to the trip's page | the trip cleared; a seen failure dropped | — |
+| `route` anywhere else | `opening` becomes `ready` (left before the redirect); a seen failure dropped | — |
+| `clearFailure` | no failure | — |
 
-The loader shows on `/form` while one is in flight or `opening`. The planning toast shows while
-one is in flight, off `/form`. The result toast, by route:
+The loader shows on `/form` while one is in flight or a trip is `opening`. The planning toast shows
+while one is in flight, off `/form`. The trip and failure toasts, by route:
 
-| Result | `/form` | its trip's page | elsewhere |
+| State | `/form` | the trip's page | elsewhere |
 |---|---|---|---|
-| `ready` | ready, with View | — | ready, with View |
-| `failed`, unseen | — | failed | failed |
-| none, `opening`, `failed` seen | — | — | — |
+| trip `ready` | ready, with View | — | ready, with View |
+| failure unseen | — | failed | failed |
+| trip `opening`, failure seen | — | — | — |
 
 These three tables are `transition`, `isLoading` and `toastsFor` in `src/lib/generation.ts`, and
 `src/lib/generation.test.ts` asserts every row from every state. A change to one row changes all
-three places: the code, its test table and this section. "Its trip's page" is that trip's own
+three places: the code, its test table and this section. "The trip's page" is that trip's own
 page; another trip's page is "elsewhere".
 
 Two limits, accepted:
 - `land` and `fail` read the router's path as of the last committed navigation. A trip landing
   while a navigation is still committing is decided against the page being left: off `/form`
-  it opens the trip; onto `/form` it shows the ready toast over the form.
+  it opens the trip; onto `/form` it shows the ready toast over the form, and the draft it
+  cleared can come back, as the form already holds the answers and saves them on the next change.
 - `opening` ends only on reaching the trip's page or leaving `/form`. Nothing on the loader can
   keep the traveller on `/form` meanwhile: it covers the nav, offers no Cancel while opening, and
   its one link leaves `/form`.
@@ -338,6 +342,7 @@ The form fetches no weather: the request carries the choice (`byWeather`), and t
 the forecast.
 
 ### Server-side modules (`"use server"` unless noted)
+- `src/app/api/trip/route.ts` — not an action: `POST /api/trip`, a `TripRequest` body → `generateTrip` → `{ tripUrl }` (400 for a body that isn't JSON, 500 when generation fails). The browser's only way to generate; a `fetch` can be aborted and doesn't queue behind other server actions.
 - `src/app/api/anthropicApi.ts` — `generateTrip(request)`: re-validates the `TripRequest` (`src/lib/agent/request.ts`), resolves the city again with `resolvePlace`, builds the prompt on the server (`src/lib/agent/prompt.ts`) and calls `claude-sonnet-5-5` with the strict `submit_trip` tool (`src/lib/agent/submitTrip.ts`) and `tool_choice: auto`. A refusal, `max_tokens`, a missing call or output that fails `TripDataSchema` all throw. With `byWeather` it first fetches the forecast at the resolved place and keeps one reading per trip day, nearest midday in the destination's time (`tripForecast`, `src/lib/agent/forecast.ts`); a failed fetch plans without one. Alongside the model call it fetches the photos, then writes the row (`toTripRow`, `src/lib/tripRow.ts`) from the request, the place and the output — `byWeather` on the row means a forecast reached the prompt — and returns it.
 - `src/app/api/unsplashApi.ts` — not an action: `generateTrip` calls it with GeoNames' name for the place. Fetches 5 photos + a base64 plaiceholder blur of the first.
 - `src/app/api/openWeatherApi.ts` — not an action: `fetchWeather`/`fetchForecast({ lat, lon })`,

@@ -86,8 +86,10 @@ describe("toasts", () => {
   const app = files.filter(({ path }) => !/\.test\.tsx?$/.test(path));
 
   it("are shown only through `showToast`", () => {
+    // `toast(…)` and each of its makers; not `showToast(` or another name ending in "toast".
+    const shown = /(?<![\w.])toast(\.(custom|success|error|loading|promise))?\(/;
     const direct = app.filter(
-      ({ path, text }) => /toast\.custom\(/.test(text) && !path.endsWith("ui/ToastCard.tsx"),
+      ({ path, text }) => shown.test(text) && !path.endsWith("ui/ToastCard.tsx"),
     );
     expect(direct.map(({ path }) => path)).toEqual([]);
   });

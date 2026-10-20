@@ -1,22 +1,21 @@
 import Link from "next/link";
 import SquiggleLoader from "@/components/sorbet/SquiggleLoader";
 import { generation as copy } from "@/components/form/content";
-import { focusTriad } from "@/components/form/styles";
+import { smallInkPill as inkPill, smallLimePill as limePill } from "@/components/form/styles";
 import { tripPath } from "@/lib/generation";
 import ToastCard from "./ToastCard";
 
 /** The generation in flight, off `/form`. */
 export const PLANNING_TOAST = "trip-generation";
 
-/** The last generation's result, ready or failed: one at most, a newer one replacing it. */
-export const RESULT_TOAST = "trip-generation-result";
+/** The last trip that landed off `/form`: one at most, a newer one replacing it. */
+export const TRIP_TOAST = "trip-generation-result";
+
+/** The last failure, off `/form`. Its own id, so it never displaces the trip's toast. */
+export const FAILURE_TOAST = "trip-generation-failure";
 
 /** Timed news about the generation (cancelled, opened, failed on `/form`), each replacing the last. */
 export const NOTICE_TOAST = "trip-generation-notice";
-
-const smallPill = `inline-flex cursor-pointer items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold transition-transform hover:scale-[1.03] motion-reduce:transition-none ${focusTriad}`;
-const inkPill = `${smallPill} bg-sorbet-ink text-sorbet-offwhite`;
-const limePill = `${smallPill} bg-sorbet-lime text-sorbet-ink`;
 
 export function PlanningToast({ onCancel }: { onCancel: () => void }) {
   return (

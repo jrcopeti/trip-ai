@@ -781,6 +781,23 @@ its own, in this order (2h is independent and can land any time):
       e2e checks the planning card is hidden by visibility, not by the accessibility tree.
     - Still accepted: a trip landing in the moment a navigation away from `/form` is committing
       still opens it (the router's path changes on commit).
+    From the review of PR #218:
+    - **The generation is a `fetch` to `POST /api/trip`, not a server action.** Next runs server
+      actions one at a time, so after Cancel the city check (a server action) waited for the
+      cancelled call to finish on the server; checked in the browser: no request in 6s, against
+      1s with nothing held. `src/app/api/trip/route.ts` calls `generateTrip` and answers
+      `{ tripUrl }`; `requestTrip` (`src/lib/`) sends it with an `AbortController` per
+      generation, and `cancel` and a superseding `start` return an `abort` effect. This is the
+      transport half of 2g; the server still finishes an aborted call until 2g streams it.
+    - The last trip and the last failure have their own slots: a failure no longer displaces a
+      `ready` trip, whose toast was the only link to it. Their toasts have their own ids.
+    - The reload warning holds while a trip is `opening`, not only while one is in flight.
+    - A failure seen on `/form` is dropped on leaving `/form`, so the panel doesn't greet a later visit.
+    - `GenerationToast` reads the whole state (it changes only on a transition) through one
+      `useToast` per toast; the toast pills share `form/styles.ts`'s pill in a small size; the
+      hygiene test forbids every direct `toast(…)` maker, not only `toast.custom`.
+    - CLAUDE.md's accepted limits add that a landing read against the old route can bring the
+      cleared draft back.
 - **2e-g · `one-open-trip`: one unanswered trip at a time, per browser.** From 2e-f's review.
   With the result toast capped at one, a traveller could generate trip after trip without ever
   looking at them. Rule: while a trip they generated is unanswered (neither "Yes, save it" nor
@@ -837,9 +854,9 @@ its own, in this order (2h is independent and can land any time):
     non-object input passed through. The prompt test and snapshot carry the new count.
   - Sonnet 5.5 against Opus 5.5 on the same trip (cost, output, recommendation): `models-comparison.md`.
 - **2g · `trip-route`: generation through a route that can be stopped.** Brings branch 4's transport
-  forward, for today's single call. `POST /api/trip` (`src/app/api/trip/route.ts`) replaces the
-  `generateTrip` server action for the form: the same validation, `resolvePlace`, prompt and row,
-  but the Claude call is streamed (`client.messages.stream(...)`, read with `finalMessage()`) and
+  forward, for today's single call. *2e-f already moved the form to `POST /api/trip` with an
+  aborted `fetch` (see its PR #218 notes); what's left is the server side.* The route keeps
+  the same validation, `resolvePlace`, prompt and row, but the Claude call is streamed (`client.messages.stream(...)`, read with `finalMessage()`) and
   takes the request's `signal`. The response is SSE with `done` (the trip url) and `error` events
   only; branch 4 adds `step`. Stop (2e-f) and leaving the page abort the fetch, which aborts the
   stream: the output not yet written isn't billed (input is, as it's read at the start), no photos
@@ -847,11 +864,8 @@ its own, in this order (2h is independent and can land any time):
   and a non-streamed call runs to the end however the client leaves, hence both changes.
   `maxDuration` for the route in `vercel.json`. The agent itself (request → trip row) becomes a
   function the route calls, so MCP (branch 7) and evals (6) call it directly.
-  - **Replaces 2e-f's workarounds, deletes rather than works around them** (from 2e-f's review):
-    the landing logic moves out of `useTripGeneration`, a provider that may be unmounted, into the
-    root (`GenerationToast` or a root-level owner). That retires `stoppedGenerations` and its
-    token (the real abort replaces them) and `isOnForm()`'s live-location read. 2e-f's toast and
-    loader tests stay as they are and must stay green.
+  - The landing logic already lives at the root (`GenerationProvider`, from 2e-f's rebuild), and
+    the client already aborts; 2g passes the route's `request.signal` into the stream.
   - Tests: an aborted request aborts the SDK stream (mocked at `anthropicApi`) and writes no row;
     `done` carries the url; a refusal, `max_tokens` or a bad request is an `error` event. e2e: the
     fixture path (`E2E_FIXTURES=1`) answers as a fixture stream; Stop leaves no row.
