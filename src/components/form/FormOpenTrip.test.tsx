@@ -1,16 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Trip } from "@prisma/client";
+import userEvent from "@testing-library/user-event";
 import { act, renderWithProviders, screen, waitFor } from "@/test/render";
 import { FormProvider } from "@/context/FormContext";
+import { useFormData } from "@/hooks/useFormData";
 import Form from "@/components/form/Form";
-import { getTripByUrl } from "@/db/actions";
+import { isTripOpen } from "@/db/actions";
 import { writeFormDraft } from "@/lib/formDraft";
 import { forgetOpenTrip, readOpenTrip, rememberOpenTrip } from "@/lib/openTrip";
-import { generatedTripFixture, validInputs } from "@/test/fixtures";
+import { steps } from "@/data";
+import { validInputs } from "@/test/fixtures";
 import { buttons, openTrip, stepCopy } from "@/components/form/content";
+import type { FieldName, FormContextType } from "@/types";
 
-// The real FormProvider, reopened on the review step from a draft; the row lookup is mocked.
-vi.mock("@/db/actions", () => ({ getTripByUrl: vi.fn() }));
+// The real FormProvider, on step 1 or reopened on the review step from a draft; the check is mocked.
+vi.mock("@/db/actions", () => ({ isTripOpen: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn(), dismiss: vi.fn() } }));
 vi.mock("@/hooks/useTripGeneration", () => ({
@@ -26,27 +29,36 @@ vi.mock("@/hooks/useCountries", () => ({
   useCountries: () => ({ countries: [], isLoading: false }),
 }));
 
-const mockLookup = vi.mocked(getTripByUrl);
+const mockCheck = vi.mocked(isTripOpen);
 const URL = "a1b2c3d4e5f6";
-const row = (saved: boolean): Trip => ({ ...generatedTripFixture, tripUrl: URL, saved });
+let ctx: FormContextType;
 
-async function renderReviewStep() {
-  writeFormDraft({ values: validInputs, step: 6, isWeatherSelected: false });
+function Probe() {
+  ctx = useFormData();
+  return null;
+}
+
+async function renderForm({ onReview = false } = {}) {
+  if (onReview) writeFormDraft({ values: validInputs, step: 6, isWeatherSelected: false });
   renderWithProviders(
     <FormProvider>
+      <Probe />
       <Form />
     </FormProvider>,
   );
-  await screen.findByRole("heading", { level: 1, name: stepCopy[6].title });
+  const step = onReview ? 6 : 0;
+  await screen.findByRole("heading", { level: 1, name: stepCopy[step].title });
 }
 
 const submit = () => screen.getByRole("button", { name: buttons.submit });
+const notice = () => screen.queryByText(openTrip.note);
+const view = () => screen.queryByRole("link", { name: openTrip.view });
 
 beforeEach(() => {
   // `validInputs`' dates are in May 2030; only the clock is faked.
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date(2030, 3, 1, 12, 0, 0));
-  mockLookup.mockReset();
+  mockCheck.mockReset();
 });
 
 afterEach(() => {
@@ -54,60 +66,78 @@ afterEach(() => {
 });
 
 describe("the form, with this browser's last trip unanswered", () => {
-  it("holds back Plan my trip, says why, and links to that trip", async () => {
+  it("says so on step 1, with a View to that trip, and lets the traveller fill in the form", async () => {
+    const user = userEvent.setup();
     rememberOpenTrip(URL);
-    mockLookup.mockResolvedValue(row(false));
-    await renderReviewStep();
+    mockCheck.mockResolvedValue(true);
+    await renderForm();
 
-    await waitFor(() => expect(mockLookup).toHaveBeenCalledWith(URL));
+    await waitFor(() => expect(mockCheck).toHaveBeenCalledWith(URL));
+    expect(notice()).toBeInTheDocument();
+    expect(view()).toHaveAttribute("href", `/trips/${URL}`);
+
+    await act(async () => {
+      (steps[0].fields as FieldName[]).forEach((field) => {
+        ctx.setValue(field, validInputs[field] as string);
+      });
+    });
+    await user.click(screen.getByRole("button", { name: buttons.next }));
+    await screen.findByRole("heading", { level: 1, name: stepCopy[1].title });
+    expect(notice()).toBeInTheDocument();
+  });
+
+  it("holds back Plan my trip on the review step, described by the notice", async () => {
+    rememberOpenTrip(URL);
+    mockCheck.mockResolvedValue(true);
+    await renderForm({ onReview: true });
+
+    await waitFor(() => expect(mockCheck).toHaveBeenCalled());
     expect(submit()).toBeDisabled();
-    expect(submit()).toHaveAccessibleDescription(`${openTrip.note} ${openTrip.view}`);
-    expect(screen.getByRole("link", { name: openTrip.view })).toHaveAttribute("href", `/trips/${URL}`);
+    expect(submit()).toHaveAccessibleDescription(openTrip.note);
     expect(readOpenTrip()).toBe(URL);
   });
 
   // So the button never flashes on before the check says the trip is gone.
   it("holds it back until the check answers", async () => {
     rememberOpenTrip(URL);
-    mockLookup.mockReturnValue(new Promise(() => {}));
-    await renderReviewStep();
+    mockCheck.mockReturnValue(new Promise(() => {}));
+    await renderForm({ onReview: true });
 
     expect(submit()).toBeDisabled();
-    expect(screen.getByText(openTrip.note, { exact: false })).toBeInTheDocument();
+    expect(notice()).toBeInTheDocument();
   });
 
-  it.each([
-    ["no longer has a row", null],
-    ["was saved since", row(true)],
-  ])("lets the traveller plan when the stored trip %s, and forgets it", async (_, found) => {
+  it("lets the traveller plan when the stored trip is no longer open, and forgets it", async () => {
     rememberOpenTrip(URL);
-    mockLookup.mockResolvedValue(found);
-    await renderReviewStep();
+    mockCheck.mockResolvedValue(false);
+    await renderForm({ onReview: true });
 
     await waitFor(() => expect(submit()).toBeEnabled());
-    expect(screen.queryByText(openTrip.note, { exact: false })).toBeNull();
+    expect(notice()).toBeNull();
     expect(readOpenTrip()).toBeNull();
   });
 
-  // Answered in another tab: the form there frees itself without a reload.
+  // Answered in another tab: the form here frees itself without a reload.
   it("lets the traveller plan once the trip is answered", async () => {
     rememberOpenTrip(URL);
-    mockLookup.mockResolvedValue(row(false));
-    await renderReviewStep();
-    await waitFor(() => expect(mockLookup).toHaveBeenCalled());
+    mockCheck.mockResolvedValue(true);
+    await renderForm({ onReview: true });
+    await waitFor(() => expect(mockCheck).toHaveBeenCalled());
     expect(submit()).toBeDisabled();
 
     act(() => forgetOpenTrip(URL));
 
     expect(submit()).toBeEnabled();
-    expect(screen.queryByRole("link", { name: openTrip.view })).toBeNull();
+    expect(notice()).toBeNull();
+    expect(view()).toBeNull();
   });
 
-  it("checks nothing and blocks nothing when no trip is open", async () => {
-    await renderReviewStep();
+  it("checks nothing and shows nothing when no trip is open", async () => {
+    await renderForm({ onReview: true });
 
     await waitFor(() => expect(submit()).toBeEnabled());
-    expect(mockLookup).not.toHaveBeenCalled();
-    expect(screen.queryByText(openTrip.note, { exact: false })).toBeNull();
+    expect(mockCheck).not.toHaveBeenCalled();
+    expect(notice()).toBeNull();
+    expect(submit()).not.toHaveAttribute("aria-describedby");
   });
 });

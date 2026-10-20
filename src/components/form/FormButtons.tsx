@@ -1,20 +1,19 @@
 "use client";
-import Link from "next/link";
 import { useFormState } from "react-hook-form";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa6";
 import { steps } from "@/data";
 import { useCityCheck, useFormFields, useFormSteps } from "@/hooks/useFormData";
 import { useOpenTrip } from "@/hooks/useOpenTrip";
-import { tripPath } from "@/lib/generation";
-import { buttons, openTrip as openTripCopy } from "./content";
-import { inkPill, limePill, quietButton } from "./styles";
+import { buttons } from "./content";
+import { inkPill, limePill } from "./styles";
 import StartOver from "./StartOver";
+import { OPEN_TRIP_NOTICE } from "./OpenTripNotice";
 
 /**
  * Back and Next, or Back and Submit on the last step. Inside the `<form>`, so
  * Submit is a real submit button; Back and Next are `type="button"` and only
  * move between steps. "Start over" sits beside Back once there is anything to clear.
- * While this browser's last trip is unanswered, Submit is off, with a note and a View to it below.
+ * While this browser's last trip is unanswered, Submit is off, described by `OpenTripNotice`.
  */
 function FormButtons() {
   const { currentStep, next, prev, startOver } = useFormSteps();
@@ -50,7 +49,7 @@ function FormButtons() {
           key="submit"
           type="submit"
           disabled={!isValid || openTrip !== null}
-          aria-describedby={openTrip ? "open-trip-note" : undefined}
+          aria-describedby={openTrip ? OPEN_TRIP_NOTICE : undefined}
           className={`ml-auto ${inkPill}`}
         >
           {buttons.submit}
@@ -67,16 +66,6 @@ function FormButtons() {
           {buttons.next}
           <FaArrowRight size={14} aria-hidden />
         </button>
-      )}
-
-      {/* A row of its own under the pills, after "Start over"'s on a phone. */}
-      {isLast && openTrip && (
-        <p id="open-trip-note" className="order-last w-full text-sm text-sorbet-ink/70 sm:text-right">
-          {openTripCopy.note}{" "}
-          <Link href={tripPath(openTrip)} className={quietButton}>
-            {openTripCopy.view}
-          </Link>
-        </p>
       )}
     </div>
   );

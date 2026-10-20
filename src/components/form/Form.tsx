@@ -13,6 +13,7 @@ import FormStep5 from "./FormStep5";
 import FormStep6 from "./FormStep6";
 import FormStep7 from "./FormStep7";
 import FormButtons from "./FormButtons";
+import OpenTripNotice from "./OpenTripNotice";
 import NotFoundComponent from "../ui/NotFoundComponent";
 import LoaderResponseAI from "../ui/LoaderResponseAI";
 import { failure } from "./content";
@@ -46,6 +47,7 @@ function Form() {
     <div
       className={`overflow-hidden rounded-3xl bg-white p-6 sm:p-10 ${isDraftRestored ? "" : "invisible"}`}
     >
+      <OpenTripNotice />
       <ProgressBar />
       <form onSubmit={handleSubmit(processForm)} noValidate className="mt-10">
         <FormStep1 />

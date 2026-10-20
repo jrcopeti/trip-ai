@@ -881,8 +881,19 @@ its own, in this order (2h is independent and can land any time):
     pushed "Plan my trip" to a second row at 1440), and is the button's `aria-describedby`.
     `forgetOpenTrip` clears only the trip it is given, so answering an older trip's page
     doesn't free a newer one. e2e: `walkAllSteps` takes `{ held: true }`.
-  - Left as is: `getTripByUrl` sends the whole row to the browser for one flag; a narrower
-    action is possible but the row is the one the trip page shows anyway.
+  - **From the first commit's report (2026-10-21):**
+    - **The traveller learns on step 1.** Chosen over disabling Next (a dead form until they
+      answer) and a dialog on opening `/form` (an interruption that, once closable, blocks no
+      more than a notice). `OpenTripNotice` (`form/`), a lavender card above the progress bar on
+      every step: "Your last trip is waiting for an answer…", with a **View trip** pill. Only
+      "Plan my trip" is held back, described by the notice; the note under the pills is gone.
+      Not a live region: it is there on load, not announced later.
+    - **The check reads one flag:** `isTripOpen(tripUrl)` (`db/actions.ts`, `select: { saved:
+      true }`), not `getTripByUrl`, which sent the whole row to the browser.
+    - `GenerationProvider`'s description no longer says the server finishes an aborted call (2g).
+    - Pre-existing and not fixed here: under the full suite, `GenerationContext.test`'s "the
+      planning toast is shown once…" fails about 1 run in 5 (and once a `StartOver.test` case),
+      on `main` too; each passes alone. Worth its own look.
 - **2f · `fix-string-tours`: a list sent as a string no longer loses the trip; longer tours.**
   The bug parked under branch 1, seen twice now (2026-10-15 and 2026-10-16, in dev): despite
   `strict: true`, `submit_trip` sometimes sends `tours` as its JSON text, so `TripDataSchema`

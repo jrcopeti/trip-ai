@@ -108,6 +108,13 @@ export const getTripByUrl = async (tripUrl: string): Promise<Trip | null> => {
   return prisma.trip.findUnique({ where: { tripUrl } });
 };
 
+/** Whether the trip at `tripUrl` exists and is unanswered or discarded; reads only its flag. */
+export const isTripOpen = async (tripUrl: string): Promise<boolean> => {
+  if (!TRIP_URL.test(tripUrl)) return false;
+  const row = await prisma.trip.findUnique({ where: { tripUrl }, select: { saved: true } });
+  return row !== null && !row.saved;
+};
+
 // A Postgres `Int`: anything longer, or not digits, is a Prisma error rather than no row.
 const TRIP_ID = /^[1-9]\d{0,9}$/;
 const MAX_INT = 2_147_483_647;

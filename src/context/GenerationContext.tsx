@@ -42,7 +42,7 @@ const NOTICE = { id: NOTICE_TOAST, duration: 5000 };
 /**
  * Owns the trip generation for the app, from the root providers, so it outlives `/form`: it makes
  * the call, keeps the state in a zustand store, runs each transition's effects and asks before a
- * reload while one is in flight. The server still finishes an aborted call and writes its row.
+ * reload while one is in flight. An aborted call stops on the server too, and writes no row.
  */
 export function GenerationProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();

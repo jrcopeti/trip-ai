@@ -327,16 +327,18 @@ test.describe("trip journey", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await generateTrip(page, HOLDER);
     const tripUrl = page.url();
+    const notice = page.getByText("Your last trip is waiting for an answer.", { exact: false });
 
     // A fresh load of /form, as after a reload: the open trip is this browser's, not the tab's.
+    // The traveller hears of it on step 1, and can still fill the form in.
     await page.goto("/form");
-    await walkAllSteps(page, HOLDER, { held: true });
-    const plan = page.getByRole("button", { name: "Plan my trip" });
-    await expect(page.getByText("Save or discard your last trip before planning another.")).toBeVisible();
-    await expect(plan).toBeDisabled();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Personal information");
+    await expect(notice).toBeVisible();
     await noHorizontalScroll(page);
+    await walkAllSteps(page, HOLDER, { held: true });
+    await expect(notice).toBeVisible();
 
-    await page.getByRole("link", { name: "View", exact: true }).click();
+    await page.getByRole("link", { name: "View trip" }).click();
     await expect(page).toHaveURL(tripUrl);
     await page.getByRole("button", { name: "No, thanks" }).click();
     await expect(page.getByRole("heading", { name: "What next?" })).toBeVisible();
@@ -345,7 +347,7 @@ test.describe("trip journey", () => {
     await page.goto("/form");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Review and submit");
     await expect(page.getByText(HOLDER)).toBeVisible();
-    await expect(plan).toBeEnabled();
-    await expect(page.getByText("Save or discard your last trip before planning another.")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Plan my trip" })).toBeEnabled();
+    await expect(notice).toHaveCount(0);
   });
 });

@@ -4,6 +4,7 @@ import {
   getSavedTripsPage,
   getSingleSavedTrip,
   getTripByUrl,
+  isTripOpen,
   setTripSaved,
 } from "@/db/actions";
 import prisma from "@/db";
@@ -205,6 +206,33 @@ describe("getTripByUrl", () => {
       expect(trip.findUnique).not.toHaveBeenCalled();
     },
   );
+});
+
+describe("isTripOpen", () => {
+  it("reads only the flag, and is true for an unsaved row", async () => {
+    vi.mocked(trip.findUnique).mockResolvedValue({ saved: false } as never);
+
+    await expect(isTripOpen(generatedTripFixture.tripUrl)).resolves.toBe(true);
+    expect(trip.findUnique).toHaveBeenCalledWith({
+      where: { tripUrl: generatedTripFixture.tripUrl },
+      select: { saved: true },
+    });
+  });
+
+  it("is false for a saved row", async () => {
+    vi.mocked(trip.findUnique).mockResolvedValue({ saved: true } as never);
+    await expect(isTripOpen(generatedTripFixture.tripUrl)).resolves.toBe(false);
+  });
+
+  it("is false for a miss", async () => {
+    vi.mocked(trip.findUnique).mockResolvedValue(null);
+    await expect(isTripOpen("ffffffffffff")).resolves.toBe(false);
+  });
+
+  it.each(["0a1b2c", "0A1B2C3D4E5F", "' or 1=1 --"])("is false for %j without a query", async (tripUrl) => {
+    await expect(isTripOpen(tripUrl)).resolves.toBe(false);
+    expect(trip.findUnique).not.toHaveBeenCalled();
+  });
 });
 
 describe("getSingleSavedTrip", () => {

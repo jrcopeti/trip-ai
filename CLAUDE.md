@@ -339,8 +339,9 @@ Two limits, accepted:
 
 **One unanswered trip at a time, per browser.** "Remember the trip" stores its url in
 localStorage (`src/lib/openTrip.ts`); either answer (`useSaveTrip`) clears it. While one is
-stored, `/form`'s review step disables "Plan my trip" with a note and a View to it
-(`useOpenTrip`), which also clears a stored url whose row is gone or saved. It guides, it doesn't
+stored, `/form` shows `OpenTripNotice` above every step, with a View to the trip, and the review
+step disables "Plan my trip"; the form stays usable and its answers wait in the draft.
+`useOpenTrip` asks `isTripOpen` once and clears a stored url whose row is gone or saved. It guides, it doesn't
 guard: a private window gets around it, and the rate limit (branch 3) is the server's guard.
 
 Every custom toast goes through **`showToast`** (`ui/ToastCard.tsx`), which hides a dismissed one
@@ -365,7 +366,7 @@ the forecast.
   `src/components/trips/loadWeather.ts` calls both from `TripPage` at the row's `lat`/`lng`, and
   the weather sections read the promises with `use()` inside their own `<Suspense>`.
 - `src/app/api/geoNamesApi.ts` — `resolvePlace(city, countryCode)`: GeoNames search plus `matchCity` (`src/lib/place.ts`); returns the canonical place or a typed `not-found`/`unavailable`.
-- `src/db/actions.ts` — Prisma server actions: `setTripSaved` (flips an unsaved row's flag, once), `getSavedTripsPage` (18 saved trips per page plus the total, for the "Show more" grid), `getTripByUrl` and `getSingleSavedTrip` (each takes the route's string and returns null for one it could never match), `getLatestSavedTrips` (the landing hero's three newest).
+- `src/db/actions.ts` — Prisma server actions: `setTripSaved` (flips an unsaved row's flag, once), `getSavedTripsPage` (18 saved trips per page plus the total, for the "Show more" grid), `getTripByUrl` and `getSingleSavedTrip` (each takes the route's string and returns null for one it could never match), `isTripOpen` (reads only a row's flag, for `/form`'s open-trip check), `getLatestSavedTrips` (the landing hero's three newest).
 - `src/db/index.ts` — singleton Prisma client.
 
 ### Form data lifecycle
@@ -377,7 +378,7 @@ is kept on the client after the submit.
 
 ### Key custom hooks
 - `useSaveTrip(tripUrl)` — `handleYesAnswer`/`handleNoAnswer` call `setTripSaved(tripUrl, true/false)`; `isAnswered` once one lands, which also clears it as the open trip
-- `useOpenTrip` — this browser's unanswered trip's url, or null; checked once with `getTripByUrl`
+- `useOpenTrip` — this browser's unanswered trip's url, or null; checked once with `isTripOpen`
 - `useFormSteps`, `useFormFields`, `useCityCheck` — `FormContext`'s three memoised contexts,
   so a keystroke in the city re-renders only its readers; `useFormData` reads all three, for tests
 - `useTripGeneration`, `useGenerationState` — the app's trip generation: its actions, and its state by selector (see State management)
