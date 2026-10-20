@@ -4,7 +4,7 @@ import { useSaveTrip } from "@/hooks/useSaveTrip";
 import { setTripSaved } from "@/db/actions";
 import { generatedTripFixture } from "@/test/fixtures";
 import { refresh, resetNextStubs } from "@/test/stubs/next";
-import { readOpenTrip, rememberOpenTrip } from "@/lib/openTrip";
+import { readOpenTrips, rememberOpenTrip } from "@/lib/openTrip";
 
 vi.mock("@/db/actions", () => ({ setTripSaved: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
@@ -56,7 +56,7 @@ describe("useSaveTrip", () => {
     answer();
 
     await waitFor(() => expect(hook.isAnswered).toBe(true));
-    expect(readOpenTrip()).toBeNull();
+    expect(readOpenTrips()).toEqual([]);
   });
 
   it("surfaces a failed write and leaves the question open", async () => {
@@ -67,7 +67,7 @@ describe("useSaveTrip", () => {
 
     await waitFor(() => expect(hook.saveTripError).toBeInstanceOf(Error));
     expect(hook.isAnswered).toBe(false);
-    expect(readOpenTrip()).toBe(tripUrl);
+    expect(readOpenTrips()).toEqual([tripUrl]);
     expect(refresh).not.toHaveBeenCalled();
   });
 

@@ -337,11 +337,12 @@ Two limits, accepted:
   keep the traveller on `/form` meanwhile: it covers the nav, offers no Cancel while opening, and
   its one link leaves `/form`.
 
-**One unanswered trip at a time, per browser.** "Remember the trip" stores its url in
-localStorage (`src/lib/openTrip.ts`); either answer (`useSaveTrip`) clears it. While one is
-stored, `/form` shows `OpenTripNotice` above every step, with a View to the trip, and the review
+**One unanswered trip at a time, per browser.** "Remember the trip" adds its url to a list in
+localStorage (`src/lib/openTrip.ts`; a list, as two tabs can plan at once); either answer
+(`useSaveTrip`) drops it. While one is stored, `/form` shows `OpenTripNotice` above every step,
+with a View to the newest, and the review
 step disables "Plan my trip"; the form stays usable and its answers wait in the draft.
-`useOpenTrip` asks `isTripOpen` once and clears a stored url whose row is gone or saved. It guides, it doesn't
+`useOpenTrip` asks `isTripOpen` once per trip (not again on refocus) and drops one whose row is gone or saved. It guides, it doesn't
 guard: a private window gets around it, and the rate limit (branch 3) is the server's guard.
 
 Every custom toast goes through **`showToast`** (`ui/ToastCard.tsx`), which hides a dismissed one
@@ -378,7 +379,7 @@ is kept on the client after the submit.
 
 ### Key custom hooks
 - `useSaveTrip(tripUrl)` — `handleYesAnswer`/`handleNoAnswer` call `setTripSaved(tripUrl, true/false)`; `isAnswered` once one lands, which also clears it as the open trip
-- `useOpenTrip` — this browser's unanswered trip's url, or null; checked once with `isTripOpen`
+- `useOpenTrip` — this browser's newest unanswered trip's url, or null; each checked once with `isTripOpen`
 - `useFormSteps`, `useFormFields`, `useCityCheck` — `FormContext`'s three memoised contexts,
   so a keystroke in the city re-renders only its readers; `useFormData` reads all three, for tests
 - `useTripGeneration`, `useGenerationState` — the app's trip generation: its actions, and its state by selector (see State management)

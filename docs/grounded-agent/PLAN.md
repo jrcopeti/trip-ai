@@ -894,6 +894,19 @@ its own, in this order (2h is independent and can land any time):
     - Pre-existing and not fixed here: under the full suite, `GenerationContext.test`'s "the
       planning toast is shown once…" fails about 1 run in 5 (and once a `StartOver.test` case),
       on `main` too; each passes alone. Worth its own look.
+  - **Review of `f06a15e`**, all four fixed:
+    - Two tabs could each plan a trip while the other's was in flight, and the second landing
+      replaced the first's url, so the first was untracked. The store is a list now (oldest
+      first, a trip once, capped at 10); `useOpenTrip` checks each and offers the newest still
+      open, then the next once that's answered.
+    - The notice promised kept answers, but the draft is per tab: it says "Your answers stay in
+      this tab." now.
+    - The check no longer refetches on window focus: answers happen in this browser, and other
+      tabs are heard through the `storage` event.
+    - The Cancel e2e's city-check probe matches the action by its "Porto" argument, as the
+      open-trip check also posts to `/form`.
+    - Seen once in the e2e runs, and passing on rerun: `saved-trips.spec`'s "the detail page
+      streams in the weather" (not touched here).
 - **2f · `fix-string-tours`: a list sent as a string no longer loses the trip; longer tours.**
   The bug parked under branch 1, seen twice now (2026-10-15 and 2026-10-16, in dev): despite
   `strict: true`, `submit_trip` sometimes sends `tours` as its JSON text, so `TripDataSchema`

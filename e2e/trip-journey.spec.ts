@@ -290,9 +290,12 @@ test.describe("trip journey", () => {
       await expect.poll(() => request.failure()?.errorText ?? null).not.toBeNull();
       for (let i = 0; i < 5; i++) await page.getByRole("button", { name: "Back" }).click();
       await expect(page.getByRole("heading", { level: 1 })).toHaveText("Destination");
-      const check = page.waitForRequest((r) => r.method() === "POST" && r.url().endsWith("/form"), {
-        timeout: 5000,
-      });
+      // The city check's own action, by its argument: any other action on /form (the open-trip
+      // check) posts there too, and would pass this while the city check sat queued.
+      const check = page.waitForRequest(
+        (r) => r.method() === "POST" && r.url().endsWith("/form") && !!r.postData()?.includes('"Porto"'),
+        { timeout: 5000 },
+      );
       await page.getByRole("textbox", { name: /city/i }).fill("Porto");
       await check;
     } finally {

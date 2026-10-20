@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  MAX_OPEN_TRIPS,
   OPEN_TRIP_KEY,
   forgetOpenTrip,
-  readOpenTrip,
+  readOpenTrips,
   rememberOpenTrip,
   subscribeOpenTrip,
 } from "@/lib/openTrip";
@@ -14,55 +15,79 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("the open trip", () => {
+describe("the open trips", () => {
   it("reads back what was stored", () => {
     rememberOpenTrip(URL);
-    expect(readOpenTrip()).toBe(URL);
+    expect(readOpenTrips()).toEqual([URL]);
   });
 
-  it("is null when nothing was stored", () => {
-    expect(readOpenTrip()).toBeNull();
+  it("are none when nothing was stored", () => {
+    expect(readOpenTrips()).toEqual([]);
   });
 
-  it("keeps only the latest trip", () => {
+  // Two tabs planning at once: neither trip is lost.
+  it("keep every trip, oldest first", () => {
     rememberOpenTrip(URL);
     rememberOpenTrip(NEWER);
-    expect(readOpenTrip()).toBe(NEWER);
+    expect(readOpenTrips()).toEqual([URL, NEWER]);
   });
 
-  it("is gone once that trip is forgotten", () => {
+  it("hold a trip once, as the newest when remembered again", () => {
+    rememberOpenTrip(URL);
+    rememberOpenTrip(NEWER);
+    rememberOpenTrip(URL);
+    expect(readOpenTrips()).toEqual([NEWER, URL]);
+  });
+
+  it(`keep the newest ${MAX_OPEN_TRIPS}`, () => {
+    const urls = Array.from({ length: MAX_OPEN_TRIPS + 2 }, (_, i) => i.toString(16).padStart(12, "0"));
+    urls.forEach(rememberOpenTrip);
+    expect(readOpenTrips()).toEqual(urls.slice(-MAX_OPEN_TRIPS));
+  });
+
+  it("drop only the trip forgotten", () => {
+    rememberOpenTrip(URL);
+    rememberOpenTrip(NEWER);
+    forgetOpenTrip(URL);
+    expect(readOpenTrips()).toEqual([NEWER]);
+  });
+
+  it("leave nothing in storage once the last is forgotten", () => {
     rememberOpenTrip(URL);
     forgetOpenTrip(URL);
-    expect(readOpenTrip()).toBeNull();
+    expect(readOpenTrips()).toEqual([]);
     expect(window.localStorage.getItem(OPEN_TRIP_KEY)).toBeNull();
   });
 
-  // Answering an older trip's page doesn't free a newer one.
-  it("stays when another trip is forgotten", () => {
-    rememberOpenTrip(NEWER);
-    forgetOpenTrip(URL);
-    expect(readOpenTrip()).toBe(NEWER);
+  // `useSyncExternalStore` loops forever on a new array per read.
+  it("read as the same array while storage is unchanged", () => {
+    rememberOpenTrip(URL);
+    expect(readOpenTrips()).toBe(readOpenTrips());
   });
 
   it.each([
-    ["empty", ""],
-    ["not a trip url", "../saved-trips"],
-    ["a url in capitals", "A1B2C3D4E5F6"],
-    ["JSON", JSON.stringify(URL)],
-  ])("is null for a stored value that is %s", (_, raw) => {
+    ["not JSON", "{oops"],
+    ["a bare url", URL],
+    ["an object", JSON.stringify({ url: URL })],
+  ])("are none for a stored value that is %s", (_, raw) => {
     window.localStorage.setItem(OPEN_TRIP_KEY, raw);
-    expect(readOpenTrip()).toBeNull();
+    expect(readOpenTrips()).toEqual([]);
+  });
+
+  it("skip anything in the list that isn't a trip url", () => {
+    window.localStorage.setItem(OPEN_TRIP_KEY, JSON.stringify([URL, "../saved-trips", 42, "A1B2C3D4E5F6"]));
+    expect(readOpenTrips()).toEqual([URL]);
   });
 
   // Blocked storage, private mode, a full quota: nothing is held back.
-  it("never throws when storage does", () => {
+  it("never throw when storage does", () => {
     for (const method of ["getItem", "setItem", "removeItem"] as const) {
       vi.spyOn(Storage.prototype, method).mockImplementation(() => {
         throw new Error("SecurityError");
       });
     }
     expect(() => rememberOpenTrip(URL)).not.toThrow();
-    expect(readOpenTrip()).toBeNull();
+    expect(readOpenTrips()).toEqual([]);
     expect(() => forgetOpenTrip(URL)).not.toThrow();
   });
 

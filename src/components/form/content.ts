@@ -35,7 +35,7 @@ export const buttons = {
 
 /** At the top of every step while this browser's last trip is unanswered. */
 export const openTrip = {
-  note: "Your last trip is waiting for an answer. Save or discard it before planning another; your answers here are kept.",
+  note: "Your last trip is waiting for an answer. Save or discard it before planning another. Your answers stay in this tab.",
   view: "View trip",
 };
 
