@@ -1,9 +1,11 @@
 import type { TripRequest } from "@/lib/agent/request";
 
+// `generateTrip`'s format: 12 hex characters.
+const TRIP_URL = /^[0-9a-f]{12}$/;
+
 /**
- * Asks `POST /api/trip` for a trip and resolves to its url; `signal` aborts the wait. A route,
- * not a server action: Next runs server actions one at a time, so a cancelled one would hold
- * every later one (the city check, the next try) until the server finished it.
+ * Asks `POST /api/trip` for a trip and resolves to its url; `signal` aborts the request. Rejects
+ * on an error status, or on a success without a well-formed url.
  */
 export async function requestTrip(
   request: TripRequest,
@@ -16,5 +18,9 @@ export async function requestTrip(
     signal,
   });
   if (!response.ok) throw new Error(`The trip could not be generated (${response.status})`);
-  return response.json();
+  const { tripUrl } = await response.json();
+  if (typeof tripUrl !== "string" || !TRIP_URL.test(tripUrl)) {
+    throw new Error("The trip's url was not in the answer");
+  }
+  return { tripUrl };
 }

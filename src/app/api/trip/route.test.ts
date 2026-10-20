@@ -7,8 +7,14 @@ vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 
 const mockGenerate = vi.mocked(generateTrip);
 
-const post = (body: string) =>
-  POST(new Request("http://localhost/api/trip", { method: "POST", body }));
+const post = (body: string, headers: Record<string, string> = {}) =>
+  POST(
+    new Request("http://localhost/api/trip", {
+      method: "POST",
+      body,
+      headers: { host: "localhost", "content-type": "application/json", ...headers },
+    }),
+  );
 
 beforeEach(() => {
   mockGenerate.mockReset();
@@ -34,6 +40,41 @@ describe("POST /api/trip", () => {
     expect(response.status).toBe(500);
     expect(await response.json()).toEqual({ error: "The trip could not be generated" });
     expect(console.error).toHaveBeenCalled();
+  });
+
+  // A cross-site page's simple request (text/plain, no preflight) must not run a generation.
+  it("answers 415 to a body not sent as JSON, without generating", async () => {
+    const response = await post(JSON.stringify(validTripRequest), { "content-type": "text/plain" });
+
+    expect(response.status).toBe(415);
+    expect(mockGenerate).not.toHaveBeenCalled();
+  });
+
+  it("answers 403 to a request from another origin, without generating", async () => {
+    const response = await post(JSON.stringify(validTripRequest), { origin: "https://elsewhere.example" });
+
+    expect(response.status).toBe(403);
+    expect(mockGenerate).not.toHaveBeenCalled();
+  });
+
+  it("accepts its own origin, and the forwarded host a proxy sets", async () => {
+    mockGenerate.mockResolvedValue(generatedTripFixture);
+
+    const own = await post(JSON.stringify(validTripRequest), { origin: "http://localhost" });
+    const proxied = await post(JSON.stringify(validTripRequest), {
+      origin: "https://trip.example",
+      "x-forwarded-host": "trip.example",
+    });
+
+    expect(own.status).toBe(200);
+    expect(proxied.status).toBe(200);
+  });
+
+  it("answers 400 to JSON that isn't a valid trip request, without generating", async () => {
+    const response = await post(JSON.stringify({ ...validTripRequest, travellers: "a crowd" }));
+
+    expect(response.status).toBe(400);
+    expect(mockGenerate).not.toHaveBeenCalled();
   });
 
   it("answers 400 to a body that isn't JSON, without generating", async () => {

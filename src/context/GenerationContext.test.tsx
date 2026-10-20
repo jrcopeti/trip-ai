@@ -425,18 +425,16 @@ describe("GenerationProvider", () => {
     expect(removeListener).toHaveBeenCalledWith("beforeunload", expect.any(Function));
   });
 
-  // The draft is gone by then, and only this page knows where the trip went.
-  it("still asks before a reload while a trip landed on /form is on its way", async () => {
+  // A prompt can't tell a reload from the app's own redirect falling back to a full load.
+  it("stops asking once the trip has landed, while it's on its way too", async () => {
     const removeListener = vi.spyOn(window, "removeEventListener");
     const call = heldCall();
-    const { visit } = renderAt("/form");
+    renderAt("/form");
     await start();
 
     await call.land();
-    expect(ctx.state.trip).toEqual({ kind: "opening", tripUrl: trip.tripUrl });
-    expect(removeListener).not.toHaveBeenCalledWith("beforeunload", expect.any(Function));
 
-    visit(`/trips/${trip.tripUrl}`);
+    expect(ctx.state.trip).toEqual({ kind: "opening", tripUrl: trip.tripUrl });
     expect(removeListener).toHaveBeenCalledWith("beforeunload", expect.any(Function));
   });
 

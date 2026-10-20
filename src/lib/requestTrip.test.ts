@@ -20,6 +20,12 @@ describe("requestTrip", () => {
     expect(JSON.parse(init.body)).toEqual(validTripRequest);
   });
 
+  it("rejects a success without a trip url, rather than open /trips/undefined", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ ok: true })));
+
+    await expect(requestTrip(validTripRequest, new AbortController().signal)).rejects.toThrow();
+  });
+
   it("rejects on an error status", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({}, { status: 500 })));
 

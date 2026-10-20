@@ -10,7 +10,6 @@ import { failure } from "@/components/form/content";
 import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
 import {
   idleGeneration,
-  isLoading,
   transition,
   tripPath,
   type GenerationAction,
@@ -41,7 +40,7 @@ const NOTICE = { id: NOTICE_TOAST, duration: 5000 };
 /**
  * Owns the trip generation for the app, from the root providers, so it outlives `/form`: it makes
  * the call, keeps the state in a zustand store, runs each transition's effects and asks before a
- * reload while `/form` would load. The server still finishes an aborted call (2g stops that).
+ * reload while one is in flight. An aborted call is abandoned by the browser, not the server.
  */
 export function GenerationProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -107,8 +106,9 @@ export function GenerationProvider({ children }: { children: React.ReactNode }) 
     return { context: { store, actions }, dispatch };
   });
 
-  // While a trip is on its way too: the draft is gone, and only this page knows where it went.
-  useConfirmOnPageExit(useStore(context.store, isLoading));
+  // Only in flight: a prompt can't tell a reload from the app's own redirect falling back to a
+  // full load, and a landed trip's url is the toast's to keep (2e-g stores it).
+  useConfirmOnPageExit(useStore(context.store, (state) => state.pending !== null));
 
   useEffect(() => {
     dispatch({ type: "route", pathname });

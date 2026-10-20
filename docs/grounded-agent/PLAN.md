@@ -798,6 +798,16 @@ its own, in this order (2h is independent and can land any time):
       hygiene test forbids every direct `toast(…)` maker, not only `toast.custom`.
     - CLAUDE.md's accepted limits add that a landing read against the old route can bring the
       cleared draft back.
+    From the review of the fix commits:
+    - The route rejects what a server action would: 415 unless `application/json` (so a
+      cross-site page can't send it without a failing preflight) and 403 from another origin.
+      It checks the body with `TripRequestSchema` first, so a bad request is a 400, not a 500.
+    - `requestTrip` rejects a success without a 12-hex `tripUrl`, rather than open `/trips/undefined`.
+    - The reload warning is back to "in flight" only: a prompt can't tell a reload from the
+      app's own redirect falling back to a full load (after a deploy), and a landed trip's url
+      is 2e-g's to keep across reloads.
+    - `TRIP_TOAST`'s id is "trip-generation-trip"; `GenerationToast` keeps each card in a ref, so
+      its effects depend on `[id, key]` only.
 - **2e-g · `one-open-trip`: one unanswered trip at a time, per browser.** From 2e-f's review.
   With the result toast capped at one, a traveller could generate trip after trip without ever
   looking at them. Rule: while a trip they generated is unanswered (neither "Yes, save it" nor

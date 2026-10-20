@@ -9,7 +9,7 @@ import ToastCard from "./ToastCard";
 export const PLANNING_TOAST = "trip-generation";
 
 /** The last trip that landed off `/form`: one at most, a newer one replacing it. */
-export const TRIP_TOAST = "trip-generation-result";
+export const TRIP_TOAST = "trip-generation-trip";
 
 /** The last failure, off `/form`. Its own id, so it never displaces the trip's toast. */
 export const FAILURE_TOAST = "trip-generation-failure";

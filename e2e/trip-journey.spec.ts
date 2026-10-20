@@ -253,9 +253,15 @@ test.describe("trip journey", () => {
     await page.goto("/form");
     await walkAllSteps(page, CANCELLER);
 
-    // Held for good, so Cancel is pressed while the generation is still pending.
-    await page.route("**/api/trip", () => new Promise(() => {}));
-    const aborted = page.waitForEvent("requestfailed", (r) => r.url().endsWith("/api/trip"));
+    // Held, so Cancel is pressed while the generation is still pending; released at the end.
+    let release = () => {};
+    const held = new Promise<void>((r) => (release = r));
+    await page.route("**/api/trip", async (route) => {
+      await held;
+      // The page aborted it by then, so there's nothing left to continue.
+      await route.continue().catch(() => {});
+    });
+    const generation = page.waitForRequest((r) => r.url().endsWith("/api/trip"));
     await page.getByRole("button", { name: "Plan my trip" }).click();
     // Out and back through the planning toast's View: the toast leaves from under the cursor.
     await page.getByRole("link", { name: "Browse saved trips" }).click();
@@ -275,7 +281,8 @@ test.describe("trip journey", () => {
 
     // The request is aborted, not left running: nothing lands, and the form's own server
     // actions (the city check) aren't queued behind it, as they would be behind a server action.
-    await aborted;
+    const request = await generation;
+    await expect.poll(() => request.failure()?.errorText ?? null).not.toBeNull();
     for (let i = 0; i < 5; i++) await page.getByRole("button", { name: "Back" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Destination");
     const check = page.waitForRequest((r) => r.method() === "POST" && r.url().endsWith("/form"), {
@@ -283,6 +290,7 @@ test.describe("trip journey", () => {
     });
     await page.getByRole("textbox", { name: /city/i }).fill("Porto");
     await check;
+    release();
     await expect(page).toHaveURL(/\/form$/);
     await expect(page.getByText("Your trip has been generated!")).toBeHidden();
   });
