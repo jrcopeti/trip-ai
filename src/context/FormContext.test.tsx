@@ -16,8 +16,7 @@ const generateTrip = vi.fn();
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
 vi.mock("@/hooks/useTripGeneration", () => ({
-  generateTripKey: ["generateTrip"],
-  useTripGeneration: () => ({ generateTrip, isPending: false, error: null, reset: vi.fn() }),
+  useTripGeneration: () => ({ generateTrip }),
 }));
 vi.mock("@/app/api/geoNamesApi", () => ({ resolvePlace: vi.fn() }));
 vi.mock("@/hooks/useCountries", () => ({

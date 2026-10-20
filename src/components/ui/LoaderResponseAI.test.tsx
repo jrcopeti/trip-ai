@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, cleanup, renderWithProviders, screen } from "@/test/render";
+import { act, cleanup, fireEvent, renderWithProviders, screen } from "@/test/render";
 import LoaderResponseAI from "@/components/ui/LoaderResponseAI";
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
@@ -84,13 +84,13 @@ afterEach(() => {
 
 describe("LoaderResponseAI", () => {
   it("opens on the first message", () => {
-    renderWithProviders(<LoaderResponseAI />);
+    renderWithProviders(<LoaderResponseAI onCancel={() => {}} />);
 
     expect(screen.getByRole("heading")).toHaveTextContent(messages[0]);
   });
 
   it("rotates through the messages in order", async () => {
-    renderWithProviders(<LoaderResponseAI />);
+    renderWithProviders(<LoaderResponseAI onCancel={() => {}} />);
 
     for (const message of messages) {
       await advanceUntil(message);
@@ -98,7 +98,7 @@ describe("LoaderResponseAI", () => {
   }, WALK_TIMEOUT);
 
   it("wraps back to the first message after the last", async () => {
-    renderWithProviders(<LoaderResponseAI />);
+    renderWithProviders(<LoaderResponseAI onCancel={() => {}} />);
 
     for (const message of messages.slice(1)) {
       await advanceUntil(message);
@@ -107,7 +107,7 @@ describe("LoaderResponseAI", () => {
   }, WALK_TIMEOUT);
 
   it("splits the sentence into words without changing what it reads as", () => {
-    const { container } = renderWithProviders(<LoaderResponseAI />);
+    const { container } = renderWithProviders(<LoaderResponseAI onCancel={() => {}} />);
 
     const heading = screen.getByRole("heading");
     expect(heading).toHaveTextContent(messages[0]);
@@ -119,21 +119,45 @@ describe("LoaderResponseAI", () => {
   });
 
   it("keeps its decoration out of the accessibility tree", () => {
-    renderWithProviders(<LoaderResponseAI />);
+    renderWithProviders(<LoaderResponseAI onCancel={() => {}} />);
 
     // The squiggle and the sticker are aria-hidden; only the message is read.
     const ring = screen.getAllByText(/packing up/i)[0];
     expect(ring.closest("[aria-hidden]")).not.toBeNull();
   });
 
-  it("warns before the page is abandoned mid-generation", () => {
-    const addEventListener = vi.spyOn(window, "addEventListener");
+  it("says the traveller can leave, and what ends the generation", () => {
+    renderWithProviders(<LoaderResponseAI onCancel={() => {}} />);
+
+    expect(
+      screen.getByText(
+        "You can keep browsing while we plan your trip but reloading or closing the tab stops it.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("offers no Cancel when there is nothing to cancel", () => {
     renderWithProviders(<LoaderResponseAI />);
 
-    // useConfirmOnPageExit: leaving now loses the way to the trip being written.
-    expect(addEventListener).toHaveBeenCalledWith(
-      "beforeunload",
-      expect.any(Function),
+    expect(screen.queryByRole("button", { name: "Cancel" })).toBeNull();
+    expect(screen.getByRole("link", { name: "Browse saved trips" })).toBeInTheDocument();
+  });
+
+  it("cancels the generation from its Cancel button", () => {
+    const onCancel = vi.fn();
+    renderWithProviders(<LoaderResponseAI onCancel={onCancel} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+
+  it("offers a way out to keep browsing, since it covers the nav", () => {
+    renderWithProviders(<LoaderResponseAI onCancel={() => {}} />);
+
+    expect(screen.getByRole("link", { name: "Browse saved trips" })).toHaveAttribute(
+      "href",
+      "/saved-trips",
     );
   });
 });

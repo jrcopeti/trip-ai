@@ -5,12 +5,12 @@ import { LIMITS } from "@/lib/schema";
 
 import { TextField, Label, Input, Description, FieldError } from "@heroui/react";
 import { Controller } from "react-hook-form";
-import toast from "react-hot-toast";
 
 import StepPanel from "./StepPanel";
 import CountryComboBox from "./CountryComboBox";
 import CustomToaster from "../ui/CustomToaster";
 import ErrorToaster from "../ui/ErrorToaster";
+import { showToast } from "../ui/ToastCard";
 import SquiggleLoader from "@/components/sorbet/SquiggleLoader";
 import { destination } from "./content";
 import { field, fieldError, fieldInput, fieldLabel } from "./styles";
@@ -34,11 +34,11 @@ function FormStep2() {
     announced.current = message;
 
     if (isCityValid && !isLoadingCityValid && currentStep === 1) {
-      toast.custom(<CustomToaster message={message} />);
+      showToast(<CustomToaster message={message} />);
     }
 
     if (!isCityValid && !isLoadingCityValid && message) {
-      toast.custom(<ErrorToaster message={message} />);
+      showToast(<ErrorToaster message={message} />);
     }
   }, [isCityValid, isLoadingCityValid, message, currentStep]);
 

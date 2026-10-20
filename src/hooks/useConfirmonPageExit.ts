@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 
 /**
- * Asks before the page is left, for as long as the caller is mounted: the generation
- * loader, since leaving drops the redirect to the trip the server is still writing.
+ * Asks before the page is left while `isActive`: a generation in flight, since a reload or
+ * a closed tab ends the page's JS and with it the way to the trip the server is writing.
  */
-export function useConfirmOnPageExit() {
+export function useConfirmOnPageExit(isActive: boolean) {
   useEffect(() => {
+    if (!isActive) return;
+
     const handler = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       e.returnValue = "";
@@ -16,5 +18,5 @@ export function useConfirmOnPageExit() {
     return () => {
       window.removeEventListener("beforeunload", handler);
     };
-  }, []);
+  }, [isActive]);
 }

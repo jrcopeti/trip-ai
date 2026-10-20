@@ -73,9 +73,6 @@ const FormFieldsContext = createContext<FormFieldsContextType>({
   setValue: () => {},
   isWeatherSelected: false,
   setIsWeatherSelected: () => {},
-  isGenerationPending: false,
-  generationError: null,
-  resetGeneration: () => {},
 });
 
 const CityCheckContext = createContext<CityCheckContextType>({
@@ -134,12 +131,7 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     name: "requiredItems",
   });
 
-  const {
-    generateTrip,
-    isPending: isGenerationPending,
-    error: generationError,
-    reset: resetGeneration,
-  } = useTripGeneration();
+  const { generateTrip } = useTripGeneration();
 
   const { countries } = useCountries();
 
@@ -253,9 +245,6 @@ function FormProvider({ children }: { children: React.ReactNode }) {
       setValue,
       isWeatherSelected,
       setIsWeatherSelected,
-      isGenerationPending,
-      generationError,
-      resetGeneration,
     }),
     // `formState` stands in for `errors` and `isValid` (see above).
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -271,9 +260,6 @@ function FormProvider({ children }: { children: React.ReactNode }) {
       remove,
       setValue,
       isWeatherSelected,
-      isGenerationPending,
-      generationError,
-      resetGeneration,
     ],
   );
 

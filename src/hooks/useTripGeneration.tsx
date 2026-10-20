@@ -1,43 +1,24 @@
 "use client";
+import { useContext } from "react";
+import { useStore } from "zustand";
+import { GenerationContext, type GenerationActions } from "@/context/GenerationContext";
+import type { GenerationState } from "@/lib/generation";
 
-import { generateTrip } from "@/app/api/anthropicApi";
-import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
-import ErrorToaster from "@/components/ui/ErrorToaster";
-import CustomToaster from "@/components/ui/CustomToaster";
-import type { TripRequest } from "@/lib/agent/request";
-import { clearFormDraft } from "@/lib/formDraft";
-
-// Keyed so `Form` can see a generation that outlived the provider: one left running
-// when the traveller left /form still redirects when it lands.
-const generateTripKey = ["generateTrip"];
-
-/** Sends the trip request; `FormProvider` runs it once and hands `Form` its error. */
-function useTripGeneration() {
-  const router = useRouter();
-
-  const { mutate, isPending, error, reset } = useMutation({
-    mutationKey: generateTripKey,
-    mutationFn: (request: TripRequest) => generateTrip(request),
-
-    // The server wrote the row and chose its url; the trip page reads it from there.
-    // The answers are spent, so the draft goes; a failure keeps it for another try.
-    onSuccess: (trip) => {
-      clearFormDraft();
-      toast.custom(<CustomToaster message="Your trip has been generated!" />);
-      router.replace(`/trips/${trip.tripUrl}`);
-    },
-
-    onError: (error) => {
-      console.error(error);
-      toast.custom(
-        <ErrorToaster message="There was an error generating your trip. Please try again." />,
-      );
-    },
-  });
-
-  return { generateTrip: mutate, isPending, error, reset };
+function useGenerationContext() {
+  const value = useContext(GenerationContext);
+  if (!value) throw new Error("The trip generation needs GenerationProvider (the root providers)");
+  return value;
 }
 
-export { useTripGeneration, generateTripKey };
+/** The calls that change the app's trip generation; stable, so reading them re-renders nothing. */
+export function useTripGeneration(): GenerationActions {
+  return useGenerationContext().actions;
+}
+
+/**
+ * The part of the generation's state `selector` picks; re-renders only when that changes.
+ * `selector` returns a primitive or a piece of the state, never a new object.
+ */
+export function useGenerationState<T>(selector: (state: GenerationState) => T): T {
+  return useStore(useGenerationContext().store, selector);
+}

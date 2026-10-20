@@ -1,7 +1,7 @@
 "use client";
 
-import { useIsMutating } from "@tanstack/react-query";
-import { generateTripKey } from "@/hooks/useTripGeneration";
+import { useGenerationState, useTripGeneration } from "@/hooks/useTripGeneration";
+import { isLoading } from "@/lib/generation";
 import { useFormFields, useFormSteps } from "@/hooks/useFormData";
 
 import ProgressBar from "./Progress";
@@ -18,25 +18,25 @@ import LoaderResponseAI from "../ui/LoaderResponseAI";
 import { failure } from "./content";
 
 function Form() {
-  const { handleSubmit, processForm, isGenerationPending, generationError, resetGeneration } =
-    useFormFields();
+  const { handleSubmit, processForm } = useFormFields();
   const { isDraftRestored } = useFormSteps();
-  // Also one from before /form last unmounted: the form behind it would send a second trip.
-  const isGenerating = useIsMutating({ mutationKey: generateTripKey }) > 0;
+  // The app's generation, not this form's: one started before /form last unmounted counts too.
+  const { cancel, clearFailure } = useTripGeneration();
+  // Through the redirect too: a trip on its way keeps the loader, not the spent form, on screen.
+  const loading = useGenerationState(isLoading);
+  const inFlight = useGenerationState((state) => state.pending !== null);
+  const failed = useGenerationState((state) => state.failure !== null);
 
-  if (isGenerationPending || isGenerating) {
-    return <LoaderResponseAI />;
+  if (loading) {
+    // While the trip is on its way to its page there's nothing left to cancel.
+    return <LoaderResponseAI onCancel={inFlight ? cancel : undefined} />;
   }
 
-  if (generationError) {
-    // Clearing the error shows the form again, still on the review step with
-    // every answer: it is cleared only when a trip comes back.
+  if (failed) {
+    // "Try again" shows the form again, on the review step with every answer: the draft
+    // is cleared only when a trip comes back.
     return (
-      <NotFoundComponent
-        message={failure.message}
-        button={failure.button}
-        onAction={resetGeneration}
-      />
+      <NotFoundComponent message={failure.message} button={failure.button} onAction={clearFailure} />
     );
   }
 

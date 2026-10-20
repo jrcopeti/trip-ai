@@ -27,6 +27,8 @@ loadEnvConfig(process.cwd());
 /** Names only this spec uses, so its rows are the only ones it touches. */
 const SAVER = "Journeysave";
 const DISCARDER = "Journeydiscard";
+const LEAVER = "Journeyleave";
+const CANCELLER = "Journeycancel";
 
 test.skip(
   !!process.env.PLAYWRIGHT_BASE_URL,
@@ -41,7 +43,7 @@ async function deleteOwnRows() {
   const prisma = new PrismaClient();
   try {
     await prisma.trip.deleteMany({
-      where: { userName: { in: [SAVER, DISCARDER].map((n) => n.toLowerCase()) } },
+      where: { userName: { in: [SAVER, DISCARDER, LEAVER, CANCELLER].map((n) => n.toLowerCase()) } },
     });
   } finally {
     await prisma.$disconnect();
@@ -190,5 +192,108 @@ test.describe("trip journey", () => {
     await page.goto("/saved-trips");
     await searchSavedTrips(page, DISCARDER);
     await expect(page.getByText("No trips found")).toBeVisible();
+  });
+
+  test("leaving mid-generation keeps it, and a toast opens the trip", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await stubLookups(page);
+    // A soft navigation into /form, so the page's JS keeps running throughout.
+    await page.goto("/about");
+    await page.getByRole("link", { name: "New trip" }).first().click();
+    await expect(page).toHaveURL(/\/form$/);
+    await walkAllSteps(page, LEAVER);
+
+    // Generation is a POST to /api/trip; hold it until the traveller is away.
+    let release = () => {};
+    const held = new Promise<void>((r) => (release = r));
+    await page.route("**/api/trip", async (route) => {
+      await held;
+      await route.continue();
+    });
+    await page.getByRole("button", { name: "Plan my trip" }).click();
+    await expect(
+      page.getByText("You can keep browsing while we plan your trip but reloading or closing the tab stops it."),
+    ).toBeVisible();
+
+    // The loader covers the nav; its link is the way out, a soft navigation.
+    await page.getByRole("link", { name: "Browse saved trips" }).click();
+    await expect(page).toHaveURL(/\/saved-trips$/);
+    const planning = page.getByRole("status").filter({ hasText: "Your trip is being planned" });
+    await expect(planning).toBeVisible();
+    await expect(planning.getByRole("button", { name: "Cancel" })).toBeVisible();
+    await noHorizontalScroll(page);
+
+    // The planning toast's View goes back to the loader; the toast gives way to it there.
+    await planning.getByRole("link", { name: "View" }).click();
+    await expect(page).toHaveURL(/\/form$/);
+    await expect(page.getByRole("link", { name: "Browse saved trips" })).toBeVisible();
+    await expect(planning).toBeHidden();
+    // By what's drawn, not the accessibility tree: the dismissed card stays in the page 1s.
+    await expect(page.getByText("Your trip is being planned")).toBeHidden();
+    await page.getByRole("link", { name: "Browse saved trips" }).click();
+    await expect(page).toHaveURL(/\/saved-trips$/);
+    await expect(planning).toBeVisible();
+
+    release();
+    const ready = page.getByRole("status").filter({ hasText: "Your trip has been generated!" });
+    const view = ready.getByRole("link", { name: "View" });
+    await expect(view).toBeVisible();
+    // Nobody is moved without asking.
+    await expect(page).toHaveURL(/\/saved-trips$/);
+
+    await view.click();
+    await expect(page).toHaveURL(/\/trips\/[0-9a-f]{12}$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(tripDataFixture.title!);
+    await expect(view).toBeHidden();
+  });
+
+  test("the loader's Cancel goes back to the review step, answers kept, and its toast goes", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await stubLookups(page);
+    await page.goto("/form");
+    await walkAllSteps(page, CANCELLER);
+
+    // Held, so Cancel is pressed while the generation is still pending.
+    let release = () => {};
+    const held = new Promise<void>((r) => (release = r));
+    await page.route("**/api/trip", async (route) => {
+      await held;
+      // The page aborted it by then, so there's nothing left to continue.
+      await route.continue().catch(() => {});
+    });
+    // Released however the test ends, so no handler is left waiting through teardown.
+    try {
+      const generation = page.waitForRequest((r) => r.url().endsWith("/api/trip"));
+      await page.getByRole("button", { name: "Plan my trip" }).click();
+      // Out and back through the planning toast's View: the toast leaves from under the cursor.
+      await page.getByRole("link", { name: "Browse saved trips" }).click();
+      await page
+        .getByRole("status")
+        .filter({ hasText: "Your trip is being planned" })
+        .getByRole("link", { name: "View" })
+        .click();
+      await page.getByRole("button", { name: "Cancel" }).click();
+
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText("Review and submit");
+      await expect(page.getByText(CANCELLER)).toBeVisible();
+      const cancelled = page.getByRole("alert").filter({ hasText: "Your trip was cancelled" });
+      await expect(cancelled).toBeVisible();
+      // Shows and goes, as every timed toast must.
+      await expect(cancelled).toBeHidden({ timeout: 9000 });
+
+      // The request is aborted, so nothing can land (a stale landing is the unit tables' to pin),
+      // and the form's own server actions (the city check) aren't queued behind it.
+      const request = await generation;
+      await expect.poll(() => request.failure()?.errorText ?? null).not.toBeNull();
+      for (let i = 0; i < 5; i++) await page.getByRole("button", { name: "Back" }).click();
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText("Destination");
+      const check = page.waitForRequest((r) => r.method() === "POST" && r.url().endsWith("/form"), {
+        timeout: 5000,
+      });
+      await page.getByRole("textbox", { name: /city/i }).fill("Porto");
+      await check;
+    } finally {
+      release();
+    }
   });
 });

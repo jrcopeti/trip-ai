@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
+import Link from "next/link";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { TbBackpack } from "react-icons/tb";
 
 import SquiggleLoader from "@/components/sorbet/SquiggleLoader";
 import StickerBadge from "@/components/sorbet/StickerBadge";
+import { generation } from "@/components/form/content";
+import { inkPill, limePill } from "@/components/form/styles";
 
 const messages = [
   "Planning your trip",
@@ -55,9 +57,12 @@ const word: Variants = {
   },
 };
 
-function LoaderResponseAI() {
+/**
+ * Covers `/form` while a trip is generated: rotating messages, a note that the traveller may
+ * leave, Cancel when there's a generation to cancel (`onCancel`), and a way out to saved trips.
+ */
+function LoaderResponseAI({ onCancel }: { onCancel?: () => void }) {
   const [index, setIndex] = useState(0);
-  useConfirmOnPageExit();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -98,6 +103,20 @@ function LoaderResponseAI() {
               ))}
             </motion.h2>
           </AnimatePresence>
+        </div>
+        <p className="max-w-md text-balance text-center text-base text-sorbet-ink/70">
+          {generation.loaderNote}
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          {onCancel && (
+            <button type="button" onClick={onCancel} className={limePill}>
+              {generation.cancel}
+            </button>
+          )}
+          {/* A soft navigation, so the page's JS and the generation keep running. */}
+          <Link href="/saved-trips" className={inkPill}>
+            {generation.loaderLink}
+          </Link>
         </div>
       </div>
 

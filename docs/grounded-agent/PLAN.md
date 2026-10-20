@@ -666,6 +666,212 @@ its own, in this order (2h is independent and can land any time):
   - Tests: the toast off `/form` and not on it; View opens the trip; Stop means nothing on arrival;
     a failure shows the failure toast; the toast at 390 and by keyboard. e2e: submit, Back, the
     toast shows, View opens the trip.
+  - **Status: done on `background-generation`, staged, not committed.** One branch, no split:
+    a single concern. As built: `GenerationToast` (`ui/`, in the root providers) watches
+    `useIsMutating` on `generateTripKey` and `usePathname`; while one is pending off `/form` it
+    shows `PlanningToast` under one toast id, and dismisses it on `/form`. The stages
+    (`GenerationToasts.tsx`: planning, ready, failed) replace each other in place under that id;
+    ready and failed stay until dismissed. `useTripGeneration`'s `onSuccess`/`onError` decide by
+    `window.location.pathname`, since the provider that started the call may be unmounted and its
+    `usePathname` stale: on `/form`, as before; elsewhere, the ready or failed toast. A trip that
+    lands anywhere clears the draft; a failure keeps it, so "Back to the form" reopens the review
+    step filled in. `stopGeneration` marks the request (a `WeakSet` keyed by the request object;
+    the mutation's own `onSuccess` still runs after removal) and removes the mutation; a stopped
+    one keeps its draft. `useConfirmOnPageExit(isActive)` moved from the loader to
+    `GenerationToast`, so a reload asks while a generation is pending on any route, not only on
+    the loader. The loader carries the plan's note under the message. Copy in
+    `form/content.ts` (`generation`).
+    Tests: `GenerationToast.test` (planning off `/form`, nothing on it, ready without moving,
+    Stop by keyboard then nothing on arrival, `beforeunload` only while pending);
+    `useTripGeneration.test` (off `/form`: ready toast, draft cleared, failure toast with the
+    draft kept; stopped: nothing on success or failure, draft kept). e2e (journey, 390): `/about`
+    → New trip → submit with the POST held → "Browse saved trips" → planning toast with Stop → release → View,
+    still on `/saved-trips` → the trip. Checked in the browser at 1440, 768 and 390 with reduced motion:
+    planning, ready, failed → back to step 7 with the answers, Stop then a reload that no longer
+    asks.
+    From review: the loader covers the nav, so the note's "keep browsing" had no way out but the
+    browser's Back. The loader now has a quiet "Browse saved trips" link under the note, a soft
+    navigation; the e2e leaves through it.
+    Changes after the first commit: the planning toast has **View** beside Stop, back to `/form`
+    and its loader. Stop replaces it with "Your trip was cancelled" (an alert, 5s). A trip that
+    lands says "Your trip has been generated!" everywhere: with View, unless the traveller is on
+    that trip's page or is being sent there from `/form`. Off `/form` it stays until dismissed.
+    The loader's note reads "You can keep browsing while we plan your trip but reloading or
+    closing the tab stops it." Stop marks the request object, so tests send a copy of the shared
+    fixture per call. e2e: the planning toast's View reaches the loader, and the journey leaves again.
+    From the review of both commits (the two findings about Next queueing server actions were
+    refuted in the browser: a search answered in 1s while the generation was held 15s):
+    - Accepted, not fixed: the redirect-or-toast choice reads `window.location`, which changes
+      only once a navigation commits. A trip landing in the few hundred milliseconds after the
+      loader's "Browse saved trips" is clicked still opens the trip. Rare, harmless (the traveller
+      lands on their new trip), and a fix meant a module-level flag tying the loader to the hook.
+    - The finished trip's toast has its own id (`RESULT_TOAST`): starting the next trip on `/form`
+      no longer dismisses it, and a newer result replaces it, so there is one at most. The planning
+      card is removed, not dismissed, when the result arrives, so two View links never overlap.
+    - The planning toast is shown once per generation, not re-created on each route.
+    - Stop marks the generation (a token from `onMutate`), not the request object; the tests'
+      copies went. The on-`/form` failure toast reads `failure.message`.
+    - The planning toast's Stop button is labelled **Cancel**, matching "Your trip was cancelled";
+      the code keeps `stopGeneration`.
+    - `ToastCard` (`ui/`) is the one toast card; `CustomToaster` and `ErrorToaster` wrap it,
+      without their own fade. (react-hot-toast animates only its built-in toasts; a custom one
+      appears and leaves unanimated. A shared fade on `ToastCard` is possible follow-up work.)
+    From the third review:
+    - A stop in the instant after `mutate`, before TanStack runs its callbacks, still counts: the
+      token is created at the call site and sent in the variables (`{ request, token }`), which
+      TanStack stores as the call starts. `onMutate` and its guard are gone.
+    - Back on `/form`, the planning toast is dismissed, and at once hidden (`opacity-0`) and `inert`
+      for react-hot-toast's 1s remove delay, so its Cancel is neither seen nor reached over the
+      loader. A dismissed custom toast isn't animated out. (Removing it instead, as first done here, broke
+      every later toast: the Toaster pauses on `mouseenter`, and a toast removed under the cursor
+      after View gets no `mouseleave`, so "Your trip was cancelled" never left.)
+    - The ready toast carries a green check in a message square (`BiMessageSquareCheck`, the
+      family of the info and alert glyphs; `ToastCard`'s `success` tone, `sorbet-success`).
+    - Accepted, not fixed: a failure after the traveller returned to the loader through View
+      shows the review step with the answers restored and the failure toast, not the "Try again"
+      panel; the fresh form never ran the call, so it has no error. They submit again from there.
+      Fixing it meant reading errors from the shared cache and clearing them on "Try again".
+    - Parked as its own branch: screen readers may not announce a toast whose `role="status"`
+      region arrives already filled. Every toast is affected (the city check too), and before
+      2e-f none had a live region. Fix: one permanent announcement region in the root providers.
+    From trying it in the browser:
+    - The ready toast has no Dismiss: nothing else links to an unanswered trip, so dismissing it
+      lost the trip. It stays until View opens the trip (a newer trip's toast replaces it), and
+      closes itself on that trip's page. 2e-g adds a second way back, from `/form`.
+    - The loader has **Cancel** beside "Browse saved trips": `Form` stops the generation
+      (`stopGeneration`) and resets its own mutation, so the form shows again on the review step
+      with the answers, and "Your trip was cancelled" shows. Its trip lands to nothing. With
+      nothing pending (a Cancel as the trip lands), `stopGeneration` does nothing and says nothing.
+    - The loader and toasts use pills, not quiet text buttons: Cancel and Dismiss lime, the way
+      onward (View, Browse saved trips, Back to the form) ink.
+    **Rebuilt on one state (from the audit after the fifth review).** Every review found a new
+    timing case because five places changed the same toasts, `Form` read two disagreeing
+    "pending" flags (its own mutation, and the cache), and a trip's landing ran in a provider that
+    might be gone. Rebuilt on this branch. The cards, copy and buttons are as before; what the
+    traveller sees change: the loader stays up from a landing on `/form` until the trip's page
+    (without Cancel, as nothing is left to cancel), leaving before the redirect offers the trip in
+    a toast, a failure comes back to `/form` as the failure panel, and once that panel has shown
+    it, its toast doesn't return. The design:
+    - **One state, one pure transition function** (`src/lib/generation.ts`): the generation in
+      flight (a token, or none) and the last result: `ready` (landed off `/form`, offered by a
+      toast), `opening` (landed on `/form`, the traveller on the way: the loader stays up until
+      the trip's page, and leaving first turns it `ready`), or `failed` (`seenOnForm` once the
+      failure panel showed it, after which its toast doesn't come back). `land` and `fail` carry
+      the path the traveller is on, so the redirect-or-toast choice is made as the call settles.
+      `start`, `land`, `fail`, `cancel`, `route` and `clearResult` each return the next state and
+      its effects, in order (`clearDraft`, `open`, `failedOnForm`, `cancelled`). A landing whose
+      token isn't the one in flight changes nothing.
+    - **One pure toast function**, `toastsFor(state, pathname)`: planning off `/form` while
+      pending; the ready trip except on its page; an unseen failure off `/form`.
+    - **`GenerationProvider`** (`src/context/GenerationContext.tsx`, in the root providers, never
+      unmounted) holds the state in a zustand store created per provider (a module-level one would be
+      shared across server requests and tests), makes the call (no TanStack mutation) and runs the
+      effects. Its context is stable: `useTripGeneration()` returns the actions, and readers pick
+      state with `useGenerationState(selector)`, so `FormProvider`, which only sends, never
+      re-renders on a transition. `GenerationToast` is the only code that
+      shows or dismisses the generation's toasts, from `toastsFor`; nothing calls `toast.remove`.
+      Cancelled, opened and the on-`/form` failure are timed notices under one id.
+    - **`Form` reads that state**: pending or opening shows the loader, failed the failure panel (also after
+      coming back through View or "Back to the form"); Cancel and "Try again" are one call each.
+    - **`showToast`** (`ToastCard.tsx`) shows every custom toast, the city check's and saving's
+      too: a dismissed one is `invisible` and `inert` at once, as react-hot-toast doesn't animate
+      a custom toast out and keeps it in the page 1s.
+    - Tests: every transition from every state, `isLoading`, and `toastsFor` on every route, as tables; the
+      provider's behaviour (redirect, toasts, draft, cancel, failure, reload warning) as before;
+      e2e checks the planning card is hidden by visibility, not by the accessibility tree.
+    - Still accepted: a trip landing in the moment a navigation away from `/form` is committing
+      still opens it (the router's path changes on commit).
+    From the review of PR #218:
+    - **The generation is a `fetch` to `POST /api/trip`, not a server action.** Next runs server
+      actions one at a time, so after Cancel the city check (a server action) waited for the
+      cancelled call to finish on the server; checked in the browser: no request in 6s, against
+      1s with nothing held. `src/app/api/trip/route.ts` calls `generateTrip` and answers
+      `{ tripUrl }`; `requestTrip` (`src/lib/`) sends it with an `AbortController` per
+      generation, and `cancel` and a superseding `start` return an `abort` effect. This is the
+      transport half of 2g; the server still finishes an aborted call until 2g streams it.
+    - The last trip and the last failure have their own slots: a failure no longer displaces a
+      `ready` trip, whose toast was the only link to it. Their toasts have their own ids.
+    - The reload warning holds while a trip is `opening`, not only while one is in flight.
+    - A failure seen on `/form` is dropped on leaving `/form`, so the panel doesn't greet a later visit.
+    - `GenerationToast` reads the whole state (it changes only on a transition) through one
+      `useToast` per toast; the toast pills share `form/styles.ts`'s pill in a small size; the
+      hygiene test forbids every direct `toast(…)` maker, not only `toast.custom`.
+    - CLAUDE.md's accepted limits add that a landing read against the old route can bring the
+      cleared draft back.
+    From the review of the fix commits:
+    - The route rejects what a server action would: 415 unless `application/json` (so a
+      cross-site page can't send it without a failing preflight) and 403 from another origin.
+      It checks the body with `TripRequestSchema` first, so a bad request is a 400, not a 500.
+    - `requestTrip` rejects a success without a 12-hex `tripUrl`, rather than open `/trips/undefined`.
+    - The reload warning is back to "in flight" only: a prompt can't tell a reload from the
+      app's own redirect falling back to a full load (after a deploy), and a landed trip's url
+      is 2e-g's to keep across reloads.
+    - `TRIP_TOAST`'s id is "trip-generation-trip"; `GenerationToast` keeps each card in a ref, so
+      its effects depend on `[id, key]` only.
+    From the review of `add921c`:
+    - The route answers 403, not a crash, to an opaque `Origin: null`; compares with the first of
+      a proxy chain's forwarded hosts, as Next does; takes `application/json` in any case; and
+      passes the parsed request on.
+    - `TRIP_URL` lives once, in `src/lib/constants.ts`, for `requestTrip` and `db/actions.ts`.
+    - The reload rule is `asksBeforeReload` in `generation.ts`, with its own test table, and a
+      table in CLAUDE.md beside `isLoading`'s. A reload while a landed trip is `opening` loses its link until 2e-g stores it.
+    - The Cancel e2e releases its held request in a `finally`.
+    From the review of `18677f6`:
+    - An empty `x-forwarded-host` falls back to `host` (`||`), and a request with no host at all
+      is refused rather than matching an opaque origin's null.
+    - The Cancel e2e lets the held request through before its last two checks again, so they
+      catch a cancelled generation's landing; the `finally` stays as a backstop.
+    - CLAUDE.md tables the loader and the reload prompt, and notes the route's dependence on no
+      `Referrer-Policy: no-referrer`.
+    From the review of `ec680d2`:
+    - **The origin check is `Sec-Fetch-Site`, not a host comparison.** Comparing `Origin` with
+      the host kept failing on proxy layouts, host case, ports, opaque origins and the referrer
+      policy. The browser sets `Sec-Fetch-Site` itself (checked: the server receives
+      `same-origin` on the app's own request); anything else is a 403, and its absence (no
+      browser) passes, as the content type still has to be JSON.
+      This reverses `18677f6`'s `Referrer-Policy` note, which no longer applies.
+    - The Cancel e2e no longer lets the aborted request through to check a landing, reversing
+      `18677f6`'s change: an aborted request can't land, so those checks passed whatever happened.
+      A stale landing is pinned by the unit tables and by the provider tests, where a cancelled
+      call settles afterwards.
+    - Accepted: a browser without Fetch Metadata (Safari before 16.4, older Firefox) isn't
+      origin-checked; the JSON preflight still blocks its cross-site requests.
+- **2e-g · `one-open-trip`: one unanswered trip at a time, per browser.** From 2e-f's review.
+  With the result toast capped at one, a traveller could generate trip after trip without ever
+  looking at them. Rule: while a trip they generated is unanswered (neither "Yes, save it" nor
+  "No, thanks"), this browser can't plan another.
+  - **Per browser, not in the database.** There are no accounts, so the server can't tell one
+    visitor from another: a database-wide rule would let one abandoned trip block everyone. And
+    the database can't tell unanswered from discarded anyway (both are `saved: false`). The open
+    trip's url lives in `localStorage` (`trip-ai:open-trip:v1`), every access in a try, as
+    `formDraft` does; it survives reloads and tabs. It guides, it doesn't guard: a private window
+    gets around it. Protection against spam is branch 3's rate limit, on the server.
+  - **Set** when a trip lands, on `/form` or off it: a `rememberTrip` effect of `land` in
+    `transition` (`src/lib/generation.ts`, since 2e-f's rebuild), beside `clearDraft`, with its
+    rows in the tables and in CLAUDE.md. Never for a cancelled or superseded generation (its
+    landing changes nothing) or a failed one. **Cleared** when either answer lands
+    (`useSaveTrip`). A saved trip opened later from `/saved-trips` never counts as open.
+  - **Closes 2e-f's reload gap.** The reload warning stops once a trip lands, and the draft is
+    cleared then; a reload while the trip is `opening`, or after a `ready` trip's toast, used to
+    lose its only link. With the url stored at the landing, `/form` offers View after the reload.
+  - **On `/form`:** with an open trip stored, "Plan my trip" is disabled and a note beside it
+    says to answer that trip first ("Save or discard your last trip before planning another."),
+    with a quiet **View** button to `/trips/<url>`. Copy in `form/content.ts`.
+  - **Nothing is blocked by a trip that's gone.** On mount, `/form` checks the stored url with
+    `getTripByUrl`: no row, or a row already saved, clears it, and the form works as usual.
+    Until the check answers, the stored trip counts as open, so the button never flashes on.
+    A View link to a deleted trip lands on `/trips/[tripUrl]`'s existing not-found page ("This
+    trip is no longer available."). Rows are only deleted outside the app today (by hand, or the
+    e2e seed); a future clean-up of old unanswered trips needs nothing more.
+  - **The toast cap stays:** one result toast, a newer one replacing it.
+  - Tests: the store (round trip, malformed, throwing storage); a landed trip is stored, a
+    stopped or failed one isn't; either answer clears it; `/form` with an open trip disables
+    "Plan my trip" and shows the note and View; a stored url with no row, or a saved row, is
+    cleared and blocks nothing. e2e: generate, go back to `/form` and fill it: the button is off
+    and View opens the trip; answer it, and the next trip can be planned.
+  - Open question for the build: the note shows on the review step, beside the button. A
+    traveller learns of the block only after filling seven steps; showing the note from step 1
+    may be kinder.
 - **2f · `fix-string-tours`: a list sent as a string no longer loses the trip; longer tours.**
   The bug parked under branch 1, seen twice now (2026-10-15 and 2026-10-16, in dev): despite
   `strict: true`, `submit_trip` sometimes sends `tours` as its JSON text, so `TripDataSchema`
@@ -690,9 +896,9 @@ its own, in this order (2h is independent and can land any time):
     non-object input passed through. The prompt test and snapshot carry the new count.
   - Sonnet 5.5 against Opus 5.5 on the same trip (cost, output, recommendation): `models-comparison.md`.
 - **2g · `trip-route`: generation through a route that can be stopped.** Brings branch 4's transport
-  forward, for today's single call. `POST /api/trip` (`src/app/api/trip/route.ts`) replaces the
-  `generateTrip` server action for the form: the same validation, `resolvePlace`, prompt and row,
-  but the Claude call is streamed (`client.messages.stream(...)`, read with `finalMessage()`) and
+  forward, for today's single call. *2e-f already moved the form to `POST /api/trip` with an
+  aborted `fetch` (see its PR #218 notes); what's left is the server side.* The route keeps
+  the same validation, `resolvePlace`, prompt and row, but the Claude call is streamed (`client.messages.stream(...)`, read with `finalMessage()`) and
   takes the request's `signal`. The response is SSE with `done` (the trip url) and `error` events
   only; branch 4 adds `step`. Stop (2e-f) and leaving the page abort the fetch, which aborts the
   stream: the output not yet written isn't billed (input is, as it's read at the start), no photos
@@ -700,6 +906,8 @@ its own, in this order (2h is independent and can land any time):
   and a non-streamed call runs to the end however the client leaves, hence both changes.
   `maxDuration` for the route in `vercel.json`. The agent itself (request → trip row) becomes a
   function the route calls, so MCP (branch 7) and evals (6) call it directly.
+  - The landing logic already lives at the root (`GenerationProvider`, from 2e-f's rebuild), and
+    the client already aborts; 2g passes the route's `request.signal` into the stream.
   - Tests: an aborted request aborts the SDK stream (mocked at `anthropicApi`) and writes no row;
     `done` carries the url; a refusal, `max_tokens` or a bad request is an `error` event. e2e: the
     fixture path (`E2E_FIXTURES=1`) answers as a fixture stream; Stop leaves no row.
@@ -734,8 +942,8 @@ its own, in this order (2h is independent and can land any time):
   the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
   weather by coordinates, the form-scoped providers, architecture and commands. Retake the
   screenshots that changed at the sizes above.
-- **Order from here:** 2e-f → 2f → 2g → 2h → 2i → 2j, and branch 3. 2g comes after 2e-f, so
-  Stop exists before it can stop the server.
+- **Order from here:** 2e-f → 2e-g → 2g → 2h → 2i → 2j (2f merged), and branch 3. 2g comes
+  after 2e-f, so Stop exists before it can stop the server.
 
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`

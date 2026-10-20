@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
 import { renderWithProviders, waitFor } from "@/test/render";
 import FormLayout from "@/app/form/layout";
+import { GenerationProvider } from "@/context/GenerationContext";
 import Providers from "@/app/providers";
 import { useWatch } from "react-hook-form";
 import { useFormData } from "@/hooks/useFormData";
@@ -34,9 +35,11 @@ beforeEach(() => {
 describe("the form's providers", () => {
   it("wrap /form", () => {
     renderWithProviders(
-      <FormLayout>
-        <Probe />
-      </FormLayout>,
+      <GenerationProvider>
+        <FormLayout>
+          <Probe />
+        </FormLayout>
+      </GenerationProvider>,
     );
     expect(ctx.control).toBeDefined();
   });
@@ -55,10 +58,12 @@ describe("the form's providers", () => {
   // Leaving /form unmounts its layout; the draft in sessionStorage is what brings the answers back.
   it("bring the answers back when /form mounts again", async () => {
     const tree = (
-      <FormLayout>
-        <Probe />
-        <ValuesProbe />
-      </FormLayout>
+      <GenerationProvider>
+        <FormLayout>
+          <Probe />
+          <ValuesProbe />
+        </FormLayout>
+      </GenerationProvider>
     );
     const first = renderWithProviders(tree);
     await act(async () => {
@@ -76,10 +81,12 @@ describe("the form's providers", () => {
 
   it("start empty when there is no draft", async () => {
     renderWithProviders(
-      <FormLayout>
-        <Probe />
-        <ValuesProbe />
-      </FormLayout>,
+      <GenerationProvider>
+        <FormLayout>
+          <Probe />
+          <ValuesProbe />
+        </FormLayout>
+      </GenerationProvider>,
     );
     await waitFor(() => expect(ctx.isDraftRestored).toBe(true));
     expect(values.userName).toBe("");

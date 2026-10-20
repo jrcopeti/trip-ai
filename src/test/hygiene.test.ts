@@ -79,3 +79,22 @@ describe("the old look is gone", () => {
     expect(offenders(/data-sorbet/)).toEqual([]);
   });
 });
+
+// A custom toast shown another way stays drawn and focusable for 1s once dismissed; a removed
+// one, if under the cursor, leaves the Toaster's hover pause on and every later toast stuck.
+describe("toasts", () => {
+  const app = files.filter(({ path }) => !/\.test\.tsx?$/.test(path));
+
+  it("are shown only through `showToast`", () => {
+    // `toast(…)` and each of its makers; not `showToast(` or another name ending in "toast".
+    const shown = /(?<![\w.])toast(\.(custom|success|error|loading|promise))?\(/;
+    const direct = app.filter(
+      ({ path, text }) => shown.test(text) && !path.endsWith("ui/ToastCard.tsx"),
+    );
+    expect(direct.map(({ path }) => path)).toEqual([]);
+  });
+
+  it("are dismissed, never removed", () => {
+    expect(app.filter(({ text }) => /toast\.remove\(/.test(text)).map(({ path }) => path)).toEqual([]);
+  });
+});

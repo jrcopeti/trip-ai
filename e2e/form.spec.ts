@@ -192,13 +192,11 @@ test.describe("/form", () => {
     const before = await answers.allTextContents();
     expect(before.length).toBeGreaterThan(10);
 
-    // Generation is a server action, a POST to the page: fail just that one.
-    await page.route("**/form", (route) =>
-      route.request().method() === "POST" ? route.abort() : route.continue(),
-    );
+    // Generation is a POST to /api/trip: fail just that.
+    await page.route("**/api/trip", (route) => route.abort());
     await page.getByRole("button", { name: "Plan my trip" }).click();
     await expect(page.getByRole("heading", { name: /error generating the trip/ })).toBeVisible();
-    await page.unroute("**/form");
+    await page.unroute("**/api/trip");
 
     await page.getByRole("button", { name: "Try again" }).click();
 

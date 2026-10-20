@@ -129,3 +129,17 @@ export const failure = {
   message: "There was an error generating the trip. Please try again.",
   button: "Try again",
 };
+
+/** The generation once the traveller has left `/form`: the toast that follows them. */
+export const generation = {
+  planning: "Your trip is being planned",
+  cancel: "Cancel",
+  ready: "Your trip has been generated!",
+  view: "View",
+  failed: "There was an error generating your trip.",
+  cancelled: "Your trip was cancelled",
+  backToForm: "Back to the form",
+  dismiss: "Dismiss",
+  loaderNote: "You can keep browsing while we plan your trip but reloading or closing the tab stops it.",
+  loaderLink: "Browse saved trips",
+};

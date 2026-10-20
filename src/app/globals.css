@@ -29,6 +29,8 @@
   --color-sorbet-white: #ffffff;
   /* The red already in use for error glyphs and field errors, given a name. */
   --color-sorbet-alert: #c2150c;
+  /* Its counterpart, for a finished result's check glyph: 5.2:1 on white. */
+  --color-sorbet-success: #1e7d34;
 
   --font-sorbet: var(--font-rubik), ui-sans-serif, system-ui, sans-serif;
   /* Handwriting, for polaroid captions only — the single exception to Rubik. */
