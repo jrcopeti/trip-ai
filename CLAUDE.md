@@ -230,7 +230,7 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
   and its copy in `content.ts`. A record now; what binds is in `design-notes.md`.
 - **`docs/grounded-agent/PLAN.md`** — the **grounded agent**, in flight. Branch 1
   (new form fields, the city check and the prompt on the server, `claude-sonnet-5-5`) is
-  finished; branch 2 (the server-owned trip) is in progress, 2a–2e-f and 2f merged, 2g (`trip-route`) in review; 3–7
+  finished; branch 2 (the server-owned trip) is in progress, 2a–2e-f, 2f and 2g merged, 2e-g (`one-open-trip`) in review; 3–7
   (metrics, tools, refine, evals, MCP) are next.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
@@ -296,8 +296,8 @@ What each action does, from any state (anything not listed leaves that part as i
 | Action | Next state | Effects, in order |
 |---|---|---|
 | `start` (token) | that token in flight; the failure dropped | abort the one in flight, if any |
-| `land` on `/form`, the token in flight | none in flight; trip `opening` | clear the draft, open the trip |
-| `land` elsewhere, the token in flight | none in flight; trip `ready` | clear the draft |
+| `land` on `/form`, the token in flight | none in flight; trip `opening` | clear the draft, remember the trip, open it |
+| `land` elsewhere, the token in flight | none in flight; trip `ready` | clear the draft, remember the trip |
 | `fail` on `/form`, the token in flight | none in flight; failure seen | the failure alert |
 | `fail` elsewhere, the token in flight | none in flight; failure unseen | — |
 | `land` / `fail`, any other token | unchanged (cancelled or superseded) | — |
@@ -337,6 +337,12 @@ Two limits, accepted:
   keep the traveller on `/form` meanwhile: it covers the nav, offers no Cancel while opening, and
   its one link leaves `/form`.
 
+**One unanswered trip at a time, per browser.** "Remember the trip" stores its url in
+localStorage (`src/lib/openTrip.ts`); either answer (`useSaveTrip`) clears it. While one is
+stored, `/form`'s review step disables "Plan my trip" with a note and a View to it
+(`useOpenTrip`), which also clears a stored url whose row is gone or saved. It guides, it doesn't
+guard: a private window gets around it, and the rate limit (branch 3) is the server's guard.
+
 Every custom toast goes through **`showToast`** (`ui/ToastCard.tsx`), which hides a dismissed one
 at once, and none is removed (`toast.remove` under the cursor leaves the Toaster paused);
 `src/test/hygiene.test.ts` enforces both.
@@ -370,7 +376,8 @@ flat `requiredItems` — to `generateTrip`, and the server builds the row from t
 is kept on the client after the submit.
 
 ### Key custom hooks
-- `useSaveTrip(tripUrl)` — `handleYesAnswer`/`handleNoAnswer` call `setTripSaved(tripUrl, true/false)`; `isAnswered` once one lands
+- `useSaveTrip(tripUrl)` — `handleYesAnswer`/`handleNoAnswer` call `setTripSaved(tripUrl, true/false)`; `isAnswered` once one lands, which also clears it as the open trip
+- `useOpenTrip` — this browser's unanswered trip's url, or null; checked once with `getTripByUrl`
 - `useFormSteps`, `useFormFields`, `useCityCheck` — `FormContext`'s three memoised contexts,
   so a keystroke in the city re-renders only its readers; `useFormData` reads all three, for tests
 - `useTripGeneration`, `useGenerationState` — the app's trip generation: its actions, and its state by selector (see State management)

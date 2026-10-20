@@ -31,6 +31,7 @@ const LEAVER = "Journeyleave";
 const CANCELLER = "Journeycancel";
 const STOPPER = "Journeystop";
 const CONTROL = "Journeycontrol";
+const HOLDER = "Journeyhold";
 
 test.skip(
   !!process.env.PLAYWRIGHT_BASE_URL,
@@ -45,7 +46,7 @@ async function deleteOwnRows() {
   const prisma = new PrismaClient();
   try {
     await prisma.trip.deleteMany({
-      where: { userName: { in: [SAVER, DISCARDER, LEAVER, CANCELLER, STOPPER, CONTROL].map((n) => n.toLowerCase()) } },
+      where: { userName: { in: [SAVER, DISCARDER, LEAVER, CANCELLER, STOPPER, CONTROL, HOLDER].map((n) => n.toLowerCase()) } },
     });
   } finally {
     await prisma.$disconnect();
@@ -320,5 +321,31 @@ test.describe("trip journey", () => {
     }
     expect(await savedFlags(CONTROL)).toEqual([false]);
     expect(await savedFlags(STOPPER)).toEqual([]);
+  });
+
+  test("an unanswered trip holds back the next one until it's answered", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await generateTrip(page, HOLDER);
+    const tripUrl = page.url();
+
+    // A fresh load of /form, as after a reload: the open trip is this browser's, not the tab's.
+    await page.goto("/form");
+    await walkAllSteps(page, HOLDER, { held: true });
+    const plan = page.getByRole("button", { name: "Plan my trip" });
+    await expect(page.getByText("Save or discard your last trip before planning another.")).toBeVisible();
+    await expect(plan).toBeDisabled();
+    await noHorizontalScroll(page);
+
+    await page.getByRole("link", { name: "View", exact: true }).click();
+    await expect(page).toHaveURL(tripUrl);
+    await page.getByRole("button", { name: "No, thanks" }).click();
+    await expect(page.getByRole("heading", { name: "What next?" })).toBeVisible();
+
+    // The held-back answers waited in the draft: the form reopens on them, free to send.
+    await page.goto("/form");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Review and submit");
+    await expect(page.getByText(HOLDER)).toBeVisible();
+    await expect(plan).toBeEnabled();
+    await expect(page.getByText("Save or discard your last trip before planning another.")).toHaveCount(0);
   });
 });

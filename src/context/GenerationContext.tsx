@@ -18,6 +18,7 @@ import {
   type GenerationState,
 } from "@/lib/generation";
 import { clearFormDraft } from "@/lib/formDraft";
+import { rememberOpenTrip } from "@/lib/openTrip";
 import { requestTrip } from "@/lib/requestTrip";
 import type { TripRequest } from "@/lib/agent/request";
 
@@ -64,6 +65,8 @@ export function GenerationProvider({ children }: { children: React.ReactNode }) 
           return controllers.get(effect.token)?.abort();
         case "clearDraft":
           return clearFormDraft();
+        case "rememberTrip":
+          return rememberOpenTrip(effect.tripUrl);
         case "open":
           showToast(<ReadyToast />, NOTICE);
           return latest.current.router.replace(tripPath(effect.tripUrl));

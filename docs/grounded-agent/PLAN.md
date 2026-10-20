@@ -871,7 +871,18 @@ its own, in this order (2h is independent and can land any time):
     and View opens the trip; answer it, and the next trip can be planned.
   - Open question for the build: the note shows on the review step, beside the button. A
     traveller learns of the block only after filling seven steps; showing the note from step 1
-    may be kinder.
+    may be kinder. Built as planned, on the review step; the walk's answers stay in the draft,
+    so after answering the trip the form reopens on them, ready to send.
+  - **Built (2026-10-20).** `src/lib/openTrip.ts` (read, remember, forget-if-it's-this-one, and
+    a subscription that also hears other tabs, so answering in one frees `/form` in another);
+    `useOpenTrip` (`useSyncExternalStore` plus a TanStack query on `getTripByUrl`, which
+    reduces the row to "still open" in the query); the `rememberTrip` effect after `clearDraft`
+    on both `land` rows. The note sits on its own row under the pills (beside the button it
+    pushed "Plan my trip" to a second row at 1440), and is the button's `aria-describedby`.
+    `forgetOpenTrip` clears only the trip it is given, so answering an older trip's page
+    doesn't free a newer one. e2e: `walkAllSteps` takes `{ held: true }`.
+  - Left as is: `getTripByUrl` sends the whole row to the browser for one flag; a narrower
+    action is possible but the row is the one the trip page shows anyway.
 - **2f · `fix-string-tours`: a list sent as a string no longer loses the trip; longer tours.**
   The bug parked under branch 1, seen twice now (2026-10-15 and 2026-10-16, in dev): despite
   `strict: true`, `submit_trip` sometimes sends `tours` as its JSON text, so `TripDataSchema`
@@ -981,7 +992,7 @@ its own, in this order (2h is independent and can land any time):
   the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
   weather by coordinates, the form-scoped providers, architecture and commands. Retake the
   screenshots that changed at the sizes above.
-- **Order from here:** 2g → 2e-g → 2h → 2i → 2j (2e-f and 2f merged), and branch 3. 2g goes
+- **Order from here:** 2e-g → 2h → 2i → 2j (2e-f, 2f and 2g merged), and branch 3. 2g goes
   before 2e-g: they're independent, and 2g stops paying for cancelled generations.
 
 What's wrong today:

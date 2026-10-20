@@ -10,6 +10,7 @@ import { requestTrip } from "@/lib/requestTrip";
 import { generatedTripFixture, validInputs, validTripRequest } from "@/test/fixtures";
 import { replace, resetNextStubs, routerState } from "@/test/stubs/next";
 import { readFormDraft, writeFormDraft } from "@/lib/formDraft";
+import { readOpenTrip } from "@/lib/openTrip";
 import { failure } from "@/components/form/content";
 
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
@@ -108,6 +109,8 @@ describe("GenerationProvider", () => {
       expect(await screen.findByRole("status")).toHaveTextContent("Your trip has been generated!");
       expect(screen.queryByRole("link", { name: "View" })).toBeNull();
       expect(readFormDraft()).toBeNull();
+      // So a reload before the redirect arrives still finds its way back.
+      expect(readOpenTrip()).toBe(trip.tripUrl);
       // On its way until the trip's page is reached, so /form keeps the loader up meanwhile.
       expect(ctx.state.trip).toEqual({ kind: "opening", tripUrl: trip.tripUrl });
 
@@ -138,6 +141,7 @@ describe("GenerationProvider", () => {
       expect(ctx.state.failure).toEqual({ seenOnForm: true });
       expect(await screen.findByRole("alert")).toHaveTextContent(failure.message);
       expect(readFormDraft()).toEqual(draft);
+      expect(readOpenTrip()).toBeNull();
       expect(replace).not.toHaveBeenCalled();
       // The cause is in the server's log; the browser's console gets nothing.
       expect(console.error).not.toHaveBeenCalled();
@@ -189,6 +193,7 @@ describe("GenerationProvider", () => {
       expect(screen.queryByRole("button", { name: "Dismiss" })).toBeNull();
       expect(replace).not.toHaveBeenCalled();
       expect(readFormDraft()).toBeNull();
+      expect(readOpenTrip()).toBe(trip.tripUrl);
     });
 
     it("drops the trip's toast once the traveller is on the trip's page", async () => {
@@ -271,6 +276,7 @@ describe("GenerationProvider", () => {
       expect(screen.queryByText("Your trip has been generated!")).toBeNull();
       expect(replace).not.toHaveBeenCalled();
       expect(readFormDraft()).toEqual(draft);
+      expect(readOpenTrip()).toBeNull();
     });
 
     it("from the loader, then a failure: the cancellation, no failure, nothing logged", async () => {

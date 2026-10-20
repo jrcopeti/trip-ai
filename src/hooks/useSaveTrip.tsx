@@ -5,8 +5,12 @@ import { useMutation } from "@tanstack/react-query";
 import ErrorToaster from "@/components/ui/ErrorToaster";
 import CustomToaster from "@/components/ui/CustomToaster";
 import { showToast } from "@/components/ui/ToastCard";
+import { forgetOpenTrip } from "@/lib/openTrip";
 
-/** The traveller's answer to "save this trip?": the row is already written, so only `saved` changes. */
+/**
+ * The traveller's answer to "save this trip?": the row is already written, so only `saved` changes.
+ * Either answer, once written, clears the trip as this browser's open one.
+ */
 export function useSaveTrip(tripUrl: string) {
   const router = useRouter();
   const {
@@ -20,7 +24,11 @@ export function useSaveTrip(tripUrl: string) {
 
     // The router cache still holds this page rendered with `saved: false`; without a
     // refresh, Back restores it and asks again, and answering throws (the row is saved).
-    onSuccess: () => router.refresh(),
+    onSuccess: () => {
+      // Either answer lets this browser plan its next trip.
+      forgetOpenTrip(tripUrl);
+      router.refresh();
+    },
 
     onError: (error) => {
       console.error(error);
