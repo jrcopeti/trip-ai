@@ -25,7 +25,8 @@ const client = new Anthropic({
 /**
  * Plans the trip for `input`, writes it unsaved and returns the row. The request is checked and
  * the city resolved again, whatever the browser did. Once `signal` aborts it stops the model's
- * call, starts nothing more and writes nothing.
+ * call, starts nothing more, writes no row unless the write had begun, and rejects with the
+ * signal's reason.
  */
 export async function generateTrip(input: unknown, signal?: AbortSignal): Promise<Trip> {
   const request = TripRequestSchema.safeParse(input);
@@ -35,6 +36,7 @@ export async function generateTrip(input: unknown, signal?: AbortSignal): Promis
   }
   const req = request.data;
 
+  signal?.throwIfAborted();
   const resolved = await resolvePlace(req.city, req.countryCode);
   if (!resolved.ok) throw new Error(`The city could not be resolved: ${resolved.error}`);
   signal?.throwIfAborted();
@@ -101,8 +103,8 @@ async function askForTrip(
     );
     response = await stream.finalMessage();
   } catch (error: unknown) {
-    // Stopped by the traveller, not failed: nothing to report.
-    if (signal?.aborted) throw error;
+    // Stopped by the traveller, not failed: nothing to report, and the route knows it by the reason.
+    if (error instanceof Anthropic.APIUserAbortError && signal?.aborted) throw signal.reason;
     if (error instanceof Anthropic.APIError) {
       console.error(`Anthropic API error ${error.status}:`, error.message);
     } else {

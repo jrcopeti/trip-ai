@@ -35,8 +35,9 @@ export async function POST(request: Request) {
     const trip = await generateTrip(parsed.data, request.signal);
     return Response.json({ tripUrl: trip.tripUrl });
   } catch (error) {
-    // A cancelled generation fails by design, and nobody is left to answer.
-    if (!request.signal.aborted) console.error(error);
+    // A cancelled generation rejects with the signal's reason, and nobody is left to answer. A
+    // real failure that lands as the client goes is still logged.
+    if (error !== request.signal.reason) console.error(error);
     return fail(500, "The trip could not be generated");
   }
 }

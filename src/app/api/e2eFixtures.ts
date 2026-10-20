@@ -1,4 +1,3 @@
-import { setTimeout } from "node:timers/promises";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {
@@ -27,10 +26,19 @@ dayjs.extend(utc);
 /** How long the fixture trip takes to come back, so a Cancel can land while it is in flight. */
 export const E2E_TRIP_HOLD_MS = 2000;
 
-/** The fixture trip, after `E2E_TRIP_HOLD_MS`; rejects as soon as `signal` aborts. */
-export async function heldTripDataFixture(signal?: AbortSignal) {
-  await setTimeout(E2E_TRIP_HOLD_MS, undefined, { signal });
-  return tripDataFixture;
+/** The fixture trip, after `E2E_TRIP_HOLD_MS`; rejects with the signal's reason as it aborts. */
+export function heldTripDataFixture(signal?: AbortSignal) {
+  return new Promise<typeof tripDataFixture>((resolve, reject) => {
+    const timer = setTimeout(() => resolve(tripDataFixture), E2E_TRIP_HOLD_MS);
+    signal?.addEventListener(
+      "abort",
+      () => {
+        clearTimeout(timer);
+        reject(signal.reason);
+      },
+      { once: true },
+    );
+  });
 }
 
 /**

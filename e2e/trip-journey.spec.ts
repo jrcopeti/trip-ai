@@ -2,7 +2,6 @@ import { expect, test, type Page } from "@playwright/test";
 import { loadEnvConfig } from "@next/env";
 import { PrismaClient } from "@prisma/client";
 import { tripDataFixture } from "../src/test/fixtures/tripData";
-import { E2E_TRIP_HOLD_MS } from "../src/app/api/e2eFixtures";
 import { mayWriteToDatabase } from "../scripts/localDatabase";
 import { noHorizontalScroll, stubLookups, walkAllSteps } from "./formWalk";
 
@@ -31,6 +30,7 @@ const DISCARDER = "Journeydiscard";
 const LEAVER = "Journeyleave";
 const CANCELLER = "Journeycancel";
 const STOPPER = "Journeystop";
+const CONTROL = "Journeycontrol";
 
 test.skip(
   !!process.env.PLAYWRIGHT_BASE_URL,
@@ -45,7 +45,7 @@ async function deleteOwnRows() {
   const prisma = new PrismaClient();
   try {
     await prisma.trip.deleteMany({
-      where: { userName: { in: [SAVER, DISCARDER, LEAVER, CANCELLER, STOPPER].map((n) => n.toLowerCase()) } },
+      where: { userName: { in: [SAVER, DISCARDER, LEAVER, CANCELLER, STOPPER, CONTROL].map((n) => n.toLowerCase()) } },
     });
   } finally {
     await prisma.$disconnect();
@@ -310,9 +310,15 @@ test.describe("trip journey", () => {
     await page.getByRole("button", { name: "Cancel" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Review and submit");
 
-    // Absence can't be polled for: wait out the fixture's hold, by which time an unstopped
-    // generation has written its row.
-    await page.waitForTimeout(E2E_TRIP_HOLD_MS + 2000);
+    // Absence can't be polled for, so a control generation, started after the cancelled one
+    // and held as long, writes its row; by then an unstopped one would have written its own.
+    const control = await page.context().newPage();
+    try {
+      await generateTrip(control, CONTROL);
+    } finally {
+      await control.close();
+    }
+    expect(await savedFlags(CONTROL)).toEqual([false]);
     expect(await savedFlags(STOPPER)).toEqual([]);
   });
 });

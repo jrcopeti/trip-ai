@@ -22,8 +22,10 @@ vi.mock("@anthropic-ai/sdk", () => {
   class APIError extends Error {
     status = 500;
   }
+  class APIUserAbortError extends APIError {}
   class Anthropic {
     static APIError = APIError;
+    static APIUserAbortError = APIUserAbortError;
     messages = { stream };
   }
   return { default: Anthropic };
@@ -280,12 +282,15 @@ describe("generateTrip — the answer", () => {
 });
 
 describe("generateTrip — stopped", () => {
-  /** A model call that rejects only when `signal` aborts, as the SDK's stream does. */
-  function heldUntilAborted(signal: AbortSignal) {
+  /** A model call that rejects with `error` once `signal` aborts; the SDK's own is APIUserAbortError. */
+  async function heldUntilAborted(signal: AbortSignal, error?: Error) {
+    const { default: Anthropic } = await import("@anthropic-ai/sdk");
     finalMessage.mockImplementation(
       () =>
         new Promise((_, reject) =>
-          signal.addEventListener("abort", () => reject(new Error("Request was aborted."))),
+          signal.addEventListener("abort", () =>
+            reject(error ?? new Anthropic.APIUserAbortError()),
+          ),
         ),
     );
   }
@@ -297,25 +302,41 @@ describe("generateTrip — stopped", () => {
     expect(stream.mock.calls[0][1]).toEqual({ signal: controller.signal });
   });
 
-  it("aborted during the model's call: writes nothing, doesn't wait on the photos, logs nothing", async () => {
+  it("aborted during the model's call: rejects with the signal's reason, writes nothing, doesn't wait on the photos, logs nothing", async () => {
     const controller = new AbortController();
-    heldUntilAborted(controller.signal);
+    await heldUntilAborted(controller.signal);
     vi.mocked(fetchTripImage).mockReturnValue(new Promise(() => {}));
 
     const generation = generateTrip(validTripRequest, controller.signal);
     await vi.waitFor(() => expect(finalMessage).toHaveBeenCalled());
     controller.abort();
 
-    await expect(generation).rejects.toThrow();
+    await expect(generation).rejects.toBe(controller.signal.reason);
     expect(write).not.toHaveBeenCalled();
     expect(console.error).not.toHaveBeenCalled();
   });
 
-  it("aborted before the model's call: never starts it, nor the photos", async () => {
+  it("aborted during the model's call that fails for its own reason: logs it", async () => {
+    const { default: Anthropic } = await import("@anthropic-ai/sdk");
+    const controller = new AbortController();
+    await heldUntilAborted(controller.signal, new Anthropic.APIError(529, undefined, "overloaded", undefined));
+
+    const generation = generateTrip(validTripRequest, controller.signal);
+    await vi.waitFor(() => expect(finalMessage).toHaveBeenCalled());
+    controller.abort();
+
+    await expect(generation).rejects.not.toBe(controller.signal.reason);
+    expect(console.error).toHaveBeenCalled();
+  });
+
+  it("aborted before it starts: rejects with the signal's reason, resolving nothing and calling nothing", async () => {
     const controller = new AbortController();
     controller.abort();
 
-    await expect(generateTrip(validTripRequest, controller.signal)).rejects.toThrow();
+    await expect(generateTrip(validTripRequest, controller.signal)).rejects.toBe(
+      controller.signal.reason,
+    );
+    expect(resolvePlace).not.toHaveBeenCalled();
     expect(stream).not.toHaveBeenCalled();
     expect(fetchTripImage).not.toHaveBeenCalled();
     expect(write).not.toHaveBeenCalled();
@@ -333,7 +354,7 @@ describe("generateTrip — stopped", () => {
     controller.abort();
     photosArrive();
 
-    await expect(generation).rejects.toThrow();
+    await expect(generation).rejects.toBe(controller.signal.reason);
     expect(write).not.toHaveBeenCalled();
   });
 });

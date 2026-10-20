@@ -905,8 +905,11 @@ its own, in this order (2h is independent and can land any time):
   2. The Claude call is streamed (`client.messages.stream(...)`, read with `finalMessage()`) and
      takes the signal: output not yet written isn't billed (input is, as it's read at the start).
   3. Once aborted, nothing more starts and no row is written: `generateTrip` checks the signal
-     after `resolvePlace` (before the photos), after the forecast (before the model) and after
-     the photos (before the write). GeoNames, OpenWeather and Unsplash don't take the signal:
+     before `resolvePlace`, after it (before the photos), after the forecast (before the model)
+     and after the photos (before the write). An abort during the insert itself still leaves its
+     unsaved row, as any unanswered trip is. Every abort rejects with the signal's reason (the
+     SDK's `APIUserAbortError` is swapped for it), and the route stays silent only for that
+     error, so a real failure landing as the client goes is still logged. GeoNames, OpenWeather and Unsplash don't take the signal:
      they're quick, unbilled, and OpenWeather's fetch is cached.
   4. `generateTrip` leaves the `"use server"` file, so `/api/trip` is the only way in from the
      browser. The agent (request → trip row) is a function the route calls, and MCP (branch 7)
@@ -923,6 +926,16 @@ its own, in this order (2h is independent and can land any time):
   - **Built (2026-10-20):** the proof first (the e2e failed with a row written, then passed once
     the route handed on `request.signal`), then 1–4 with their unit tests. The e2e fixture trip
     now takes 2 seconds (`E2E_TRIP_HOLD_MS`) and stops on the signal, so a Cancel lands mid-call.
+  - **Review of `33055c0`**, fixed: the route logged nothing for any failure while the signal
+    was aborted (now only for the abort itself); "writes nothing" overpromised for an abort
+    during the insert (the docs say so now); an already-aborted request still looked up the
+    city (checked first now); the e2e's fixed wait could pass on a slow runner (a control trip,
+    started after the cancel in a second tab, has to land first; it fails with the abort
+    removed); the route tests' requests go through `post()`. Left as is: a failure that never
+    reaches the server (offline, a malformed 200) is now logged nowhere, as the browser's
+    console was only ever the traveller's; the 2s hold on every e2e generation; no
+    `server-only` guard (the package isn't installed); `maxDuration` 300 (the default with
+    Fluid compute).
   - Tests: an aborted signal aborts the SDK stream (mocked at the SDK) and writes no row nor waits
     on the photos; a signal aborted before the call never starts it; the route hands its
     `request.signal` on; the existing failures (refusal, `max_tokens`, no call, invalid trip) still
