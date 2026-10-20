@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
-import { makeQueryClient, renderWithProviders, screen } from "@/test/render";
+import { makeQueryClient, renderWithProviders, screen, waitFor } from "@/test/render";
 import { FormProvider } from "@/context/FormContext";
 import { useFormData } from "@/hooks/useFormData";
 import Form from "@/components/form/Form";
@@ -12,9 +12,16 @@ import type { FormContextType } from "@/types";
 
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
-vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn() } }));
+vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn(), remove: vi.fn() } }));
 vi.mock("@/components/ui/LoaderResponseAI", () => ({
-  default: () => <p>Generating your trip</p>,
+  default: ({ onCancel }: { onCancel: () => void }) => (
+    <>
+      <p>Generating your trip</p>
+      <button type="button" onClick={onCancel}>
+        Cancel
+      </button>
+    </>
+  ),
 }));
 vi.mock("@/hooks/useGeoNames", () => ({
   idleCityCheck: { isCityValid: false, isLoadingCityValid: false, message: "", place: null },
@@ -67,6 +74,25 @@ describe("Form — a generation still running when /form mounts again", () => {
     expect(
       screen.queryByRole("heading", { level: 1, name: stepCopy[0].title }),
     ).not.toBeInTheDocument();
+  });
+
+  // The step and answers are the provider's, so the form reopens where it was sent from.
+  it("goes back to the form when the loader's Cancel is pressed", async () => {
+    vi.mocked(generateTrip).mockReturnValue(new Promise(() => {}));
+    renderWithProviders(tree);
+    await act(async () => {
+      ctx.processForm(validInputs, undefined);
+    });
+    await screen.findByText("Generating your trip");
+
+    await act(async () => {
+      screen.getByRole("button", { name: "Cancel" }).click();
+    });
+
+    // TanStack notifies on its next tick.
+    await waitFor(() => expect(screen.queryByText("Generating your trip")).toBeNull());
+    expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+    expect(ctx.isGenerationPending).toBe(false);
   });
 
   it("shows the form once nothing is generating", () => {

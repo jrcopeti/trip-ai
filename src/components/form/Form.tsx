@@ -1,7 +1,7 @@
 "use client";
 
-import { useIsMutating } from "@tanstack/react-query";
-import { generateTripKey } from "@/hooks/useTripGeneration";
+import { useIsMutating, useQueryClient } from "@tanstack/react-query";
+import { generateTripKey, stopGeneration } from "@/hooks/useTripGeneration";
 import { useFormFields, useFormSteps } from "@/hooks/useFormData";
 
 import ProgressBar from "./Progress";
@@ -23,9 +23,15 @@ function Form() {
   const { isDraftRestored } = useFormSteps();
   // Also one from before /form last unmounted: the form behind it would send a second trip.
   const isGenerating = useIsMutating({ mutationKey: generateTripKey }) > 0;
+  const queryClient = useQueryClient();
 
   if (isGenerationPending || isGenerating) {
-    return <LoaderResponseAI />;
+    // Leaving the cache doesn't clear this provider's own pending state; `resetGeneration` does.
+    const cancel = () => {
+      stopGeneration(queryClient);
+      resetGeneration();
+    };
+    return <LoaderResponseAI onCancel={cancel} />;
   }
 
   if (generationError) {

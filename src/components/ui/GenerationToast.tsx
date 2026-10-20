@@ -28,17 +28,23 @@ function GenerationToast() {
       return;
     }
     if (pathname === "/form") {
-      // Removed, not dismissed: a dismissed toast stays clickable for its 1s exit, its Cancel under the loader.
-      toast.remove(GENERATION_TOAST);
+      // Dismissed, not removed: a toast removed under the cursor gets no mouseleave, so the
+      // Toaster stays paused and every later toast stays up. Dismissed, it's inert (below).
+      toast.dismiss(GENERATION_TOAST);
       isShown.current = false;
       return;
     }
     if (isShown.current) return;
     isShown.current = true;
-    toast.custom(<PlanningToast onStop={() => stopGeneration(queryClient)} />, {
-      id: GENERATION_TOAST,
-      duration: Infinity,
-    });
+    // Inert through its exit, so its Cancel can't be reached by click or keyboard under the loader.
+    toast.custom(
+      (t) => (
+        <div inert={!t.visible}>
+          <PlanningToast onStop={() => stopGeneration(queryClient)} />
+        </div>
+      ),
+      { id: GENERATION_TOAST, duration: Infinity },
+    );
   }, [isGenerating, pathname, queryClient]);
 
   return null;

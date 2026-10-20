@@ -719,9 +719,12 @@ its own, in this order (2h is independent and can land any time):
     - A stop in the instant after `mutate`, before TanStack runs its callbacks, still counts: the
       token is created at the call site and sent in the variables (`{ request, token }`), which
       TanStack stores as the call starts. `onMutate` and its guard are gone.
-    - Back on `/form`, the planning toast is removed, not dismissed: a dismissed toast stays
-      clickable through react-hot-toast's 1s exit, and its Cancel sat invisible under the loader.
-    - The ready toast carries a green check (`ToastCard`'s `success` tone, `sorbet-success`).
+    - Back on `/form`, the planning toast is dismissed and goes `inert` for its 1s exit, so its
+      Cancel takes no click or key under the loader. (Removing it instead, as first done here, broke
+      every later toast: the Toaster pauses on `mouseenter`, and a toast removed under the cursor
+      after View gets no `mouseleave`, so "Your trip was cancelled" never left.)
+    - The ready toast carries a green check in a message square (`BiMessageSquareCheck`, the
+      family of the info and alert glyphs; `ToastCard`'s `success` tone, `sorbet-success`).
     - Accepted, not fixed: a failure after the traveller returned to the loader through View
       shows the review step with the answers restored and the failure toast, not the "Try again"
       panel; the fresh form never ran the call, so it has no error. They submit again from there.
@@ -729,6 +732,15 @@ its own, in this order (2h is independent and can land any time):
     - Parked as its own branch: screen readers may not announce a toast whose `role="status"`
       region arrives already filled. Every toast is affected (the city check too), and before
       2e-f none had a live region. Fix: one permanent announcement region in the root providers.
+    From trying it in the browser:
+    - The ready toast has no Dismiss: nothing else links to an unanswered trip, so dismissing it
+      lost the trip. It stays until View opens the trip (a newer trip's toast replaces it), and
+      closes itself on that trip's page. 2e-g adds a second way back, from `/form`.
+    - The loader has **Cancel** beside "Browse saved trips": `Form` stops the generation
+      (`stopGeneration`) and resets its own mutation, so the form shows again on the review step
+      with the answers, and "Your trip was cancelled" shows. Its trip lands to nothing.
+    - The loader and toasts use pills, not quiet text buttons: Cancel and Dismiss lime, the way
+      onward (View, Browse saved trips, Back to the form) ink.
 - **2e-g · `one-open-trip`: one unanswered trip at a time, per browser.** From 2e-f's review.
   With the result toast capped at one, a traveller could generate trip after trip without ever
   looking at them. Rule: while a trip they generated is unanswered (neither "Yes, save it" nor

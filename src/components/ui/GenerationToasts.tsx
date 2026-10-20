@@ -1,10 +1,11 @@
 "use client";
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import toast from "react-hot-toast";
 import SquiggleLoader from "@/components/sorbet/SquiggleLoader";
 import { generation as copy } from "@/components/form/content";
-import { focusTriad, quietButton } from "@/components/form/styles";
+import { focusTriad } from "@/components/form/styles";
 import ToastCard from "./ToastCard";
 
 /** The generation in flight: planning, then cancelled if stopped. Each replaces the last in place. */
@@ -42,29 +43,25 @@ export function PlanningToast({ onStop }: { onStop: () => void }) {
 /**
  * The trip has landed. View opens it from anywhere but its own page; `opensItself` is the
  * redirect from /form, which hides View on /form too, since the traveller is already on the way.
- * Shown from elsewhere, it stays until dismissed.
+ * Shown from elsewhere, it has no Dismiss: it stays until the trip's page is reached, then closes.
  */
 export function ReadyToast({ tripUrl, opensItself = false }: { tripUrl: string; opensItself?: boolean }) {
   const pathname = usePathname();
   const tripPath = `/trips/${tripUrl}`;
-  const showView = pathname !== tripPath && !(opensItself && pathname === "/form");
-  const showDismiss = !opensItself;
+  const isOnTrip = pathname === tripPath;
+  const showView = !isOnTrip && !(opensItself && pathname === "/form");
+
+  // The redirect's toast times out by itself; this one would otherwise stay on the trip for good.
+  useEffect(() => {
+    if (isOnTrip && !opensItself) dismissResult();
+  }, [isOnTrip, opensItself]);
 
   return (
     <ToastCard tone="success" message={copy.ready}>
-      {(showDismiss || showView) && (
-        <>
-          {showDismiss && (
-            <button type="button" onClick={dismissResult} className={quietButton}>
-              {copy.dismiss}
-            </button>
-          )}
-          {showView && (
-            <Link href={tripPath} onClick={dismissResult} className={inkPill}>
-              {copy.view}
-            </Link>
-          )}
-        </>
+      {showView && (
+        <Link href={tripPath} onClick={dismissResult} className={inkPill}>
+          {copy.view}
+        </Link>
       )}
     </ToastCard>
   );
@@ -78,7 +75,7 @@ export function CancelledToast() {
 export function FailedToast() {
   return (
     <ToastCard tone="alert" message={copy.failed}>
-      <button type="button" onClick={dismissResult} className={quietButton}>
+      <button type="button" onClick={dismissResult} className={limePill}>
         {copy.dismiss}
       </button>
       <Link href="/form" onClick={dismissResult} className={inkPill}>

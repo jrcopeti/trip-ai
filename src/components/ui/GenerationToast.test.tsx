@@ -76,8 +76,8 @@ describe("GenerationToast", () => {
     expect(screen.queryByText("Your trip is being planned")).toBeNull();
   });
 
-  // A dismissed toast stays clickable through its 1s exit; under the loader, Cancel must not be.
-  it("leaves the page at once when the traveller returns to /form", async () => {
+  // It fades out over 1s; under the loader its Cancel must take no click or key meanwhile.
+  it("goes inert at once when the traveller returns to /form", async () => {
     const { rerender } = renderAt("/about");
     start();
     await screen.findByText("Your trip is being planned");
@@ -92,8 +92,32 @@ describe("GenerationToast", () => {
       </>,
     );
 
-    await waitFor(() => expect(screen.queryByRole("button", { name: "Cancel" })).toBeNull());
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Cancel" }).closest("[inert]")).not.toBeNull(),
+    );
     expect(screen.getByTestId("pending")).toHaveTextContent("true");
+  });
+
+  // Removing it under the cursor would leave the Toaster paused, so later toasts never leave.
+  it("is dismissed, not removed, on /form", async () => {
+    const remove = vi.spyOn(toast, "remove");
+    const dismiss = vi.spyOn(toast, "dismiss");
+    const { rerender } = renderAt("/about");
+    start();
+    await screen.findByText("Your trip is being planned");
+
+    routerState.pathname = "/form";
+    window.history.replaceState(null, "", "/form");
+    rerender(
+      <>
+        <Toaster />
+        <GenerationToast />
+        <Starter />
+      </>,
+    );
+
+    await waitFor(() => expect(dismiss).toHaveBeenCalledWith(GENERATION_TOAST));
+    expect(remove).not.toHaveBeenCalledWith(GENERATION_TOAST);
   });
 
   it("becomes the way to the trip when it lands, without moving the traveller", async () => {
@@ -131,8 +155,21 @@ describe("GenerationToast", () => {
     expect(replace).not.toHaveBeenCalled();
   });
 
-  // Landing while the traveller happens to be on that trip's page: nothing to open.
-  it("offers no View on the trip's own page", async () => {
+  // Nothing else links to an unanswered trip, so the toast has no Dismiss to lose it by.
+  it("offers only View, no Dismiss", async () => {
+    renderAt("/about");
+    start();
+    await screen.findByText("Your trip is being planned");
+
+    settle(generatedTripFixture);
+
+    await screen.findByText("Your trip has been generated!");
+    expect(screen.getByRole("link", { name: "View" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Dismiss" })).toBeNull();
+  });
+
+  // On that trip's page its job is done; with no Dismiss it would otherwise stay for good.
+  it("closes itself on the trip's own page", async () => {
     renderAt(`/trips/${generatedTripFixture.tripUrl}`);
     start();
     await screen.findByText("Your trip is being planned");
@@ -140,8 +177,9 @@ describe("GenerationToast", () => {
     settle(generatedTripFixture);
 
     await screen.findByText("Your trip has been generated!");
-    expect(screen.queryByRole("link", { name: "View" })).toBeNull();
-    expect(screen.getByRole("button", { name: "Dismiss" })).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText("Your trip has been generated!")).toBeNull(), {
+      timeout: 2000,
+    });
   });
 
   it("asks before a reload while a generation is pending, and not after", async () => {

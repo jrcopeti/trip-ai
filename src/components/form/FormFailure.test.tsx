@@ -18,7 +18,7 @@ import type { FieldName, FormContextType, Inputs } from "@/types";
 // drive what Form shows. Only the server action and the browser-side lookups are mocked.
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
-vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn() } }));
+vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn(), remove: vi.fn() } }));
 vi.mock("@/hooks/useGeoNames", () => ({
   idleCityCheck: { isCityValid: false, isLoadingCityValid: false, message: "", place: null },
   useGeoNames: () => ({

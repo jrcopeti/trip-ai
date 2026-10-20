@@ -28,6 +28,7 @@ loadEnvConfig(process.cwd());
 const SAVER = "Journeysave";
 const DISCARDER = "Journeydiscard";
 const LEAVER = "Journeyleave";
+const CANCELLER = "Journeycancel";
 
 test.skip(
   !!process.env.PLAYWRIGHT_BASE_URL,
@@ -42,7 +43,7 @@ async function deleteOwnRows() {
   const prisma = new PrismaClient();
   try {
     await prisma.trip.deleteMany({
-      where: { userName: { in: [SAVER, DISCARDER, LEAVER].map((n) => n.toLowerCase()) } },
+      where: { userName: { in: [SAVER, DISCARDER, LEAVER, CANCELLER].map((n) => n.toLowerCase()) } },
     });
   } finally {
     await prisma.$disconnect();
@@ -242,5 +243,43 @@ test.describe("trip journey", () => {
     await expect(page).toHaveURL(/\/trips\/[0-9a-f]{12}$/);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(tripDataFixture.title!);
     await expect(view).toBeHidden();
+  });
+
+  test("the loader's Cancel goes back to the review step, answers kept, and its toast goes", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await stubLookups(page);
+    await page.goto("/form");
+    await walkAllSteps(page, CANCELLER);
+
+    // Held, so Cancel is pressed while the generation is still pending.
+    let release = () => {};
+    const held = new Promise<void>((r) => (release = r));
+    await page.route("**/form", async (route) => {
+      if (route.request().method() === "POST") await held;
+      await route.continue();
+    });
+    await page.getByRole("button", { name: "Plan my trip" }).click();
+    // Out and back through the planning toast's View: the toast leaves from under the cursor.
+    await page.getByRole("link", { name: "Browse saved trips" }).click();
+    await page
+      .getByRole("status")
+      .filter({ hasText: "Your trip is being planned" })
+      .getByRole("link", { name: "View" })
+      .click();
+    await page.getByRole("button", { name: "Cancel" }).click();
+
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Review and submit");
+    await expect(page.getByText(CANCELLER)).toBeVisible();
+    const cancelled = page.getByRole("alert").filter({ hasText: "Your trip was cancelled" });
+    await expect(cancelled).toBeVisible();
+    // Shows and goes: a Toaster left paused by the removed toast kept it up for good.
+    await expect(cancelled).toBeHidden({ timeout: 9000 });
+
+    // Its trip lands to nothing: no toast, no redirect.
+    const landed = page.waitForResponse((r) => r.request().method() === "POST" && r.url().endsWith("/form"));
+    release();
+    await landed;
+    await expect(page).toHaveURL(/\/form$/);
+    await expect(page.getByText("Your trip has been generated!")).toBeHidden();
   });
 });

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { BiMessageSquareDots, BiMessageSquareX, BiSolidCheckCircle } from "react-icons/bi";
+import { BiMessageSquareCheck, BiMessageSquareDots, BiMessageSquareX } from "react-icons/bi";
 
 const tones = {
   info: { role: "status", icon: <BiMessageSquareDots aria-hidden size={22} className="shrink-0" /> },
@@ -7,7 +7,7 @@ const tones = {
     role: "status",
     icon: (
       <span aria-hidden className="shrink-0 text-sorbet-success">
-        <BiSolidCheckCircle size={22} />
+        <BiMessageSquareCheck size={22} />
       </span>
     ),
   },
