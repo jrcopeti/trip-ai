@@ -38,18 +38,21 @@ vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("@/app/api/geoNamesApi", () => ({
   resolvePlace: vi.fn().mockResolvedValue({ ok: false, error: "not-found" }),
 }));
-// Stable across renders, as the real ones are (TanStack's `mutate`, the query's data):
+// Stable across renders, as the real ones are (the provider's callbacks, the query's data):
 // a new function or array per render would change the context and void the measure.
-const { generateTrip, reset, countries } = vi.hoisted(() => ({
-  generateTrip: () => {},
-  reset: () => {},
+const { generation, countries } = vi.hoisted(() => ({
+  generation: {
+    state: { pending: null, result: null },
+    generateTrip: () => {},
+    cancel: () => {},
+    clearResult: () => {},
+  },
   countries: [
     { value: "Portugal", label: "Portugal", code: "pt", flagUrl: "https://flagcdn.com/pt.svg" },
   ],
 }));
 vi.mock("@/hooks/useTripGeneration", () => ({
-  generateTripKey: ["generateTrip"],
-  useTripGeneration: () => ({ generateTrip, isPending: false, error: null, reset }),
+  useTripGeneration: () => generation,
 }));
 vi.mock("@/hooks/useCountries", () => ({
   useCountries: () => ({ countries, isLoading: false }),

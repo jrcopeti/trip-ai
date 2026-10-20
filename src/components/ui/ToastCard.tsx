@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import toast, { type ToastOptions } from "react-hot-toast";
 import { BiMessageSquareCheck, BiMessageSquareDots, BiMessageSquareX } from "react-icons/bi";
 
 const tones = {
@@ -49,6 +50,21 @@ function ToastCard({
       </p>
       {children && <div className="flex items-center justify-end gap-2">{children}</div>}
     </div>
+  );
+}
+
+/**
+ * Shows `card` as a custom toast. Dismissed, it is invisible and inert at once: react-hot-toast
+ * animates no custom toast out and keeps it in the page for 1s, drawn and focusable.
+ */
+export function showToast(card: ReactNode, options?: ToastOptions) {
+  return toast.custom(
+    (t) => (
+      <div inert={!t.visible} className={t.visible ? undefined : "invisible"}>
+        {card}
+      </div>
+    ),
+    options,
   );
 }
 

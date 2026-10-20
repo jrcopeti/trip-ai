@@ -1,7 +1,6 @@
 "use client";
 
-import { useIsMutating, useQueryClient } from "@tanstack/react-query";
-import { generateTripKey, stopGeneration } from "@/hooks/useTripGeneration";
+import { useTripGeneration } from "@/hooks/useTripGeneration";
 import { useFormFields, useFormSteps } from "@/hooks/useFormData";
 
 import ProgressBar from "./Progress";
@@ -18,31 +17,20 @@ import LoaderResponseAI from "../ui/LoaderResponseAI";
 import { failure } from "./content";
 
 function Form() {
-  const { handleSubmit, processForm, isGenerationPending, generationError, resetGeneration } =
-    useFormFields();
+  const { handleSubmit, processForm } = useFormFields();
   const { isDraftRestored } = useFormSteps();
-  // Also one from before /form last unmounted: the form behind it would send a second trip.
-  const isGenerating = useIsMutating({ mutationKey: generateTripKey }) > 0;
-  const queryClient = useQueryClient();
+  // The app's generation, not this form's: one started before /form last unmounted counts too.
+  const { state, cancel, clearResult } = useTripGeneration();
 
-  if (isGenerationPending || isGenerating) {
-    // Leaving the cache doesn't clear this provider's own pending state; `resetGeneration` does.
-    const cancel = () => {
-      stopGeneration(queryClient);
-      resetGeneration();
-    };
+  if (state.pending) {
     return <LoaderResponseAI onCancel={cancel} />;
   }
 
-  if (generationError) {
-    // Clearing the error shows the form again, still on the review step with
-    // every answer: it is cleared only when a trip comes back.
+  if (state.result?.kind === "failed") {
+    // "Try again" shows the form again, on the review step with every answer: the draft
+    // is cleared only when a trip comes back.
     return (
-      <NotFoundComponent
-        message={failure.message}
-        button={failure.button}
-        onAction={resetGeneration}
-      />
+      <NotFoundComponent message={failure.message} button={failure.button} onAction={clearResult} />
     );
   }
 

@@ -229,7 +229,7 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
   and its copy in `content.ts`. A record now; what binds is in `design-notes.md`.
 - **`docs/grounded-agent/PLAN.md`** — the **grounded agent**, in flight. Branch 1
   (new form fields, the city check and the prompt on the server, `claude-sonnet-5-5`) is
-  finished; branch 2 (the server-owned trip) is in progress, 2a–2e-e and 2f merged, 2e-f (`background-generation`) staged; 3–7
+  finished; branch 2 (the server-owned trip) is in progress, 2a–2e-e and 2f merged, 2e-f (`background-generation`) in review; 3–7
   (metrics, tools, refine, evals, MCP) are next.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
@@ -255,19 +255,32 @@ architecture). A plan is for work in flight.
    read on the server (`getSingleSavedTrip`). Both routes render `TripPage` with the row as
    a `trip` prop; each has a `loading.tsx` with the squiggle `Loader`.
 
-### State management: one provider, scoped to `/form`
+### State management: the generation at the root, the form scoped to `/form`
 The root `src/app/providers.tsx` keeps QueryClient, `MotionProvider`, the Toaster and
-`GenerationToast`, which follows a generation the traveller left `/form` during (a toast with
-Cancel and View, then View or a way back to the form) and asks before a reload while one is pending.
+**`GenerationProvider`** (`src/context/GenerationContext.tsx`), which owns the trip generation
+for the whole app, so it outlives `/form`:
+- Its state is one value, in a zustand store created per provider (never module-level: it
+  would be shared across server requests and tests), changed only by `transition`
+  (`src/lib/generation.ts`, pure): the
+  generation in flight, by a token, and the last result. Each transition returns at most one
+  effect (clear the draft, open the trip, say it was cancelled or failed), which the provider
+  runs. A landing whose token isn't the one in flight changes nothing.
+- It makes the call to `generateTrip`, redirects a trip that lands on `/form` to
+  `/trips/[tripUrl]`, and asks before a reload while one is pending.
+- **`GenerationToast`** is the only code that shows or dismisses the generation's toasts: it
+  keeps them equal to `toastsFor(state, pathname)` (planning off `/form`, the ready trip until
+  its page, a failure off `/form`).
+- **`useTripGeneration`** (`src/hooks/`) reads it: `state`, `generateTrip`, `cancel`,
+  `clearResult`. `Form` shows the loader while one is pending and the failure panel after one failed.
+
+Every custom toast goes through **`showToast`** (`ui/ToastCard.tsx`), which hides a dismissed one
+at once, and none is removed (`toast.remove` under the cursor leaves the Toaster paused);
+`src/test/hygiene.test.ts` enforces both.
+
 `src/app/form/layout.tsx` renders **`FormProvider`** (`src/context/FormContext.tsx`), so the
 form's state goes when the traveller leaves `/form`. It owns the multi-step form — RHF and Zod
-(`FormDataSchema`), the step (`next`/`prev`), the city check, the weather choice — and runs one
-hook of its own:
-- **`useTripGeneration`** (`src/hooks/`) — the TanStack mutation that sends a `TripRequest` to
-  `generateTrip` and, on `/form`, redirects to `/trips/[tripUrl]`; off it, the trip or the failure
-  arrives as a toast. Keyed (`generateTripKey`), so `Form` shows the loader and `GenerationToast`
-  the toast for one that outlived the provider; `stopGeneration` drops it from the cache and
-  ignores its landing. Its pending, error and reset reach `Form` through the fields context.
+(`FormDataSchema`), the step (`next`/`prev`), the city check, the weather choice — and on submit
+hands the `TripRequest` to `useTripGeneration().generateTrip`.
 
 The form fetches no weather: the request carries the choice (`byWeather`), and the server fetches
 the forecast.
@@ -295,7 +308,7 @@ is kept on the client after the submit.
 - `useSaveTrip(tripUrl)` — `handleYesAnswer`/`handleNoAnswer` call `setTripSaved(tripUrl, true/false)`; `isAnswered` once one lands
 - `useFormSteps`, `useFormFields`, `useCityCheck` — `FormContext`'s three memoised contexts,
   so a keystroke in the city re-renders only its readers; `useFormData` reads all three, for tests
-- `useTripGeneration` — `FormProvider`'s generation mutation (see State management)
+- `useTripGeneration` — the app's trip generation, from `GenerationProvider` (see State management)
 - `useCountries` — the country list (flag URLs, ISO codes) for the autocomplete; a TanStack query fetched once per session
 - `useGeoNames` — debounced city check, through the `resolvePlace` server action; run once in
   `FormProvider`, which hands it out as `cityCheck`

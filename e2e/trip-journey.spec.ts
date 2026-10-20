@@ -228,6 +228,8 @@ test.describe("trip journey", () => {
     await expect(page).toHaveURL(/\/form$/);
     await expect(page.getByRole("link", { name: "Browse saved trips" })).toBeVisible();
     await expect(planning).toBeHidden();
+    // By what's drawn, not the accessibility tree: the dismissed card stays in the page 1s.
+    await expect(page.getByText("Your trip is being planned")).toBeHidden();
     await page.getByRole("link", { name: "Browse saved trips" }).click();
     await expect(page).toHaveURL(/\/saved-trips$/);
     await expect(planning).toBeVisible();

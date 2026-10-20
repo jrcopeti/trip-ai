@@ -2,9 +2,9 @@
 import { useRouter } from "next/navigation";
 import { setTripSaved } from "@/db/actions";
 import { useMutation } from "@tanstack/react-query";
-import toast from "react-hot-toast";
 import ErrorToaster from "@/components/ui/ErrorToaster";
 import CustomToaster from "@/components/ui/CustomToaster";
+import { showToast } from "@/components/ui/ToastCard";
 
 /** The traveller's answer to "save this trip?": the row is already written, so only `saved` changes. */
 export function useSaveTrip(tripUrl: string) {
@@ -24,7 +24,7 @@ export function useSaveTrip(tripUrl: string) {
 
     onError: (error) => {
       console.error(error);
-      toast.custom(
+      showToast(
         <ErrorToaster message="An error occured and your trip was not saved" />,
       );
     },
@@ -33,7 +33,7 @@ export function useSaveTrip(tripUrl: string) {
   const handleYesAnswer = () => {
     saveTrip(true, {
       onSuccess: () => {
-        toast.custom(<CustomToaster message="Your trip was saved" />);
+        showToast(<CustomToaster message="Your trip was saved" />);
       },
     });
   };
@@ -41,7 +41,7 @@ export function useSaveTrip(tripUrl: string) {
   const handleNoAnswer = () => {
     saveTrip(false, {
       onSuccess: () => {
-        toast.custom(<ErrorToaster message="Trip was not saved" />);
+        showToast(<ErrorToaster message="Trip was not saved" />);
       },
     });
   };

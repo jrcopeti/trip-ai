@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
-import ToastCard from "./ToastCard";
+import { act, render, screen } from "@testing-library/react";
+import toast, { Toaster } from "react-hot-toast";
+import ToastCard, { showToast } from "./ToastCard";
 import CustomToaster from "./CustomToaster";
 import ErrorToaster from "./ErrorToaster";
 
@@ -39,5 +40,20 @@ describe("ToastCard", () => {
     expect(plain.className).not.toContain("w-[min(24rem");
     expect(withActions.className).toContain("w-[min(24rem");
     expect(withActions).toContainElement(screen.getByRole("button", { name: "View" }));
+  });
+});
+
+describe("showToast", () => {
+  it("hides a dismissed toast and takes it out of reach at once", async () => {
+    render(<Toaster />);
+    act(() => {
+      showToast(<ToastCard message="Your trip was saved" />, { id: "saved" });
+    });
+    expect(screen.getByText("Your trip was saved").closest("[inert]")).toBeNull();
+
+    act(() => toast.dismiss("saved"));
+
+    const inert = screen.getByText("Your trip was saved").closest("[inert]");
+    expect(inert).toHaveClass("invisible");
   });
 });

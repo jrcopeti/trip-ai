@@ -81,10 +81,6 @@ export interface FormFieldsContextType {
   setValue: (name: FieldName, value: string) => void;
   isWeatherSelected: boolean;
   setIsWeatherSelected: (value: boolean) => void;
-  /** This form's generation: `Form` shows the loader, then a failure until `resetGeneration`. */
-  isGenerationPending: boolean;
-  generationError: unknown;
-  resetGeneration: () => void;
 }
 export interface CityCheckContextType {
   countryCode?: string;

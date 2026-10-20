@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
-import { makeQueryClient, renderWithProviders, screen, waitFor } from "@/test/render";
+import { renderWithProviders, screen } from "@/test/render";
 import { FormProvider } from "@/context/FormContext";
+import { GenerationProvider } from "@/context/GenerationContext";
 import { useFormData } from "@/hooks/useFormData";
 import Form from "@/components/form/Form";
 import { generateTrip } from "@/app/api/anthropicApi";
@@ -12,7 +13,7 @@ import type { FormContextType } from "@/types";
 
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
-vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn(), remove: vi.fn() } }));
+vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn(), dismiss: vi.fn() } }));
 vi.mock("@/components/ui/LoaderResponseAI", () => ({
   default: ({ onCancel }: { onCancel: () => void }) => (
     <>
@@ -43,11 +44,16 @@ function Probe() {
   return null;
 }
 
-const tree = (
-  <FormProvider>
-    <Probe />
-    <Form />
-  </FormProvider>
+/** The root's provider stays; `/form`'s, with the form, mounts only when `onForm`. */
+const tree = (onForm = true) => (
+  <GenerationProvider>
+    {onForm && (
+      <FormProvider>
+        <Probe />
+        <Form />
+      </FormProvider>
+    )}
+  </GenerationProvider>
 );
 
 beforeEach(() => {
@@ -55,20 +61,19 @@ beforeEach(() => {
   vi.mocked(generateTrip).mockReset();
 });
 
-// The provider unmounts with /form, but the generation outlives them and still redirects.
+// /form's provider unmounts with the route; the generation, in the root's, outlives it.
 describe("Form — a generation still running when /form mounts again", () => {
   it("shows the loader rather than an empty form that could be sent twice", async () => {
     vi.mocked(generateTrip).mockReturnValue(new Promise(() => {}));
-    const queryClient = makeQueryClient();
-    const first = renderWithProviders(tree, { queryClient });
+    const { rerender } = renderWithProviders(tree());
     await act(async () => {
       ctx.processForm(validInputs, undefined);
     });
-    // TanStack notifies on its next tick; "Plan my trip" also re-renders through RHF's `formState`.
-    expect(await screen.findByText("Generating your trip")).toBeInTheDocument();
-    first.unmount();
+    expect(screen.getByText("Generating your trip")).toBeInTheDocument();
 
-    renderWithProviders(tree, { queryClient });
+    rerender(tree(false));
+    expect(screen.queryByText("Generating your trip")).toBeNull();
+    rerender(tree());
 
     expect(screen.getByText("Generating your trip")).toBeInTheDocument();
     expect(
@@ -79,24 +84,19 @@ describe("Form — a generation still running when /form mounts again", () => {
   // The step and answers are the provider's, so the form reopens where it was sent from.
   it("goes back to the form when the loader's Cancel is pressed", async () => {
     vi.mocked(generateTrip).mockReturnValue(new Promise(() => {}));
-    renderWithProviders(tree);
+    renderWithProviders(tree());
     await act(async () => {
       ctx.processForm(validInputs, undefined);
     });
-    await screen.findByText("Generating your trip");
 
-    await act(async () => {
-      screen.getByRole("button", { name: "Cancel" }).click();
-    });
+    act(() => screen.getByRole("button", { name: "Cancel" }).click());
 
-    // TanStack notifies on its next tick.
-    await waitFor(() => expect(screen.queryByText("Generating your trip")).toBeNull());
+    expect(screen.queryByText("Generating your trip")).toBeNull();
     expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
-    expect(ctx.isGenerationPending).toBe(false);
   });
 
   it("shows the form once nothing is generating", () => {
-    renderWithProviders(tree);
+    renderWithProviders(tree());
     expect(
       screen.getByRole("heading", { level: 1, name: stepCopy[0].title }),
     ).toBeInTheDocument();

@@ -744,6 +744,34 @@ its own, in this order (2h is independent and can land any time):
       nothing pending (a Cancel as the trip lands), `stopGeneration` does nothing and says nothing.
     - The loader and toasts use pills, not quiet text buttons: Cancel and Dismiss lime, the way
       onward (View, Browse saved trips, Back to the form) ink.
+    **Rebuilt on one state (from the audit after the fifth review).** Every review found a new
+    timing case because five places changed the same toasts, `Form` read two disagreeing
+    "pending" flags (its own mutation, and the cache), and a trip's landing ran in a provider that
+    might be gone. Rebuilt on this branch, nothing the traveller sees changes:
+    - **One state, one pure transition function** (`src/lib/generation.ts`): the generation in
+      flight (a token, or none) and the last result (ready with its url, or failed; fresh until
+      the root has seen the route it landed on). `start`, `land`, `fail`, `cancel`, `route`
+      (the current path) and `clearResult` each return the next state and at most one effect
+      (`clearDraft`, `open`, `failedOnForm`, `cancelled`). A landing whose token isn't the one in
+      flight changes nothing, so a cancelled generation's trip lands to nothing by construction.
+    - **One pure toast function**, `toastsFor(state, pathname)`: planning off `/form` while
+      pending; the settled ready result except on its trip's page; the settled failure off `/form`.
+    - **`GenerationProvider`** (`src/context/GenerationContext.tsx`, in the root providers, never
+      unmounted) holds the state in a zustand store created per provider (a module-level one would be
+      shared across server requests and tests), makes the call (no TanStack mutation), runs the effects and
+      redirects from `/form` with the router's own path. `GenerationToast` is the only code that
+      shows or dismisses the generation's toasts, from `toastsFor`; nothing calls `toast.remove`.
+      Cancelled, opened and the on-`/form` failure are timed notices under one id.
+    - **`Form` reads that state**: pending shows the loader, failed the failure panel (also after
+      coming back through View or "Back to the form"); Cancel and "Try again" are one call each.
+    - **`showToast`** (`ToastCard.tsx`) shows every custom toast, the city check's and saving's
+      too: a dismissed one is `invisible` and `inert` at once, as react-hot-toast doesn't animate
+      a custom toast out and keeps it in the page 1s.
+    - Tests: every transition from every state, and `toastsFor` on every route, as tables; the
+      provider's behaviour (redirect, toasts, draft, cancel, failure, reload warning) as before;
+      e2e checks the planning card is hidden by visibility, not by the accessibility tree.
+    - Still accepted: a trip landing in the moment a navigation away from `/form` is committing
+      still opens it (the router's path changes on commit).
 - **2e-g · `one-open-trip`: one unanswered trip at a time, per browser.** From 2e-f's review.
   With the result toast capped at one, a traveller could generate trip after trip without ever
   looking at them. Rule: while a trip they generated is unanswered (neither "Yes, save it" nor

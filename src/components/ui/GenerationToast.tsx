@@ -1,52 +1,58 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { useIsMutating, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { generateTripKey, stopGeneration } from "@/hooks/useTripGeneration";
-import { useConfirmOnPageExit } from "@/hooks/useConfirmonPageExit";
-import { GENERATION_TOAST, PlanningToast } from "./GenerationToasts";
+import { useTripGeneration } from "@/hooks/useTripGeneration";
+import { toastsFor } from "@/lib/generation";
+import { showToast } from "./ToastCard";
+import {
+  FailedToast,
+  PLANNING_TOAST,
+  PlanningToast,
+  ReadyToast,
+  RESULT_TOAST,
+} from "./GenerationToasts";
 
 /**
- * Follows a generation off `/form`: while one is pending anywhere else, a persistent toast
- * says so and offers Cancel. On `/form` the loader shows instead. Its arrival and failure
- * replace this toast from `useTripGeneration`. Asks before a reload while one is pending.
+ * The only code that shows or dismisses the generation's planning and result toasts: it keeps
+ * them equal to `toastsFor(state, pathname)`, and shows each only when it changes, so a route
+ * change doesn't re-announce it. Toasts are dismissed, never removed (see the comment below).
  */
 function GenerationToast() {
-  const queryClient = useQueryClient();
+  const { state, cancel, clearResult } = useTripGeneration();
   const pathname = usePathname();
-  const isGenerating = useIsMutating({ mutationKey: generateTripKey }) > 0;
-  useConfirmOnPageExit(isGenerating);
+  const { planning, result } = toastsFor(state, pathname);
+  const resultKey = result && (result.kind === "ready" ? `ready:${result.tripUrl}` : "failed");
 
-  // Shown once per generation: re-creating it on each route would re-announce it.
-  const isShown = useRef(false);
+  const shown = useRef({ planning: false, resultKey: null as string | null });
+
+  // Dismissed, not removed: a toast removed under the cursor gets no mouseleave, and the
+  // Toaster's hover pause then holds every later toast on screen for good.
+  useEffect(() => {
+    if (planning === shown.current.planning) return;
+    shown.current.planning = planning;
+    if (planning) {
+      showToast(<PlanningToast onCancel={cancel} />, { id: PLANNING_TOAST, duration: Infinity });
+    } else {
+      toast.dismiss(PLANNING_TOAST);
+    }
+  }, [planning, cancel]);
 
   useEffect(() => {
-    // Not dismissed when it settles: by then the result or cancelled toast has taken over.
-    if (!isGenerating) {
-      isShown.current = false;
+    if (resultKey === shown.current.resultKey) return;
+    shown.current.resultKey = resultKey;
+    if (!result) {
+      toast.dismiss(RESULT_TOAST);
       return;
     }
-    if (pathname === "/form") {
-      // Dismissed, not removed: a toast removed under the cursor gets no mouseleave, so the
-      // Toaster stays paused and every later toast stays up. Dismissed, it's hidden and inert (below).
-      toast.dismiss(GENERATION_TOAST);
-      isShown.current = false;
-      return;
-    }
-    if (isShown.current) return;
-    isShown.current = true;
-    // A custom toast gets no exit animation: dismissed, it would stay drawn for react-hot-toast's
-    // 1s remove delay. Hidden and inert at once, its Cancel is neither seen nor reached.
-    toast.custom(
-      (t) => (
-        <div inert={!t.visible} className={t.visible ? undefined : "opacity-0"}>
-          <PlanningToast onStop={() => stopGeneration(queryClient)} />
-        </div>
-      ),
-      { id: GENERATION_TOAST, duration: Infinity },
-    );
-  }, [isGenerating, pathname, queryClient]);
+    const card =
+      result.kind === "ready" ? (
+        <ReadyToast tripUrl={result.tripUrl} />
+      ) : (
+        <FailedToast onDismiss={clearResult} />
+      );
+    showToast(card, { id: RESULT_TOAST, duration: Infinity });
+  }, [resultKey, result, clearResult]);
 
   return null;
 }

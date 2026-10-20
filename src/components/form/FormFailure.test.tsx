@@ -3,6 +3,7 @@ import { act } from "react";
 import userEvent from "@testing-library/user-event";
 import { renderWithProviders, screen } from "@/test/render";
 import { FormProvider } from "@/context/FormContext";
+import { GenerationProvider } from "@/context/GenerationContext";
 import { useWatch } from "react-hook-form";
 import { useFormData } from "@/hooks/useFormData";
 import Form from "@/components/form/Form";
@@ -14,11 +15,11 @@ import { resetNextStubs } from "@/test/stubs/next";
 import toast from "react-hot-toast";
 import type { FieldName, FormContextType, Inputs } from "@/types";
 
-// The real FormProvider and its trip generation, so the mutation's error and its reset
+// The real FormProvider and the app's generation, so its failure and "Try again"
 // drive what Form shows. Only the server action and the browser-side lookups are mocked.
 vi.mock("@/app/api/anthropicApi", () => ({ generateTrip: vi.fn() }));
 vi.mock("next/navigation", () => import("@/test/stubs/next"));
-vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn(), remove: vi.fn() } }));
+vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn(), dismiss: vi.fn() } }));
 vi.mock("@/hooks/useGeoNames", () => ({
   idleCityCheck: { isCityValid: false, isLoadingCityValid: false, message: "", place: null },
   useGeoNames: () => ({
@@ -61,14 +62,16 @@ async function fillAndSubmit() {
 }
 
 beforeEach(() => {
-  resetNextStubs();
+  resetNextStubs("/form");
   mockGenerate.mockReset();
   vi.spyOn(console, "error").mockImplementation(() => {});
   renderWithProviders(
-    <FormProvider>
-      <Probe />
-      <Form />
-    </FormProvider>,
+    <GenerationProvider>
+      <FormProvider>
+        <Probe />
+        <Form />
+      </FormProvider>
+    </GenerationProvider>,
   );
 });
 
