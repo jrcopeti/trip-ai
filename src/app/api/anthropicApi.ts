@@ -38,8 +38,8 @@ export async function generateTrip(input: unknown, signal?: AbortSignal): Promis
 
   signal?.throwIfAborted();
   const resolved = await resolvePlace(req.city, req.countryCode);
-  if (!resolved.ok) throw new Error(`The city could not be resolved: ${resolved.error}`);
   signal?.throwIfAborted();
+  if (!resolved.ok) throw new Error(`The city could not be resolved: ${resolved.error}`);
 
   // Searched by GeoNames' name, not the raw spelling; a trip without photos is still a trip.
   const images = fetchTripImage(resolved.place.name).catch(() => ({

@@ -342,6 +342,18 @@ describe("generateTrip — stopped", () => {
     expect(write).not.toHaveBeenCalled();
   });
 
+  it("aborted during a city lookup that then fails: rejects with the signal's reason", async () => {
+    const controller = new AbortController();
+    vi.mocked(resolvePlace).mockImplementation(async () => {
+      controller.abort();
+      return { ok: false, error: "unavailable" };
+    });
+
+    await expect(generateTrip(validTripRequest, controller.signal)).rejects.toBe(
+      controller.signal.reason,
+    );
+  });
+
   it("aborted while the photos load: writes nothing", async () => {
     const controller = new AbortController();
     let photosArrive = () => {};

@@ -936,6 +936,12 @@ its own, in this order (2h is independent and can land any time):
     console was only ever the traveller's; the 2s hold on every e2e generation; no
     `server-only` guard (the package isn't installed); `maxDuration` 300 (the default with
     Fluid compute).
+  - **Review of `8fc3831`**, fixed: a cancel during a city lookup that then failed was logged as
+    a failure (the signal is checked before the lookup's error now). Left as is, by choice: the
+    rest were about whether a rare cancel prints a log line (an abort the SDK reports otherwise,
+    a wrapped abort), the fixture's handling of an already-aborted signal (the caller checks
+    first), and nits (the docblock's fourth line, the mock `APIError`'s constructor, an export,
+    the control's full form walk). No trip, row or bill depends on them.
   - Tests: an aborted signal aborts the SDK stream (mocked at the SDK) and writes no row nor waits
     on the photos; a signal aborted before the call never starts it; the route hands its
     `request.signal` on; the existing failures (refusal, `max_tokens`, no call, invalid trip) still
