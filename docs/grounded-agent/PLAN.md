@@ -1087,7 +1087,7 @@ its own, in this order (2h is independent and can land any time):
       `Radio.Content`; our chips (`ChoiceGroup`, `CustomCheckbox`) render no input under it, so
       11 form tests can't find a radio or checkbox. 2i-a2 moves the chips to `.Content` and
       browser-checks step 2.
-  - **2i-a2 · `heroui-3-2`: the chips on HeroUI 3.2.** Done, staged. `@heroui/react` 3.2.6,
+  - **2i-a2 · `heroui-3-2`: the chips on HeroUI 3.2.** Merged (#224). `@heroui/react` 3.2.6,
     installed by removing 3.0.5 first: its pinned React Aria subtree (`@react-aria/ssr` 3.10.0)
     made npm refuse 3.2.6's peers in place. `ChoiceGroup` and `CustomCheckbox` put the chip
     on `Radio.Content` / `Checkbox.Content`, the label holding the input. The root takes
@@ -1106,6 +1106,23 @@ its own, in this order (2h is independent and can land any time):
     updates immediately; GitHub Actions versions included. Installing the Renovate app and
     the repository's branch protection are outward-facing — ask first. Bot PRs run the same four
     required checks (e2e needs no secrets). Merged by hand after a look at the diff; no automerge.
+    - **Done, staged.** `renovate.json`: `config:recommended`, Mondays before 6am UTC,
+      `rangeStrategy: bump` (the carets 2i-a raised), majors behind dashboard approval, the
+      groups above (`eslint-config-next` rides with `next`), and the SDK's 0.x minors held for
+      approval too: under semver a 0.x minor may break, and it drives the agent. Security PRs
+      skip the schedule; `osvVulnerabilityAlerts` finds them without GitHub's Dependabot alerts.
+      Checks: `renovate-config-validator --strict` passes; a local dry run
+      (`renovate --platform=local --dry-run=full`) finds no non-major bump (2i-a cleared them)
+      and these branches: the SDK 0.137 (held) and 1.0.0 (held, released today), the majors
+      (Prisma 7, zod 4, `@hookform/resolvers` 6, `framer-motion` 14 and its `motion`
+      replacement, `react-day-picker` 10, TypeScript 7, ESLint 10, CI's `postgres` 16 → 18),
+      and **a security PR for `sharp` 0.34.5 → 0.35.5** (three advisories). GitHub Actions are
+      on major tags, so their bumps arrive as held majors.
+    - `@types/locomotive-scroll` removed, left over from the old look; the hygiene test's
+      `package.json` check now also catches a removed package's `@types/`.
+    - **Install order:** merge this branch, then install the Renovate GitHub app on the repo
+      (the user, in the browser). With `renovate.json` already on `main` Renovate skips its
+      onboarding PR, so its first PR is the `sharp` security fix, left for Renovate to open.
   - **2i-c… · the majors, one branch each, by request, in this order:** `@anthropic-ai/sdk`
     (touches the agent, so it goes before 3–7 build on it), `@hookform/resolvers` with zod,
     `framer-motion`, `react-day-picker`, Prisma 7 (schema, client generation, the Neon

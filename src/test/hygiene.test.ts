@@ -62,7 +62,9 @@ describe("the old look is gone", () => {
     const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
     const listed = Object.keys({ ...pkg.dependencies, ...pkg.devDependencies });
 
-    expect(listed.filter((dep) => REMOVED_DEPS.includes(dep))).toEqual([]);
+    expect(
+      listed.filter((dep) => REMOVED_DEPS.some((d) => dep === d || dep === `@types/${d}`)),
+    ).toEqual([]);
   });
 
   it("uses no old-palette colour, as a class or a token", () => {

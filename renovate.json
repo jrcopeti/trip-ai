@@ -1,0 +1,48 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "schedule": ["before 6am on monday"],
+  "rangeStrategy": "bump",
+  "dependencyDashboard": true,
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "labels": ["security"]
+  },
+  "major": {
+    "dependencyDashboardApproval": true
+  },
+  "packageRules": [
+    {
+      "description": "Every non-major bump not named below, in one weekly PR.",
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "non-major dependencies"
+    },
+    {
+      "matchPackageNames": ["next", "eslint-config-next"],
+      "groupName": "next"
+    },
+    {
+      "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"],
+      "groupName": "react"
+    },
+    {
+      "matchPackageNames": ["@heroui/react"],
+      "groupName": "heroui"
+    },
+    {
+      "matchPackageNames": ["@anthropic-ai/sdk"],
+      "groupName": "anthropic sdk"
+    },
+    {
+      "description": "Pre-1.0, so a minor may break the agent: it waits for approval like a major.",
+      "matchPackageNames": ["@anthropic-ai/sdk"],
+      "matchCurrentVersion": "<1.0.0",
+      "matchUpdateTypes": ["minor"],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "matchPackageNames": ["prisma", "@prisma/client"],
+      "groupName": "prisma"
+    }
+  ]
+}
