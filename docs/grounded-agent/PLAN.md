@@ -1132,7 +1132,7 @@ its own, in this order (2h is independent and can land any time):
     (touches the agent, so it goes before 3–7 build on it), `@hookform/resolvers` with zod,
     `framer-motion`, `react-day-picker`, Prisma 7 (schema, client generation, the Neon
     adapter, the e2e push script). Each: plan note on what changed, tests with the change.
-    - **2i-c · `sdk-1`: `@anthropic-ai/sdk` 0.100.1 → 1.0.0.** Done, staged. 1.0 sends API
+    - **2i-c · `sdk-1`: `@anthropic-ai/sdk` 0.100.1 → 1.0.0.** Merged (#228). 1.0 sends API
       version `2026-10-21` (was `2023-06-01`) and the key as `Authorization: Bearer` (was
       `X-Api-Key`); `MessageParam` is a union per role; Text Completions, client-side compaction
       and `betas` on the Models methods are gone ([migration guide](https://platform.claude.com/docs/en/api/migration-2026-10-21#typescript)).
@@ -1144,6 +1144,31 @@ its own, in this order (2h is independent and can land any time):
       the streamed `submit_trip` input with `finalMessage()`, and throws `APIUserAbortError` on an
       abort; type check, unit (1115), build, e2e (81; two `/form` city-check specs failed once
       and passed on rerun, GeoNames). No live call: e2e runs on fixtures.
+    - **2i-d · `zod-4`: `zod` 3.25.76 → 4.6.7, `@hookform/resolvers` 3.10.0 → 5.9.2.** Done,
+      staged. One branch: six files use zod, and only `schema.ts` changes. Its two deprecated
+      calls move on: `z.string().datetime()` → `z.iso.datetime()`, `z.ZodIssueCode.custom` →
+      `"custom"`. The SDK and `eslint-plugin-react-hooks` take zod 4 too (one copy in the tree).
+      - **Resolvers held at 5.9.2, not 6.0.0.** 6.0 (2026-10-19) changes only the Effect
+        resolver (Effect 4), which we don't use, and npm refuses to install it: its optional peer
+        `effect@^4` clashes with `effect@^3` from its other optional peer, `@typeschema/main`,
+        though neither is installed. Renovate's held 6.x PR waits until that's fixed upstream.
+        5.x's own break (`useForm`'s input and output types inferred from the resolver) needed
+        no change: `Inputs` is `z.infer` of the same schema.
+      - **The v4 trap, checked and pinned:** Zod 4 skips an object's refinements after an
+        aborting issue. The form's empty fields fail `min`/`nonempty`, which continue, so
+        `checkEndDate` and `checkAgeRanges` still run while later steps are empty, as in v3; a
+        new `schema.test.ts` case pins it. The request schema skips them on a missing field, as
+        v3 did.
+      - **Fixed here, as asked:** with no date picked, step 5 showed the format message
+        ("Invalid datetime", now "Invalid ISO datetime"), never "Start date is required": the
+        format check fails first and RHF shows a field's first issue. The format check now
+        carries "Start date is required" / "End date is required", and the unreachable
+        `.min(1)` goes; `schema.test.ts` asserts the first message. Seen at 390 on a draft
+        resumed at step 5.
+      - Lockfile: `@standard-schema/utils` (resolvers 5's one dependency) arrives, and eslint's
+        `ajv` 6 moves under eslint, now that resolvers lists `ajv` 8 as an optional peer.
+      - Checks: type check, unit (1118), build, e2e (81); `/form` at 390, step 1's errors
+        and step 1 → 2 through the new resolver, no console messages.
   - Order: 2i-a → 2i-b → majors. Independent of 2e/2h and of branches 3–7, except that the SDK
     major should land before 3.
 - **2j · `readme-phase-2`: the README, caught up.** Review `README.md` against phases 1 and 2:

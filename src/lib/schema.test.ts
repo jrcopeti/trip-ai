@@ -211,6 +211,23 @@ describe("FormDataSchema", () => {
     });
   });
 
+  // Zod 4 skips an object's refinements after an aborting issue (a wrong type), so the
+  // form's unfilled fields must fail as continuable ones, or step 1's errors wait for step 7.
+  it("checks the ages and the dates while later steps are still empty", () => {
+    const midForm = {
+      ...validInputs,
+      travellers: "solo",
+      ageRanges: ["25-30", "31-35"],
+      city: "",
+      interests: [],
+      startDate: "2030-05-08T00:00:00.000Z",
+      endDate: "2030-05-01T00:00:00.000Z",
+      agreement: false,
+    };
+    expect(messagesFor(midForm, "ageRanges")).toContain("A solo trip has one age range");
+    expect(messagesFor(midForm, "endDate")).toContain("End date must be after start date");
+  });
+
   describe("fitsGroup", () => {
     it.each([
       ["0-1", "family", true],
@@ -302,8 +319,11 @@ describe("FormDataSchema", () => {
       );
     });
 
-    it("rejects an empty string", () => {
-      expect(FormDataSchema.safeParse(withField("startDate", "")).success).toBe(false);
+    // RHF shows a field's first issue, so "required" must come before any other.
+    it("says it is required when none is picked", () => {
+      expect(messagesFor(withField("startDate", ""), "startDate")[0]).toBe(
+        "Start date is required",
+      );
     });
   });
 
@@ -327,8 +347,8 @@ describe("FormDataSchema", () => {
       expect(result.success).toBe(true);
     });
 
-    it("rejects an empty string", () => {
-      expect(FormDataSchema.safeParse(withField("endDate", "")).success).toBe(false);
+    it("says it is required when none is picked", () => {
+      expect(messagesFor(withField("endDate", ""), "endDate")[0]).toBe("End date is required");
     });
   });
 });
