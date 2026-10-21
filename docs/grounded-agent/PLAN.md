@@ -1076,7 +1076,7 @@ its own, in this order (2h is independent and can land any time):
     --noEmit`, `npm test`, `npm run build`, `npm run test:e2e`; browser-check `/form`, a trip
     page and `/saved-trips` (design-notes' gotchas on HeroUI and Tailwind bumps). Split off
     `next`, `react`/`react-dom` + their `@types`, and `@heroui/react` if one breaks.
-    - **Done, staged:** type check, unit (1114), build, e2e (81), and `/form` (chips select),
+    - **Merged (#223):** type check, unit (1114), build, e2e (81), and `/form` (chips select),
       `/saved-trips` and a saved trip at 1440 and 390 with reduced motion, no console errors.
       The `deps-safe` skill is stale (it names the removed `gsap`, NextUI,
       `locomotive-scroll` and older versions), so not run; instead `npm update` and each caret
@@ -1087,6 +1087,16 @@ its own, in this order (2h is independent and can land any time):
       `Radio.Content`; our chips (`ChoiceGroup`, `CustomCheckbox`) render no input under it, so
       11 form tests can't find a radio or checkbox. 2i-a2 moves the chips to `.Content` and
       browser-checks step 2.
+  - **2i-a2 · `heroui-3-2`: the chips on HeroUI 3.2.** Done, staged. `@heroui/react` 3.2.6,
+    installed by removing 3.0.5 first: its pinned React Aria subtree (`@react-aria/ssr` 3.10.0)
+    made npm refuse 3.2.6's peers in place. `ChoiceGroup` and `CustomCheckbox` put the chip
+    on `Radio.Content` / `Checkbox.Content`, the label holding the input. The root takes
+    `chipField` (`form/styles.ts`): HeroUI's disabled root gets `status-disabled`, which
+    measured 0.5 × our 0.45 opacity and `pointer-events: none` hiding the `not-allowed` cursor.
+    Design-notes gotcha 12 updated. Checks: the 8 failing form tests pass, unit (1114), build,
+    e2e (81); `/form` at 1440 and 390 with reduced motion: selected, disabled (0.45, cursor)
+    and keyboard focus (2px ink ring) measured, a11y tree has every chip as radio/checkbox,
+    no console errors.
     - **The image stub fixed:** after the Vite 8.3.5 / Vitest 5.0.5 / Rolldown 1.2.15 bump,
       `resolveId` receives the stub's own `\0asset-stub:` id again and prefixed it twice, so every
       stubbed `src` carried the prefix (29 tests). It now returns an id already stubbed as is.

@@ -1,7 +1,7 @@
 "use client";
 import { FieldError, Label, Radio, RadioGroup } from "@heroui/react";
 import ChipCheck from "./ChipCheck";
-import { chip, fieldError, fieldLabel } from "./styles";
+import { chip, chipField, fieldError, fieldLabel } from "./styles";
 
 type Option = { value: string; label: string };
 
@@ -35,9 +35,12 @@ function ChoiceGroup({ label, options, value, onChange, tint, error }: Props) {
       <Label className={fieldLabel}>{label}</Label>
       <div className="flex flex-wrap gap-2">
         {options.map((option) => (
-          <Radio key={option.value} value={option.value} className={chip(tint)}>
-            {option.label}
-            <ChipCheck />
+          <Radio key={option.value} value={option.value} className={chipField}>
+            {/* The label holding the input, and the only part with `data-focus-visible`. */}
+            <Radio.Content className={chip(tint)}>
+              {option.label}
+              <ChipCheck />
+            </Radio.Content>
           </Radio>
         ))}
       </div>

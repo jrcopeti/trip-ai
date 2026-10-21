@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.100.1",
-    "@heroui/react": "^3.0.5",
+    "@heroui/react": "^3.2.6",
     "@hookform/resolvers": "^3.10.0",
     "@plaiceholder/next": "^3.0.0",
     "@prisma/client": "^5.22.0",
