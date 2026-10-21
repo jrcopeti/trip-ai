@@ -1076,6 +1076,20 @@ its own, in this order (2h is independent and can land any time):
     --noEmit`, `npm test`, `npm run build`, `npm run test:e2e`; browser-check `/form`, a trip
     page and `/saved-trips` (design-notes' gotchas on HeroUI and Tailwind bumps). Split off
     `next`, `react`/`react-dom` + their `@types`, and `@heroui/react` if one breaks.
+    - **Done, staged:** type check, unit (1114), build, e2e (81), and `/form` (chips select),
+      `/saved-trips` and a saved trip at 1440 and 390 with reduced motion, no console errors.
+      The `deps-safe` skill is stale (it names the removed `gsap`, NextUI,
+      `locomotive-scroll` and older versions), so not run; instead `npm update` and each caret
+      range raised to the installed version. `next` 16.4.2, `react` 19.3.1, Prisma 5.22,
+      TypeScript 5.9, `react-hook-form` 7.90, TanStack 5.104, Tailwind 4.3.3, Vitest 5.0.5.
+    - **`@heroui/react` held at 3.0.5, split off as 2i-a2 (`heroui-3-2`).** 3.2 makes `Radio`
+      and `Checkbox` a `RadioField`/field wrapper with the clickable input in a new
+      `Radio.Content`; our chips (`ChoiceGroup`, `CustomCheckbox`) render no input under it, so
+      11 form tests can't find a radio or checkbox. 2i-a2 moves the chips to `.Content` and
+      browser-checks step 2.
+    - **The image stub fixed:** after the Vite 8.3.5 / Vitest 5.0.5 / Rolldown 1.2.15 bump,
+      `resolveId` receives the stub's own `\0asset-stub:` id again and prefixed it twice, so every
+      stubbed `src` carried the prefix (29 tests). It now returns an id already stubbed as is.
   - **2i-b · `renovate`: `renovate.json`.** One weekly PR for all non-major bumps; separate PRs for
     `next`, `react`/`react-dom` + `@types`, `@heroui/react`, `@anthropic-ai/sdk`, `prisma` +
     `@prisma/client`; majors held behind the dependency dashboard until approved; security
