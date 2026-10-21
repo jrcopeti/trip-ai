@@ -210,6 +210,11 @@ image-import types and is gitignored — Vitest does not, as it stubs image impo
 The `e2e` job brings up a `postgres` service container, pushes the schema, seeds it and
 runs the suite with `E2E_FIXTURES=1`, so it needs no secrets.
 
+**Renovate** (`renovate.json`) opens the dependency PRs: one weekly for the non-major bumps,
+its own for `next`, React, HeroUI, the Anthropic SDK and Prisma; majors and the SDK's 0.x
+minors wait for approval on the dependency dashboard; security fixes come at once. Each runs
+the same four checks and is merged by hand after a look at the diff; nothing automerges.
+
 After any Prisma schema change: `npx prisma generate` (already included in `build`). To push schema changes to the DB: `npx prisma db push`.
 
 ## Docs
