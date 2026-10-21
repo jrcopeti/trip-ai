@@ -517,6 +517,8 @@ Each of these was a bug, not a theory.
     - Radios and checkboxes (HeroUI 3.2) are a field root around `.Content`, a `<label>`
       around a visually hidden `<input>`; without `.Content` there is no input at all. In
       Playwright, click the label; a forced click on the input does not toggle it.
+      A plain checkbox puts `.Control` **inside** `.Content` (steps 5 and 7): beside it, the
+      box is outside the label and won't toggle, and the `flex-col` root stacks the text under it.
       Style the chip on `.Content`, the only part with `data-focus-visible`; the root
       takes `chipField`, which clears HeroUI's disabled opacity and `pointer-events: none`
       there, or a disabled chip fades twice and loses its `not-allowed` cursor.

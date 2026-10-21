@@ -1097,6 +1097,11 @@ its own, in this order (2h is independent and can land any time):
     e2e (81); `/form` at 1440 and 390 with reduced motion: selected, disabled (0.45, cursor)
     and keyboard focus (2px ink ring) measured, a11y tree has every chip as radio/checkbox,
     no console errors.
+    - **Missed, fixed in `heroui-checkbox`:** the two plain checkboxes, step 5's weather and step
+      7's agreement, kept `Checkbox.Control` beside `Checkbox.Content`. In 3.2 that puts the box
+      outside the label, so clicking it did nothing, and the root's `flex-col` stacked the text
+      under it; only the text toggled, which is what the e2e clicked. The control now sits inside
+      `.Content`; a unit test and the e2e walk click the box itself. Design-notes gotcha 12 says so.
     - **The image stub fixed:** after the Vite 8.3.5 / Vitest 5.0.5 / Rolldown 1.2.15 bump,
       `resolveId` receives the stub's own `\0asset-stub:` id again and prefixed it twice, so every
       stubbed `src` carried the prefix (29 tests). It now returns an id already stubbed as is.

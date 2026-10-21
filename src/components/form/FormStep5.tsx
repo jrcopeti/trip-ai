@@ -29,10 +29,11 @@ function FormStep5() {
           onChange={handleCheckboxChange}
           className="w-fit cursor-pointer rounded-3xl bg-sorbet-lavender px-5 py-4"
         >
-          <Checkbox.Control>
-            <Checkbox.Indicator />
-          </Checkbox.Control>
+          {/* The label holding the input: the box outside it can't be clicked. */}
           <Checkbox.Content>
+            <Checkbox.Control>
+              <Checkbox.Indicator />
+            </Checkbox.Control>
             <span className="text-base font-semibold text-sorbet-ink">{dates.weather}</span>
           </Checkbox.Content>
         </Checkbox>

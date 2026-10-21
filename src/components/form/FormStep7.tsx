@@ -23,12 +23,13 @@ function FormStep7() {
           <Checkbox
             isSelected={field.value}
             onChange={field.onChange}
-            className="mt-10 max-w-xl cursor-pointer items-start rounded-3xl bg-sorbet-lime px-5 py-4"
+            className="mt-10 max-w-xl cursor-pointer rounded-3xl bg-sorbet-lime px-5 py-4"
           >
-            <Checkbox.Control className="mt-0.5">
-              <Checkbox.Indicator />
-            </Checkbox.Control>
-            <Checkbox.Content>
+            {/* The label holding the input: the box outside it can't be clicked. */}
+            <Checkbox.Content className="items-start">
+              <Checkbox.Control className="mt-0.5">
+                <Checkbox.Indicator />
+              </Checkbox.Control>
               <span className="text-sm leading-relaxed text-sorbet-ink">{review.agreement}</span>
             </Checkbox.Content>
           </Checkbox>

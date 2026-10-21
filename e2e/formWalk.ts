@@ -11,6 +11,13 @@ export const next = (page: Page) => page.getByRole("button", { name: "Next" }).c
 export const chip = (page: Page, name: string) =>
   page.locator("label", { hasText: new RegExp(`^${name}$`) }).click();
 
+/** A checkbox's box, not its text: the text alone was clickable once the box sat outside the label. */
+export const checkboxBox = (page: Page, name: string | RegExp) =>
+  page
+    .locator('[data-slot="checkbox"]', { has: page.getByRole("checkbox", { name }) })
+    .locator('[data-slot="checkbox-control"]')
+    .click();
+
 export async function pickCountry(page: Page, field: RegExp, name: string) {
   const combo = page.getByRole("combobox", { name: field });
   await combo.click();
@@ -67,7 +74,7 @@ export async function walkAllSteps(page: Page, name = "Ana", { held = false } = 
   await next(page);
 
   await expect(heading(page)).toHaveText("Dates and weather");
-  await page.locator("label", { hasText: "Plan around the weather" }).click();
+  await checkboxBox(page, "Plan around the weather");
   await expect(page.getByText(/follow the forecast/)).toBeVisible();
   await noHorizontalScroll(page);
   await next(page);
@@ -84,7 +91,7 @@ export async function walkAllSteps(page: Page, name = "Ana", { held = false } = 
   await expect(page.getByText("Lisbon, Portugal", { exact: true })).toBeVisible();
   const submit = page.getByRole("button", { name: "Plan my trip" });
   await expect(submit).toBeDisabled();
-  await page.locator("label", { hasText: /I agree/ }).click();
+  await checkboxBox(page, /I agree/);
   if (held) await expect(submit).toBeDisabled();
   else await expect(submit).toBeEnabled();
   await noHorizontalScroll(page);
