@@ -18,6 +18,8 @@ function staticAssetStub(): Plugin {
     name: "static-asset-stub",
     enforce: "pre",
     resolveId(source) {
+      // The stub's own id comes back through here; prefixing it twice leaks the prefix into `src`.
+      if (source.startsWith(STUB_PREFIX)) return source;
       if (!IMAGE_IMPORT.test(source)) return null;
       return `${STUB_PREFIX}${basename(source.split("?")[0])}`;
     },
