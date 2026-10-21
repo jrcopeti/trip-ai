@@ -9,6 +9,7 @@ import { steps } from "@/data";
 import { validInputs } from "@/test/fixtures";
 import {
   buttons,
+  dates,
   destination,
   items,
   personal,
@@ -435,5 +436,20 @@ describe("Form", () => {
     await user.click(screen.getByText(review.agreement));
 
     await waitFor(() => expect(submit).toBeEnabled());
+  });
+
+  it.each([
+    [5, dates.weather],
+    [7, review.agreement],
+  ])("step %i's checkbox toggles from its box, not only its text", async (step, name) => {
+    const user = userEvent.setup();
+    renderForm();
+    await walkTo(step - 1, user);
+
+    const checkbox = screen.getByRole("checkbox", { name });
+    const field = checkbox.closest('[data-slot="checkbox"]')!;
+    await user.click(field.querySelector('[data-slot="checkbox-control"]')!);
+
+    expect(checkbox).toBeChecked();
   });
 });
