@@ -9,7 +9,7 @@ import {
   ListBox,
   ListBoxItem,
 } from "@heroui/react";
-import { useCountries } from "@/hooks/useCountries";
+import { countries } from "@/data/countries";
 import { field, fieldError, fieldLabel } from "./styles";
 
 type Props = {
@@ -39,21 +39,19 @@ function CountryComboBox({
   isRequired = true,
   description,
 }: Props) {
-  const { countries, isLoading } = useCountries();
   const selected = countries.find((c) => c.value === value);
 
   return (
     <ComboBox<Country>
       // `defaultItems`, not `items`: react-aria filters `defaultItems` by what
       // is typed, but treats `items` as already filtered — with `items` the
-      // whole list showed whatever you typed. The key re-mounts once the async
-      // list arrives and once a stored value resolves, so both take effect.
-      key={`${countries.length}-${selected?.code ?? ""}`}
+      // whole list showed whatever you typed. The key re-mounts once a stored
+      // value resolves, so it takes effect.
+      key={selected?.code ?? ""}
       defaultItems={countries}
       defaultValue={selected?.code}
       defaultInputValue={selected?.label}
       onChange={onSelect}
-      isDisabled={isLoading}
       isInvalid={!!error}
       isRequired={isRequired}
       // `group` so the input group can read the root's `data-invalid`.

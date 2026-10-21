@@ -6,38 +6,23 @@ import {
   next,
   noHorizontalScroll,
   pickCountry,
-  stubLookups,
   walkAllSteps,
 } from "./formWalk";
 
 /**
- * The seven-step form, walked in the browser, with its lookups stubbed (see
- * `formWalk.ts`), up to and just past submitting. The trip that comes back, and
+ * The seven-step form, walked in the browser (see `formWalk.ts`), up to and just past
+ * submitting. The trip that comes back, and
  * saving it, is `trip-journey.spec`.
  */
 
 test.describe("/form", () => {
-  test.beforeEach(async ({ page }) => {
-    await stubLookups(page);
-  });
-
-  // The form's providers are /form's alone, so no other route asks flagcdn for the list.
-  test("fetches the country list on /form only", async ({ page }) => {
-    const requests: string[] = [];
-    page.on("request", (request) => {
-      if (request.url().startsWith("https://flagcdn.com/en/codes.json")) {
-        requests.push(request.url());
-      }
-    });
-
-    await page.goto("/");
-    await page.goto("/about");
-    await page.waitForLoadState("networkidle");
-    expect(requests).toHaveLength(0);
-
+  // The country list ships with the app; only the flags come from flagcdn.
+  test("offers the countries with flagcdn down", async ({ page }) => {
+    await page.route("https://flagcdn.com/**", (route) => route.abort());
     await page.goto("/form");
-    await expect(page.getByRole("combobox", { name: /passport/i })).toBeEnabled();
-    expect(requests).toHaveLength(1);
+    await pickCountry(page, /passport/i, "Portugal");
+
+    await expect(page.getByRole("combobox", { name: /passport/i })).toHaveValue("Portugal");
   });
 
   test("blocks a premature Next and shows why", async ({ page }) => {

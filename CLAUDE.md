@@ -230,7 +230,7 @@ After any Prisma schema change: `npx prisma generate` (already included in `buil
   and its copy in `content.ts`. A record now; what binds is in `design-notes.md`.
 - **`docs/grounded-agent/PLAN.md`** — the **grounded agent**, in flight. Branch 1
   (new form fields, the city check and the prompt on the server, `claude-sonnet-5-5`) is
-  finished; branch 2 (the server-owned trip) is in progress, 2a–2e-f, 2f and 2g merged, 2e-g (`one-open-trip`) in review; 3–7
+  finished; branch 2 (the server-owned trip) is in progress, 2a–2g merged, 2h (request checks, split 2h-a, 2h-b) next; 3–7
   (metrics, tools, refine, evals, MCP) are next.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
@@ -383,7 +383,6 @@ is kept on the client after the submit.
 - `useFormSteps`, `useFormFields`, `useCityCheck` — `FormContext`'s three memoised contexts,
   so a keystroke in the city re-renders only its readers; `useFormData` reads all three, for tests
 - `useTripGeneration`, `useGenerationState` — the app's trip generation: its actions, and its state by selector (see State management)
-- `useCountries` — the country list (flag URLs, ISO codes) for the autocomplete; a TanStack query fetched once per session
 - `useGeoNames` — debounced city check, through the `resolvePlace` server action; run once in
   `FormProvider`, which hands it out as `cityCheck`
 
@@ -416,6 +415,10 @@ rules, and the mistakes already made — see **`docs/design-notes.md`**.
 Remote images from Unsplash (`images.unsplash.com`) are whitelisted in
 `next.config.mjs`.
 Plaiceholder generates base64 blur placeholders server-side.
+
+`src/data/countries.ts` is the country list for both country comboboxes, bundled from
+flagcdn's `codes.json` (the date is in the file), so the form never waits on it; the flags
+themselves still load from flagcdn.
 
 `src/data/index.ts`'s `travelPhotos` is the bundled photo set: `{ src, alt, tripType,
 placeholder }` per photo, typed as `TravelPhoto`. `alt` describes what is in frame and

@@ -29,14 +29,6 @@ vi.mock("@/hooks/useGeoNames", () => ({
     place: null,
   }),
 }));
-vi.mock("@/hooks/useCountries", () => ({
-  useCountries: () => ({
-    countries: [
-      { value: "Portugal", label: "Portugal", code: "pt", flagUrl: "https://flagcdn.com/pt.svg" },
-    ],
-    isLoading: false,
-  }),
-}));
 
 const mockGenerate = vi.mocked(requestTrip);
 let ctx: FormContextType;

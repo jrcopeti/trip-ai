@@ -3,7 +3,7 @@ import { loadEnvConfig } from "@next/env";
 import { PrismaClient } from "@prisma/client";
 import { tripDataFixture } from "../src/test/fixtures/tripData";
 import { mayWriteToDatabase } from "../scripts/localDatabase";
-import { noHorizontalScroll, stubLookups, walkAllSteps } from "./formWalk";
+import { noHorizontalScroll, walkAllSteps } from "./formWalk";
 
 /**
  * Form → generated trip → save or discard → `/saved-trips`. With E2E_FIXTURES=1
@@ -66,7 +66,6 @@ async function savedFlags(name: string) {
 
 /** Walks the form as `name`, submits, and waits for the generated trip. */
 async function generateTrip(page: Page, name: string) {
-  await stubLookups(page);
   await page.goto("/form");
   await walkAllSteps(page, name);
   await page.getByRole("button", { name: "Plan my trip" }).click();
@@ -199,7 +198,6 @@ test.describe("trip journey", () => {
 
   test("leaving mid-generation keeps it, and a toast opens the trip", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await stubLookups(page);
     // A soft navigation into /form, so the page's JS keeps running throughout.
     await page.goto("/about");
     await page.getByRole("link", { name: "New trip" }).first().click();
@@ -252,7 +250,6 @@ test.describe("trip journey", () => {
 
   test("the loader's Cancel goes back to the review step, answers kept, and its toast goes", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await stubLookups(page);
     await page.goto("/form");
     await walkAllSteps(page, CANCELLER);
 
@@ -304,7 +301,6 @@ test.describe("trip journey", () => {
   });
 
   test("Cancel stops the generation on the server: no row is written", async ({ page }) => {
-    await stubLookups(page);
     await page.goto("/form");
     await walkAllSteps(page, STOPPER);
 

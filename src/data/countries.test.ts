@@ -1,0 +1,43 @@
+import { describe, expect, it } from "vitest";
+import { countries } from "@/data/countries";
+
+describe("countries", () => {
+  it("maps each entry to a value, label, code and flag url", () => {
+    expect(countries.find((c) => c.code === "pt")).toEqual({
+      value: "Portugal",
+      label: "Portugal",
+      code: "pt",
+      flagUrl: "https://flagcdn.com/pt.svg",
+    });
+  });
+
+  it("sorts alphabetically by country name", () => {
+    const names = countries.map((c) => c.value);
+    expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
+  });
+
+  it("drops US states, the EU and the UN, but keeps the UK's nations", () => {
+    const codes = countries.map((c) => c.code);
+    expect(codes.filter((code) => code.startsWith("us-"))).toEqual([]);
+    expect(codes).not.toContain("eu");
+    expect(codes).not.toContain("un");
+    expect(codes).toEqual(expect.arrayContaining(["us", "gb", "gb-eng", "gb-sct", "gb-wls", "gb-nir"]));
+  });
+
+  // The combobox keys options by code, and the form stores the name.
+  it("has no repeated name or code", () => {
+    expect(new Set(countries.map((c) => c.code)).size).toBe(countries.length);
+    expect(new Set(countries.map((c) => c.value)).size).toBe(countries.length);
+  });
+
+  it("truncates a label past 25 characters, leaving the value intact", () => {
+    const long = countries.filter((c) => c.value.length > 25);
+    expect(long.length).toBeGreaterThan(0);
+    for (const country of long) {
+      expect(country.label).toBe(`${country.value.slice(0, 25)}...`);
+    }
+    for (const country of countries.filter((c) => c.value.length <= 25)) {
+      expect(country.label).toBe(country.value);
+    }
+  });
+});

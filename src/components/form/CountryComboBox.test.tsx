@@ -3,16 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { renderWithProviders, screen } from "@/test/render";
 import CountryComboBox from "@/components/form/CountryComboBox";
 
-vi.mock("@/hooks/useCountries", () => ({
-  useCountries: () => ({
-    countries: [
-      { value: "Peru", label: "Peru", code: "pe", flagUrl: "" },
-      { value: "Portugal", label: "Portugal", code: "pt", flagUrl: "" },
-      { value: "Spain", label: "Spain", code: "es", flagUrl: "" },
-    ],
-    isLoading: false,
-  }),
-}));
 
 function renderCombo(value?: string) {
   const onSelect = vi.fn();

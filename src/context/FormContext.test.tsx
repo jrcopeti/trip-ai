@@ -19,19 +19,6 @@ vi.mock("@/hooks/useTripGeneration", () => ({
   useTripGeneration: () => ({ generateTrip }),
 }));
 vi.mock("@/app/api/geoNamesApi", () => ({ resolvePlace: vi.fn() }));
-vi.mock("@/hooks/useCountries", () => ({
-  useCountries: () => ({
-    countries: [
-      {
-        value: "Portugal",
-        label: "Portugal",
-        code: "pt",
-        flagUrl: "https://flagcdn.com/pt.svg",
-      },
-    ],
-    isLoading: false,
-  }),
-}));
 
 /** Hands the live context out to the test and renders the current step number. */
 let ctx: FormContextType;

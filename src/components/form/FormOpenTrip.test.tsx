@@ -26,9 +26,6 @@ vi.mock("@/hooks/useGeoNames", () => ({
   idleCityCheck: { isCityValid: false, isLoadingCityValid: false, message: "", place: null },
   useGeoNames: () => ({ isCityValid: true, isLoadingCityValid: false, message: "", place: null }),
 }));
-vi.mock("@/hooks/useCountries", () => ({
-  useCountries: () => ({ countries: [], isLoading: false }),
-}));
 
 const mockCheck = vi.mocked(isTripOpen);
 const URL = "a1b2c3d4e5f6";
