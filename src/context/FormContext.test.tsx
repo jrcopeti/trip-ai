@@ -145,10 +145,10 @@ describe("FormContext — step navigation", () => {
     expect(screen.getByTestId("step")).toHaveTextContent(String(steps.length - 1));
   });
 
-  it("passes straight through steps that validate nothing", async () => {
+  // Items are optional: the form opens with one blank row, which `toTripRequest` drops.
+  it("passes step 4 with its blank item", async () => {
     renderForm();
-    // Step 4 ("Required Items") and step 7 ("Review") declare no fields.
-    expect(steps[3].fields).toEqual([]);
+    expect(steps[3].fields).toEqual(["requiredItems"]);
     await advanceTo(3);
     await act(async () => {
       await ctx.next();

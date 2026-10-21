@@ -111,6 +111,32 @@ describe("Form", () => {
     expect(screen.getByText(personal.passport.description)).toBeInTheDocument();
   });
 
+  // "United Kingdom" covers a British passport; the destination keeps the nations.
+  it("offers no UK nation as a passport", async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.type(screen.getByRole("combobox", { name: /passport/i }), "land");
+
+    const names = (await screen.findAllByRole("option")).map((option) => option.textContent);
+    expect(names).toContain("Finland");
+    expect(names).not.toContain("England");
+    expect(names).not.toContain("Scotland");
+  });
+
+  // A draft from before the passport list lost the nations can still hold one.
+  it("stops on step 1's Next for a passport not on the list", async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillStep(0);
+    await act(async () => ctx.setValue("passport", "Scotland"));
+
+    await user.click(screen.getByRole("button", { name: buttons.next }));
+
+    expect(await screen.findByText("Pick a passport from the list")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: stepCopy[0].title })).toBeInTheDocument();
+  });
+
   it("takes several age ranges, as a family has", async () => {
     const user = userEvent.setup();
     renderForm();
@@ -277,6 +303,21 @@ describe("Form", () => {
 
     await user.click(screen.getByRole("button", { name: items.remove(1) }));
     expect(screen.getByText(items.empty)).toBeInTheDocument();
+  });
+
+  it("stops on step 4's Next for an item with < or >, and says so under it", async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await walkTo(3, user);
+
+    const item = screen.getByRole("textbox", { name: items.label(1) });
+    await user.clear(item);
+    await user.type(item, "camera <b>");
+    await user.click(screen.getByRole("button", { name: buttons.next }));
+
+    expect(await screen.findByText("Leave out < and >")).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: items.label(1) })).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByRole("heading", { level: 1, name: stepCopy[3].title })).toBeInTheDocument();
   });
 
   it("adds the next item on Enter and moves focus to it", async () => {

@@ -11,6 +11,7 @@ import {
   travellers,
   types,
 } from "@/data";
+import { passportCountries } from "@/data/countries";
 import { FormFieldsSchema, LIMITS, checkAgeRanges, checkEndDate } from "@/lib/schema";
 import type { Inputs } from "@/types";
 
@@ -40,7 +41,7 @@ export const TripRequestSchema = FormFieldsSchema.omit({ agreement: true })
     userName: line(LIMITS.name),
     travellers: oneOf(travellers),
     ageRanges: oneOf(ageRanges).array().nonempty(),
-    passport: z.string().trim().max(100).regex(SINGLE_LINE, "Keep it to one line").optional(),
+    passport: oneOf(passportCountries).optional(),
     type: oneOf(types),
     pace: oneOf(paces),
     city: line(LIMITS.city),
@@ -52,7 +53,7 @@ export const TripRequestSchema = FormFieldsSchema.omit({ agreement: true })
     budget: oneOf(budgets),
     transport: oneOf(transports),
     interests: oneOf(interests).array().nonempty().max(LIMITS.interests),
-    requiredItems: text(LIMITS.requiredItem).array().max(LIMITS.requiredItems),
+    requiredItems: line(LIMITS.requiredItem).array().max(LIMITS.requiredItems),
     note: z.string().trim().max(LIMITS.note).optional(),
     // A day of slack: the browser's today can be the server's yesterday.
     startDate: calendarDay.refine(

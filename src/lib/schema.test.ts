@@ -126,6 +126,16 @@ describe("FormDataSchema", () => {
       expect(FormDataSchema.safeParse(withField("passport", "")).success).toBe(true);
     });
 
+    it("takes a passport only from the passport list", () => {
+      expect(FormDataSchema.safeParse(withField("passport", "United Kingdom")).success).toBe(true);
+      expect(messagesFor(withField("passport", "Scotland"), "passport")).toContain(
+        "Pick a passport from the list",
+      );
+      expect(messagesFor(withField("passport", "Atlantis"), "passport")).toContain(
+        "Pick a passport from the list",
+      );
+    });
+
   });
 
   describe("interests", () => {
@@ -237,6 +247,13 @@ describe("FormDataSchema", () => {
       const items = Array.from({ length: LIMITS.requiredItems + 1 }, (_, i) => ({ item: `item ${i}` }));
       expect(messagesFor(withField("requiredItems", items), "requiredItems")).toContain(
         `Up to ${LIMITS.requiredItems} items`,
+      );
+    });
+
+    it("rejects a required item with < or >, as the name does", () => {
+      const items = [{ item: "camera <b>" }];
+      expect(messagesFor(withField("requiredItems", items), "requiredItems.0.item")).toContain(
+        "Leave out < and >",
       );
     });
 

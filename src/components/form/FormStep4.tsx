@@ -1,16 +1,16 @@
 "use client";
 import { useFormFields, useFormSteps } from "@/hooks/useFormData";
 import { Controller } from "react-hook-form";
-import { TextField, Label, Input } from "@heroui/react";
+import { TextField, Label, Input, FieldError } from "@heroui/react";
 import { FaPlus, FaXmark } from "react-icons/fa6";
 import { LIMITS } from "@/lib/schema";
 import StepPanel from "./StepPanel";
 import { items } from "./content";
-import { field, fieldInput, fieldLabel, focusTriad, limePill } from "./styles";
+import { field, fieldError, fieldInput, fieldLabel, focusTriad, limePill } from "./styles";
 
 function FormStep4() {
   const { currentStep } = useFormSteps();
-  const { fields, control, append, insert, remove } = useFormFields();
+  const { fields, control, errors, append, insert, remove } = useFormFields();
 
   if (currentStep !== 3) return null;
 
@@ -28,7 +28,11 @@ function FormStep4() {
                 // dotted path, so a bracketed name is never focused.
                 name={`requiredItems.${index}.item`}
                 render={({ field: { ref, ...fieldProps } }) => (
-                  <TextField {...fieldProps} className={field}>
+                  <TextField
+                    {...fieldProps}
+                    isInvalid={!!errors.requiredItems?.[index]?.item}
+                    className={field}
+                  >
                     <Label className={fieldLabel}>{items.label(index + 1)}</Label>
                     <Input
                       ref={ref}
@@ -45,6 +49,9 @@ function FormStep4() {
                       maxLength={LIMITS.requiredItem}
                       className={fieldInput}
                     />
+                    <FieldError className={fieldError}>
+                      {errors.requiredItems?.[index]?.item?.message}
+                    </FieldError>
                   </TextField>
                 )}
               />

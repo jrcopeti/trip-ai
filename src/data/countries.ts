@@ -271,3 +271,6 @@ export const countries: Country[] = Object.entries(NAMES)
   }))
   // "en": the browser's own locale would order it per traveller (Swedish puts Å after Z).
   .sort((a, b) => a.value.localeCompare(b.value, "en"));
+
+/** The countries a passport can name: the list without the UK's four nations, the United Kingdom kept. */
+export const passportCountries = countries.filter((country) => !country.code.startsWith("gb-"));

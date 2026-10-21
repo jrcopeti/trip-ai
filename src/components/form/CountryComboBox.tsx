@@ -22,6 +22,8 @@ type Props = {
   error?: string;
   /** Defaults to true; the passport is the one optional country. */
   isRequired?: boolean;
+  /** Defaults to every country; the passport offers `passportCountries`. */
+  options?: Country[];
   description?: string;
 };
 
@@ -37,8 +39,9 @@ function CountryComboBox({
   error,
   isRequired = true,
   description,
+  options = countries,
 }: Props) {
-  const selected = countries.find((c) => c.value === value);
+  const selected = options.find((c) => c.value === value);
 
   return (
     <ComboBox<Country>
@@ -47,7 +50,7 @@ function CountryComboBox({
       // whole list showed whatever you typed. The key re-mounts when the form's
       // value changes from outside (a restored draft), so the defaults take effect.
       key={selected?.code ?? ""}
-      defaultItems={countries}
+      defaultItems={options}
       defaultValue={selected?.code}
       defaultInputValue={selected?.label}
       onChange={onSelect}

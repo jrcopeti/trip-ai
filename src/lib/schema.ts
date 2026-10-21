@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import { z } from "zod";
+import { passportCountries } from "@/data/countries";
 
 /** Caps the form shows and the server's request schema (grounded-agent 1c) enforces again. */
 export const LIMITS = {
@@ -47,7 +48,12 @@ export const FormFieldsSchema = z.object({
     .regex(/^[^\r\n<>]*$/, "Leave out < and >"),
   travellers: z.string().min(1, "Who's going is required"),
   ageRanges: z.string().array().nonempty("Pick at least one age range"),
-  passport: z.string().optional(),
+  passport: z
+    .string()
+    .optional()
+    .refine((name) => !name || passportCountries.some((country) => country.value === name), {
+      message: "Pick a passport from the list",
+    }),
   type: z.string().min(1, "Type of travel is required"),
   pace: z.string().min(1, "Pace is required"),
   city: z
@@ -62,7 +68,8 @@ export const FormFieldsSchema = z.object({
     .object({
       item: z
         .string()
-        .max(LIMITS.requiredItem, `Keep each item under ${LIMITS.requiredItem} characters`),
+        .max(LIMITS.requiredItem, `Keep each item under ${LIMITS.requiredItem} characters`)
+        .regex(/^[^\r\n<>]*$/, "Leave out < and >"),
     })
     .array()
     .max(LIMITS.requiredItems, `Up to ${LIMITS.requiredItems} items`)

@@ -418,7 +418,8 @@ Plaiceholder generates base64 blur placeholders server-side.
 
 `src/data/countries.ts` is the country list for both country comboboxes, bundled from
 flagcdn's `codes.json` (the date is in the file), so the form never waits on it; the flags
-themselves still load from flagcdn.
+themselves still load from flagcdn. `passportCountries` is that list without the UK's four
+nations: the passport offers it, and the form and request schemas check against it.
 
 `src/data/index.ts`'s `travelPhotos` is the bundled photo set: `{ src, alt, tripType,
 placeholder }` per photo, typed as `TravelPhoto`. `alt` describes what is in frame and
