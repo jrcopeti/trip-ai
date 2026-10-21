@@ -1,12 +1,12 @@
 "use client";
 import { useFormFields, useFormSteps } from "@/hooks/useFormData";
 import { Controller } from "react-hook-form";
-import { TextField, Label, Input } from "@heroui/react";
+import { TextField, Label, Input, FieldError } from "@heroui/react";
 import { FaPlus, FaXmark } from "react-icons/fa6";
 import { LIMITS } from "@/lib/schema";
 import StepPanel from "./StepPanel";
 import { items } from "./content";
-import { field, fieldInput, fieldLabel, focusTriad, limePill } from "./styles";
+import { field, fieldError, fieldInput, fieldLabel, focusTriad, limePill } from "./styles";
 
 function FormStep4() {
   const { currentStep } = useFormSteps();
@@ -27,8 +27,12 @@ function FormStep4() {
                 // Dotted, not `[${index}]`: RHF finds a row to focus by its
                 // dotted path, so a bracketed name is never focused.
                 name={`requiredItems.${index}.item`}
-                render={({ field: { ref, ...fieldProps } }) => (
-                  <TextField {...fieldProps} className={field}>
+                render={({ field: { ref, ...fieldProps }, fieldState }) => (
+                  <TextField
+                    {...fieldProps}
+                    isInvalid={fieldState.invalid}
+                    className={field}
+                  >
                     <Label className={fieldLabel}>{items.label(index + 1)}</Label>
                     <Input
                       ref={ref}
@@ -45,6 +49,7 @@ function FormStep4() {
                       maxLength={LIMITS.requiredItem}
                       className={fieldInput}
                     />
+                    <FieldError className={fieldError}>{fieldState.error?.message}</FieldError>
                   </TextField>
                 )}
               />

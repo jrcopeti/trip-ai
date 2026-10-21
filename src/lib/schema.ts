@@ -1,5 +1,13 @@
 import dayjs from "dayjs";
 import { z } from "zod";
+import { passportCountries } from "@/data/countries";
+
+// Text that reaches the prompt's trusted facts can't add a line or open a tag there.
+export const SINGLE_LINE = /^[^\r\n<>]*$/;
+
+/** Whether `name` is a country a passport can name (`passportCountries`). */
+export const isPassport = (name: string) =>
+  passportCountries.some((country) => country.value === name);
 
 /** Caps the form shows and the server's request schema (grounded-agent 1c) enforces again. */
 export const LIMITS = {
@@ -44,10 +52,13 @@ export const FormFieldsSchema = z.object({
     .trim()
     .min(1, "Name is required")
     .max(LIMITS.name, `Keep the name under ${LIMITS.name} characters`)
-    .regex(/^[^\r\n<>]*$/, "Leave out < and >"),
+    .regex(SINGLE_LINE, "Leave out < and >"),
   travellers: z.string().min(1, "Who's going is required"),
   ageRanges: z.string().array().nonempty("Pick at least one age range"),
-  passport: z.string().optional(),
+  passport: z
+    .string()
+    .optional()
+    .refine((name) => !name || isPassport(name), { message: "Pick a passport from the list" }),
   type: z.string().min(1, "Type of travel is required"),
   pace: z.string().min(1, "Pace is required"),
   city: z
@@ -55,14 +66,15 @@ export const FormFieldsSchema = z.object({
     .trim()
     .min(1, "City is required")
     .max(LIMITS.city, `Keep the city under ${LIMITS.city} characters`)
-    .regex(/^[^\r\n<>]*$/, "Leave out < and >"),
+    .regex(SINGLE_LINE, "Leave out < and >"),
   country: z.string().min(1, "Country is required"),
   luggageSize: z.string().min(1, "Lugagge size is required"),
   requiredItems: z
     .object({
       item: z
         .string()
-        .max(LIMITS.requiredItem, `Keep each item under ${LIMITS.requiredItem} characters`),
+        .max(LIMITS.requiredItem, `Keep each item under ${LIMITS.requiredItem} characters`)
+        .regex(SINGLE_LINE, "Leave out < and >"),
     })
     .array()
     .max(LIMITS.requiredItems, `Up to ${LIMITS.requiredItems} items`)

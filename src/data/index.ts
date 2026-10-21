@@ -324,7 +324,7 @@ const formSteps = [
   {
     id: "step 4",
     stepValue: 48,
-    fields: [],
+    fields: ["requiredItems"],
   },
   {
     id: "step 5",

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countries } from "@/data/countries";
+import { countries, passportCountries } from "@/data/countries";
 
 describe("countries", () => {
   it("maps each entry to a value, label, code and flag url", () => {
@@ -41,5 +41,14 @@ describe("countries", () => {
     for (const country of countries.filter((c) => c.value.length <= 25)) {
       expect(country.label).toBe(country.value);
     }
+  });
+});
+
+describe("passportCountries", () => {
+  it("is the list without the UK's nations, the United Kingdom kept", () => {
+    const codes = passportCountries.map((c) => c.code);
+    expect(codes.filter((code) => code.startsWith("gb-"))).toEqual([]);
+    expect(codes).toContain("gb");
+    expect(passportCountries).toHaveLength(countries.length - 4);
   });
 });

@@ -3,6 +3,7 @@ import { useFormFields, useFormSteps } from "@/hooks/useFormData";
 import { TextField, Label, Input, FieldError } from "@heroui/react";
 import { Controller, useController } from "react-hook-form";
 import { ageRanges, travellers } from "@/data";
+import { passportCountries } from "@/data/countries";
 import { AGE_RANGE_RULES, LIMITS, fitsGroup } from "@/lib/schema";
 import StepPanel from "./StepPanel";
 import ChoiceGroup from "./ChoiceGroup";
@@ -86,7 +87,9 @@ function FormStep1() {
                 description={personal.passport.description}
                 value={value}
                 onSelect={(key) => handleSelectionAutocomplete(key, "passport")}
+                error={errors.passport?.message}
                 isRequired={false}
+                options={passportCountries}
               />
             )}
           />

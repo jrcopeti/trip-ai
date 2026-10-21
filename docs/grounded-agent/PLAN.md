@@ -1010,20 +1010,59 @@ its own, in this order (2h is independent and can land any time):
     helper for the three `countries.find`s, and a pre-sorted source list. The passport list's
     UK nations went to 2h-b.
   - **2h-b · `request-checks`: the server refuses what the form can't send.**
-    - Passport: `oneOf(countries)`, still optional. The form already only picks from the list
-      (the combobox has no custom value), so the form needs no change.
-    - From 2h-a's review: one list serves the passport and the destination, so "England" or
-      "Scotland" can be picked as a passport, which no country issues, and `oneOf(countries)`
-      would accept it; Antarctica, Bouvet Island and the like are destinations no city check
-      can pass. Decide here: drop the UK's nations from the passport list (both form and
-      server), or record that they're accepted on purpose.
+    - Passport: a listed country, still optional. **Decided (2026-10-21): the UK's four nations
+      are not passports** ("United Kingdom" covers a British one); the destination keeps them,
+      as GeoNames needs them. `passportCountries` (`src/data/countries.ts`) is the list less the
+      `gb-` codes: step 1's combobox offers it, and both schemas check against it with
+      `isPassport`, blank meaning none (the request trims first), the form saying "Pick a
+      passport from the list", so a draft still holding
+      "Scotland" is stopped on step 1's Next rather than by the server. Antarctica, Bouvet Island
+      and the like stay destinations: the city check refuses them already.
     - Required items: `line(LIMITS.requiredItem)` on the server (no line breaks, `<` or `>`, as
-      the name and city). The form's item gets the name's regex and "Leave out < and >", and
-      step 4 shows an item's error under it (it shows none today). Blank items stay allowed on
-      the form; `toTripRequest` drops them. The note keeps its line breaks.
-    - Tests first: the request schema refuses an unlisted passport and accepts a listed one or
-      none; refuses an item with a line break, `<` or `>`; the form schema refuses an item with
-      `<`, and step 4 shows the message under that item.
+      the name and city). The form's item gets the name's regex and "Leave out < and >", step 4
+      validates its items on Next (its `fields` is empty today, so nothing checks them before the
+      review), and shows an item's error under it. Blank items stay allowed on the form;
+      `toTripRequest` drops them. The note keeps its line breaks.
+    - Tests first: the request schema refuses an unlisted passport and a UK nation, and accepts
+      a listed one or none; refuses an item with a line break, `<` or `>`; the form schema
+      refuses the same passports and an item with `<`; `passportCountries` has no `gb-` code and
+      keeps "United Kingdom"; step 1's combobox offers no "Scotland"; step 4's Next stops on an
+      item with `<` and shows the message under it.
+    - **Built (2026-10-21):** as planned. `CountryComboBox` takes `options` (every country by
+      default), and step 1 shows the passport's error. Step 4's `fields` is `["requiredItems"]`,
+      so the navigation test that pinned it as validating nothing now pins a blank item passing.
+    - **Review of `dfbd950`**, fixed: a draft's unlisted passport ("Scotland") showed an empty
+      field that couldn't be cleared, holding step 1 for a traveller with no passport; the
+      restore now drops it. One `isPassport` and one `SINGLE_LINE` in `schema.ts` serve the form
+      and the request; the request trims the passport again; the server's message for an item
+      names both causes ("Keep it to one line, without < or >"); step 4 reads its errors from
+      `fieldState`. Left as is: 2k's entry sits on this branch, as asked.
+    - **Review of `b226106`**, fixed: the request takes a blank passport as none again, as the
+      form does; the plan's wording matches `isPassport`; a test pins the passport to one line.
+      **A stale draft value is left as is**, reverting `b226106`'s restore line: a draft lives in
+      its tab, there are no outside users, and none predates the passport list, so an unlisted
+      passport (or, after a future list change, destination) can only be the developer's own;
+      the schemas still refuse it, and Start over clears it. Also left: step 4 shows no message
+      for the list's own cap (the step stops offering items at 10), the form not trimming a
+      passport the combobox sets exactly, and a `Set` for `isPassport`.
+- **2k · `string-tours-caught`: the list sent as a string, caught in production.** After 2h-b.
+  On 2026-10-21 (the #220 deploy) one generation (`req_011CgFDwVfiV8gNm6phjUk9j`) failed with
+  "invalid trip", and 2f's DIAG log caught the string: `tours` arrived as JSON text, 715
+  characters, holding only the first tour. The model escaped the inner quotes (`\"title\"`) until
+  the end of that tour's description, where it wrote a bare `"`, which closed the outer string;
+  tours 2 to 5 were never written. So the call ended early (13.6s and 1,554 output tokens, against
+  38 to 69s and about 2,100 for a full trip) and was billed in full (about $0.022) for nothing.
+  No cancel was involved. The API docs promise that `strict: true` gives schema-valid input, so a
+  string where the schema has an array is the API's to explain.
+  - Decided: **no retry** (a second paid call per failure), and the **DIAG log stays**, for the
+    next one.
+  - In the branch: the report to Anthropic (request id, the raw string, the tool's schema),
+    drafted here and sent by the user; this record; and a test with that exact string, pinning
+    that `parseListFields` leaves it as a string and `generateTrip` throws "invalid trip".
+  - Seen the same day, both handled as designed, recorded only: a 10s connect timeout to
+    GeoNames (the form's city check, `POST /form`: "We couldn't check the city just now") and
+    one to OpenWeather (in this generation: "generateTrip: no forecast", planned without one).
+    If they recur, a shorter timeout with one retry on those fetches is the next step.
 - **2i · dependencies: Renovate keeps them current, a branch each for the breaking ones.**
   Evaluated: both. Nothing prompts an update today (no Dependabot or Renovate config), and
   `npm outdated` shows the lockfile behind — `next` 16.2.6 → 16.4.1, `react` 19.2.6 → 19.3.1,
@@ -1053,7 +1092,7 @@ its own, in this order (2h is independent and can land any time):
   the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
   weather by coordinates, the form-scoped providers, architecture and commands. Retake the
   screenshots that changed at the sizes above.
-- **Order from here:** 2h-a → 2h-b → 2i → 2j (2e-f, 2e-g, 2f and 2g merged), and branch 3.
+- **Order from here:** 2h-a → 2h-b → 2k → 2i → 2j (2e-f, 2e-g, 2f and 2g merged), and branch 3.
 
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`
