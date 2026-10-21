@@ -35,6 +35,17 @@ describe("CountryComboBox", () => {
     expect(onSelect).toHaveBeenLastCalledWith("es");
   });
 
+  // The label stops at 25 characters; the name past it must still be searchable.
+  it("finds a long name by a word past its label's cut", async () => {
+    const user = userEvent.setup();
+    renderCombo();
+
+    await user.type(screen.getByRole("combobox", { name: /country/i }), "Grenadines");
+
+    const options = await screen.findAllByRole("option");
+    expect(options.map((o) => o.textContent)).toEqual(["Saint Vincent and the Gre..."]);
+  });
+
   it("shows a stored value as its label", () => {
     renderCombo("Portugal");
 

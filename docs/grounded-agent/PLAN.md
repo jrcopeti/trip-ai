@@ -1003,9 +1003,20 @@ its own, in this order (2h is independent and can land any time):
     e2e: `form.spec.ts` and `formWalk.ts` stop routing flagcdn's list.
     **Built (2026-10-21):** as planned. The e2e test that the list was fetched on `/form` only
     became "offers the countries with flagcdn down" (every flagcdn request aborted).
+    Review of `9ec32d8`, fixed: search ran on the cut label, so a word past 25 characters
+    ("Grenadines") found nothing (it searches the full name now); the sort followed the
+    browser's locale (English now, pinned by a test); a leftover enabled-wait in `pickCountry`;
+    a local `Country` type shadowing the shared one; the `key` comment. Left as is: one lookup
+    helper for the three `countries.find`s, and a pre-sorted source list. The passport list's
+    UK nations went to 2h-b.
   - **2h-b · `request-checks`: the server refuses what the form can't send.**
     - Passport: `oneOf(countries)`, still optional. The form already only picks from the list
       (the combobox has no custom value), so the form needs no change.
+    - From 2h-a's review: one list serves the passport and the destination, so "England" or
+      "Scotland" can be picked as a passport, which no country issues, and `oneOf(countries)`
+      would accept it; Antarctica, Bouvet Island and the like are destinations no city check
+      can pass. Decide here: drop the UK's nations from the passport list (both form and
+      server), or record that they're accepted on purpose.
     - Required items: `line(LIMITS.requiredItem)` on the server (no line breaks, `<` or `>`, as
       the name and city). The form's item gets the name's regex and "Leave out < and >", and
       step 4 shows an item's error under it (it shows none today). Blank items stay allowed on

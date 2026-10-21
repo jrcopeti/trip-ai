@@ -269,4 +269,5 @@ export const countries: Country[] = Object.entries(NAMES)
     code,
     flagUrl: flagUrl(code),
   }))
-  .sort((a, b) => a.value.localeCompare(b.value));
+  // "en": the browser's own locale would order it per traveller (Swedish puts Å after Z).
+  .sort((a, b) => a.value.localeCompare(b.value, "en"));

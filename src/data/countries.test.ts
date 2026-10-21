@@ -11,9 +11,11 @@ describe("countries", () => {
     });
   });
 
-  it("sorts alphabetically by country name", () => {
+  // In English order, whatever the runtime's locale: Swedish puts Å after Z.
+  it("sorts by name in English order", () => {
     const names = countries.map((c) => c.value);
-    expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
+    expect(names.slice(0, 3)).toEqual(["Afghanistan", "Åland Islands", "Albania"]);
+    expect(names.at(-1)).toBe("Zimbabwe");
   });
 
   it("drops US states, the EU and the UN, but keeps the UK's nations", () => {

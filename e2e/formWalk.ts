@@ -13,7 +13,6 @@ export const chip = (page: Page, name: string) =>
 
 export async function pickCountry(page: Page, field: RegExp, name: string) {
   const combo = page.getByRole("combobox", { name: field });
-  await expect(combo).toBeEnabled();
   await combo.click();
   await combo.pressSequentially(name.slice(0, 4));
   await page.getByRole("option", { name }).click();
