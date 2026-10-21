@@ -11,8 +11,14 @@ import {
   travellers,
   types,
 } from "@/data";
-import { passportCountries } from "@/data/countries";
-import { FormFieldsSchema, LIMITS, checkAgeRanges, checkEndDate } from "@/lib/schema";
+import {
+  FormFieldsSchema,
+  LIMITS,
+  SINGLE_LINE,
+  checkAgeRanges,
+  checkEndDate,
+  isPassport,
+} from "@/lib/schema";
 import type { Inputs } from "@/types";
 
 type Options = readonly { value: string; label: string }[];
@@ -25,9 +31,7 @@ const oneOf = (options: Options) =>
 
 const text = (max: number) => z.string().trim().min(1).max(max);
 
-// These sit in the prompt's trusted facts, so they can't add a line or open a tag there.
-const SINGLE_LINE = /^[^\r\n<>]*$/;
-const line = (max: number) => text(max).regex(SINGLE_LINE, "Keep it to one line");
+const line = (max: number) => text(max).regex(SINGLE_LINE, "Keep it to one line, without < or >");
 
 // The round trip rejects days that don't exist: dayjs rolls "2030-02-31" over to 3 March.
 const calendarDay = z
@@ -41,7 +45,11 @@ export const TripRequestSchema = FormFieldsSchema.omit({ agreement: true })
     userName: line(LIMITS.name),
     travellers: oneOf(travellers),
     ageRanges: oneOf(ageRanges).array().nonempty(),
-    passport: oneOf(passportCountries).optional(),
+    passport: z
+      .string()
+      .trim()
+      .refine(isPassport, { message: "Not one of the options" })
+      .optional(),
     type: oneOf(types),
     pace: oneOf(paces),
     city: line(LIMITS.city),

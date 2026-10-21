@@ -17,6 +17,7 @@ import {
   stepCopy,
 } from "@/components/form/content";
 import { LIMITS } from "@/lib/schema";
+import { writeFormDraft } from "@/lib/formDraft";
 import type { FieldName, FormContextType } from "@/types";
 
 vi.mock("@/hooks/useTripGeneration", () => ({
@@ -124,7 +125,6 @@ describe("Form", () => {
     expect(names).not.toContain("Scotland");
   });
 
-  // A draft from before the passport list lost the nations can still hold one.
   it("stops on step 1's Next for a passport not on the list", async () => {
     const user = userEvent.setup();
     renderForm();
@@ -135,6 +135,27 @@ describe("Form", () => {
 
     expect(await screen.findByText("Pick a passport from the list")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: stepCopy[0].title })).toBeInTheDocument();
+  });
+
+  // A draft can hold a passport the list no longer offers; it comes back as none.
+  it("restores a draft's unlisted passport as none, so step 1 still passes", async () => {
+    const user = userEvent.setup();
+    writeFormDraft({
+      values: { ...validInputs, passport: "Scotland" },
+      step: 0,
+      isWeatherSelected: false,
+    });
+    renderForm();
+
+    await waitFor(() =>
+      expect(screen.getByRole("textbox", { name: /name/i })).toHaveValue(validInputs.userName),
+    );
+    expect(screen.getByRole("combobox", { name: /passport/i })).toHaveValue("");
+    await user.click(screen.getByRole("button", { name: buttons.next }));
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: stepCopy[1].title }),
+    ).toBeInTheDocument();
   });
 
   it("takes several age ranges, as a family has", async () => {

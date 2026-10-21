@@ -111,6 +111,17 @@ describe("TripRequestSchema", () => {
       expect(accepts(withField("passport", "Atlantis"))).toBe(false);
     });
 
+    it("trims the passport before checking it", () => {
+      expect(TripRequestSchema.parse(withField("passport", " Portugal ")).passport).toBe("Portugal");
+    });
+
+    it("names both causes when an item breaks the one-line rule", () => {
+      const result = TripRequestSchema.safeParse(withField("requiredItems", ["camera <b>"]));
+      expect(result.error?.issues.map((issue) => issue.message)).toContain(
+        "Keep it to one line, without < or >",
+      );
+    });
+
     // No country issues a Scottish passport; the destination keeps the nations.
     it("refuses a UK nation as the passport", () => {
       expect(accepts(withField("passport", "Scotland"))).toBe(false);

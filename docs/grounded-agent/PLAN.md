@@ -1030,6 +1030,12 @@ its own, in this order (2h is independent and can land any time):
     - **Built (2026-10-21):** as planned. `CountryComboBox` takes `options` (every country by
       default), and step 1 shows the passport's error. Step 4's `fields` is `["requiredItems"]`,
       so the navigation test that pinned it as validating nothing now pins a blank item passing.
+    - **Review of `dfbd950`**, fixed: a draft's unlisted passport ("Scotland") showed an empty
+      field that couldn't be cleared, holding step 1 for a traveller with no passport; the
+      restore now drops it. One `isPassport` and one `SINGLE_LINE` in `schema.ts` serve the form
+      and the request; the request trims the passport again; the server's message for an item
+      names both causes ("Keep it to one line, without < or >"); step 4 reads its errors from
+      `fieldState`. Left as is: 2k's entry sits on this branch, as asked.
 - **2k · `string-tours-caught`: the list sent as a string, caught in production.** After 2h-b.
   On 2026-10-21 (the #220 deploy) one generation (`req_011CgFDwVfiV8gNm6phjUk9j`) failed with
   "invalid trip", and 2f's DIAG log caught the string: `tours` arrived as JSON text, 715

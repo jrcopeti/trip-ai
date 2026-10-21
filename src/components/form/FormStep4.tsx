@@ -10,7 +10,7 @@ import { field, fieldError, fieldInput, fieldLabel, focusTriad, limePill } from 
 
 function FormStep4() {
   const { currentStep } = useFormSteps();
-  const { fields, control, errors, append, insert, remove } = useFormFields();
+  const { fields, control, append, insert, remove } = useFormFields();
 
   if (currentStep !== 3) return null;
 
@@ -27,10 +27,10 @@ function FormStep4() {
                 // Dotted, not `[${index}]`: RHF finds a row to focus by its
                 // dotted path, so a bracketed name is never focused.
                 name={`requiredItems.${index}.item`}
-                render={({ field: { ref, ...fieldProps } }) => (
+                render={({ field: { ref, ...fieldProps }, fieldState }) => (
                   <TextField
                     {...fieldProps}
-                    isInvalid={!!errors.requiredItems?.[index]?.item}
+                    isInvalid={fieldState.invalid}
                     className={field}
                   >
                     <Label className={fieldLabel}>{items.label(index + 1)}</Label>
@@ -49,9 +49,7 @@ function FormStep4() {
                       maxLength={LIMITS.requiredItem}
                       className={fieldInput}
                     />
-                    <FieldError className={fieldError}>
-                      {errors.requiredItems?.[index]?.item?.message}
-                    </FieldError>
+                    <FieldError className={fieldError}>{fieldState.error?.message}</FieldError>
                   </TextField>
                 )}
               />
