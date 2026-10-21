@@ -1144,8 +1144,8 @@ its own, in this order (2h is independent and can land any time):
       the streamed `submit_trip` input with `finalMessage()`, and throws `APIUserAbortError` on an
       abort; type check, unit (1115), build, e2e (81; two `/form` city-check specs failed once
       and passed on rerun, GeoNames). No live call: e2e runs on fixtures.
-    - **2i-d · `zod-4`: `zod` 3.25.76 → 4.6.7, `@hookform/resolvers` 3.10.0 → 5.9.2.** Done,
-      staged. One branch: six files use zod, and only `schema.ts` changes. Its two deprecated
+    - **2i-d · `zod-4`: `zod` 3.25.76 → 4.6.7, `@hookform/resolvers` 3.10.0 → 5.9.2.** Merged
+      (#229). One branch: six files use zod, and only `schema.ts` changes. Its two deprecated
       calls move on: `z.string().datetime()` → `z.iso.datetime()`, `z.ZodIssueCode.custom` →
       `"custom"`. The SDK and `eslint-plugin-react-hooks` take zod 4 too (one copy in the tree).
       - **Resolvers held at 5.9.2, not 6.0.0.** 6.0 (2026-10-19) changes only the Effect
@@ -1169,6 +1169,18 @@ its own, in this order (2h is independent and can land any time):
         `ajv` 6 moves under eslint, now that resolvers lists `ajv` 8 as an optional peer.
       - Checks: type check, unit (1118), build, e2e (81); `/form` at 390, step 1's errors
         and step 1 → 2 through the new resolver, no console messages.
+    - **2i-e · `framer-motion-14`: `framer-motion` 12.43.0 → 14.5.0.** Done, staged. No code
+      changes: 13.0 drops the optional `@emotion/is-prop-valid` peer (never installed) and 14.0
+      removes internal APIs only; every import we use (`motion`, `AnimatePresence`,
+      `MotionConfig`, `useScroll`, `useTransform`, `Variants`, `PanInfo`) is unchanged. `motion-dom`
+      and `motion-utils` move with it (14.5.0, 14.1.1), one copy each. The behaviour to watch was
+      13.4's scroll work (`useScroll` on `ViewTimeline`, accelerated `useTransform` clamping):
+      the hero's parallax still writes an inline `translateY`, clamped at 90 / 170px, no WAAPI
+      animation, and under reduced motion `parallax-drift` still computes `transform: none`.
+      - Checks: type check, unit (1118), build, e2e (81; the `/form` city-check layout spec
+        failed once and passed on rerun, GeoNames). Browser: the landing at 1440 / 768 / 390, a
+        saved trip's tours at 390 by button and by swipe, `/form` at 390 with reduced motion;
+        no console errors.
   - Order: 2i-a → 2i-b → majors. Independent of 2e/2h and of branches 3–7, except that the SDK
     major should land before 3.
 - **2j · `readme-phase-2`: the README, caught up.** Review `README.md` against phases 1 and 2:
