@@ -36,6 +36,13 @@ export function chip(tint: string) {
   return `group relative inline-flex cursor-pointer select-none items-center rounded-full border border-sorbet-ink/15 bg-white px-4 py-2 text-sm font-medium text-sorbet-ink transition-colors hover:border-sorbet-ink/40 data-selected:border-sorbet-ink ${tint} data-disabled:cursor-not-allowed data-disabled:opacity-45 data-disabled:hover:border-sorbet-ink/15 data-focus-visible:outline-2 data-focus-visible:outline-solid data-focus-visible:outline-offset-2 data-focus-visible:outline-sorbet-ink motion-reduce:transition-none`;
 }
 
+/**
+ * A chip's field root (`Radio`, `Checkbox`), around the chip. Clears HeroUI's disabled
+ * style there: its opacity would stack with the chip's own, and its `pointer-events: none`
+ * would hide the chip's `not-allowed` cursor.
+ */
+export const chipField = "data-disabled:pointer-events-auto data-disabled:opacity-100";
+
 /** Pastel per radio group, so neighbouring groups read apart. */
 export const tints = {
   lavender: "data-selected:bg-sorbet-lavender",

@@ -514,9 +514,12 @@ Each of these was a bug, not a theory.
     - `AlertDialog.Trigger` is the same: a `role="button"` div around what it holds. Open
       the dialog from a plain pill with `isOpen`/`onOpenChange` on `AlertDialog.Backdrop`
       (`form/StartOver.tsx`).
-    - Radios and checkboxes are a `<label>` around a visually hidden `<input>`. In
+    - Radios and checkboxes (HeroUI 3.2) are a field root around `.Content`, a `<label>`
+      around a visually hidden `<input>`; without `.Content` there is no input at all. In
       Playwright, click the label; a forced click on the input does not toggle it.
-      Style the selected state with `data-selected:` on the label.
+      Style the chip on `.Content`, the only part with `data-focus-visible`; the root
+      takes `chipField`, which clears HeroUI's disabled opacity and `pointer-events: none`
+      there, or a disabled chip fades twice and loses its `not-allowed` cursor.
 
 13. **A sticker in the gutter is placed from the content column, not the viewport.**
     The hero's cyan sticker sat at `left-[4%]`, on "Plan the trip." at every width
