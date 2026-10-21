@@ -1127,6 +1127,18 @@ its own, in this order (2h is independent and can land any time):
     (touches the agent, so it goes before 3–7 build on it), `@hookform/resolvers` with zod,
     `framer-motion`, `react-day-picker`, Prisma 7 (schema, client generation, the Neon
     adapter, the e2e push script). Each: plan note on what changed, tests with the change.
+    - **2i-c · `sdk-1`: `@anthropic-ai/sdk` 0.100.1 → 1.0.0.** Done, staged. 1.0 sends API
+      version `2026-10-21` (was `2023-06-01`) and the key as `Authorization: Bearer` (was
+      `X-Api-Key`); `MessageParam` is a union per role; Text Completions, client-side compaction
+      and `betas` on the Models methods are gone ([migration guide](https://platform.claude.com/docs/en/api/migration-2026-10-21#typescript)).
+      The version's Messages breaks — `temperature`/`top_p`/`top_k` rejected, no `document` in an
+      assistant turn, no `citations` in a user turn — touch nothing we send, so `anthropicApi.ts` is
+      unchanged. It brings `@opentelemetry/api` (already under `next`); with no tracer registered
+      its spans are no-ops. Checks: a test pins that the request carries no sampling parameter;
+      the real 1.0 client against a stubbed `fetch` sends `2026-10-21` and `Bearer`, assembles
+      the streamed `submit_trip` input with `finalMessage()`, and throws `APIUserAbortError` on an
+      abort; type check, unit (1115), build, e2e (81; two `/form` city-check specs failed once
+      and passed on rerun, GeoNames). No live call: e2e runs on fixtures.
   - Order: 2i-a → 2i-b → majors. Independent of 2e/2h and of branches 3–7, except that the SDK
     major should land before 3.
 - **2j · `readme-phase-2`: the README, caught up.** Review `README.md` against phases 1 and 2:

@@ -14,7 +14,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.100.1",
+    "@anthropic-ai/sdk": "^1.0.0",
     "@heroui/react": "^3.2.6",
     "@hookform/resolvers": "^3.10.0",
     "@plaiceholder/next": "^3.0.0",

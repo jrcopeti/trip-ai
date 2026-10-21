@@ -124,6 +124,14 @@ describe("generateTrip — the request", () => {
     expect(sent().tools).toHaveLength(1);
     expect(sent().tools[0]).toMatchObject({ name: "submit_trip", strict: true });
   });
+
+  it("sends no sampling parameter, which API version 2026-10-21 rejects", async () => {
+    await generateTrip(validTripRequest);
+
+    expect(sent()).not.toHaveProperty("temperature");
+    expect(sent()).not.toHaveProperty("top_p");
+    expect(sent()).not.toHaveProperty("top_k");
+  });
 });
 
 describe("generateTrip — the row", () => {
