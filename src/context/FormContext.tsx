@@ -20,7 +20,7 @@ import {
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { steps } from "@/data";
-import { FormDataSchema, isPassport } from "@/lib/schema";
+import { FormDataSchema } from "@/lib/schema";
 import { toTripRequest } from "@/lib/agent/request";
 import { clearFormDraft, readFormDraft, resumeStep, writeFormDraft } from "@/lib/formDraft";
 import { weatherDates } from "@/lib/utils";
@@ -116,9 +116,6 @@ function FormProvider({ children }: { children: React.ReactNode }) {
       // A weather plan starts now, as ticking the box does; a picked date that has passed
       // reopens its step with the error showing, or Submit would be off with no reason.
       if (draft.isWeatherSelected) Object.assign(values, weatherDates());
-      // The combobox can't show or clear a passport the list no longer offers, so it comes
-      // back as none; kept, it would hold step 1 with an empty field.
-      if (values.passport && !isPassport(values.passport)) values.passport = "";
       const { step, invalid } = resumeStep(values, draft.step);
       reset(values, { keepDefaultValues: true });
       setPrevStep(step);

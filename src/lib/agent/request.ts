@@ -48,7 +48,7 @@ export const TripRequestSchema = FormFieldsSchema.omit({ agreement: true })
     passport: z
       .string()
       .trim()
-      .refine(isPassport, { message: "Not one of the options" })
+      .refine((name) => !name || isPassport(name), { message: "Not one of the options" })
       .optional(),
     type: oneOf(types),
     pace: oneOf(paces),

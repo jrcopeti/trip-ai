@@ -1013,8 +1013,9 @@ its own, in this order (2h is independent and can land any time):
     - Passport: a listed country, still optional. **Decided (2026-10-21): the UK's four nations
       are not passports** ("United Kingdom" covers a British one); the destination keeps them,
       as GeoNames needs them. `passportCountries` (`src/data/countries.ts`) is the list less the
-      `gb-` codes: step 1's combobox offers it, and both schemas check against it, the request
-      with `oneOf`, the form with "Pick a passport from the list", so a draft still holding
+      `gb-` codes: step 1's combobox offers it, and both schemas check against it with
+      `isPassport`, blank meaning none (the request trims first), the form saying "Pick a
+      passport from the list", so a draft still holding
       "Scotland" is stopped on step 1's Next rather than by the server. Antarctica, Bouvet Island
       and the like stay destinations: the city check refuses them already.
     - Required items: `line(LIMITS.requiredItem)` on the server (no line breaks, `<` or `>`, as
@@ -1036,6 +1037,14 @@ its own, in this order (2h is independent and can land any time):
       and the request; the request trims the passport again; the server's message for an item
       names both causes ("Keep it to one line, without < or >"); step 4 reads its errors from
       `fieldState`. Left as is: 2k's entry sits on this branch, as asked.
+    - **Review of `b226106`**, fixed: the request takes a blank passport as none again, as the
+      form does; the plan's wording matches `isPassport`; a test pins the passport to one line.
+      **A stale draft value is left as is**, reverting `b226106`'s restore line: a draft lives in
+      its tab, there are no outside users, and none predates the passport list, so an unlisted
+      passport (or, after a future list change, destination) can only be the developer's own;
+      the schemas still refuse it, and Start over clears it. Also left: step 4 shows no message
+      for the list's own cap (the step stops offering items at 10), the form not trimming a
+      passport the combobox sets exactly, and a `Set` for `isPassport`.
 - **2k · `string-tours-caught`: the list sent as a string, caught in production.** After 2h-b.
   On 2026-10-21 (the #220 deploy) one generation (`req_011CgFDwVfiV8gNm6phjUk9j`) failed with
   "invalid trip", and 2f's DIAG log caught the string: `tours` arrived as JSON text, 715
