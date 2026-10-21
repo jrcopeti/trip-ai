@@ -88,14 +88,14 @@ export const FormFieldsSchema = z.object({
     .nonempty("At least one interest is required")
     .max(LIMITS.interests, `Up to ${LIMITS.interests} interests`),
   note: z.string().max(LIMITS.note, `Keep notes under ${LIMITS.note} characters`).optional(),
-  startDate: z
-    .string()
-    .datetime()
-    .min(1, "Start date is required")
+  // The format check fails first and RHF shows only that, so it carries "required": the
+  // picker only ever sets a valid datetime or nothing.
+  startDate: z.iso
+    .datetime("Start date is required")
     .refine((val) => dayjs(val).isAfter(dayjs().subtract(1, "day")), {
       message: "Start date cannot be in the past",
     }),
-  endDate: z.string().datetime().min(1, "End date is required"),
+  endDate: z.iso.datetime("End date is required"),
 
   agreement: z.boolean().refine((val) => val === true, {
     message: "You must agree to the terms to continue",
@@ -106,7 +106,7 @@ export const FormFieldsSchema = z.object({
 export function checkEndDate(data: { startDate: string; endDate: string }, ctx: z.RefinementCtx) {
   if (dayjs(data.endDate).isBefore(dayjs(data.startDate))) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       message: "End date must be after start date",
       path: ["endDate"],
     });
@@ -120,7 +120,7 @@ export function checkAgeRanges(
   const rule = AGE_RANGE_RULES[data.travellers];
   if (!rule) return;
   const issue = (message: string) =>
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message, path: ["ageRanges"] });
+    ctx.addIssue({ code: "custom", message, path: ["ageRanges"] });
   if (rule.max !== undefined && rule.tooMany && data.ageRanges.length > rule.max) {
     issue(rule.tooMany);
   }
