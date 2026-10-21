@@ -20,14 +20,6 @@ vi.mock("@/hooks/useGeoNames", () => ({
   idleCityCheck: { isCityValid: false, isLoadingCityValid: false, message: "", place: null },
   useGeoNames: geoNames,
 }));
-vi.mock("@/hooks/useCountries", () => ({
-  useCountries: () => ({
-    countries: [
-      { value: "Portugal", label: "Portugal", code: "pt", flagUrl: "https://flagcdn.com/pt.svg" },
-    ],
-    isLoading: false,
-  }),
-}));
 vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn() } }));
 
 function renderForm() {

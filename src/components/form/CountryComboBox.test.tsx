@@ -3,16 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { renderWithProviders, screen } from "@/test/render";
 import CountryComboBox from "@/components/form/CountryComboBox";
 
-vi.mock("@/hooks/useCountries", () => ({
-  useCountries: () => ({
-    countries: [
-      { value: "Peru", label: "Peru", code: "pe", flagUrl: "" },
-      { value: "Portugal", label: "Portugal", code: "pt", flagUrl: "" },
-      { value: "Spain", label: "Spain", code: "es", flagUrl: "" },
-    ],
-    isLoading: false,
-  }),
-}));
 
 function renderCombo(value?: string) {
   const onSelect = vi.fn();
@@ -43,6 +33,17 @@ describe("CountryComboBox", () => {
     await user.click(await screen.findByRole("option", { name: "Spain" }));
 
     expect(onSelect).toHaveBeenLastCalledWith("es");
+  });
+
+  // The label stops at 25 characters; the name past it must still be searchable.
+  it("finds a long name by a word past its label's cut", async () => {
+    const user = userEvent.setup();
+    renderCombo();
+
+    await user.type(screen.getByRole("combobox", { name: /country/i }), "Grenadines");
+
+    const options = await screen.findAllByRole("option");
+    expect(options.map((o) => o.textContent)).toEqual(["Saint Vincent and the Gre..."]);
   });
 
   it("shows a stored value as its label", () => {

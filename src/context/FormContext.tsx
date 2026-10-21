@@ -7,7 +7,7 @@ import type {
   FormStepsContextType,
   Inputs,
 } from "@/types";
-import { useCountries } from "@/hooks/useCountries";
+import { countries } from "@/data/countries";
 import { idleCityCheck, useGeoNames } from "@/hooks/useGeoNames";
 import { useTripGeneration } from "@/hooks/useTripGeneration";
 import {
@@ -133,7 +133,6 @@ function FormProvider({ children }: { children: React.ReactNode }) {
 
   const { generateTrip } = useTripGeneration();
 
-  const { countries } = useCountries();
 
   // `useWatch`, not `watch`: a root `watch` re-renders `useForm`'s host with a new
   // `formState` on every keystroke, and every context with it.
@@ -162,7 +161,7 @@ function FormProvider({ children }: { children: React.ReactNode }) {
         setValue(fieldName, selectedCountry.value);
       }
     },
-    [countries, setValue],
+    [setValue],
   );
 
   // Errors appear on Next (`trigger` in `next`), but should go as soon as the
@@ -223,7 +222,7 @@ function FormProvider({ children }: { children: React.ReactNode }) {
     // Nothing clears here: a failed generation leaves everything filled in for another
     // try, and a trip that comes back clears the draft and leaves /form.
     generateTrip(toTripRequest(data, submittedCode, isWeatherSelected));
-  }, [countries, generateTrip, isWeatherSelected]);
+  }, [generateTrip, isWeatherSelected]);
 
   const stepsValue = useMemo(
     () => ({ currentStep, delta, stepValue, next, prev, startOver, isDraftRestored }),

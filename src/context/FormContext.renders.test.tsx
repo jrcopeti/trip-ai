@@ -37,21 +37,15 @@ vi.mock("@/components/form/FormStep2", async (importOriginal) => {
 vi.mock("@/app/api/geoNamesApi", () => ({
   resolvePlace: vi.fn().mockResolvedValue({ ok: false, error: "not-found" }),
 }));
-// Stable across renders, as the real ones are (the provider's callbacks, the query's data):
-// a new function or array per render would change the context and void the measure.
-const { generation, countries } = vi.hoisted(() => ({
+// Stable across renders, as the provider's real callbacks are: a new function per render
+// would change the context and void the measure.
+const { generation } = vi.hoisted(() => ({
   generation: { generateTrip: () => {}, cancel: () => {}, clearFailure: () => {} },
-  countries: [
-    { value: "Portugal", label: "Portugal", code: "pt", flagUrl: "https://flagcdn.com/pt.svg" },
-  ],
 }));
 vi.mock("@/hooks/useTripGeneration", () => ({
   useTripGeneration: () => generation,
   useGenerationState: <T,>(select: (state: { pending: null; trip: null; failure: null }) => T) =>
     select({ pending: null, trip: null, failure: null }),
-}));
-vi.mock("@/hooks/useCountries", () => ({
-  useCountries: () => ({ countries, isLoading: false }),
 }));
 vi.mock("react-hot-toast", () => ({ default: { custom: vi.fn() } }));
 

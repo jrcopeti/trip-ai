@@ -836,7 +836,7 @@ its own, in this order (2h is independent and can land any time):
       call settles afterwards.
     - Accepted: a browser without Fetch Metadata (Safari before 16.4, older Firefox) isn't
       origin-checked; the JSON preflight still blocks its cross-site requests.
-- **2e-g · `one-open-trip`: one unanswered trip at a time, per browser.** From 2e-f's review.
+- **2e-g · `one-open-trip`: one unanswered trip at a time, per browser.** From 2e-f's review. **Status: merged (#220).**
   With the result toast capped at one, a traveller could generate trip after trip without ever
   looking at them. Rule: while a trip they generated is unanswered (neither "Yes, save it" nor
   "No, thanks"), this browser can't plan another.
@@ -985,8 +985,45 @@ its own, in this order (2h is independent and can land any time):
     `request.signal` on; the existing failures (refusal, `max_tokens`, no call, invalid trip) still
     throw from the stream's final message. e2e: Cancel leaves no row (the fixture path,
     `E2E_FIXTURES=1`, waits on the signal so a Cancel lands mid-call).
-- **2h · `request-checks`: findings 2 and 3.** Passport checked with `oneOf` against the
-  countries; required items refuse line breaks, on the server and the form.
+- **2e-h · a refactor audit after 2e-g.** Found nothing worth refactoring, so no branch.
+- **2h · findings 2 and 3: the passport is a listed country; required items stay on one line —
+  split 2h-a, 2h-b.** The country list is fetched in the browser today (`useCountries`, from
+  flagcdn's `codes.json`), so the server has nothing to check the passport against. Fetching it
+  on the server too would make every generation depend on flagcdn; the list is bundled instead,
+  as one source for the form and the server. That move touches every test that mocks
+  `useCountries`, so it is its own branch, first.
+  - **2h-a · `bundled-countries`: the country list ships with the app.** `src/data/countries.ts`
+    holds flagcdn's list as of the branch (306 codes, less the 50 US states, the EU and the UN:
+    254, the UK's nations kept), as `Country[]` sorted by name, built by the filter
+    `fetchCountries` runs now. `useCountries` and its query go; `CountryComboBox` and
+    `FormContext` import the list, so the country fields are never disabled while it loads and
+    the form works when flagcdn is down (the flags themselves still come from it). Tests that
+    mock `useCountries` or flagcdn drop the mock; `useCountries.test.tsx` becomes a test of the
+    data: no `us-` codes, EU or UN, unique names and codes, sorted, the UK's nations present.
+    e2e: `form.spec.ts` and `formWalk.ts` stop routing flagcdn's list.
+    **Built (2026-10-21):** as planned. The e2e test that the list was fetched on `/form` only
+    became "offers the countries with flagcdn down" (every flagcdn request aborted).
+    Review of `9ec32d8`, fixed: search ran on the cut label, so a word past 25 characters
+    ("Grenadines") found nothing (it searches the full name now); the sort followed the
+    browser's locale (English now, pinned by a test); a leftover enabled-wait in `pickCountry`;
+    a local `Country` type shadowing the shared one; the `key` comment. Left as is: one lookup
+    helper for the three `countries.find`s, and a pre-sorted source list. The passport list's
+    UK nations went to 2h-b.
+  - **2h-b · `request-checks`: the server refuses what the form can't send.**
+    - Passport: `oneOf(countries)`, still optional. The form already only picks from the list
+      (the combobox has no custom value), so the form needs no change.
+    - From 2h-a's review: one list serves the passport and the destination, so "England" or
+      "Scotland" can be picked as a passport, which no country issues, and `oneOf(countries)`
+      would accept it; Antarctica, Bouvet Island and the like are destinations no city check
+      can pass. Decide here: drop the UK's nations from the passport list (both form and
+      server), or record that they're accepted on purpose.
+    - Required items: `line(LIMITS.requiredItem)` on the server (no line breaks, `<` or `>`, as
+      the name and city). The form's item gets the name's regex and "Leave out < and >", and
+      step 4 shows an item's error under it (it shows none today). Blank items stay allowed on
+      the form; `toTripRequest` drops them. The note keeps its line breaks.
+    - Tests first: the request schema refuses an unlisted passport and accepts a listed one or
+      none; refuses an item with a line break, `<` or `>`; the form schema refuses an item with
+      `<`, and step 4 shows the message under that item.
 - **2i · dependencies: Renovate keeps them current, a branch each for the breaking ones.**
   Evaluated: both. Nothing prompts an update today (no Dependabot or Renovate config), and
   `npm outdated` shows the lockfile behind — `next` 16.2.6 → 16.4.1, `react` 19.2.6 → 19.3.1,
@@ -1016,8 +1053,7 @@ its own, in this order (2h is independent and can land any time):
   the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
   weather by coordinates, the form-scoped providers, architecture and commands. Retake the
   screenshots that changed at the sizes above.
-- **Order from here:** 2e-g → 2h → 2i → 2j (2e-f, 2f and 2g merged), and branch 3. 2g goes
-  before 2e-g: they're independent, and 2g stops paying for cancelled generations.
+- **Order from here:** 2h-a → 2h-b → 2i → 2j (2e-f, 2e-g, 2f and 2g merged), and branch 3.
 
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`

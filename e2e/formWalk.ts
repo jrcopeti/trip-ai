@@ -1,18 +1,9 @@
 import { expect, type Page } from "@playwright/test";
 
 /**
- * The seven-step form, shared by `form.spec` and the trip journey. The country list
- * (flagcdn) is stubbed here; the city check runs on the server, which answers from
- * the GeoNames fixture under `E2E_FIXTURES=1`.
+ * The seven-step form, shared by `form.spec` and the trip journey. The city check runs
+ * on the server, which answers from the GeoNames fixture under `E2E_FIXTURES=1`.
  */
-
-export const COUNTRIES = { br: "Brazil", pt: "Portugal", es: "Spain" };
-
-export async function stubLookups(page: Page) {
-  await page.route("https://flagcdn.com/en/codes.json", (route) =>
-    route.fulfill({ json: COUNTRIES }),
-  );
-}
 
 export const heading = (page: Page) => page.getByRole("heading", { level: 1 });
 export const next = (page: Page) => page.getByRole("button", { name: "Next" }).click();
@@ -22,7 +13,6 @@ export const chip = (page: Page, name: string) =>
 
 export async function pickCountry(page: Page, field: RegExp, name: string) {
   const combo = page.getByRole("combobox", { name: field });
-  await expect(combo).toBeEnabled();
   await combo.click();
   await combo.pressSequentially(name.slice(0, 4));
   await page.getByRole("option", { name }).click();

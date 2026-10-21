@@ -9,7 +9,8 @@ import {
   ListBox,
   ListBoxItem,
 } from "@heroui/react";
-import { useCountries } from "@/hooks/useCountries";
+import { countries } from "@/data/countries";
+import type { Country } from "@/types";
 import { field, fieldError, fieldLabel } from "./styles";
 
 type Props = {
@@ -24,8 +25,6 @@ type Props = {
   description?: string;
 };
 
-type Country = { code: string; label: string };
-
 /**
  * A searchable country list, shared by the passport (step 1) and destination
  * country (step 2). The input group is the pill; the popover is a white card.
@@ -39,21 +38,19 @@ function CountryComboBox({
   isRequired = true,
   description,
 }: Props) {
-  const { countries, isLoading } = useCountries();
   const selected = countries.find((c) => c.value === value);
 
   return (
     <ComboBox<Country>
       // `defaultItems`, not `items`: react-aria filters `defaultItems` by what
       // is typed, but treats `items` as already filtered — with `items` the
-      // whole list showed whatever you typed. The key re-mounts once the async
-      // list arrives and once a stored value resolves, so both take effect.
-      key={`${countries.length}-${selected?.code ?? ""}`}
+      // whole list showed whatever you typed. The key re-mounts when the form's
+      // value changes from outside (a restored draft), so the defaults take effect.
+      key={selected?.code ?? ""}
       defaultItems={countries}
       defaultValue={selected?.code}
       defaultInputValue={selected?.label}
       onChange={onSelect}
-      isDisabled={isLoading}
       isInvalid={!!error}
       isRequired={isRequired}
       // `group` so the input group can read the root's `data-invalid`.
@@ -82,8 +79,9 @@ function CountryComboBox({
             <ListBoxItem
               id={country.code}
               // Explicit: HeroUI wraps the label with its own indicator, so
-              // react-aria cannot read the text to filter on by itself.
-              textValue={country.label}
+              // react-aria cannot read the text to filter on by itself. The full
+              // name, as the label is cut at 25 characters.
+              textValue={country.value}
               className="cursor-pointer rounded-full px-4 py-2 text-sm text-sorbet-ink data-focused:bg-sorbet-ink/5 data-selected:bg-sorbet-lime data-selected:font-semibold"
             >
               {country.label}
