@@ -550,8 +550,9 @@ Each of these was a bug, not a theory.
     carries `group`, and the button reads `data-today` (a lime circle) and `data-selected`
     (an ink circle) through `group-data-*`, and today selected keeps its lime with an inset
     ink ring; `DatePicker.test.tsx` pins the attributes.
-    Offwhite text goes only on the ink circle (selected, not today, not hovered): today's
-    lime and the hover tint win the background, and offwhite on either is unreadable.
+    Each state sets its text colour beside its background, with the same variant: a text
+    rule keyed on anything else (`:not(:hover)`) disagrees on a touch screen, where
+    Tailwind's `hover:` is off but a tapped day stays `:hover`, and leaves ink on ink.
 
 ## Building a page
 

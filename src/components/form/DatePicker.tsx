@@ -4,7 +4,7 @@ import { useToggle } from "@/hooks/useToggle";
 import { Popover } from "@heroui/react";
 import { MdOutlineCalendarToday } from "react-icons/md";
 import { FaXmark } from "react-icons/fa6";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, getDefaultClassNames } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import dayjs from "dayjs";
 import { formatDate } from "@/lib/utils";
@@ -15,7 +15,7 @@ interface DatePickerProps {
   label: string;
   id: string;
   placeholder?: string;
-  onChange?: (val?: string) => void;
+  onChange?: (val: string) => void;
   value?: string;
   onBlur?: () => void;
   name?: string;
@@ -23,14 +23,23 @@ interface DatePickerProps {
   invalid?: boolean;
 }
 
-/** react-day-picker v9 themed through its own variables. */
+/** react-day-picker's own variables: the month arrows in ink, the day cells 2.5rem. */
 const calendarTheme = {
   "--rdp-accent-color": "#302e2d",
-  "--rdp-accent-background-color": "#e2f3a7",
-  "--rdp-today-color": "#302e2d",
   "--rdp-day-height": "2.5rem",
   "--rdp-day-width": "2.5rem",
 } as React.CSSProperties;
+
+/**
+ * The days as circles: today lime, the selected day ink with offwhite text, today selected
+ * lime with an ink ring, an ink tint on hover. Each state sets its text with its background.
+ */
+const calendarClassNames = {
+  day: `${getDefaultClassNames().day} group`,
+  day_button: `grid size-10 cursor-pointer place-items-center rounded-full transition-colors group-data-[selected]:bg-sorbet-ink group-data-[selected]:text-sorbet-offwhite group-data-[today]:bg-sorbet-lime group-data-[today]:text-sorbet-ink group-data-[selected]:group-data-[today]:inset-ring-2 group-data-[selected]:group-data-[today]:inset-ring-sorbet-ink hover:bg-sorbet-ink/10 hover:text-sorbet-ink motion-reduce:transition-none ${focusTriad}`,
+  selected: "font-semibold",
+  today: "font-semibold",
+};
 
 /**
  * A date field: a pill that opens a calendar in a white card. The clear button
@@ -74,16 +83,8 @@ function DatePicker({ label, id, placeholder, onChange, value, ref, invalid }: D
             <Popover.Dialog aria-label={label}>
               <DayPicker
                 style={calendarTheme}
-                // Replacing the library's day-button class keeps its unlayered rules,
-                // which beat any utility, off the button; it is styled here in full.
-                // Offwhite text only on the ink circle: today's lime and the hover tint
-                // win the background, and offwhite on either is unreadable.
-                classNames={{
-                  day: "rdp-day group",
-                  day_button: `grid size-10 cursor-pointer place-items-center rounded-full transition-colors hover:bg-sorbet-ink/10 group-data-[today]:bg-sorbet-lime group-data-[selected]:bg-sorbet-ink [[data-selected]:not([data-today])>&:not(:hover)]:text-sorbet-offwhite [[data-selected][data-today]>&]:inset-ring-2 [[data-selected][data-today]>&]:inset-ring-sorbet-ink motion-reduce:transition-none ${focusTriad}`,
-                  selected: "font-semibold",
-                  today: "font-semibold",
-                }}
+                // Replaces the library's day classes; why, in design-notes gotcha 15.
+                classNames={calendarClassNames}
                 mode="single"
                 // Without it a re-clicked day deselects to `undefined`, and
                 // `dayjs(undefined)` is now. Clearing is the separate button.

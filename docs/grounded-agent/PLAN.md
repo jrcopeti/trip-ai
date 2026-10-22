@@ -1181,8 +1181,9 @@ its own, in this order (2h is independent and can land any time):
         failed once and passed on rerun, GeoNames). Browser: the landing at 1440 / 768 / 390, a
         saved trip's tours at 390 by button and by swipe, `/form` at 390 with reduced motion;
         no console errors.
-    - **2i-f · `react-day-picker-10`: `react-day-picker` 9.14.0 → 10.0.2.** Done, staged. No code
-      changes: 10.0 removes the APIs v9 deprecated (`fromDate`/`toDate`, `initialFocus`, the
+    - **2i-f · `react-day-picker-10`: `react-day-picker` 9.14.0 → 10.0.2.** Done, committed (c71014d), with
+      the review's fixes staged. No code changes for the bump itself; the calendar's circles and
+      the clear fix below landed on this branch as asked, three concerns in one. 10.0 removes the APIs v9 deprecated (`fromDate`/`toDate`, `initialFocus`, the
       `onDay*` handlers, the old label/format aliases, the non-Gregorian calendars, now
       `@daypicker/*`), and `DatePicker` uses none of them. `react-day-picker/dist/style.css` is
       still exported (an alias of `style.css`, unchanged byte for byte), and `classNames` still
@@ -1211,6 +1212,12 @@ its own, in this order (2h is independent and can land any time):
         case mounts a picker under `useForm` on a value set beforehand and clears it in one
         press (it failed first). Checked in the browser at 390: the reported flow clears in one
         press each, and Next then shows both "required" messages.
+      - **Review fixes** (all seven, as asked): every day state sets its text with its
+        background through the same `group-data-*` / `hover:` variants (a selected day tapped on
+        a phone was ink on ink: the text rule wasn't behind `hover:`'s `(hover: hover)`); the
+        classes move to `calendarClassNames`, the cell's from `getDefaultClassNames()`; the two
+        variables that styled nothing go; `onChange` takes a `string`, so `undefined` can't come
+        back; the comment becomes a pointer to gotcha 15.
   - Order: 2i-a → 2i-b → majors. Independent of 2e/2h and of branches 3–7, except that the SDK
     major should land before 3.
 - **2j · `readme-phase-2`: the README, caught up.** Review `README.md` against phases 1 and 2:
