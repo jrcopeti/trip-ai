@@ -3,6 +3,9 @@
   "extends": ["config:recommended"],
   "schedule": ["before 6am on monday"],
   "rangeStrategy": "bump",
+  "constraints": {
+    "npm": "^11"
+  },
   "dependencyDashboard": true,
   "osvVulnerabilityAlerts": true,
   "vulnerabilityAlerts": {

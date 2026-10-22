@@ -1125,6 +1125,16 @@ its own, in this order (2h is independent and can land any time):
       on major tags, so their bumps arrive as held majors.
     - `@types/locomotive-scroll` removed, left over from the old look; the hygiene test's
       `package.json` check now also catches a removed package's `@types/`.
+    - **Fixed in `renovate-npm-11`: no PR ever opened.** Ticking the `sharp` security branch on
+      the dashboard did nothing. Mend's log: hosted Renovate runs npm 12, whose `allow-remote`
+      now defaults to `none`, and refreshing the lockfile has to fetch the tarball of
+      `@tailwindcss/oxide-wasm32-wasi` (it has `bundleDependencies`), which npm 12 classes as
+      remote: `EALLOWREMOTE`, so every lockfile update failed. Then GitHub answered the branch's
+      creation with a 422 ("Reference update failed", no reason given; the only ruleset is
+      `main`'s). `constraints.npm: "^11"` pins Renovate to the npm that writes our lockfile
+      (local and CI's Node 24), rather than `allow-remote=all`, which drops npm 12's safeguard for
+      every package. Checked on a copy with `sharp` at `^0.35.0`: npm 12.2.1 fails with the log's
+      error, npm 11.15.0 writes 0.35.5. If the 422 comes back once the lockfile builds, it's next.
     - **Install order:** merge this branch, then install the Renovate GitHub app on the repo
       (the user, in the browser). With `renovate.json` already on `main` Renovate skips its
       onboarding PR, so its first PR is the `sharp` security fix, left for Renovate to open.
