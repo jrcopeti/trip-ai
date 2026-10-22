@@ -11,7 +11,7 @@
  * It seeds `E2E_DATABASE_URL` (the local container by default), never `.env`'s
  * production database. Set ALLOW_REMOTE_E2E_SEED=1 to seed a remote one, deliberately.
  */
-import { PrismaClient } from "@prisma/client";
+import { createPrismaClient } from "../src/db/client";
 import { tripCreateInput, tripFixture, tripFixture2 } from "../src/test/fixtures/trip";
 import { E2E_DATABASE_URL, mayWriteToDatabase } from "./localDatabase";
 
@@ -45,7 +45,7 @@ async function main() {
     );
   }
 
-  const prisma = new PrismaClient({ datasources: { db: { url } } });
+  const prisma = createPrismaClient(url);
   try {
     await prisma.trip.deleteMany();
     await prisma.trip.createMany({ data: seeds });

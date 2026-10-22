@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { Trip } from "@prisma/client";
+import type { Trip } from "@/generated/prisma/client";
 import defaultImage3 from "@/assets/travel-photos/3.jpg";
 import Reveal from "@/components/sorbet/Reveal";
 import { defaultPlaceholder } from "@/lib/constants";

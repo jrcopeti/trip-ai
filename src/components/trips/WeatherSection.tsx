@@ -1,7 +1,7 @@
 "use client";
 import { Suspense, use } from "react";
 import Image from "next/image";
-import type { Trip } from "@prisma/client";
+import type { Trip } from "@/generated/prisma/client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import suncloudy from "@/assets/weather/suncloudy.png";

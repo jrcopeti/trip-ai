@@ -1,5 +1,5 @@
 import { defaultPlaceholder } from "@/lib/constants";
-import type { Prisma, Trip } from "@prisma/client";
+import type { Prisma, Trip } from "@/generated/prisma/client";
 
 /**
  * Files under `public/fixtures/` — downscaled copies of bundled travel photos —

@@ -1,4 +1,4 @@
-import type { Trip } from "@prisma/client";
+import type { Trip } from "@/generated/prisma/client";
 import { FaCheck } from "react-icons/fa6";
 import { LuBackpack } from "react-icons/lu";
 import Reveal from "@/components/sorbet/Reveal";

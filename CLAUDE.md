@@ -215,7 +215,9 @@ its own for `next`, React, HeroUI, the Anthropic SDK and Prisma; majors and the 
 minors wait for approval on the dependency dashboard; security fixes come at once. Each runs
 the same four checks and is merged by hand after a look at the diff; nothing automerges.
 
-After any Prisma schema change: `npx prisma generate` (already included in `build`). To push schema changes to the DB: `npx prisma db push`.
+After any Prisma schema change: `npx prisma generate` (also run by `postinstall` and `build`; `db push` no longer
+generates). To push schema changes to the DB: `npx prisma db push`. Prisma 7 reads its URL from
+`prisma.config.ts`, which loads the `.env` files the way Next does; the schema names none.
 
 ## Docs
 
@@ -373,7 +375,10 @@ the forecast.
   the weather sections read the promises with `use()` inside their own `<Suspense>`.
 - `src/app/api/geoNamesApi.ts` — `resolvePlace(city, countryCode)`: GeoNames search plus `matchCity` (`src/lib/place.ts`); returns the canonical place or a typed `not-found`/`unavailable`.
 - `src/db/actions.ts` — Prisma server actions: `setTripSaved` (flips an unsaved row's flag, once), `getSavedTripsPage` (18 saved trips per page plus the total, for the "Show more" grid), `getTripByUrl` and `getSingleSavedTrip` (each takes the route's string and returns null for one it could never match), `isTripOpen` (reads only a row's flag, for `/form`'s open-trip check), `getLatestSavedTrips` (the landing hero's three newest).
-- `src/db/index.ts` — singleton Prisma client.
+- `src/db/index.ts` — singleton Prisma client, built by `createPrismaClient` (`src/db/client.ts`): the
+  `pg` driver adapter, a 5s connection timeout. The seed and the journey spec build theirs there too.
+  The client is generated into `src/generated/prisma` (gitignored); import its types from
+  `@/generated/prisma/client`, never `@prisma/client`.
 
 ### Form data lifecycle
 `Inputs` (RHF's shape, derived from the Zod schema in `src/lib/schema.ts`; `requiredItems` as

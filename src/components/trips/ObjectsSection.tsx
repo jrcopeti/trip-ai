@@ -1,4 +1,4 @@
-import type { Trip } from "@prisma/client";
+import type { Trip } from "@/generated/prisma/client";
 import { LuPackage } from "react-icons/lu";
 import Reveal from "@/components/sorbet/Reveal";
 import TripCard from "@/components/sorbet/TripCard";

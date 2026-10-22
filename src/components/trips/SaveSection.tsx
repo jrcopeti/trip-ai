@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import type { Trip } from "@prisma/client";
+import type { Trip } from "@/generated/prisma/client";
 import { useSaveTrip } from "@/hooks/useSaveTrip";
 import defaultImage5 from "@/assets/travel-photos/9.jpg";
 import { defaultPlaceholder } from "@/lib/constants";

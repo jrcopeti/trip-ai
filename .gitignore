@@ -50,3 +50,6 @@ next-env.d.ts
 /.playwright-mcp/
 # Output of `node generatePlaceholder.mjs`; the values are copied into src/data
 /placeholders.json
+
+# prisma generate (postinstall and build)
+/src/generated/

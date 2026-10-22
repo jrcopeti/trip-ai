@@ -11,14 +11,16 @@
     "test:e2e": "playwright test",
     "seed:e2e": "tsx scripts/seed-e2e.ts",
     "db:push:e2e": "tsx scripts/push-e2e.ts",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.0.0",
     "@heroui/react": "^3.2.6",
     "@hookform/resolvers": "^5.9.2",
     "@plaiceholder/next": "^3.0.0",
-    "@prisma/client": "^5.22.0",
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
     "@tanstack/react-query": "^5.104.5",
     "@tanstack/react-query-devtools": "^5.104.5",
     "clsx": "^2.1.1",
@@ -55,7 +57,7 @@
     "postcss": "^8.5.31",
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
-    "prisma": "^5.22.0",
+    "prisma": "^7.10.1",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",

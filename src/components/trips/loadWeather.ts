@@ -1,4 +1,4 @@
-import type { Trip } from "@prisma/client";
+import type { Trip } from "@/generated/prisma/client";
 import { fetchForecast, fetchWeather } from "@/app/api/openWeatherApi";
 import { placeWeatherIcons, selectDailyForecasts } from "@/lib/utils";
 import { getChosenHour } from "@/lib/constants";

@@ -1218,6 +1218,36 @@ its own, in this order (2h is independent and can land any time):
         classes move to `calendarClassNames`, the cell's from `getDefaultClassNames()`; the two
         variables that styled nothing go; `onChange` takes a `string`, so `undefined` can't come
         back; the comment becomes a pointer to gotcha 15.
+    - **2i-g · `prisma-7`: `prisma` and `@prisma/client` 5.22.0 → 7.10.1, `@prisma/adapter-pg`
+      7.10.1.** Done, staged. One concern, one branch: the diff is wide (19 type imports) but
+      mechanical. 7.10.1 is the newest stable: npm's `latest` tag points at 8.0.0-rc.25, and
+      Renovate skips prereleases on a stable version.
+      - **The generator:** `prisma-client` (Rust-free; no query engine binary), generated into
+        `src/generated/prisma`, gitignored, and run by a new `postinstall` (CI's typecheck, unit
+        and seed steps need it before `build` runs) as well as `build`. `moduleFormat = "cjs"`:
+        the ESM output sets `__dirname` from `import.meta.url`, which throws when Playwright loads
+        the journey spec as CommonJS. Every `@prisma/client` import moves to
+        `@/generated/prisma/client`, all type-only.
+      - **The adapter:** 7 requires one. `@prisma/adapter-pg` over TCP, not `@prisma/adapter-neon`:
+        Fluid compute keeps a pool alive, and `pg` also reaches the e2e container, which Neon's
+        WebSocket driver can't. `createPrismaClient` (`src/db/client.ts`) builds every client — the
+        singleton, the seed (which loses `datasources`, gone in 7) and the journey spec — with
+        `connectionTimeoutMillis: 5_000`: `pg` otherwise waits forever, where Prisma 5 gave up
+        after 5s. A unit test pins both arguments.
+      - **The config:** the schema's `url` moves to `prisma.config.ts`. Prisma 7 loads no `.env`,
+        so the config calls `@next/env`'s `loadEnvConfig`, as `scripts/localDatabase.ts` does: the
+        CLI now reads `.env.local` over `.env`, like the app. `process.env.DATABASE_URL`, not
+        `env()`, which throws when unset and would break `prisma generate` in CI's keyless build.
+        `db push` lost `--skip-generate` (it no longer generates), so `push-e2e.ts` drops it.
+      - Lockfile: the CLI brings Prisma Studio and PGlite (`@prisma/dev`), dev-only; `pg` 8.23
+        arrives under the adapter. `npm audit`'s six highs are all `sharp`, as before.
+      - Checks: type check, unit (1121; one GenerationContext toast test failed once under the
+        full suite and passes alone, untouched here), build, `db:push:e2e`, `seed:e2e`, e2e (81).
+        No browser pass: nothing visible changed, and e2e reads and writes through the new
+        client on a production build.
+      - **Not checked: production.** The app on Neon through `pg` with `sslmode=require` (`pg`
+        treats `require` as `verify-full`; Neon's certificates are valid) wasn't read from here.
+        Check the Vercel preview: `/saved-trips` and a saved trip load.
   - Order: 2i-a → 2i-b → majors. Independent of 2e/2h and of branches 3–7, except that the SDK
     major should land before 3.
 - **2j · `readme-phase-2`: the README, caught up.** Review `README.md` against phases 1 and 2:

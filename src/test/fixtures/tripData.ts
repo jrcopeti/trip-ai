@@ -1,4 +1,4 @@
-import type { Trip } from "@prisma/client";
+import type { Trip } from "@/generated/prisma/client";
 import type { TripData } from "@/lib/agent/submitTrip";
 import { makeTrip } from "./trip";
 

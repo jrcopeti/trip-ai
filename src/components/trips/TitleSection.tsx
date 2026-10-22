@@ -1,4 +1,4 @@
-import type { Trip } from "@prisma/client";
+import type { Trip } from "@/generated/prisma/client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import defaultImage1 from "@/assets/travel-photos/1.jpg";
