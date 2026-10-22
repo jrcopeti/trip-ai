@@ -1264,7 +1264,7 @@ its own, in this order (2h is independent and can land any time):
   the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
   weather by coordinates, the form-scoped providers, architecture and commands. Retake the
   screenshots that changed at the sizes above.
-  - **Status: done on `readme-phase-2`, staged, not committed.** As built: the README is
+  - **Status: merged (#232).** Revisited at the end of phase 2, after 2p-b. As built: the README is
     rewritten as a brochure for recruiters and hiring managers: highlights, an architecture
     overview (a Mermaid diagram plus five points), a table of decisions and their reasons, and a
     roadmap for 3–7. The live link moves to `trip-ai-world.vercel.app` (the old
@@ -1276,7 +1276,92 @@ its own, in this order (2h is independent and can land any time):
     packing list and forecast, and the saved-trips wall. The form was filled in but never
     submitted, and nothing was written. The shots no longer used are removed (about,
     landing tours, form steps 1 and 3, tip, phone weather).
-- **Order from here:** 2h-a → 2h-b → 2k → 2i → 2j (2e-f, 2e-g, 2f and 2g merged), and branch 3.
+- **2l–2p · from using the deployed app (2026-10-22).** Six findings; five are branches below.
+  - **The form draft stays in `sessionStorage`** (the sixth). It exists before any trip does, so a
+    table for it could reference only the visitor, not a trip; a write per keystroke isn't worth a
+    round trip; and once submitted, the trip row holds the request. Not in-memory state either: a
+    reload would lose it.
+- **2l · `trip-text-breaks`: line breaks in the tip.** The closing's tip shows a literal `\n`
+  (backslash, n): the model escapes the line breaks, 2k's kind of slip, and `<p>{tip}</p>` prints
+  them. Seen only in the tip; the description and the tours (one paragraph each) never showed it.
+  - `paragraphs(text)` (`src/lib/utils.ts`): splits on real line breaks and on the written
+    two-character `\n`, trims, drops the empty. `Closing` renders a `<p>` per paragraph in a
+    `space-y-4` block, so both `SaveSection` and `FinalSection` get it. At render, so the rows
+    already in production read right with no data migration. The source is fixed in 2m's prompt.
+  - Tests first: `paragraphs` (`utils.test.ts`), the tip's paragraphs apart with no backslash
+    (`closing.test.tsx`).
+  - **Built (2026-10-22).** Seen in the browser at 1440, 768 and 390 on a seeded trip given the
+    production text's literal `\n`s: two paragraphs in the tip, no backslash, no hydration error.
+  - **Reviews of `6079c6e` and `b188378`.** The first build also split the description, cleaned
+    the tours, and unescaped the description, tip and tours on the server (`unescapeBreaks`)
+    before the row was written. All taken out: only the tip ever showed the slip, and 2m stops
+    it at the source. Left: a double-escaped `\\n` or a written `\r\n` (never seen).
+  - **Review of the branch (`26ccdf5`)**, fixed: `Closing`'s `tip` is a `string`, as the row's is;
+    a blank tip shows neither the eyebrow nor an empty block. Left: a single line break also
+    starts a paragraph (the production tip separates its paragraphs with one written `\n`), and
+    a literal backslash-n in real text (`C:\notes`) would split it.
+- **2m · `passport-entry`: entry rules only when they apply.** The tip reminds the traveller to
+  check entry rules even on a passport of the destination's own country, and on any other it says
+  only "check the rules", which tells them nothing.
+  - `buildTripMessage` leaves the `Passport:` line out when the passport's code (its name looked
+    up in `passportCountries`) equals the place's `countryCode`; the "no passport, leave this out"
+    rule then covers it. It takes `countryCode` from `resolvePlace`, which `generateTrip` has.
+  - Decided: **a short summary, then "confirm".** With a passport, the tip ends with what that
+    passport usually needs for this country (visa-free and for how long, visa on arrival, an eVisa
+    or ETA, an ID card being enough), that the rules change, and to confirm with the
+    destination's official sources before booking. It can be out of date until branch 4 looks
+    them up.
+  - From 2l's review: the system prompt and `submit_trip`'s descriptions of `description`, `tip`
+    and a tour's `description` say to separate paragraphs with a line break, never a written
+    `\n`, so the slip stops at its source, in every field: 2l fixes only the tip, at render.
+  - Tests: the prompt with the same country (no line), another (the line) and none; the snapshot.
+    One real run of each, recorded here.
+- **2n · `second-photo`: a photo between the essentials and the weather,** styled like the third
+  (`PhotoSection`).
+  - `unsplashApi` keeps six photos (`slice(0, 6)`; Unsplash's page is 10); `imageDataFixture`
+    gets a sixth.
+  - `PhotoSection` takes `image?`, `fallback` and `placeholder` instead of the `trip`, and
+    `TripPage` renders it twice: `tripImages[2]` (fallback `3.jpg`) where it is, and
+    `tripImages[5]` (fallback a bundled photo the page doesn't use yet) between `MustHaveSection`
+    (white) and `WeatherSection` (offwhite). On canvas, so no two grounds alike in a row;
+    `TripPage`'s docblock and `design-notes.md` list the new order.
+  - Rows with five photos fall back to the bundled one; the seed stays.
+  - Tests: the sixth photo and the fallback for a row with five. Browser at 1440, 768, 390.
+- **2o · `save-keeps-scroll`: answering keeps the page where it is.** After "Yes, save it" or
+  "No, thanks" the trip page jumps to the top.
+  - Cause unconfirmed. Suspect: `useSaveTrip`'s `router.refresh()` re-renders `TripPage`,
+    `loadWeather` starts new promises, and the weather sections' `<Suspense>` fall back and
+    shorten the page; the `SaveSection` swap is the other candidate.
+  - Reproduce it with the Playwright MCP first, then a failing e2e in the journey spec (it writes
+    rows): scroll to the closing, answer, `scrollY` is not back to 0. Fix what the reproduction
+    shows, keeping the refresh's purpose (Back doesn't ask again).
+- **2p · the open trip in the database — split 2p-a, 2p-b.** 2e-g keeps it in `localStorage`.
+  - Decided: the browser is told apart by an **anonymous first-party cookie**, strictly necessary
+    for a feature the visitor uses, so under ePrivacy it needs no consent banner; a **paragraph on
+    `/about`** says what it holds and that nothing tracks you.
+  - Model: `Trip.visitorId String?` and `Trip.answeredAt DateTime?`,
+    `@@index([visitorId, answeredAt])`. A discarded trip is `saved: false` with `answeredAt` set,
+    which tells it from one never answered (today both are `saved: false`). A row with no
+    visitor, every current one included, is never open. No `Visitor` table: it would hold only
+    its id.
+  - **2p-a · `open-trip-server`.** `POST /api/trip` sets `trip-ai-visitor` when missing
+    (`crypto.randomUUID()`, httpOnly, `SameSite=Lax`, `Secure` in production, a year);
+    `generateTrip` writes the `visitorId` on the row (`toTripRow`); `setTripSaved` also sets
+    `answeredAt` (a discarded trip can still be saved later); `getOpenTrip()` returns the
+    visitor's newest row with `answeredAt` null, or null. The route answers 409 while the visitor
+    has one open: a guard now, not only a guide (the rate limit is still branch 3's). Two tabs
+    starting at once can both pass: accepted. Bridge: the client keeps `localStorage` here; 2p-b
+    removes it. The `/about` paragraph. Tests: `answeredAt`, `getOpenTrip` (no cookie, none
+    open, the newest), the 409 and the cookie. `db:push:e2e` locally; the production push is the
+    user's.
+  - **2p-b · `open-trip-client`.** `useOpenTrip` is one query on `getOpenTrip()`, refetched on
+    focus again (another tab's answer shows on return); `transition`'s `rememberTrip` becomes an
+    invalidation of it, and `useSaveTrip` invalidates instead of `forgetOpenTrip`.
+    `src/lib/openTrip.ts` and its test go. A 409 shows the failure panel: "Save or discard your
+    last trip first". CLAUDE.md's "One unanswered trip" and its tables, `generation.test.ts`'s
+    table and `FormOpenTrip.test.tsx` follow; 2e-g's e2e still passes.
+- **Order from here:** 2l → 2m → 2n → 2o → 2p-a → 2p-b, then 2j's README once more, and branch 3.
+  (2h-a, 2h-b and 2k merged; 2i down to its last major.)
 
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`
