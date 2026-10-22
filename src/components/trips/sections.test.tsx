@@ -33,7 +33,7 @@ import {
   weather,
 } from "./content";
 import type { ObjectsListType } from "@/types";
-import type { Trip } from "@prisma/client";
+import type { Trip } from "@/generated/prisma/client";
 
 vi.mock("next/image", async () => ({
   default: (await import("@/test/stubs/next")).NextImage,

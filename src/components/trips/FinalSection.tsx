@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { Trip } from "@prisma/client";
+import type { Trip } from "@/generated/prisma/client";
 import defaultImage5 from "@/assets/travel-photos/9.jpg";
 import { defaultPlaceholder } from "@/lib/constants";
 import Closing, { buttonExtras, primaryPill, secondaryPill } from "./Closing";

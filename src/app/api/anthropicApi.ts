@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { randomBytes } from "node:crypto";
-import type { Trip } from "@prisma/client";
+import type { Trip } from "@/generated/prisma/client";
 import prisma from "@/db";
 import { tripForecast, type ForecastDay } from "@/lib/agent/forecast";
 import { buildSystemPrompt, buildTripMessage } from "@/lib/agent/prompt";

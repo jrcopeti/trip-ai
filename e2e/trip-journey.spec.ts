@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { loadEnvConfig } from "@next/env";
-import { PrismaClient } from "@prisma/client";
+import { createPrismaClient } from "../src/db/client";
 import { tripDataFixture } from "../src/test/fixtures/tripData";
 import { mayWriteToDatabase } from "../scripts/localDatabase";
 import { noHorizontalScroll, walkAllSteps } from "./formWalk";
@@ -43,7 +43,7 @@ test.skip(
 );
 
 async function deleteOwnRows() {
-  const prisma = new PrismaClient();
+  const prisma = createPrismaClient(process.env.DATABASE_URL);
   try {
     await prisma.trip.deleteMany({
       where: { userName: { in: [SAVER, DISCARDER, LEAVER, CANCELLER, STOPPER, CONTROL, HOLDER].map((n) => n.toLowerCase()) } },
@@ -55,7 +55,7 @@ async function deleteOwnRows() {
 
 /** The `saved` flag of each of `name`'s rows. */
 async function savedFlags(name: string) {
-  const prisma = new PrismaClient();
+  const prisma = createPrismaClient(process.env.DATABASE_URL);
   try {
     const rows = await prisma.trip.findMany({ where: { userName: name.toLowerCase() } });
     return rows.map((row) => row.saved);

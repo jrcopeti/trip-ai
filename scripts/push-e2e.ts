@@ -14,7 +14,7 @@ if (!mayWriteToDatabase(E2E_DATABASE_URL)) {
   );
 }
 
-execSync("npx prisma db push --skip-generate", {
+execSync("npx prisma db push", {
   stdio: "inherit",
   env: { ...process.env, DATABASE_URL: E2E_DATABASE_URL },
 });

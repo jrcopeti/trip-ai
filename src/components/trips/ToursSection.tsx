@@ -1,4 +1,4 @@
-import type { Trip } from "@prisma/client";
+import type { Trip } from "@/generated/prisma/client";
 import Reveal from "@/components/sorbet/Reveal";
 import { Section, SectionHeading } from "./Section";
 import ToursCarousel from "./ToursCarousel";

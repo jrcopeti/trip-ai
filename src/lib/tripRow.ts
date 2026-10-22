@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import type { Prisma } from "@/generated/prisma/client";
 import type { TripData } from "@/lib/agent/submitTrip";
 import type { TripRequest } from "@/lib/agent/request";
 import type { Place } from "@/lib/place";

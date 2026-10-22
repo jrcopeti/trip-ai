@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { Trip } from "@prisma/client";
+import type { Trip } from "@/generated/prisma/client";
 import SiteFooter from "../ui/SiteFooter";
 import TitleSection from "./TitleSection";
 import DescriptionSection from "./DescriptionSection";

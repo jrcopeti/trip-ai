@@ -189,7 +189,7 @@ the prompt on the server, the new form fields, Sonnet 5.5, and the server-owned 
 - **Next.js 16** (App Router, server components, route handlers, server actions) and **React 19**
 - **TypeScript** throughout
 - **Anthropic API**: Claude Sonnet 5.5, streamed, with strict tool use
-- **Prisma** + **Postgres** (Neon)
+- **Prisma 7** (the `pg` driver adapter) + **Postgres** (Neon)
 - **Zod 4**: the form, the request and the model's output
 - **React Hook Form**: the multi-step form
 - **zustand**: the generation store. **TanStack Query**: the saved-trips "Show more"
@@ -228,7 +228,7 @@ npm run dev
 | `OPEN_WEATHER_KEY` | Weather and forecast |
 | `GEONAMES_USERNAME` | City check (server-only) |
 
-After a Prisma schema change: `npx prisma db push`.
+After a Prisma schema change: `npx prisma generate`, then `npx prisma db push`.
 
 ## Tests
 

@@ -1,5 +1,5 @@
 "use server";
-import { Prisma, Trip } from "@prisma/client";
+import type { Prisma, Trip } from "@/generated/prisma/client";
 import prisma from "@/db";
 import { SAVED_TRIPS_PAGE_SIZE, TRIP_URL } from "@/lib/constants";
 

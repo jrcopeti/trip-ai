@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { Trip } from "@prisma/client";
+import type { Trip } from "@/generated/prisma/client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import defaultImage4 from "@/assets/travel-photos/4.jpg";

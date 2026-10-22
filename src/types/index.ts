@@ -1,7 +1,7 @@
 import z from "zod";
 import { FormDataSchema } from "@/lib/schema";
 import { Control, FieldErrors, SubmitHandler } from "react-hook-form";
-import { Trip } from "@prisma/client";
+import type { Trip } from "@/generated/prisma/client";
 import type { Place } from "@/lib/place";
 
 export type Inputs = z.infer<typeof FormDataSchema>;
