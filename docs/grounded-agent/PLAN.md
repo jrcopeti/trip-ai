@@ -1320,6 +1320,36 @@ its own, in this order (2h is independent and can land any time):
     `\n`, so the slip stops at its source, in every field: 2l fixes only the tip, at render.
   - Tests: the prompt with the same country (no line), another (the line) and none; the snapshot.
     One real run of each, recorded here.
+  - **Built (2026-10-22).** `Place` has no country code, so the check reads the request's
+    `countryCode`: `resolvePlace` only returns a place inside it. Its first two letters are
+    compared, so a UK passport in Glasgow (`GB-SCT`) is home too. "Leave this out" was not
+    enough: with no passport line the model still wrote "check what your own nationality needs",
+    so the rule says "say nothing about entry rules, visas or passports".
+  - **Real runs** (Lisbon, `validTripRequest`, `claude-sonnet-5-5`, no row written). Brazil: "Brazilian
+    passport holders usually do not need a visa for tourist stays of up to 90 days in Portugal
+    (Schengen area)…", then proof of stay, ETIAS, and "confirm the current requirements with
+    official Portuguese or EU sources before booking". Portugal and none, after the rewording,
+    three runs each: no word on entry rules. A written `\n` in fields: none in the description or
+    the tours; one tip in nine runs still had it (2l renders it right).
+  - **Seen, not fixed here:** the model sent `tours` as JSON text that does not parse in 4 of 9
+    runs on this branch and 2 of 6 on `main`'s prompt, so `TripDataSchema` refuses the trip.
+    Pre-existing (2k's string tours): 2m-b.
+  - **After the commit (`41ce4fc`).** The line-break rule names the characters ("not the
+    characters backslash and n") rather than writing `\n`. The tours move to their own section,
+    first, then the packing list, then the rest; the opening line names the parts in that order.
+  - **Review of the branch**, fixed: the summary is hedged ("as far as you know") and never says
+    nothing is needed; a passport of the destination's own country is kept and marked "(the
+    destination's own country)", with a rule for a trip home that still allows they live
+    elsewhere (adapter, currency); `TERRITORY_OF` (`src/data/countries.ts`) counts a territory
+    as its country's (Puerto Rico, Réunion, Greenland, Jersey…), not one with its own
+    immigration (Hong Kong, Bermuda); a tour's description asks for no line breaks. Moved: the
+    schema's order to 2m-b, the description's paragraphs to 2m-c. Left: the test comments
+    naming 2l.
+  - **Second review**, fixed: `isHome` maps the passport through `TERRITORY_OF` as well as the
+    destination, so a "Jersey" or "Puerto Rico" passport is home in Jersey and the UK, Puerto
+    Rico and the US; the visa summary's rule excludes a home passport, so the two rules no longer
+    overlap; `TERRITORY_OF` is a flat list, of inhabited territories only (no `um`). Left: a
+    written `\n` handled at the boundary (`TripDataSchema`), as 2l decided against it.
 - **2m-b · `string-tours`: why the list arrives as a string, before choosing a fix.** In 2m-a's
   real runs `tours` came back as JSON text that does not parse in 6 of 15 (2k's slip), and the
   trip fails. A retry is one answer, not the assumed one: find the cause first.
@@ -1328,8 +1358,15 @@ its own, in this order (2h is independent and can land any time):
   - Variants to compare against today's: `tours` first in the schema, as in the prompt; tour
     descriptions with fewer quotes or shorter; `strict` off; the SDK's current version; another
     model; `tours` as five flat fields or its own tool. What the API says to 2k's report counts too.
+  - From 2m-a's review: the prompt lists the tours first, but `submit_trip`'s properties and its
+    description still put them fifth, and the model likely writes in the schema's order. The two
+    disagree until this branch measures the schema's order and aligns both.
   - Decide from the numbers, then build the fix with its tests (the production string comes back
     as a fixture if it is a retry). The DIAG log's comment points here until then.
+- **2m-c · `description-paragraphs`: the description shows its paragraphs.** It asks for up to
+  three, but `DescriptionSection` renders one `<p>`, so real line breaks collapse into spaces.
+  Render it with `paragraphs()`, as `Closing` does the tip. Tests: the paragraphs apart, a row
+  with a written `\n`. Browser at 1440, 768, 390.
 - **2n · `second-photo`: a photo between the essentials and the weather,** styled like the third
   (`PhotoSection`).
   - `unsplashApi` keeps six photos (`slice(0, 6)`; Unsplash's page is 10); `imageDataFixture`
@@ -1374,7 +1411,7 @@ its own, in this order (2h is independent and can land any time):
     `src/lib/openTrip.ts` and its test go. A 409 shows the failure panel: "Save or discard your
     last trip first". CLAUDE.md's "One unanswered trip" and its tables, `generation.test.ts`'s
     table and `FormOpenTrip.test.tsx` follow; 2e-g's e2e still passes.
-- **Order from here:** 2l → 2m-a → 2m-b → 2n → 2o → 2p-a → 2p-b, then 2j's README once more, and branch 3.
+- **Order from here:** 2l → 2m-a → 2m-b → 2m-c → 2n → 2o → 2p-a → 2p-b, then 2j's README once more, and branch 3.
   (2h-a, 2h-b and 2k merged; 2i down to its last major.)
 
 What's wrong today:

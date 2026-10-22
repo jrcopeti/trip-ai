@@ -42,6 +42,15 @@ describe("submit_trip", () => {
       kind: { type: "string", enum: [...TOUR_KINDS] },
     });
   });
+
+  // 2l: a written "\n" showed in the tip as a backslash and an n.
+  it("asks for real line breaks in every prose field, not the characters backslash and n", () => {
+    const fields = schema.properties as Record<string, JsonSchema>;
+    const tour = (fields.tours.items as JsonSchema).properties as Record<string, JsonSchema>;
+    for (const field of [fields.description, fields.tip, tour.description]) {
+      expect(field.description).toContain("not the characters backslash and n");
+    }
+  });
 });
 
 describe("TripDataSchema", () => {
