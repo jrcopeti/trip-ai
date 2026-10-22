@@ -1316,6 +1316,20 @@ its own, in this order (2h is independent and can land any time):
     `\n`, so the slip stops at its source, in every field: 2l fixes only the tip, at render.
   - Tests: the prompt with the same country (no line), another (the line) and none; the snapshot.
     One real run of each, recorded here.
+  - **Built (2026-10-22).** `Place` has no country code, so the check reads the request's
+    `countryCode`: `resolvePlace` only returns a place inside it. Its first two letters are
+    compared, so a UK passport in Glasgow (`GB-SCT`) is home too. "Leave this out" was not
+    enough: with no passport line the model still wrote "check what your own nationality needs",
+    so the rule says "say nothing about entry rules, visas or passports".
+  - **Real runs** (Lisbon, `validTripRequest`, `claude-sonnet-5-5`, no row written). Brazil: "Brazilian
+    passport holders usually do not need a visa for tourist stays of up to 90 days in Portugal
+    (Schengen area)…", then proof of stay, ETIAS, and "confirm the current requirements with
+    official Portuguese or EU sources before booking". Portugal and none, after the rewording,
+    three runs each: no word on entry rules. A written `\n` in fields: none in the description or
+    the tours; one tip in nine runs still had it (2l renders it right).
+  - **Seen, not fixed here:** the model sent `tours` as JSON text that does not parse in 4 of 9
+    runs on this branch and 2 of 6 on `main`'s prompt, so `TripDataSchema` refuses the trip.
+    Pre-existing (2k's string tours); needs its own branch.
 - **2n · `second-photo`: a photo between the essentials and the weather,** styled like the third
   (`PhotoSection`).
   - `unsplashApi` keeps six photos (`slice(0, 6)`; Unsplash's page is 10); `imageDataFixture`

@@ -33,12 +33,19 @@ describe("buildSystemPrompt", () => {
     expect(prompt).toContain("Keep the five about the same length");
   });
 
-  // No web search until branch 4, so the model points to official sources rather than quoting rules.
-  it("has the tip send a passport holder to check entry requirements, without stating them", () => {
+  // No web search until branch 4, so the summary is the model's own and may be out of date.
+  it("has the tip sum up what the passport needs, then send them to confirm it", () => {
     expect(prompt).toContain("When a passport is given, end the tip");
-    expect(prompt).toContain("check the entry requirements for that passport");
-    expect(prompt).toContain("Do not state the rules yourself");
-    expect(prompt).toContain("When no passport is given, leave this out");
+    expect(prompt).toContain("what that passport usually needs to enter this country");
+    expect(prompt).toContain("visa-free and for how long");
+    expect(prompt).toContain("confirm them with the destination's official sources before booking");
+    expect(prompt).not.toContain("Do not state the rules yourself");
+    expect(prompt).toContain("When no passport is given, say nothing about entry rules, visas or passports");
+  });
+
+  // 2l: a written "\n" showed in the tip as a backslash and an n.
+  it("asks for real line breaks between paragraphs, never a written \\n", () => {
+    expect(prompt).toContain("Separate paragraphs with a line break, never a written \\n");
   });
 
   it("offers every tour kind", () => {
@@ -116,6 +123,17 @@ describe("buildTripMessage", () => {
     expect(message).toContain("Passport: Brazil");
     const none = { ...validTripRequest, passport: undefined };
     expect(buildTripMessage(none, lisbon, [])).not.toContain("Passport");
+  });
+
+  it("leaves out a passport of the destination's own country", () => {
+    const home = { ...validTripRequest, passport: "Portugal" };
+    expect(buildTripMessage(home, lisbon, [])).not.toContain("Passport");
+  });
+
+  it("counts a UK nation as the United Kingdom's own country", () => {
+    const glasgow = { ...validTripRequest, passport: "United Kingdom", countryCode: "GB-SCT" };
+    const place = { name: "Glasgow", country: "United Kingdom" };
+    expect(buildTripMessage(glasgow, place, [])).not.toContain("Passport");
   });
 
   it("puts the note and the items inside <traveller_note>, and nothing else", () => {
