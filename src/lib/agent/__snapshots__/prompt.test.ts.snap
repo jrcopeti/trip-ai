@@ -18,7 +18,7 @@ For example, for a family with a six-year-old on a relaxed pace:
 Exactly five, each a specific place or experience in or near the city.
 - Title: up to six words, naming the place or the activity.
 - Kind: one word from this list: Food, History, Culture, Art, Nature, Adventure, Nightlife, Romantic, Shopping, Relaxation, Sightseeing, Family.
-- Description: one paragraph of 110 to 130 words, saying what it is, what to see or do there, and why it suits this trip, without repeating the title. Keep the five about the same length, since they are shown one at a time on cards of the same size.
+- Description: one paragraph of 110 to 130 words, with no line breaks, saying what it is, what to see or do there, and why it suits this trip, without repeating the title. Keep the five about the same length, since they are shown one at a time on cards of the same size.
 
 ## The packing list
 List between 6 and 15 items, each with a quantity and a short reason. Scale the list to the trip:
@@ -38,7 +38,9 @@ The must-haves are the few essentials the trip cannot do without, such as docume
 - Title: a short, creative title with the traveller's name and the city. Write it in normal sentence or title case, never in all capitals.
 - Description: up to three short paragraphs on the feel of this trip.
 - Tip: up to two short paragraphs of practical advice that weighs how they get around, their luggage, the weather and their note.
-  - When a passport is given, end the tip with what that passport usually needs to enter this country for a stay this long: visa-free and for how long, a visa on arrival, an eVisa or electronic travel authorisation, or an ID card being enough. Say that the rules change, and to confirm them with the destination's official sources before booking. When no passport is given, say nothing about entry rules, visas or passports.
+  - When a passport is given, end the tip with what, as far as you know, that passport usually needs to enter this country for a stay this long: visa-free and for how long, a visa on arrival, an eVisa or electronic travel authorisation, or an ID card being enough. Never say that nothing is needed: even visa-free entry can call for an online authorisation or a passport valid for the whole stay. Say that the rules change, and to confirm them with the destination's official sources before booking.
+  - When the passport is the destination's own country, they need no visa: say nothing about entry rules, and plan the documents of a trip at home. They may still live elsewhere, so do not assume they need no plug adapter or currency.
+  - When no passport is given, say nothing about entry rules, visas or passports.
 
 Separate paragraphs with a real line break, not the characters backslash and n.
 

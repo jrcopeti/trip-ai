@@ -272,5 +272,22 @@ export const countries: Country[] = Object.entries(NAMES)
   // "en": the browser's own locale would order it per traveller (Swedish puts Å after Z).
   .sort((a, b) => a.value.localeCompare(b.value, "en"));
 
+/**
+ * Territories whose citizens' passport is another country's, by code: a trip there is a trip home.
+ * Territories with their own immigration (Hong Kong, Bermuda, the Caymans) are not listed.
+ */
+export const TERRITORY_OF: Record<string, string> = {
+  ...Object.fromEntries(["pr", "gu", "vi", "as", "mp"].map((code) => [code, "us"])),
+  ...Object.fromEntries(
+    ["gp", "mq", "gf", "re", "yt", "pm", "bl", "mf", "nc", "pf", "wf"].map((code) => [code, "fr"]),
+  ),
+  ...Object.fromEntries(["aw", "cw", "sx", "bq"].map((code) => [code, "nl"])),
+  ...Object.fromEntries(["gl", "fo"].map((code) => [code, "dk"])),
+  ...Object.fromEntries(["gg", "je", "im"].map((code) => [code, "gb"])),
+  ...Object.fromEntries(["cx", "cc", "nf"].map((code) => [code, "au"])),
+  ax: "fi",
+  sj: "no",
+};
+
 /** The countries a passport can name: the list without the UK's four nations, the United Kingdom kept. */
 export const passportCountries = countries.filter((country) => !country.code.startsWith("gb-"));
