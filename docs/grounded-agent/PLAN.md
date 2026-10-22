@@ -1056,16 +1056,13 @@ its own, in this order (2h is independent and can land any time):
   string where the schema has an array is the API's to explain.
   - Decided: **no retry** (a second paid call per failure), and the **DIAG log stays**, for the
     next one.
-  - In the branch: the report to Anthropic (request id, the raw string, the tool's schema),
-    drafted here and sent by the user; this record; and a test with that exact string, pinning
-    that `parseListFields` leaves it as a string and `generateTrip` throws "invalid trip".
-  - **Done, staged:** the report (request id, the string, the tool's schema, three questions) was
-    drafted for the user to send, and is not kept in the repo. The string, recovered whole from the DIAG `raw` line (715 characters, as logged), is
-    `toursCaughtInProduction` in `src/test/fixtures/tripData.ts`; `submitTrip.test.ts` and
-    `anthropicApi.test.ts` each pin it. No production code changes; the DIAG log stays.
-  - **Stashed, not merged (found 2026-10-22).** This work sat in a stash from 2026-10-21 while
-    the plan counted 2k as merged; restored on `string-tours-caught` after 2m. 2m's real runs
-    broke the same way in 6 of 15 (`tours` as JSON text that does not parse).
+  - The report to Anthropic (request id, the raw string, the tool's schema, three questions)
+    was drafted for the user to send; it is not kept in the repo.
+  - **Built.** This record, and the DIAG log kept, trimmed to the length, the parse error and the
+    whole string. No fixture or test of the string: the existing "broken JSON" rows cover the
+    path, and one comes back if 2m-b chooses a retry.
+  - The work sat in a stash from 2026-10-21 while the plan counted 2k as merged; it was restored
+    on 2026-10-22. 2m's real runs broke the same way in 6 of 15, so the cause is 2m-b's.
   - Seen the same day, both handled as designed, recorded only: a 10s connect timeout to
     GeoNames (the form's city check, `POST /form`: "We couldn't check the city just now") and
     one to OpenWeather (in this generation: "generateTrip: no forecast", planned without one).
@@ -1307,7 +1304,7 @@ its own, in this order (2h is independent and can land any time):
     a blank tip shows neither the eyebrow nor an empty block. Left: a single line break also
     starts a paragraph (the production tip separates its paragraphs with one written `\n`), and
     a literal backslash-n in real text (`C:\notes`) would split it.
-- **2m · `passport-entry`: entry rules only when they apply.** The tip reminds the traveller to
+- **2m-a · `passport-entry`: entry rules only when they apply.** The tip reminds the traveller to
   check entry rules even on a passport of the destination's own country, and on any other it says
   only "check the rules", which tells them nothing.
   - `buildTripMessage` leaves the `Passport:` line out when the passport's code (its name looked
@@ -1323,6 +1320,16 @@ its own, in this order (2h is independent and can land any time):
     `\n`, so the slip stops at its source, in every field: 2l fixes only the tip, at render.
   - Tests: the prompt with the same country (no line), another (the line) and none; the snapshot.
     One real run of each, recorded here.
+- **2m-b · `string-tours`: why the list arrives as a string, before choosing a fix.** In 2m-a's
+  real runs `tours` came back as JSON text that does not parse in 6 of 15 (2k's slip), and the
+  trip fails. A retry is one answer, not the assumed one: find the cause first.
+  - Measure: a scratch harness (the real prompt and tool, no row written) that keeps each raw
+    `tours` whole, N runs per variant, the failure rate and where each string breaks.
+  - Variants to compare against today's: `tours` first in the schema, as in the prompt; tour
+    descriptions with fewer quotes or shorter; `strict` off; the SDK's current version; another
+    model; `tours` as five flat fields or its own tool. What the API says to 2k's report counts too.
+  - Decide from the numbers, then build the fix with its tests (the production string comes back
+    as a fixture if it is a retry). The DIAG log's comment points here until then.
 - **2n · `second-photo`: a photo between the essentials and the weather,** styled like the third
   (`PhotoSection`).
   - `unsplashApi` keeps six photos (`slice(0, 6)`; Unsplash's page is 10); `imageDataFixture`
@@ -1367,8 +1374,8 @@ its own, in this order (2h is independent and can land any time):
     `src/lib/openTrip.ts` and its test go. A 409 shows the failure panel: "Save or discard your
     last trip first". CLAUDE.md's "One unanswered trip" and its tables, `generation.test.ts`'s
     table and `FormOpenTrip.test.tsx` follow; 2e-g's e2e still passes.
-- **Order from here:** 2l → 2m → 2n → 2o → 2p-a → 2p-b, then 2j's README once more, and branch 3.
-  (2h-a and 2h-b merged; 2k staged on its branch, never merged until now; 2i down to its last major.)
+- **Order from here:** 2l → 2m-a → 2m-b → 2n → 2o → 2p-a → 2p-b, then 2j's README once more, and branch 3.
+  (2h-a, 2h-b and 2k merged; 2i down to its last major.)
 
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`

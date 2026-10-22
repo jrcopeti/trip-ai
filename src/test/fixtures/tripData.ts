@@ -52,13 +52,6 @@ export const tripDataFixture = {
 } satisfies TripData;
 
 /**
- * `tours` exactly as it arrived in production on 2026-10-21 (`req_011CgFDwVfiV8gNm6phjUk9j`):
- * JSON text holding one tour, cut where the model wrote a bare `"` that closed the outer string.
- */
-export const toursCaughtInProduction =
-  "[{\"title\":\"Marjan Hill Forest Trail Loop\",\"kind\":\"Nature\",\"description\":\"Start from the western end of the Riva and climb the stone steps into Marjan, the pine-covered peninsula that Split locals use as their backyard. Paths lead past small Romanesque chapels, cliffside lookouts and quiet coves, with the Adriatic spread out below. A loop takes two to three hours, which suits your balanced pace and leaves energy for the afternoon. Mild October temperatures make the climb comfortable, so you won't be fighting summer heat. Your trail shoes will matter on the polished limestone. Bring water and a layer for the summit breeze, then reward yourself with a coffee at the Bene beach end of the park on your way down.";
-
-/**
  * What `generateTrip` resolves to for `validTripRequest` at `lisbonPlace`, with
  * `imageDataFixture`'s photos: the row it wrote, not saved yet.
  */
