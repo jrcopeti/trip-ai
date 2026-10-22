@@ -1224,6 +1224,18 @@ its own, in this order (2h is independent and can land any time):
   the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
   weather by coordinates, the form-scoped providers, architecture and commands. Retake the
   screenshots that changed at the sizes above.
+  - **Status: done on `readme-phase-2`, staged, not committed.** As built: the README is
+    rewritten as a brochure for recruiters and hiring managers: highlights, an architecture
+    overview (a Mermaid diagram plus five points), a table of decisions and their reasons, and a
+    roadmap for 3–7. The live link moves to `trip-ai-world.vercel.app` (the old
+    `trip-ai-weld` deployment is gone). The e2e setup uses `E2E_DATABASE_URL` and
+    `db:push:e2e`, no longer an exported `DATABASE_URL`.
+  - Screenshots: every shot retaken from production, 8 laptop shots (1440 × 900, viewport) and
+    8 phone shots (390 × 844, two rows of four at `24%`): the landing, form steps 2 (the city
+    found) and 5 (planning around the weather), saved trip 42 (Athens) at its hero, tours,
+    packing list and forecast, and the saved-trips wall. The form was filled in but never
+    submitted, and nothing was written. The shots no longer used are removed (about,
+    landing tours, form steps 1 and 3, tip, phone weather).
 - **Order from here:** 2h-a → 2h-b → 2k → 2i → 2j (2e-f, 2e-g, 2f and 2g merged), and branch 3.
 
 What's wrong today:
