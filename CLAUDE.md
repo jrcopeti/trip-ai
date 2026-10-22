@@ -237,7 +237,7 @@ generates). To push schema changes to the DB: `npx prisma db push`. Prisma 7 rea
   and its copy in `content.ts`. A record now; what binds is in `design-notes.md`.
 - **`docs/grounded-agent/PLAN.md`** — the **grounded agent**, in flight. Branch 1
   (new form fields, the city check and the prompt on the server, `claude-sonnet-5-5`) is
-  finished; branch 2 (the server-owned trip) is in progress, 2a–2h and 2k merged, 2i (dependencies) down to its last major, 2j (the README) merged and revisited at phase 2's end, 2l–2p (fixes from the deployed app) in progress; 3–7
+  finished; branch 2 (the server-owned trip) is in progress, 2a–2h and 2k merged (2k records the string caught in production; its cause is 2m-b), 2i (dependencies) down to its last major, 2j (the README) merged and revisited at phase 2's end, 2l–2p (fixes from the deployed app) in progress; 3–7
   (metrics, tools, refine, evals, MCP) are next.
 
 Durable decisions belong in `design-notes.md` (visual system) or this file (rules and
