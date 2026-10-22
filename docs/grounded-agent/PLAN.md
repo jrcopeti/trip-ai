@@ -1169,7 +1169,7 @@ its own, in this order (2h is independent and can land any time):
         `ajv` 6 moves under eslint, now that resolvers lists `ajv` 8 as an optional peer.
       - Checks: type check, unit (1118), build, e2e (81); `/form` at 390, step 1's errors
         and step 1 → 2 through the new resolver, no console messages.
-    - **2i-e · `framer-motion-14`: `framer-motion` 12.43.0 → 14.5.0.** Done, staged. No code
+    - **2i-e · `framer-motion-14`: `framer-motion` 12.43.0 → 14.5.0.** Merged (#230). No code
       changes: 13.0 drops the optional `@emotion/is-prop-valid` peer (never installed) and 14.0
       removes internal APIs only; every import we use (`motion`, `AnimatePresence`,
       `MotionConfig`, `useScroll`, `useTransform`, `Variants`, `PanInfo`) is unchanged. `motion-dom`
@@ -1181,6 +1181,43 @@ its own, in this order (2h is independent and can land any time):
         failed once and passed on rerun, GeoNames). Browser: the landing at 1440 / 768 / 390, a
         saved trip's tours at 390 by button and by swipe, `/form` at 390 with reduced motion;
         no console errors.
+    - **2i-f · `react-day-picker-10`: `react-day-picker` 9.14.0 → 10.0.2.** Done, committed (c71014d), with
+      the review's fixes staged. No code changes for the bump itself; the calendar's circles and
+      the clear fix below landed on this branch as asked, three concerns in one. 10.0 removes the APIs v9 deprecated (`fromDate`/`toDate`, `initialFocus`, the
+      `onDay*` handlers, the old label/format aliases, the non-Gregorian calendars, now
+      `@daypicker/*`), and `DatePicker` uses none of them. `react-day-picker/dist/style.css` is
+      still exported (an alias of `style.css`, unchanged byte for byte), and `classNames` still
+      merges over the defaults per key. 10.0.1 applies `style` to every slot, but ours goes on the
+      root alone. The lockfile drops `date-fns-jalali` and `@tabby_ai/hijri-converter` and
+      takes `@date-fns/tz`. The `react-day-picker` name stays (Renovate tracks it); 10 also
+      publishes it as `@daypicker/react`.
+      - Checks: type check, unit (1118), build, e2e (81). Browser, a production build: `/form`
+        step 5 at 390 and 1440 with reduced motion. The calendar opens on today, focused; a
+        click and a keyboard pick (arrow, Enter) each fill the field and close it; the next
+        month's button works; no console messages.
+      - **The calendar's circles, back, as asked.** `classNames` replaces the library's class per
+        key, and `DatePicker` had replaced `day_button`, `selected` and `today` since the sorbet
+        migration, so the days were bare 18px numbers and the selected day only bold (as in v9).
+        The day buttons are now 2.5rem circles styled in full: today lime, the selected day ink
+        with offwhite text, the rest an ink tint on hover (ink text on lime and on the tint: today
+        selected stays lime with an inset ink ring, a hovered selected day takes the tint), the focus triad, no transition under
+        reduced motion. Gotcha 15 in `design-notes.md`; a test pins the cells' `data-selected`
+        and `data-today`. Checked at 390, 768 and 1440: computed sizes, fills, the arrow-key
+        focus ring; unit (1119), e2e (81).
+      - **Fixed here, as asked: a cleared date came back.** Tick the weather box, untick it,
+        pick other dates, press a field's X: the field showed the weather date again, and only
+        a second press cleared it. The X sent `undefined`, which RHF's controller treats as
+        unset, handing back the value the field mounted with (the weather date, set while the
+        pickers were hidden). It now sends `""`, the form's empty value. A `DatePicker.test.tsx`
+        case mounts a picker under `useForm` on a value set beforehand and clears it in one
+        press (it failed first). Checked in the browser at 390: the reported flow clears in one
+        press each, and Next then shows both "required" messages.
+      - **Review fixes** (all seven, as asked): every day state sets its text with its
+        background through the same `group-data-*` / `hover:` variants (a selected day tapped on
+        a phone was ink on ink: the text rule wasn't behind `hover:`'s `(hover: hover)`); the
+        classes move to `calendarClassNames`, the cell's from `getDefaultClassNames()`; the two
+        variables that styled nothing go; `onChange` takes a `string`, so `undefined` can't come
+        back; the comment becomes a pointer to gotcha 15.
   - Order: 2i-a → 2i-b → majors. Independent of 2e/2h and of branches 3–7, except that the SDK
     major should land before 3.
 - **2j · `readme-phase-2`: the README, caught up.** Review `README.md` against phases 1 and 2:
