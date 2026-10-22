@@ -1291,7 +1291,8 @@ its own, in this order (2h is independent and can land any time):
     the same for `tip`, so both `SaveSection` and `FinalSection` get it.
   - New rows are written clean: after `TripDataSchema`, before `toTripRow`, `generateTrip` turns
     a literal `\n` in `description`, `tip` and each tour's description into a newline (a helper
-    beside `parseListFields`). Tour cards are one paragraph, so there it becomes a space.
+    beside `parseListFields`). The stored tour keeps the newline; its card is one paragraph, so
+    the page shows it as a space.
   - Tests first: `paragraphs`, the helper, the description as two `<p>`s with no backslash
     (`sections.test.tsx`), the tip (`closing.test.tsx`).
   - **Built (2026-10-22).** `paragraphs` (`src/lib/utils.ts`) and `unescapeBreaks`
@@ -1301,6 +1302,12 @@ its own, in this order (2h is independent and can land any time):
     pins that the row is written with real breaks. Seen in the browser at 1440, 768 and 390 on a
     seeded trip given the production text's literal `\n`s: three paragraphs, two in the tip, no
     backslash, no hydration error.
+  - **Review of `6079c6e`**, fixed: an older row's tour still printed its written `\n`, so
+    `ToursCarousel` renders `paragraphs(description).join(" ")`, one paragraph with a space at
+    each break; `paragraphs`' docblock no longer tells its history; the line above on what a
+    stored tour holds. Moved to 2m: a prompt line asking for real line breaks between paragraphs,
+    so the slip stops at its source for every field. Left: the rule in two places (`withBreaks`
+    and `paragraphs`' regex), and a double-escaped `\\n` or a written `\r\n`, never seen.
 - **2m · `passport-entry`: entry rules only when they apply.** The tip reminds the traveller to
   check entry rules even on a passport of the destination's own country, and on any other it says
   only "check the rules", which tells them nothing.
@@ -1312,6 +1319,10 @@ its own, in this order (2h is independent and can land any time):
     or ETA, an ID card being enough), that the rules change, and to confirm with the
     destination's official sources before booking. It can be out of date until branch 4 looks
     them up.
+  - From 2l's review: the system prompt and `submit_trip`'s descriptions of `description`, `tip`
+    and a tour's `description` say to separate paragraphs with a line break, never a written
+    `\n`, so the slip stops at its source, for the fields 2l's render fix doesn't cover too
+    (the packing list's reasons, the title, the must-haves).
   - Tests: the prompt with the same country (no line), another (the line) and none; the snapshot.
     One real run of each, recorded here.
 - **2n · `second-photo`: a photo between the essentials and the weather,** styled like the third

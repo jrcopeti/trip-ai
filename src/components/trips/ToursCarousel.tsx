@@ -6,6 +6,7 @@ import { LuMapPin } from "react-icons/lu";
 import { tours as copy } from "./content";
 import { kindIcon } from "@/components/sorbet/kinds";
 import { CARD_TINTS } from "@/components/sorbet/tints";
+import { paragraphs } from "@/lib/utils";
 import type { Tour } from "./tours";
 
 /** How far a swipe has to travel, in px, before it counts as one. */
@@ -57,7 +58,7 @@ function SlideBody({ n, tour }: { n: number; tour: Tour }) {
           </h3>
         )}
         <p className="text-sorbet-ink/75 max-w-5xl text-justify text-lg leading-relaxed first-letter:uppercase md:text-xl">
-          {tour.description}
+          {paragraphs(tour.description).join(" ")}
         </p>
       </div>
     </>

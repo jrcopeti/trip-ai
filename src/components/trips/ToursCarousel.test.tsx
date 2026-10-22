@@ -65,6 +65,14 @@ describe("ToursCarousel", () => {
     expect(chips.map((chip) => chip.textContent)).toEqual([copy.chip(1)]);
   });
 
+  it("shows a written line break in an older row's tour as a space, with no backslash", () => {
+    renderWithProviders(<ToursCarousel tours={[{ description: "Alfama.\\nAt dawn." }]} />);
+
+    const slide = screen.getByRole("group", { name: copy.slide(1, 1) });
+    expect(slide).toHaveTextContent("Alfama. At dawn.");
+    expect(slide.textContent).not.toContain("\\");
+  });
+
   it("shows an untitled tour — an older saved trip's — without a title slot", () => {
     renderWithProviders(<ToursCarousel tours={[{ description: TEXTS[0] }]} />);
 

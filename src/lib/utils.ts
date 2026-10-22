@@ -126,7 +126,7 @@ const selectDailyForecasts = (
 
 /**
  * The model's text as paragraphs, split at each line break, real or written as a backslash and
- * an n (the model sometimes escapes them, and older rows hold them so). Trimmed, none empty.
+ * an n. Each paragraph is trimmed, and none is empty.
  */
 function paragraphs(text: string) {
   return text
