@@ -1258,6 +1258,29 @@ its own, in this order (2h is independent and can land any time):
       - **Not checked: production.** The app on Neon through `pg` with `sslmode=require` (`pg`
         treats `require` as `verify-full`; Neon's certificates are valid) wasn't read from here.
         Check the Vercel preview: `/saved-trips` and a saved trip load.
+    - **2i-h · `typescript-7`: `typescript` 5.9.3 → 7.0.2.** Done, staged. 7 is the native (Go)
+      compiler: the package ships `tsc` and a version, no compiler API (`import ts from
+      "typescript"` is only `{ version }`). `tsconfig.json` is unchanged and the type check finds
+      nothing new; `tsc --noEmit` takes 1.5s.
+      - **`next build`:** Next 16.4 type-checks through the CLI when `typescript` has no API
+        (`experimental.useTypeScriptCli`, on by default), so `next.config.mjs` is unchanged.
+        Checked by planting a type error: the build fails on it.
+      - **`copy.test.ts`** read the landing's JSX with the compiler API. It now parses with
+        `@babel/parser` 8 (and `@babel/types` 8 for the node types, both new devDependencies),
+        same three checks and messages. A planted text, `aria-label` and string expression
+        each fail it; `className` doesn't. Not `@typescript/typescript6` (6.x's API beside 7):
+        it brings `typescript@6` as `@typescript/old`, whose `tsc` bin took `node_modules/.bin/tsc`
+        after a clean `npm ci`, so `npx tsc` ran 6.0.3. Not TS 7's `typescript/unstable/*` API.
+      - **typescript-eslint** wants `typescript <6.1.0`; npm overrides the peer (a warning, and
+        `npm ls` marks it invalid), and `npm ci` installs. It only matters to lint, already broken;
+        the flat-config move will need a typescript-eslint with TS 7 support.
+      - Lockfile: the 20 `@typescript/typescript-<platform>` binaries arrive (one installs);
+        Babel 7 moves under `eslint-plugin-react-hooks` and `@babel/core`, typescript-eslint under
+        `eslint-config-next`.
+      - Checks, from a clean `npm ci`: `npx tsc --version` 7.0.2, type check, unit (1121; one
+        test failed once on the first run, unnamed, and the next three runs passed), build, e2e
+        (81; the city-check layout spec failed once and passed on rerun, GeoNames). No browser
+        pass: nothing visible changed.
   - Order: 2i-a → 2i-b → majors. Independent of 2e/2h and of branches 3–7, except that the SDK
     major should land before 3.
 - **2j · `readme-phase-2`: the README, caught up.** Review `README.md` against phases 1 and 2:

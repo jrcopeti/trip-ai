@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import ts from "typescript";
+import { parse } from "@babel/parser";
+import type { Node } from "@babel/types";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -14,31 +15,35 @@ const COPY_ATTRIBUTES = new Set(["label", "alt", "title", "aria-label", "caption
 const hasWords = (text: string) => /[A-Za-z]/.test(text.replace(/ºC/g, ""));
 
 function literals(file: string): string[] {
-  const source = ts.createSourceFile(file, readFileSync(file, "utf8"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const source = parse(readFileSync(file, "utf8"), { sourceType: "module", plugins: ["jsx", "typescript"] });
   const found: string[] = [];
 
-  const visit = (node: ts.Node) => {
-    if (ts.isJsxText(node) && hasWords(node.text)) found.push(node.text.trim());
+  const visit = (node: Node) => {
+    if (node.type === "JSXText" && hasWords(node.value)) found.push(node.value.trim());
     if (
-      ts.isJsxAttribute(node) &&
-      COPY_ATTRIBUTES.has(node.name.getText(source)) &&
-      node.initializer &&
-      ts.isStringLiteral(node.initializer) &&
-      hasWords(node.initializer.text)
+      node.type === "JSXAttribute" &&
+      node.name.type === "JSXIdentifier" &&
+      COPY_ATTRIBUTES.has(node.name.name) &&
+      node.value?.type === "StringLiteral" &&
+      hasWords(node.value.value)
     ) {
-      found.push(`${node.name.getText(source)}="${node.initializer.text}"`);
+      found.push(`${node.name.name}="${node.value.value}"`);
     }
     if (
-      ts.isJsxExpression(node) &&
-      node.expression &&
-      ts.isStringLiteral(node.expression) &&
-      hasWords(node.expression.text)
+      node.type === "JSXExpressionContainer" &&
+      node.expression.type === "StringLiteral" &&
+      hasWords(node.expression.value)
     ) {
-      found.push(node.expression.text);
+      found.push(node.expression.value);
     }
-    ts.forEachChild(node, visit);
+    // Every child node sits under a key of its parent, alone or in an array.
+    for (const value of Object.values(node)) {
+      for (const child of [value].flat()) {
+        if (typeof child?.type === "string") visit(child);
+      }
+    }
   };
-  visit(source);
+  visit(source.program);
   return found;
 }
 
