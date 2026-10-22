@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { tripDataFixture } from "@/test/fixtures";
+import { toursCaughtInProduction, tripDataFixture } from "@/test/fixtures";
 import { TOUR_KINDS } from "@/lib/tourKinds";
 import { TripDataSchema, parseListFields, submitTripTool } from "./submitTrip";
 
@@ -83,6 +83,15 @@ describe("parseListFields", () => {
     const { input, parsed } = parseListFields({ ...tripDataFixture, tours: value });
 
     expect(input).toMatchObject({ tours: value });
+    expect(parsed).toEqual([]);
+    expect(TripDataSchema.safeParse(input).success).toBe(false);
+  });
+
+  it("leaves the string caught in production as the string, for the schema to refuse", () => {
+    expect(toursCaughtInProduction).toHaveLength(715);
+    const { input, parsed } = parseListFields({ ...tripDataFixture, tours: toursCaughtInProduction });
+
+    expect(input).toMatchObject({ tours: toursCaughtInProduction });
     expect(parsed).toEqual([]);
     expect(TripDataSchema.safeParse(input).success).toBe(false);
   });

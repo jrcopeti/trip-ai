@@ -4,6 +4,7 @@ import {
   imageDataFixture,
   lisbonPlace,
   makeForecastEntry,
+  toursCaughtInProduction,
   tripCreateInput,
   tripDataFixture,
   validTripRequest,
@@ -278,6 +279,7 @@ describe("generateTrip — the answer", () => {
   it.each([
     ["prose in tours", { tours: "Five tours: the castle, the tram, the river…" }],
     ["a JSON object in tours", { tours: JSON.stringify({ title: "x" }) }],
+    ["the tours caught in production", { tours: toursCaughtInProduction }],
   ])("still fails on %s", async (_, change) => {
     submits({ ...tripDataFixture, ...change });
     await expect(generateTrip(validTripRequest)).rejects.toThrow(/invalid trip/);

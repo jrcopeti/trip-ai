@@ -1059,6 +1059,13 @@ its own, in this order (2h is independent and can land any time):
   - In the branch: the report to Anthropic (request id, the raw string, the tool's schema),
     drafted here and sent by the user; this record; and a test with that exact string, pinning
     that `parseListFields` leaves it as a string and `generateTrip` throws "invalid trip".
+  - **Done, staged:** the report (request id, the string, the tool's schema, three questions) was
+    drafted for the user to send, and is not kept in the repo. The string, recovered whole from the DIAG `raw` line (715 characters, as logged), is
+    `toursCaughtInProduction` in `src/test/fixtures/tripData.ts`; `submitTrip.test.ts` and
+    `anthropicApi.test.ts` each pin it. No production code changes; the DIAG log stays.
+  - **Stashed, not merged (found 2026-10-22).** This work sat in a stash from 2026-10-21 while
+    the plan counted 2k as merged; restored on `string-tours-caught` after 2m. 2m's real runs
+    broke the same way in 6 of 15 (`tours` as JSON text that does not parse).
   - Seen the same day, both handled as designed, recorded only: a 10s connect timeout to
     GeoNames (the form's city check, `POST /form`: "We couldn't check the city just now") and
     one to OpenWeather (in this generation: "generateTrip: no forecast", planned without one).
@@ -1361,7 +1368,7 @@ its own, in this order (2h is independent and can land any time):
     last trip first". CLAUDE.md's "One unanswered trip" and its tables, `generation.test.ts`'s
     table and `FormOpenTrip.test.tsx` follow; 2e-g's e2e still passes.
 - **Order from here:** 2l → 2m → 2n → 2o → 2p-a → 2p-b, then 2j's README once more, and branch 3.
-  (2h-a, 2h-b and 2k merged; 2i down to its last major.)
+  (2h-a and 2h-b merged; 2k staged on its branch, never merged until now; 2i down to its last major.)
 
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`
