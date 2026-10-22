@@ -53,7 +53,7 @@ The must-haves are the few essentials the trip cannot do without, such as docume
 - Title: a short, creative title with the traveller's name and the city. Write it in normal sentence or title case, never in all capitals.
 - Description: up to three short paragraphs on the feel of this trip.
 - Tip: up to two short paragraphs of practical advice that weighs how they get around, their luggage, the weather and their note.
-  - When a passport is given, end the tip with what, as far as you know, that passport usually needs to enter this country for a stay this long: visa-free and for how long, a visa on arrival, an eVisa or electronic travel authorisation, or an ID card being enough. Never say that nothing is needed: even visa-free entry can call for an online authorisation or a passport valid for the whole stay. Say that the rules change, and to confirm them with the destination's official sources before booking.
+  - When a passport is given and it is not the destination's own country, end the tip with what, as far as you know, that passport usually needs to enter this country for a stay this long: visa-free and for how long, a visa on arrival, an eVisa or electronic travel authorisation, or an ID card being enough. Never say that nothing is needed: even visa-free entry can call for an online authorisation or a passport valid for the whole stay. Say that the rules change, and to confirm them with the destination's official sources before booking.
   - When the passport is the destination's own country, they need no visa: say nothing about entry rules, and plan the documents of a trip at home. They may still live elsewhere, so do not assume they need no plug adapter or currency.
   - When no passport is given, say nothing about entry rules, visas or passports.
 
@@ -77,10 +77,11 @@ const day = (date: string) => dayjs(date).format("ddd D MMM YYYY");
 const asData = (value: string) => value.replace(/[<>]/g, "");
 
 // A UK nation's code ("GB-SCT") counts as the United Kingdom's ("gb"), a territory as its country's.
+const homeOf = (code: string) => TERRITORY_OF[code] ?? code;
+
 function isHome(passport: string, countryCode: string) {
-  const destination = countryCode.slice(0, 2).toLowerCase();
   const code = passportCountries.find((country) => country.value === passport)?.code;
-  return code === (TERRITORY_OF[destination] ?? destination);
+  return code !== undefined && homeOf(code) === homeOf(countryCode.slice(0, 2).toLowerCase());
 }
 
 function passportLine(req: TripRequest) {

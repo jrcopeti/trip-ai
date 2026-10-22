@@ -1345,6 +1345,11 @@ its own, in this order (2h is independent and can land any time):
     immigration (Hong Kong, Bermuda); a tour's description asks for no line breaks. Moved: the
     schema's order to 2m-b, the description's paragraphs to 2m-c. Left: the test comments
     naming 2l.
+  - **Second review**, fixed: `isHome` maps the passport through `TERRITORY_OF` as well as the
+    destination, so a "Jersey" or "Puerto Rico" passport is home in Jersey and the UK, Puerto
+    Rico and the US; the visa summary's rule excludes a home passport, so the two rules no longer
+    overlap; `TERRITORY_OF` is a flat list, of inhabited territories only (no `um`). Left: a
+    written `\n` handled at the boundary (`TripDataSchema`), as 2l decided against it.
 - **2m-b · `string-tours`: why the list arrives as a string, before choosing a fix.** In 2m-a's
   real runs `tours` came back as JSON text that does not parse in 6 of 15 (2k's slip), and the
   trip fails. A retry is one answer, not the assumed one: find the cause first.

@@ -35,7 +35,9 @@ describe("buildSystemPrompt", () => {
 
   // No web search until branch 4, so the summary is the model's own and may be out of date.
   it("has the tip sum up what the passport needs, then send them to confirm it", () => {
-    expect(prompt).toContain("When a passport is given, end the tip");
+    expect(prompt).toContain(
+      "When a passport is given and it is not the destination's own country, end the tip",
+    );
     expect(prompt).toContain("that passport usually needs to enter this country");
     expect(prompt).toContain("visa-free and for how long");
     expect(prompt).toContain("confirm them with the destination's official sources before booking");
@@ -164,6 +166,8 @@ describe("buildTripMessage", () => {
     ["a UK nation", "United Kingdom", "GB-SCT", "Glasgow"],
     ["a territory", "United States", "PR", "San Juan"],
     ["an overseas department", "France", "RE", "Saint-Denis"],
+    ["a territory's passport in that territory", "Jersey", "JE", "St Helier"],
+    ["a territory's passport in its country", "Puerto Rico", "US", "New York"],
   ])("counts %s as its country's own", (_, passport, countryCode, name) => {
     const req = { ...validTripRequest, passport, countryCode };
     expect(buildTripMessage(req, { name, country: "x" }, [])).toContain(

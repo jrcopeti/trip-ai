@@ -273,18 +273,17 @@ export const countries: Country[] = Object.entries(NAMES)
   .sort((a, b) => a.value.localeCompare(b.value, "en"));
 
 /**
- * Territories whose citizens' passport is another country's, by code: a trip there is a trip home.
- * Territories with their own immigration (Hong Kong, Bermuda, the Caymans) are not listed.
+ * Inhabited territories whose people hold another country's passport, by code: a trip between
+ * the two is a trip home. Territories with their own immigration (Hong Kong, Bermuda) are not listed.
  */
+// prettier-ignore
 export const TERRITORY_OF: Record<string, string> = {
-  ...Object.fromEntries(["pr", "gu", "vi", "as", "mp"].map((code) => [code, "us"])),
-  ...Object.fromEntries(
-    ["gp", "mq", "gf", "re", "yt", "pm", "bl", "mf", "nc", "pf", "wf"].map((code) => [code, "fr"]),
-  ),
-  ...Object.fromEntries(["aw", "cw", "sx", "bq"].map((code) => [code, "nl"])),
-  ...Object.fromEntries(["gl", "fo"].map((code) => [code, "dk"])),
-  ...Object.fromEntries(["gg", "je", "im"].map((code) => [code, "gb"])),
-  ...Object.fromEntries(["cx", "cc", "nf"].map((code) => [code, "au"])),
+  pr: "us", gu: "us", vi: "us", as: "us", mp: "us",
+  gp: "fr", mq: "fr", gf: "fr", re: "fr", yt: "fr", pm: "fr", bl: "fr", mf: "fr", nc: "fr", pf: "fr", wf: "fr",
+  aw: "nl", cw: "nl", sx: "nl", bq: "nl",
+  gl: "dk", fo: "dk",
+  gg: "gb", je: "gb", im: "gb",
+  cx: "au", cc: "au", nf: "au",
   ax: "fi",
   sj: "no",
 };
