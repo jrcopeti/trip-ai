@@ -168,20 +168,6 @@ describe("generateTrip — the row", () => {
     expect(written().requiredItems).toEqual(["camera", "walking shoes"]);
   });
 
-  it("writes a line break the model wrote as a backslash and an n as a line break", async () => {
-    submits({
-      ...tripDataFixture,
-      description: "Tiled facades.\\n\\nLong light.",
-      tip: "Book ahead.\\nCarry cash.",
-    });
-    await generateTrip(validTripRequest);
-
-    expect(written()).toMatchObject({
-      description: "Tiled facades.\n\nLong light.",
-      tip: "Book ahead.\nCarry cash.",
-    });
-  });
-
   it("fails when the write fails", async () => {
     write.mockRejectedValue(new Error("connection refused"));
     await expect(generateTrip(validTripRequest)).rejects.toThrow("connection refused");

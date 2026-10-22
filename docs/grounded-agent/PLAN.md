@@ -1281,33 +1281,22 @@ its own, in this order (2h is independent and can land any time):
     table for it could reference only the visitor, not a trip; a write per keystroke isn't worth a
     round trip; and once submitted, the trip row holds the request. Not in-memory state either: a
     reload would lose it.
-- **2l · `trip-text-breaks`: line breaks in the description and the tip.** Both show a literal
-  `\n` (backslash, n): the model escapes the line breaks, 2k's kind of slip, and
-  `<p>{description}</p>` prints them.
-  - `paragraphs(text)` (`src/lib/utils.ts`): splits on real line breaks and on the literal
-    two-character `\n`, trims, drops the empty. Applied at render, so the rows already in
-    production read right with no data migration.
-  - `DescriptionSection` renders a `<p>` per paragraph (`mt-4` from the second); `Closing` does
-    the same for `tip`, so both `SaveSection` and `FinalSection` get it.
-  - New rows are written clean: after `TripDataSchema`, before `toTripRow`, `generateTrip` turns
-    a literal `\n` in `description`, `tip` and each tour's description into a newline (a helper
-    beside `parseListFields`). The stored tour keeps the newline; its card is one paragraph, so
-    the page shows it as a space.
-  - Tests first: `paragraphs`, the helper, the description as two `<p>`s with no backslash
-    (`sections.test.tsx`), the tip (`closing.test.tsx`).
-  - **Built (2026-10-22).** `paragraphs` (`src/lib/utils.ts`) and `unescapeBreaks`
-    (`submitTrip.ts`, run on `TripDataSchema`'s output) as planned; each paragraph is a `<p>` in
-    a `space-y-4` block, so the text keeps its size and colour. Every written `\n` becomes a line
-    break, tours included, where the card's text collapses it to a space. A `generateTrip` test
-    pins that the row is written with real breaks. Seen in the browser at 1440, 768 and 390 on a
-    seeded trip given the production text's literal `\n`s: three paragraphs, two in the tip, no
-    backslash, no hydration error.
-  - **Review of `6079c6e`**, fixed: an older row's tour still printed its written `\n`, so
-    `ToursCarousel` renders `paragraphs(description).join(" ")`, one paragraph with a space at
-    each break; `paragraphs`' docblock no longer tells its history; the line above on what a
-    stored tour holds. Moved to 2m: a prompt line asking for real line breaks between paragraphs,
-    so the slip stops at its source for every field. Left: the rule in two places (`withBreaks`
-    and `paragraphs`' regex), and a double-escaped `\\n` or a written `\r\n`, never seen.
+- **2l · `trip-text-breaks`: line breaks in the tip.** The closing's tip shows a literal `\n`
+  (backslash, n): the model escapes the line breaks, 2k's kind of slip, and `<p>{tip}</p>` prints
+  them. Seen only in the tip; the description and the tours (one paragraph each) never showed it.
+  - `paragraphs(text)` (`src/lib/utils.ts`): splits on real line breaks and on the written
+    two-character `\n`, trims, drops the empty. `Closing` renders a `<p>` per paragraph in a
+    `space-y-4` block, so both `SaveSection` and `FinalSection` get it. At render, so the rows
+    already in production read right with no data migration. The source is fixed in 2m's prompt.
+  - Tests first: `paragraphs` (`utils.test.ts`), the tip's paragraphs apart with no backslash
+    (`closing.test.tsx`).
+  - **Built (2026-10-22).** Seen in the browser at 1440, 768 and 390 on a seeded trip given the
+    production text's literal `\n`s: two paragraphs in the tip, no backslash, no hydration error.
+  - **Reviews of `6079c6e` and `b188378`.** The first build also split the description, cleaned
+    the tours, and unescaped the description, tip and tours on the server (`unescapeBreaks`)
+    before the row was written. All taken out: only the tip ever showed the slip, and 2m stops
+    it at the source. Left: a double-escaped `\\n` or a written `\r\n` (never seen), and an
+    empty tip rendering an empty block (no row has one).
 - **2m · `passport-entry`: entry rules only when they apply.** The tip reminds the traveller to
   check entry rules even on a passport of the destination's own country, and on any other it says
   only "check the rules", which tells them nothing.
@@ -1321,8 +1310,7 @@ its own, in this order (2h is independent and can land any time):
     them up.
   - From 2l's review: the system prompt and `submit_trip`'s descriptions of `description`, `tip`
     and a tour's `description` say to separate paragraphs with a line break, never a written
-    `\n`, so the slip stops at its source, for the fields 2l's render fix doesn't cover too
-    (the packing list's reasons, the title, the must-haves).
+    `\n`, so the slip stops at its source, in every field: 2l fixes only the tip, at render.
   - Tests: the prompt with the same country (no line), another (the line) and none; the snapshot.
     One real run of each, recorded here.
 - **2n · `second-photo`: a photo between the essentials and the weather,** styled like the third

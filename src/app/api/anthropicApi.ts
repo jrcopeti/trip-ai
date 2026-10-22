@@ -9,7 +9,6 @@ import {
   TripDataSchema,
   parseListFields,
   submitTripTool,
-  unescapeBreaks,
   type TripData,
 } from "@/lib/agent/submitTrip";
 import type { Place } from "@/lib/place";
@@ -155,5 +154,5 @@ async function askForTrip(
     }
     throw new Error("The model returned an invalid trip");
   }
-  return unescapeBreaks(trip.data);
+  return trip.data;
 }

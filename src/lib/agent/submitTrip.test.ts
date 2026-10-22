@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { tripDataFixture } from "@/test/fixtures";
 import { TOUR_KINDS } from "@/lib/tourKinds";
-import { TripDataSchema, parseListFields, submitTripTool, unescapeBreaks } from "./submitTrip";
+import { TripDataSchema, parseListFields, submitTripTool } from "./submitTrip";
 
 type JsonSchema = Record<string, unknown>;
 
@@ -95,30 +95,5 @@ describe("parseListFields", () => {
   it("passes through input that is not an object", () => {
     expect(parseListFields(null)).toEqual({ input: null, parsed: [] });
     expect(parseListFields("text")).toEqual({ input: "text", parsed: [] });
-  });
-});
-
-describe("unescapeBreaks", () => {
-  const tours = tripDataFixture.tours as { description: string }[];
-
-  it("turns a written backslash and n into a line break in the description, the tip and the tours", () => {
-    const trip = TripDataSchema.parse({
-      ...tripDataFixture,
-      description: "Tiled facades.\\n\\nLong light.",
-      tip: "Book ahead.\\nCarry cash.",
-      tours: tours.map((tour, i) => (i === 0 ? { ...tour, description: "Alfama.\\nAt dawn." } : tour)),
-    });
-
-    const clean = unescapeBreaks(trip);
-
-    expect(clean.description).toBe("Tiled facades.\n\nLong light.");
-    expect(clean.tip).toBe("Book ahead.\nCarry cash.");
-    expect(clean.tours[0].description).toBe("Alfama.\nAt dawn.");
-    expect(clean.tours.slice(1)).toEqual(trip.tours.slice(1));
-  });
-
-  it("leaves a trip without written breaks as it is", () => {
-    const trip = TripDataSchema.parse(tripDataFixture);
-    expect(unescapeBreaks(trip)).toEqual(trip);
   });
 });

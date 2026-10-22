@@ -56,19 +56,6 @@ export function parseListFields(input: unknown): { input: unknown; parsed: strin
   return { input: fields, parsed };
 }
 
-// The model sometimes writes a line break as a backslash and an n.
-const withBreaks = (text: string) => text.replaceAll("\\n", "\n");
-
-/** Returns `trip` with each written `\n` in its description, tip and tours made a line break. */
-export function unescapeBreaks(trip: TripData): TripData {
-  return {
-    ...trip,
-    description: withBreaks(trip.description),
-    tip: withBreaks(trip.tip),
-    tours: trip.tours.map((tour) => ({ ...tour, description: withBreaks(tour.description) })),
-  };
-}
-
 // Strict tool schemas reject array-length and string-length keywords, so the
 // counts live in the descriptions and the system prompt, and Zod enforces them.
 export const submitTripTool: Anthropic.Tool = {
