@@ -22,7 +22,7 @@ export const buttonExtras =
   "cursor-pointer disabled:cursor-wait disabled:opacity-60 disabled:hover:scale-100";
 
 /**
- * The last section on both trip routes, on lime: the AI's tip as the lead, then
+ * The last section on both trip routes, on lime: the AI's tip as the lead (none when blank), then
  * whatever the route asks next — save or discard on a fresh trip, back or plan
  * another on a saved one.
  */
@@ -35,24 +35,28 @@ function Closing({
 }: {
   image: string | StaticImageData;
   placeholder: string;
-  tip?: string;
+  tip: string;
   heading: string;
   children: ReactNode;
 }) {
+  const tipParagraphs = paragraphs(tip);
+
   return (
     <section className="bg-sorbet-lime px-5 py-28 sm:px-8 md:py-40">
       <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.6fr_1fr] lg:gap-16">
         <div>
-          <Reveal>
-            <p className="text-sm font-medium uppercase tracking-[0.18em] text-sorbet-ink/50">
-              {copy.eyebrow}
-            </p>
-            <div className="mt-4 max-w-2xl space-y-4 text-[clamp(1.25rem,2.5vw,1.875rem)] font-medium leading-snug tracking-[-0.02em] text-sorbet-ink">
-              {paragraphs(tip ?? "").map((paragraph, i) => (
-                <p key={i}>{paragraph}</p>
-              ))}
-            </div>
-          </Reveal>
+          {tipParagraphs.length > 0 && (
+            <Reveal>
+              <p className="text-sm font-medium uppercase tracking-[0.18em] text-sorbet-ink/50">
+                {copy.eyebrow}
+              </p>
+              <div className="mt-4 max-w-2xl space-y-4 text-[clamp(1.25rem,2.5vw,1.875rem)] font-medium leading-snug tracking-[-0.02em] text-sorbet-ink">
+                {tipParagraphs.map((paragraph, i) => (
+                  <p key={i}>{paragraph}</p>
+                ))}
+              </div>
+            </Reveal>
+          )}
           <Reveal delay={0.08}>
             <h2 className="mt-14 text-2xl font-semibold text-sorbet-ink">{heading}</h2>
             <div className="mt-5 flex flex-wrap gap-3">{children}</div>

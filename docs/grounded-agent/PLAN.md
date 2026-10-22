@@ -1295,8 +1295,11 @@ its own, in this order (2h is independent and can land any time):
   - **Reviews of `6079c6e` and `b188378`.** The first build also split the description, cleaned
     the tours, and unescaped the description, tip and tours on the server (`unescapeBreaks`)
     before the row was written. All taken out: only the tip ever showed the slip, and 2m stops
-    it at the source. Left: a double-escaped `\\n` or a written `\r\n` (never seen), and an
-    empty tip rendering an empty block (no row has one).
+    it at the source. Left: a double-escaped `\\n` or a written `\r\n` (never seen).
+  - **Review of the branch (`26ccdf5`)**, fixed: `Closing`'s `tip` is a `string`, as the row's is;
+    a blank tip shows neither the eyebrow nor an empty block. Left: a single line break also
+    starts a paragraph (the production tip separates its paragraphs with one written `\n`), and
+    a literal backslash-n in real text (`C:\notes`) would split it.
 - **2m · `passport-entry`: entry rules only when they apply.** The tip reminds the traveller to
   check entry rules even on a passport of the destination's own country, and on any other it says
   only "check the rules", which tells them nothing.

@@ -129,6 +129,13 @@ describe("FinalSection", () => {
     expect(container.textContent).not.toContain("\\");
   });
 
+  it("shows no tip, and no eyebrow over it, when the tip is blank", () => {
+    renderWithProviders(<FinalSection placeholder={null} tip={" \\n "} />);
+
+    expect(screen.queryByText(closing.eyebrow)).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: closing.final.heading })).toBeInTheDocument();
+  });
+
   it("goes back on Back", async () => {
     renderFinal();
 
