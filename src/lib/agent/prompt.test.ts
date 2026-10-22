@@ -22,7 +22,7 @@ describe("buildSystemPrompt", () => {
   });
 
   it("asks for five tours, never three activities", () => {
-    expect(prompt).toContain("exactly five");
+    expect(prompt).toContain("Exactly five");
     expect(prompt).not.toMatch(/three (must-do )?activities/i);
   });
 
@@ -44,8 +44,20 @@ describe("buildSystemPrompt", () => {
   });
 
   // 2l: a written "\n" showed in the tip as a backslash and an n.
-  it("asks for real line breaks between paragraphs, never a written \\n", () => {
-    expect(prompt).toContain("Separate paragraphs with a line break, never a written \\n");
+  it("asks for real line breaks between paragraphs, not the characters backslash and n", () => {
+    expect(prompt).toContain(
+      "Separate paragraphs with a real line break, not the characters backslash and n",
+    );
+  });
+
+  it("asks for the tours first, then the packing list, and names them in that order", () => {
+    const sections = ["## The tours", "## The packing list", "## The rest of the trip"];
+    const at = sections.map((heading) => prompt.indexOf(heading));
+    expect(at.every((i) => i > 0)).toBe(true);
+    expect(at).toEqual([...at].sort((a, b) => a - b));
+    expect(prompt.split("\n")[0]).toContain(
+      "return five tours, a packing list with the must-haves, a title, a short description and a tip",
+    );
   });
 
   it("offers every tour kind", () => {

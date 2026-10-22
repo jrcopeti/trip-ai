@@ -1330,6 +1330,9 @@ its own, in this order (2h is independent and can land any time):
   - **Seen, not fixed here:** the model sent `tours` as JSON text that does not parse in 4 of 9
     runs on this branch and 2 of 6 on `main`'s prompt, so `TripDataSchema` refuses the trip.
     Pre-existing (2k's string tours); needs its own branch.
+  - **After the commit (`41ce4fc`).** The line-break rule names the characters ("not the
+    characters backslash and n") rather than writing `\n`. The tours move to their own section,
+    first, then the packing list, then the rest; the opening line names the parts in that order.
 - **2n · `second-photo`: a photo between the essentials and the weather,** styled like the third
   (`PhotoSection`).
   - `unsplashApi` keeps six photos (`slice(0, 6)`; Unsplash's page is 10); `imageDataFixture`

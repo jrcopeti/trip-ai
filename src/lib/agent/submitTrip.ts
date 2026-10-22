@@ -89,7 +89,7 @@ export const submitTripTool: Anthropic.Tool = {
       description: {
         type: "string",
         description:
-          "Up to three short paragraphs on the feel of this trip, separated by a line break, never a written \\n.",
+          "Up to three short paragraphs on the feel of this trip, separated by a real line break, not the characters backslash and n.",
       },
       tours: {
         type: "array",
@@ -102,7 +102,7 @@ export const submitTripTool: Anthropic.Tool = {
             description: {
               type: "string",
               description:
-                "One paragraph of 110 to 130 words: what it is and why it suits this trip. No line break, and never a written \\n.",
+                "One paragraph of 110 to 130 words: what it is and why it suits this trip. No line break, and not the characters backslash and n.",
             },
           },
           required: ["title", "kind", "description"],
@@ -112,7 +112,7 @@ export const submitTripTool: Anthropic.Tool = {
       tip: {
         type: "string",
         description:
-          "Up to two short paragraphs of practical advice, separated by a line break, never a written \\n.",
+          "Up to two short paragraphs of practical advice, separated by a real line break, not the characters backslash and n.",
       },
     },
     required: ["title", "objectsList", "mustHave", "description", "tours", "tip"],
