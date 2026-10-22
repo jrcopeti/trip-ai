@@ -542,6 +542,17 @@ Each of these was a bug, not a theory.
     rather than dots; `Squiggle` got the same opacity. For anything drawn on scroll,
     observe a box (`motion.svg`, or `Reveal`'s `div`) and drive the paths by variants.
 
+15. **The calendar's day buttons are styled in full, from the cell's state.**
+    react-day-picker's stylesheet is unlayered, so its `.rdp-day_button` rules beat any
+    utility, and a `classNames` key *replaces* the library's class rather than adding to
+    it. `DatePicker` once replaced `day_button`, `selected` and `today` with a radius and
+    a weight, which dropped the 2.5rem circles and the fills unnoticed. The cell now
+    carries `group`, and the button reads `data-today` (a lime circle) and `data-selected`
+    (an ink circle) through `group-data-*`, and today selected keeps its lime with an inset
+    ink ring; `DatePicker.test.tsx` pins the attributes.
+    Offwhite text goes only on the ink circle (selected, not today, not hovered): today's
+    lime and the hover tint win the background, and offwhite on either is unreadable.
+
 ## Building a page
 
 1. Put `text-sorbet-ink` on the page's outermost element and a `sorbet` ground on each

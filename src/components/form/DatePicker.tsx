@@ -74,8 +74,13 @@ function DatePicker({ label, id, placeholder, onChange, value, ref, invalid }: D
             <Popover.Dialog aria-label={label}>
               <DayPicker
                 style={calendarTheme}
+                // Replacing the library's day-button class keeps its unlayered rules,
+                // which beat any utility, off the button; it is styled here in full.
+                // Offwhite text only on the ink circle: today's lime and the hover tint
+                // win the background, and offwhite on either is unreadable.
                 classNames={{
-                  day_button: "rounded-full cursor-pointer",
+                  day: "rdp-day group",
+                  day_button: `grid size-10 cursor-pointer place-items-center rounded-full transition-colors hover:bg-sorbet-ink/10 group-data-[today]:bg-sorbet-lime group-data-[selected]:bg-sorbet-ink [[data-selected]:not([data-today])>&:not(:hover)]:text-sorbet-offwhite [[data-selected][data-today]>&]:inset-ring-2 [[data-selected][data-today]>&]:inset-ring-sorbet-ink motion-reduce:transition-none ${focusTriad}`,
                   selected: "font-semibold",
                   today: "font-semibold",
                 }}
@@ -102,7 +107,9 @@ function DatePicker({ label, id, placeholder, onChange, value, ref, invalid }: D
             aria-label={dates.clear(label)}
             onClick={() => {
               setDate("");
-              onChange?.(undefined);
+              // Not `undefined`: RHF's controller reads that as unset and hands back the
+              // value it mounted with, so a date set before the field mounted came back.
+              onChange?.("");
             }}
             className={`absolute right-3 top-1/2 grid size-9 -translate-y-1/2 cursor-pointer place-items-center rounded-full bg-sorbet-ink/10 text-sorbet-ink transition-colors hover:bg-sorbet-ink hover:text-sorbet-offwhite motion-reduce:transition-none ${focusTriad}`}
           >
