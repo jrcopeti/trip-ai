@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Image, { type StaticImageData } from "next/image";
 import Reveal from "@/components/sorbet/Reveal";
+import { paragraphs } from "@/lib/utils";
 import { MediaFrame } from "./Section";
 import { closing as copy } from "./content";
 
@@ -46,9 +47,11 @@ function Closing({
             <p className="text-sm font-medium uppercase tracking-[0.18em] text-sorbet-ink/50">
               {copy.eyebrow}
             </p>
-            <p className="mt-4 max-w-2xl text-[clamp(1.25rem,2.5vw,1.875rem)] font-medium leading-snug tracking-[-0.02em] text-sorbet-ink">
-              {tip}
-            </p>
+            <div className="mt-4 max-w-2xl space-y-4 text-[clamp(1.25rem,2.5vw,1.875rem)] font-medium leading-snug tracking-[-0.02em] text-sorbet-ink">
+              {paragraphs(tip ?? "").map((paragraph, i) => (
+                <p key={i}>{paragraph}</p>
+              ))}
+            </div>
           </Reveal>
           <Reveal delay={0.08}>
             <h2 className="mt-14 text-2xl font-semibold text-sorbet-ink">{heading}</h2>

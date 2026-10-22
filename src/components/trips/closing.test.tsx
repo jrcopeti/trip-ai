@@ -119,6 +119,16 @@ describe("FinalSection", () => {
     expect(screen.getByText("Bring a scarf.")).toBeInTheDocument();
   });
 
+  it("shows the tip's paragraphs apart, with no backslash", () => {
+    const { container } = renderWithProviders(
+      <FinalSection placeholder={null} tip={"Book ahead.\\nCarry cash."} />,
+    );
+
+    expect(screen.getByText("Book ahead.")).toBeInTheDocument();
+    expect(screen.getByText("Carry cash.")).toBeInTheDocument();
+    expect(container.textContent).not.toContain("\\");
+  });
+
   it("goes back on Back", async () => {
     renderFinal();
 

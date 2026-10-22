@@ -113,6 +113,17 @@ describe("DescriptionSection", () => {
     expect(container.querySelector("img")).toHaveAttribute("src", LOCAL_IMAGES[1]);
   });
 
+  it("renders a paragraph per line break, written or real, with no backslash", () => {
+    const trip = {
+      ...generatedTripFixture,
+      description: "Tiled facades.\\n\\nLong light.\nLate trams.",
+    };
+    const { container } = renderWithProviders(<DescriptionSection trip={trip} />);
+
+    const texts = [...container.querySelectorAll("p")].map((p) => p.textContent);
+    expect(texts).toEqual(expect.arrayContaining(["Tiled facades.", "Long light.", "Late trams."]));
+    expect(container.textContent).not.toContain("\\");
+  });
 });
 
 describe("ToursSection", () => {

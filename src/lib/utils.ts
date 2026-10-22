@@ -124,6 +124,17 @@ const selectDailyForecasts = (
   return forecasts;
 };
 
+/**
+ * The model's text as paragraphs, split at each line break, real or written as a backslash and
+ * an n (the model sometimes escapes them, and older rows hold them so). Trimmed, none empty.
+ */
+function paragraphs(text: string) {
+  return text
+    .split(/(?:\r?\n|\\n)+/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+}
+
 /** A weather plan's dates: five days from now, set when the box is ticked or a draft restored. */
 function weatherDates(now: Dayjs = dayjs()) {
   return { startDate: now.toISOString(), endDate: now.add(5, "day").toISOString() };
@@ -133,6 +144,7 @@ export {
   cn,
   weatherDates,
   formatDate,
+  paragraphs,
   placeWeatherIcons,
   durationInDays,
   displayDuration,

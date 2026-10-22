@@ -1264,7 +1264,7 @@ its own, in this order (2h is independent and can land any time):
   the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
   weather by coordinates, the form-scoped providers, architecture and commands. Retake the
   screenshots that changed at the sizes above.
-  - **Status: done on `readme-phase-2`, staged, not committed.** As built: the README is
+  - **Status: merged (#232).** Revisited at the end of phase 2, after 2p-b. As built: the README is
     rewritten as a brochure for recruiters and hiring managers: highlights, an architecture
     overview (a Mermaid diagram plus five points), a table of decisions and their reasons, and a
     roadmap for 3–7. The live link moves to `trip-ai-world.vercel.app` (the old
@@ -1294,6 +1294,13 @@ its own, in this order (2h is independent and can land any time):
     beside `parseListFields`). Tour cards are one paragraph, so there it becomes a space.
   - Tests first: `paragraphs`, the helper, the description as two `<p>`s with no backslash
     (`sections.test.tsx`), the tip (`closing.test.tsx`).
+  - **Built (2026-10-22).** `paragraphs` (`src/lib/utils.ts`) and `unescapeBreaks`
+    (`submitTrip.ts`, run on `TripDataSchema`'s output) as planned; each paragraph is a `<p>` in
+    a `space-y-4` block, so the text keeps its size and colour. Every written `\n` becomes a line
+    break, tours included, where the card's text collapses it to a space. A `generateTrip` test
+    pins that the row is written with real breaks. Seen in the browser at 1440, 768 and 390 on a
+    seeded trip given the production text's literal `\n`s: three paragraphs, two in the tip, no
+    backslash, no hydration error.
 - **2m · `passport-entry`: entry rules only when they apply.** The tip reminds the traveller to
   check entry rules even on a passport of the destination's own country, and on any other it says
   only "check the rules", which tells them nothing.
@@ -1351,7 +1358,7 @@ its own, in this order (2h is independent and can land any time):
     `src/lib/openTrip.ts` and its test go. A 409 shows the failure panel: "Save or discard your
     last trip first". CLAUDE.md's "One unanswered trip" and its tables, `generation.test.ts`'s
     table and `FormOpenTrip.test.tsx` follow; 2e-g's e2e still passes.
-- **Order from here:** 2l → 2m → 2n → 2o → 2p-a → 2p-b, then 2j (in progress), and branch 3.
+- **Order from here:** 2l → 2m → 2n → 2o → 2p-a → 2p-b, then 2j's README once more, and branch 3.
   (2h-a, 2h-b and 2k merged; 2i down to its last major.)
 
 What's wrong today:
