@@ -80,9 +80,8 @@ async function forecastFor(req: TripRequest, place: Place): Promise<ForecastDay[
 }
 
 /**
- * Asks the model for the trip, and once more when a list arrives as text that won't parse into
- * one: a slip that fails fast and cheap, whatever the prompt (PLAN.md, 2m-b). Throws on a second
- * broken answer, an otherwise invalid trip, or anything `callForTrip` throws.
+ * Asks the model for the trip, once more when a list arrives as text that won't parse into one.
+ * Throws on a second broken answer, an otherwise invalid trip, or anything `callForTrip` throws.
  */
 async function askForTrip(
   req: TripRequest,
@@ -96,7 +95,7 @@ async function askForTrip(
     );
     if (parsed.length > 0) console.warn("generateTrip: parsed lists sent as strings:", parsed);
     if (Object.keys(broken).length > 0) {
-      console.warn("generateTrip: lists sent as broken text:", broken);
+      console.warn("generateTrip: lists sent as broken text:", whereBroken(broken));
       if (attempt === 1) {
         signal?.throwIfAborted();
         continue;
@@ -109,6 +108,22 @@ async function askForTrip(
     }
     return trip.data;
   }
+}
+
+/** Each broken list's length, its parse error and the 200 characters before the break. */
+function whereBroken(broken: Record<string, string>) {
+  return Object.fromEntries(
+    Object.entries(broken).map(([field, text]) => {
+      let error = "parses, but not to a list";
+      try {
+        JSON.parse(text);
+      } catch (e) {
+        error = String(e);
+      }
+      const at = Number(/position (\d+)/.exec(error)?.[1] ?? text.length);
+      return [field, { length: text.length, error, before: text.slice(Math.max(0, at - 200), at) }];
+    }),
+  );
 }
 
 /** One model call; returns `submit_trip`'s input, unchecked. */

@@ -1387,15 +1387,18 @@ its own, in this order (2h is independent and can land any time):
     Labour Day in 36 of 42, never without (0 in 40).
   - **Decided (2026-10-27): one retry, and the thinking left as it is.** No setting makes Sonnet
     5.5 think (adaptive decides; the old prompt never did at the default `high`), so the
-    thinking can't be what protects the list. A retry protects it whatever the prompt does, and
-    costs little: every break seen failed in 5 to 13s for under $0.015. 2k ruled a retry out
-    before these numbers. The thinking stays for its quality; whether it is worth 4× the cost
+    thinking can't be what protects the list. A retry protects it whatever the prompt does.
+    Without thinking it costs little: every break seen failed in 5 to 13s for under $0.015.
+    With thinking, as production runs, none was seen (0 in 36); one would come after the
+    thinking, so its retry could cost a whole trip again, up to about 80s and $0.095 (twice
+    that for the trip, inside `maxDuration`'s 300s). 2k ruled a retry out before these numbers. The thinking stays for its quality; whether it is worth 4× the cost
     and 3× the time is branch 6's to measure, across its cases, not one trip.
   - **Build.** `generateTrip` asks once more when a list field is still text after
-    `parseListFields` (broken JSON, prose, an object), and logs the field and the whole string;
+    `parseListFields` (broken JSON, prose, an object), and logs each field's length, parse error
+    and the 200 characters before the break (not the whole string: it carries the trip);
     a second broken answer fails as today, with no third call. The same request again, not a
     follow-up turn (branch 4's loop answers with an `is_error` tool result instead). A stop
-    between the two calls starts nothing. The DIAG block goes: the retry's log keeps the string.
+    between the two calls starts nothing. The DIAG block goes: the retry's log replaces it.
     Tests first, with production's string of 2026-10-21 (715 characters, Split) as a fixture:
     asked again and written; two broken, two calls, the error; another invalid trip, one call;
     stopped before the second, one call and the signal's reason.

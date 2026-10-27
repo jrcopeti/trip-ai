@@ -302,7 +302,7 @@ describe("generateTrip — a list sent as broken text", () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
   });
 
-  it("asks once more, writes the second answer, and logs the field and the whole string", async () => {
+  it("asks once more, writes the second answer, and logs where the list broke", async () => {
     finalMessage.mockResolvedValueOnce(answer(broken)).mockResolvedValueOnce(answer(tripDataFixture));
 
     await generateTrip(validTripRequest);
@@ -310,10 +310,13 @@ describe("generateTrip — a list sent as broken text", () => {
     expect(stream).toHaveBeenCalledTimes(2);
     expect(stream.mock.calls[1][0]).toEqual(stream.mock.calls[0][0]);
     expect(written().tours).toEqual(tripDataFixture.tours);
-    expect(console.warn).toHaveBeenCalledWith(
-      expect.stringContaining("broken"),
-      { tours: brokenToursString },
-    );
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("broken"), {
+      tours: {
+        length: 715,
+        error: expect.stringContaining("position 715"),
+        before: brokenToursString.slice(515),
+      },
+    });
   });
 
   it("fails after a second broken answer, with no third call", async () => {
@@ -335,6 +338,9 @@ describe("generateTrip — a list sent as broken text", () => {
     await generateTrip(validTripRequest);
 
     expect(stream).toHaveBeenCalledTimes(2);
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("broken"), {
+      tours: expect.objectContaining({ length: tours.length, before: expect.any(String) }),
+    });
   });
 
   it("doesn't ask again for a trip invalid in another way", async () => {

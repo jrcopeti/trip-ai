@@ -218,7 +218,9 @@ A trip that broke cost $0.013 for nothing; a thinking trip costs about $0.07 mor
 
 With the thinking off, today's prompt costs what the old one did: about $0.025 a trip and 20 to
 25s, a quarter of the cost and a third of the time of production today. A break fails early
-(5 to 13s, under $0.015), so a retry after one costs less than any trip.
+(5 to 13s, under $0.015), so a retry after one costs less than any trip. That holds without
+thinking: with it no break was seen (0 in 36), and one would come after the thinking, so its
+retry could cost a whole thinking trip again, up to about 80s and $0.095.
 
 The measurements so far: $1.43, $1.46, $0.36, $0.71 for the three trigger
 variants, $0.53 for the no-passport and home ones, $0.47 for `thinking-off` and
@@ -237,8 +239,9 @@ the first `effort-medium` runs, and $0.21 for the rest of the two effort levels:
   so the two should agree. It is not the fix.
 - **Decided (2026-10-27): one retry on a broken list, and the thinking left as it is.** No
   setting makes Sonnet 5.5 think, so the thinking can't be counted on to protect the list; the
-  retry protects it whatever the prompt does. The thinking stays for the trip's quality, and
-  branch 6 weighs it against its cost across many cases. `PLAN.md` (2m-b) has the build.
+  retry protects it whatever the prompt does: cheap without thinking, up to a whole trip again
+  with it (a case not seen in 36). The thinking stays for the trip's quality, and branch 6
+  weighs it against its cost across many cases. `PLAN.md` (2m-b) has the build.
 - **The two ways that were weighed:**
   - **Keep the thinking, on purpose:** production as it is (0 in 36), at 4× the cost and 3× the
     time, with the setting made explicit so a prompt change can't switch it off. Not shown to

@@ -1,14 +1,7 @@
 /**
- * Measures how often `submit_trip` sends a list as JSON text, and where that text breaks (2m-b,
- * docs/grounded-agent/PLAN.md). Makes the production call — the real prompt, tool and model, on
- * `validTripRequest` in Lisbon — N times per variant, writes no row, and keeps every raw input
- * in `scripts/string-tours/runs/` (gitignored). Each run is a paid API call.
- *
- *   npx tsx scripts/string-tours/harness.ts --variant baseline --runs 15
- *   npx tsx scripts/string-tours/harness.ts --variant all --dry
- *
- * `--dry` prints what each variant changes, `--print` the first variant's prompt and tool; neither
- * calls the API.
+ * Makes the production trip call N times per variant, writes no row, and keeps each raw input in
+ * `scripts/string-tours/runs/` with its outcome, tokens and where a list sent as text breaks.
+ * Every run is a paid call; `--dry` and `--print` call nothing. Usage: `PLAN.md`, 2m-b.
  */
 // First: the prompt's imports reach the travel photos.
 import "./stubImages";
@@ -203,7 +196,8 @@ async function run(client: Anthropic, name: string, variant: Variant) {
       .finalMessage();
     const ms = Date.now() - started;
     const call = response.content.find(
-      (block): block is Anthropic.ToolUseBlock => block.type === "tool_use",
+      (block): block is Anthropic.ToolUseBlock =>
+        block.type === "tool_use" && block.name === variant.tool.name,
     );
     const base = { variant: name, ms, stop: response.stop_reason, usage: response.usage, id: response.id };
     if (!call) return { ...base, outcome: "error" as Outcome, note: "no tool call" };
