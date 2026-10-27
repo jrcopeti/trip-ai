@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import Image, { type StaticImageData } from "next/image";
 import Reveal from "@/components/sorbet/Reveal";
 import { paragraphs } from "@/lib/utils";
-import { MediaFrame } from "./Section";
+import { MediaFrame, Paragraphs } from "./Section";
 import { closing as copy } from "./content";
 
 const pill =
@@ -39,22 +39,19 @@ function Closing({
   heading: string;
   children: ReactNode;
 }) {
-  const tipParagraphs = paragraphs(tip);
-
   return (
     <section className="bg-sorbet-lime px-5 py-28 sm:px-8 md:py-40">
       <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.6fr_1fr] lg:gap-16">
         <div>
-          {tipParagraphs.length > 0 && (
+          {paragraphs(tip).length > 0 && (
             <Reveal>
               <p className="text-sm font-medium uppercase tracking-[0.18em] text-sorbet-ink/50">
                 {copy.eyebrow}
               </p>
-              <div className="mt-4 max-w-2xl space-y-4 text-[clamp(1.25rem,2.5vw,1.875rem)] font-medium leading-snug tracking-[-0.02em] text-sorbet-ink">
-                {tipParagraphs.map((paragraph, i) => (
-                  <p key={i}>{paragraph}</p>
-                ))}
-              </div>
+              <Paragraphs
+                text={tip}
+                className="mt-4 max-w-2xl text-[clamp(1.25rem,2.5vw,1.875rem)] font-medium leading-snug tracking-[-0.02em] text-sorbet-ink"
+              />
             </Reveal>
           )}
           <Reveal delay={0.08}>

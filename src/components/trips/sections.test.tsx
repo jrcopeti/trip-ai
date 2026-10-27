@@ -23,7 +23,9 @@ import PhotoSection from "./PhotoSection";
 import WeatherSection from "./WeatherSection";
 import ForecastSection from "./ForecastSection";
 import FormDetailsSection from "./FormDetailsSection";
+import { Paragraphs } from "./Section";
 import {
+  description,
   details,
   forecast,
   mustHave,
@@ -113,6 +115,59 @@ describe("DescriptionSection", () => {
     expect(container.querySelector("img")).toHaveAttribute("src", LOCAL_IMAGES[1]);
   });
 
+  it("shows the description's paragraphs apart", () => {
+    renderWithProviders(
+      <DescriptionSection
+        trip={{ ...generatedTripFixture, description: "Tiled facades.\n\nLong light." }}
+      />,
+    );
+
+    expect(screen.getByText("Tiled facades.")).toBeInTheDocument();
+    expect(screen.getByText("Long light.")).toBeInTheDocument();
+  });
+
+  it("shows a row's written line break as a break, with no backslash", () => {
+    const { container } = renderWithProviders(
+      <DescriptionSection
+        trip={{ ...generatedTripFixture, description: "Tiled facades.\\nLong light." }}
+      />,
+    );
+
+    expect(screen.getByText("Tiled facades.")).toBeInTheDocument();
+    expect(screen.getByText("Long light.")).toBeInTheDocument();
+    expect(container.textContent).not.toContain("\\");
+  });
+
+  it("shows only its heading when the description has no paragraphs", () => {
+    const { container } = renderWithProviders(
+      <DescriptionSection trip={{ ...generatedTripFixture, description: " \\n \n " }} />,
+    );
+
+    expect(screen.getByRole("heading", { level: 2 })).toBeInTheDocument();
+    expect([...container.querySelectorAll("p")].map((p) => p.textContent)).toEqual([
+      description.eyebrow,
+    ]);
+  });
+});
+
+describe("Paragraphs", () => {
+  it("renders one paragraph per line break, in a block with the caller's classes", () => {
+    const { container } = renderWithProviders(
+      <Paragraphs text={"Tiled facades.\nLong light."} className="text-lg" />,
+    );
+
+    expect(container.firstElementChild).toHaveClass("space-y-4", "text-lg");
+    expect([...container.querySelectorAll("p")].map((p) => p.textContent)).toEqual([
+      "Tiled facades.",
+      "Long light.",
+    ]);
+  });
+
+  it("renders nothing for text with no paragraphs", () => {
+    const { container } = renderWithProviders(<Paragraphs text={" \\n "} className="text-lg" />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
 });
 
 describe("ToursSection", () => {
