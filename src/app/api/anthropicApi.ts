@@ -120,7 +120,8 @@ function whereBroken(broken: Record<string, string>) {
       } catch (e) {
         error = String(e);
       }
-      const at = Number(/position (\d+)/.exec(error)?.[1] ?? text.length);
+      // V8 quotes the input in its message, so only "in JSON at position N" is the break.
+      const at = Number(/in JSON at position (\d+)/.exec(error)?.[1] ?? text.length);
       return [field, { length: text.length, error, before: text.slice(Math.max(0, at - 200), at) }];
     }),
   );

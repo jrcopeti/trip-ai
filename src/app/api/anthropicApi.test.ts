@@ -311,11 +311,7 @@ describe("generateTrip — a list sent as broken text", () => {
     expect(stream.mock.calls[1][0]).toEqual(stream.mock.calls[0][0]);
     expect(written().tours).toEqual(tripDataFixture.tours);
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("broken"), {
-      tours: {
-        length: 715,
-        error: expect.stringContaining("position 715"),
-        before: brokenToursString.slice(515),
-      },
+      tours: { length: 715, error: expect.any(String), before: brokenToursString.slice(-200) },
     });
   });
 
@@ -340,6 +336,19 @@ describe("generateTrip — a list sent as broken text", () => {
     expect(stream).toHaveBeenCalledTimes(2);
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("broken"), {
       tours: expect.objectContaining({ length: tours.length, before: expect.any(String) }),
+    });
+  });
+
+  it("takes the break's position from the error, not from input it quotes", async () => {
+    const tours = "position 12 tours";
+    finalMessage
+      .mockResolvedValueOnce(answer({ ...tripDataFixture, tours }))
+      .mockResolvedValueOnce(answer(tripDataFixture));
+
+    await generateTrip(validTripRequest);
+
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("broken"), {
+      tours: expect.objectContaining({ before: tours }),
     });
   });
 
