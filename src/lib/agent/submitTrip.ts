@@ -86,7 +86,11 @@ export const submitTripTool: Anthropic.Tool = {
         description: "The essentials this trip cannot do without.",
         items: { type: "string" },
       },
-      description: { type: "string", description: "Up to three short paragraphs on the feel of this trip." },
+      description: {
+        type: "string",
+        description:
+          "Up to three short paragraphs on the feel of this trip, separated by a real line break, not the characters backslash and n.",
+      },
       tours: {
         type: "array",
         description: "Exactly five tours.",
@@ -97,14 +101,19 @@ export const submitTripTool: Anthropic.Tool = {
             kind: { type: "string", enum: [...TOUR_KINDS], description: "What kind of tour it is." },
             description: {
               type: "string",
-              description: "One paragraph of 110 to 130 words: what it is and why it suits this trip.",
+              description:
+                "One paragraph of 110 to 130 words: what it is and why it suits this trip. No line break, and not the characters backslash and n.",
             },
           },
           required: ["title", "kind", "description"],
           additionalProperties: false,
         },
       },
-      tip: { type: "string", description: "Up to two short paragraphs of practical advice." },
+      tip: {
+        type: "string",
+        description:
+          "Up to two short paragraphs of practical advice, separated by a real line break, not the characters backslash and n.",
+      },
     },
     required: ["title", "objectsList", "mustHave", "description", "tours", "tip"],
     additionalProperties: false,

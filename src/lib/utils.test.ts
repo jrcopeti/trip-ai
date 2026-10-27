@@ -5,6 +5,7 @@ import {
   durationInDays,
   findStartIndex,
   formatDate,
+  paragraphs,
   placeWeatherIcons,
   selectDailyForecasts,
 } from "@/lib/utils";
@@ -205,5 +206,24 @@ describe("selectDailyForecasts", () => {
 
     expect(list.indexOf(early[0])).toBe(1);
     expect(list.indexOf(late[0])).toBe(7);
+  });
+});
+
+describe("paragraphs", () => {
+  it("splits at line breaks, real or written as a backslash and an n", () => {
+    expect(paragraphs("Tiled facades.\n\nLong light.\\n\\nLate trams.\nFado.")).toEqual([
+      "Tiled facades.",
+      "Long light.",
+      "Late trams.",
+      "Fado.",
+    ]);
+  });
+
+  it("trims each paragraph and drops the empty ones", () => {
+    expect(paragraphs("  One. \\n \\n\n Two.\n")).toEqual(["One.", "Two."]);
+  });
+
+  it("keeps text without breaks as one paragraph", () => {
+    expect(paragraphs("Bring a scarf.")).toEqual(["Bring a scarf."]);
   });
 });

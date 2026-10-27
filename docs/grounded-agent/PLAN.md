@@ -1056,9 +1056,13 @@ its own, in this order (2h is independent and can land any time):
   string where the schema has an array is the API's to explain.
   - Decided: **no retry** (a second paid call per failure), and the **DIAG log stays**, for the
     next one.
-  - In the branch: the report to Anthropic (request id, the raw string, the tool's schema),
-    drafted here and sent by the user; this record; and a test with that exact string, pinning
-    that `parseListFields` leaves it as a string and `generateTrip` throws "invalid trip".
+  - The report to Anthropic (request id, the raw string, the tool's schema, three questions)
+    was drafted for the user to send; it is not kept in the repo.
+  - **Built.** This record, and the DIAG log kept, trimmed to the length, the parse error and the
+    whole string. No fixture or test of the string: the existing "broken JSON" rows cover the
+    path, and one comes back if 2m-b chooses a retry.
+  - The work sat in a stash from 2026-10-21 while the plan counted 2k as merged; it was restored
+    on 2026-10-22. 2m's real runs broke the same way in 6 of 15, so the cause is 2m-b's.
   - Seen the same day, both handled as designed, recorded only: a 10s connect timeout to
     GeoNames (the form's city check, `POST /form`: "We couldn't check the city just now") and
     one to OpenWeather (in this generation: "generateTrip: no forecast", planned without one).
@@ -1287,7 +1291,7 @@ its own, in this order (2h is independent and can land any time):
   the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
   weather by coordinates, the form-scoped providers, architecture and commands. Retake the
   screenshots that changed at the sizes above.
-  - **Status: done on `readme-phase-2`, staged, not committed.** As built: the README is
+  - **Status: merged (#232).** Revisited at the end of phase 2, after 2p-b. As built: the README is
     rewritten as a brochure for recruiters and hiring managers: highlights, an architecture
     overview (a Mermaid diagram plus five points), a table of decisions and their reasons, and a
     roadmap for 3–7. The live link moves to `trip-ai-world.vercel.app` (the old
@@ -1299,7 +1303,139 @@ its own, in this order (2h is independent and can land any time):
     packing list and forecast, and the saved-trips wall. The form was filled in but never
     submitted, and nothing was written. The shots no longer used are removed (about,
     landing tours, form steps 1 and 3, tip, phone weather).
-- **Order from here:** 2h-a → 2h-b → 2k → 2i → 2j (2e-f, 2e-g, 2f and 2g merged), and branch 3.
+- **2l–2p · from using the deployed app (2026-10-22).** Six findings; five are branches below.
+  - **The form draft stays in `sessionStorage`** (the sixth). It exists before any trip does, so a
+    table for it could reference only the visitor, not a trip; a write per keystroke isn't worth a
+    round trip; and once submitted, the trip row holds the request. Not in-memory state either: a
+    reload would lose it.
+- **2l · `trip-text-breaks`: line breaks in the tip.** The closing's tip shows a literal `\n`
+  (backslash, n): the model escapes the line breaks, 2k's kind of slip, and `<p>{tip}</p>` prints
+  them. Seen only in the tip; the description and the tours (one paragraph each) never showed it.
+  - `paragraphs(text)` (`src/lib/utils.ts`): splits on real line breaks and on the written
+    two-character `\n`, trims, drops the empty. `Closing` renders a `<p>` per paragraph in a
+    `space-y-4` block, so both `SaveSection` and `FinalSection` get it. At render, so the rows
+    already in production read right with no data migration. The source is fixed in 2m's prompt.
+  - Tests first: `paragraphs` (`utils.test.ts`), the tip's paragraphs apart with no backslash
+    (`closing.test.tsx`).
+  - **Built (2026-10-22).** Seen in the browser at 1440, 768 and 390 on a seeded trip given the
+    production text's literal `\n`s: two paragraphs in the tip, no backslash, no hydration error.
+  - **Reviews of `6079c6e` and `b188378`.** The first build also split the description, cleaned
+    the tours, and unescaped the description, tip and tours on the server (`unescapeBreaks`)
+    before the row was written. All taken out: only the tip ever showed the slip, and 2m stops
+    it at the source. Left: a double-escaped `\\n` or a written `\r\n` (never seen).
+  - **Review of the branch (`26ccdf5`)**, fixed: `Closing`'s `tip` is a `string`, as the row's is;
+    a blank tip shows neither the eyebrow nor an empty block. Left: a single line break also
+    starts a paragraph (the production tip separates its paragraphs with one written `\n`), and
+    a literal backslash-n in real text (`C:\notes`) would split it.
+- **2m-a · `passport-entry`: entry rules only when they apply.** The tip reminds the traveller to
+  check entry rules even on a passport of the destination's own country, and on any other it says
+  only "check the rules", which tells them nothing.
+  - `buildTripMessage` leaves the `Passport:` line out when the passport's code (its name looked
+    up in `passportCountries`) equals the place's `countryCode`; the "no passport, leave this out"
+    rule then covers it. It takes `countryCode` from `resolvePlace`, which `generateTrip` has.
+  - Decided: **a short summary, then "confirm".** With a passport, the tip ends with what that
+    passport usually needs for this country (visa-free and for how long, visa on arrival, an eVisa
+    or ETA, an ID card being enough), that the rules change, and to confirm with the
+    destination's official sources before booking. It can be out of date until branch 4 looks
+    them up.
+  - From 2l's review: the system prompt and `submit_trip`'s descriptions of `description`, `tip`
+    and a tour's `description` say to separate paragraphs with a line break, never a written
+    `\n`, so the slip stops at its source, in every field: 2l fixes only the tip, at render.
+  - Tests: the prompt with the same country (no line), another (the line) and none; the snapshot.
+    One real run of each, recorded here.
+  - **Built (2026-10-22).** `Place` has no country code, so the check reads the request's
+    `countryCode`: `resolvePlace` only returns a place inside it. Its first two letters are
+    compared, so a UK passport in Glasgow (`GB-SCT`) is home too. "Leave this out" was not
+    enough: with no passport line the model still wrote "check what your own nationality needs",
+    so the rule says "say nothing about entry rules, visas or passports".
+  - **Real runs** (Lisbon, `validTripRequest`, `claude-sonnet-5-5`, no row written). Brazil: "Brazilian
+    passport holders usually do not need a visa for tourist stays of up to 90 days in Portugal
+    (Schengen area)…", then proof of stay, ETIAS, and "confirm the current requirements with
+    official Portuguese or EU sources before booking". Portugal and none, after the rewording,
+    three runs each: no word on entry rules. A written `\n` in fields: none in the description or
+    the tours; one tip in nine runs still had it (2l renders it right).
+  - **Seen, not fixed here:** the model sent `tours` as JSON text that does not parse in 4 of 9
+    runs on this branch and 2 of 6 on `main`'s prompt, so `TripDataSchema` refuses the trip.
+    Pre-existing (2k's string tours): 2m-b.
+  - **After the commit (`41ce4fc`).** The line-break rule names the characters ("not the
+    characters backslash and n") rather than writing `\n`. The tours move to their own section,
+    first, then the packing list, then the rest; the opening line names the parts in that order.
+  - **Review of the branch**, fixed: the summary is hedged ("as far as you know") and never says
+    nothing is needed; a passport of the destination's own country is kept and marked "(the
+    destination's own country)", with a rule for a trip home that still allows they live
+    elsewhere (adapter, currency); `TERRITORY_OF` (`src/data/countries.ts`) counts a territory
+    as its country's (Puerto Rico, Réunion, Greenland, Jersey…), not one with its own
+    immigration (Hong Kong, Bermuda); a tour's description asks for no line breaks. Moved: the
+    schema's order to 2m-b, the description's paragraphs to 2m-c. Left: the test comments
+    naming 2l.
+  - **Second review**, fixed: `isHome` maps the passport through `TERRITORY_OF` as well as the
+    destination, so a "Jersey" or "Puerto Rico" passport is home in Jersey and the UK, Puerto
+    Rico and the US; the visa summary's rule excludes a home passport, so the two rules no longer
+    overlap; `TERRITORY_OF` is a flat list, of inhabited territories only (no `um`). Left: a
+    written `\n` handled at the boundary (`TripDataSchema`), as 2l decided against it.
+- **2m-b · `string-tours`: why the list arrives as a string, before choosing a fix.** In 2m-a's
+  real runs `tours` came back as JSON text that does not parse in 6 of 15 (2k's slip), and the
+  trip fails. A retry is one answer, not the assumed one: find the cause first.
+  - Measure: a scratch harness (the real prompt and tool, no row written) that keeps each raw
+    `tours` whole, N runs per variant, the failure rate and where each string breaks.
+  - Variants to compare against today's: `tours` first in the schema, as in the prompt; tour
+    descriptions with fewer quotes or shorter; `strict` off; the SDK's current version; another
+    model; `tours` as five flat fields or its own tool. What the API says to 2k's report counts too.
+  - From 2m-a's review: the prompt lists the tours first, but `submit_trip`'s properties and its
+    description still put them fifth, and the model likely writes in the schema's order. The two
+    disagree until this branch measures the schema's order and aligns both.
+  - Decide from the numbers, then build the fix with its tests (the production string comes back
+    as a fixture if it is a retry). The DIAG log's comment points here until then.
+- **2m-c · `description-paragraphs`: the description shows its paragraphs.** It asks for up to
+  three, but `DescriptionSection` renders one `<p>`, so real line breaks collapse into spaces.
+  Render it with `paragraphs()`, as `Closing` does the tip. Tests: the paragraphs apart, a row
+  with a written `\n`. Browser at 1440, 768, 390.
+- **2n · `second-photo`: a photo between the essentials and the weather,** styled like the third
+  (`PhotoSection`).
+  - `unsplashApi` keeps six photos (`slice(0, 6)`; Unsplash's page is 10); `imageDataFixture`
+    gets a sixth.
+  - `PhotoSection` takes `image?`, `fallback` and `placeholder` instead of the `trip`, and
+    `TripPage` renders it twice: `tripImages[2]` (fallback `3.jpg`) where it is, and
+    `tripImages[5]` (fallback a bundled photo the page doesn't use yet) between `MustHaveSection`
+    (white) and `WeatherSection` (offwhite). On canvas, so no two grounds alike in a row;
+    `TripPage`'s docblock and `design-notes.md` list the new order.
+  - Rows with five photos fall back to the bundled one; the seed stays.
+  - Tests: the sixth photo and the fallback for a row with five. Browser at 1440, 768, 390.
+- **2o · `save-keeps-scroll`: answering keeps the page where it is.** After "Yes, save it" or
+  "No, thanks" the trip page jumps to the top.
+  - Cause unconfirmed. Suspect: `useSaveTrip`'s `router.refresh()` re-renders `TripPage`,
+    `loadWeather` starts new promises, and the weather sections' `<Suspense>` fall back and
+    shorten the page; the `SaveSection` swap is the other candidate.
+  - Reproduce it with the Playwright MCP first, then a failing e2e in the journey spec (it writes
+    rows): scroll to the closing, answer, `scrollY` is not back to 0. Fix what the reproduction
+    shows, keeping the refresh's purpose (Back doesn't ask again).
+- **2p · the open trip in the database — split 2p-a, 2p-b.** 2e-g keeps it in `localStorage`.
+  - Decided: the browser is told apart by an **anonymous first-party cookie**, strictly necessary
+    for a feature the visitor uses, so under ePrivacy it needs no consent banner; a **paragraph on
+    `/about`** says what it holds and that nothing tracks you.
+  - Model: `Trip.visitorId String?` and `Trip.answeredAt DateTime?`,
+    `@@index([visitorId, answeredAt])`. A discarded trip is `saved: false` with `answeredAt` set,
+    which tells it from one never answered (today both are `saved: false`). A row with no
+    visitor, every current one included, is never open. No `Visitor` table: it would hold only
+    its id.
+  - **2p-a · `open-trip-server`.** `POST /api/trip` sets `trip-ai-visitor` when missing
+    (`crypto.randomUUID()`, httpOnly, `SameSite=Lax`, `Secure` in production, a year);
+    `generateTrip` writes the `visitorId` on the row (`toTripRow`); `setTripSaved` also sets
+    `answeredAt` (a discarded trip can still be saved later); `getOpenTrip()` returns the
+    visitor's newest row with `answeredAt` null, or null. The route answers 409 while the visitor
+    has one open: a guard now, not only a guide (the rate limit is still branch 3's). Two tabs
+    starting at once can both pass: accepted. Bridge: the client keeps `localStorage` here; 2p-b
+    removes it. The `/about` paragraph. Tests: `answeredAt`, `getOpenTrip` (no cookie, none
+    open, the newest), the 409 and the cookie. `db:push:e2e` locally; the production push is the
+    user's.
+  - **2p-b · `open-trip-client`.** `useOpenTrip` is one query on `getOpenTrip()`, refetched on
+    focus again (another tab's answer shows on return); `transition`'s `rememberTrip` becomes an
+    invalidation of it, and `useSaveTrip` invalidates instead of `forgetOpenTrip`.
+    `src/lib/openTrip.ts` and its test go. A 409 shows the failure panel: "Save or discard your
+    last trip first". CLAUDE.md's "One unanswered trip" and its tables, `generation.test.ts`'s
+    table and `FormOpenTrip.test.tsx` follow; 2e-g's e2e still passes.
+- **Order from here:** 2l → 2m-a → 2m-b → 2m-c → 2n → 2o → 2p-a → 2p-b, then 2j's README once more, and branch 3.
+  (2h-a, 2h-b and 2k merged; 2i down to its last major.)
 
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`

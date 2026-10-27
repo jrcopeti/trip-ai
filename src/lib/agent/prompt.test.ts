@@ -22,7 +22,7 @@ describe("buildSystemPrompt", () => {
   });
 
   it("asks for five tours, never three activities", () => {
-    expect(prompt).toContain("exactly five");
+    expect(prompt).toContain("Exactly five");
     expect(prompt).not.toMatch(/three (must-do )?activities/i);
   });
 
@@ -33,12 +33,48 @@ describe("buildSystemPrompt", () => {
     expect(prompt).toContain("Keep the five about the same length");
   });
 
-  // No web search until branch 4, so the model points to official sources rather than quoting rules.
-  it("has the tip send a passport holder to check entry requirements, without stating them", () => {
-    expect(prompt).toContain("When a passport is given, end the tip");
-    expect(prompt).toContain("check the entry requirements for that passport");
-    expect(prompt).toContain("Do not state the rules yourself");
-    expect(prompt).toContain("When no passport is given, leave this out");
+  // No web search until branch 4, so the summary is the model's own and may be out of date.
+  it("has the tip sum up what the passport needs, then send them to confirm it", () => {
+    expect(prompt).toContain(
+      "When a passport is given and it is not the destination's own country, end the tip",
+    );
+    expect(prompt).toContain("that passport usually needs to enter this country");
+    expect(prompt).toContain("visa-free and for how long");
+    expect(prompt).toContain("confirm them with the destination's official sources before booking");
+    expect(prompt).not.toContain("Do not state the rules yourself");
+    expect(prompt).toContain("When no passport is given, say nothing about entry rules, visas or passports");
+  });
+
+  // A model's rules can be out of date; "nothing is needed" is the claim that strands a traveller.
+  it("hedges the summary and never says nothing is needed", () => {
+    expect(prompt).toContain("what, as far as you know, that passport usually needs");
+    expect(prompt).toContain("Never say that nothing is needed");
+  });
+
+  it("plans a trip home without entry rules, without assuming they live there", () => {
+    expect(prompt).toContain("When the passport is the destination's own country, they need no visa");
+    expect(prompt).toContain("do not assume they need no plug adapter or currency");
+  });
+
+  it("keeps each tour description to one paragraph", () => {
+    expect(prompt).toContain("one paragraph of 110 to 130 words, with no line breaks");
+  });
+
+  // 2l: a written "\n" showed in the tip as a backslash and an n.
+  it("asks for real line breaks between paragraphs, not the characters backslash and n", () => {
+    expect(prompt).toContain(
+      "Separate paragraphs with a real line break, not the characters backslash and n",
+    );
+  });
+
+  it("asks for the tours first, then the packing list, and names them in that order", () => {
+    const sections = ["## The tours", "## The packing list", "## The rest of the trip"];
+    const at = sections.map((heading) => prompt.indexOf(heading));
+    expect(at.every((i) => i > 0)).toBe(true);
+    expect(at).toEqual([...at].sort((a, b) => a - b));
+    expect(prompt.split("\n")[0]).toContain(
+      "return five tours, a packing list with the must-haves, a title, a short description and a tip",
+    );
   });
 
   it("offers every tour kind", () => {
@@ -116,6 +152,34 @@ describe("buildTripMessage", () => {
     expect(message).toContain("Passport: Brazil");
     const none = { ...validTripRequest, passport: undefined };
     expect(buildTripMessage(none, lisbon, [])).not.toContain("Passport");
+  });
+
+  it("marks a passport of the destination's own country", () => {
+    const home = { ...validTripRequest, passport: "Portugal" };
+    expect(buildTripMessage(home, lisbon, [])).toContain(
+      "- Passport: Portugal (the destination's own country)",
+    );
+    expect(message).toContain("- Passport: Brazil\n");
+  });
+
+  it.each([
+    ["a UK nation", "United Kingdom", "GB-SCT", "Glasgow"],
+    ["a territory", "United States", "PR", "San Juan"],
+    ["an overseas department", "France", "RE", "Saint-Denis"],
+    ["a territory's passport in that territory", "Jersey", "JE", "St Helier"],
+    ["a territory's passport in its country", "Puerto Rico", "US", "New York"],
+  ])("counts %s as its country's own", (_, passport, countryCode, name) => {
+    const req = { ...validTripRequest, passport, countryCode };
+    expect(buildTripMessage(req, { name, country: "x" }, [])).toContain(
+      `- Passport: ${passport} (the destination's own country)`,
+    );
+  });
+
+  it("treats a territory with its own immigration as abroad", () => {
+    const hongKong = { ...validTripRequest, passport: "China", countryCode: "HK" };
+    expect(buildTripMessage(hongKong, { name: "Hong Kong", country: "Hong Kong" }, [])).toContain(
+      "- Passport: China\n",
+    );
   });
 
   it("puts the note and the items inside <traveller_note>, and nothing else", () => {
