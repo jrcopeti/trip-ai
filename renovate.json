@@ -4,7 +4,7 @@
   "schedule": ["before 6am on monday"],
   "rangeStrategy": "bump",
   "constraints": {
-    "npm": "^11"
+    "npm": "^11.21.1"
   },
   "dependencyDashboard": true,
   "osvVulnerabilityAlerts": true,
