@@ -1262,7 +1262,7 @@ its own, in this order (2h is independent and can land any time):
       - **Not checked: production.** The app on Neon through `pg` with `sslmode=require` (`pg`
         treats `require` as `verify-full`; Neon's certificates are valid) wasn't read from here.
         Check the Vercel preview: `/saved-trips` and a saved trip load.
-    - **2i-h · `typescript-7`: `typescript` 5.9.3 → 7.0.2.** Done, staged. 7 is the native (Go)
+    - **2i-h · `typescript-7`: `typescript` 5.9.3 → 7.0.2.** Merged (#236). 7 is the native (Go)
       compiler: the package ships `tsc` and a version, no compiler API (`import ts from
       "typescript"` is only `{ version }`). `tsconfig.json` is unchanged and the type check finds
       nothing new; `tsc --noEmit` takes 1.5s.
@@ -1429,6 +1429,9 @@ its own, in this order (2h is independent and can land any time):
   three, but `DescriptionSection` renders one `<p>`, so real line breaks collapse into spaces.
   Render it with `paragraphs()`, as `Closing` does the tip. Tests: the paragraphs apart, a row
   with a written `\n`. Browser at 1440, 768, 390.
+  - **Done, staged.** `DescriptionSection` maps `paragraphs(description)` to one `<p>` each in a
+    `space-y-4` block, the lead size and `/75` unchanged. Browser: three paragraphs apart at 1440,
+    768 and 390, a written `\n` split with no backslash, no sideways scroll, no console errors.
 - **2n · `second-photo`: a photo between the essentials and the weather,** styled like the third
   (`PhotoSection`).
   - `unsplashApi` keeps six photos (`slice(0, 6)`; Unsplash's page is 10); `imageDataFixture`
@@ -1474,7 +1477,7 @@ its own, in this order (2h is independent and can land any time):
     last trip first". CLAUDE.md's "One unanswered trip" and its tables, `generation.test.ts`'s
     table and `FormOpenTrip.test.tsx` follow; 2e-g's e2e still passes.
 - **Order from here:** 2l → 2m-a → 2m-b → 2m-c → 2n → 2o → 2p-a → 2p-b, then 2j's README once more, and branch 3.
-  (2h-a, 2h-b and 2k merged; 2i down to its last major.)
+  (2h-a, 2h-b, 2k, 2l, 2m-a and 2m-b merged; 2i's planned majors merged, TypeScript 7 the last.)
 
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`

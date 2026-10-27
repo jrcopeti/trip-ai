@@ -3,6 +3,7 @@ import type { Trip } from "@/generated/prisma/client";
 import defaultImage2 from "@/assets/travel-photos/2.jpg";
 import Reveal from "@/components/sorbet/Reveal";
 import { defaultPlaceholder } from "@/lib/constants";
+import { paragraphs } from "@/lib/utils";
 import { MediaFrame, Section, SectionHeading } from "./Section";
 import { description as copy } from "./content";
 
@@ -16,9 +17,11 @@ function DescriptionSection({ trip }: { trip: Trip }) {
         <div>
           <SectionHeading eyebrow={copy.eyebrow} heading={copy.heading} />
           <Reveal delay={0.06}>
-            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-sorbet-ink/75 md:text-xl">
-              {description}
-            </p>
+            <div className="mt-8 max-w-2xl space-y-4 text-lg leading-relaxed text-sorbet-ink/75 md:text-xl">
+              {paragraphs(description).map((paragraph, i) => (
+                <p key={i}>{paragraph}</p>
+              ))}
+            </div>
           </Reveal>
         </div>
         <Reveal delay={0.12}>

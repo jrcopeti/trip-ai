@@ -113,6 +113,28 @@ describe("DescriptionSection", () => {
     expect(container.querySelector("img")).toHaveAttribute("src", LOCAL_IMAGES[1]);
   });
 
+  it("shows the description's paragraphs apart", () => {
+    renderWithProviders(
+      <DescriptionSection
+        trip={{ ...generatedTripFixture, description: "Tiled facades.\n\nLong light." }}
+      />,
+    );
+
+    expect(screen.getByText("Tiled facades.")).toBeInTheDocument();
+    expect(screen.getByText("Long light.")).toBeInTheDocument();
+  });
+
+  it("shows a row's written line break as a break, with no backslash", () => {
+    const { container } = renderWithProviders(
+      <DescriptionSection
+        trip={{ ...generatedTripFixture, description: "Tiled facades.\\nLong light." }}
+      />,
+    );
+
+    expect(screen.getByText("Tiled facades.")).toBeInTheDocument();
+    expect(screen.getByText("Long light.")).toBeInTheDocument();
+    expect(container.textContent).not.toContain("\\");
+  });
 });
 
 describe("ToursSection", () => {
