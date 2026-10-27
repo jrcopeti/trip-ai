@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  brokenToursString,
   generatedTripFixture,
   imageDataFixture,
   lisbonPlace,
@@ -40,13 +41,18 @@ const write = vi.mocked(prisma.trip.create);
 const { generateTrip } = await import("./anthropicApi");
 
 /** A response whose only block is a `submit_trip` call with `input`. */
-function submits(input: unknown, stop_reason = "tool_use") {
-  finalMessage.mockResolvedValue({
+function answer(input: unknown, stop_reason = "tool_use") {
+  return {
     stop_reason,
     stop_details: null,
     usage: {},
     content: [{ type: "tool_use", id: "toolu_1", name: "submit_trip", input }],
-  });
+  };
+}
+
+/** Every call answers with `input`. */
+function submits(input: unknown, stop_reason = "tool_use") {
+  finalMessage.mockResolvedValue(answer(input, stop_reason));
 }
 
 function sent() {
@@ -286,6 +292,70 @@ describe("generateTrip — the answer", () => {
   it("fails when the API call itself fails", async () => {
     finalMessage.mockRejectedValue(new Error("network"));
     await expect(generateTrip(validTripRequest)).rejects.toThrow(/generating/);
+  });
+});
+
+describe("generateTrip — a list sent as broken text", () => {
+  const broken = { ...tripDataFixture, tours: brokenToursString };
+
+  beforeEach(() => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+  });
+
+  it("asks once more, writes the second answer, and logs the field and the whole string", async () => {
+    finalMessage.mockResolvedValueOnce(answer(broken)).mockResolvedValueOnce(answer(tripDataFixture));
+
+    await generateTrip(validTripRequest);
+
+    expect(stream).toHaveBeenCalledTimes(2);
+    expect(stream.mock.calls[1][0]).toEqual(stream.mock.calls[0][0]);
+    expect(written().tours).toEqual(tripDataFixture.tours);
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining("broken"),
+      { tours: brokenToursString },
+    );
+  });
+
+  it("fails after a second broken answer, with no third call", async () => {
+    submits(broken);
+
+    await expect(generateTrip(validTripRequest)).rejects.toThrow(/invalid trip/);
+    expect(stream).toHaveBeenCalledTimes(2);
+    expect(write).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["prose in tours", "Five tours: the castle, the tram, the river…"],
+    ["a JSON object in tours", JSON.stringify({ title: "x" })],
+  ])("asks again for %s too", async (_, tours) => {
+    finalMessage
+      .mockResolvedValueOnce(answer({ ...tripDataFixture, tours }))
+      .mockResolvedValueOnce(answer(tripDataFixture));
+
+    await generateTrip(validTripRequest);
+
+    expect(stream).toHaveBeenCalledTimes(2);
+  });
+
+  it("doesn't ask again for a trip invalid in another way", async () => {
+    submits({ ...tripDataFixture, tours: tripDataFixture.tours.slice(0, 4) });
+
+    await expect(generateTrip(validTripRequest)).rejects.toThrow(/invalid trip/);
+    expect(stream).toHaveBeenCalledTimes(1);
+  });
+
+  it("stopped while the first answer lands: starts no second call", async () => {
+    const controller = new AbortController();
+    finalMessage.mockImplementationOnce(async () => {
+      controller.abort();
+      return answer(broken);
+    });
+
+    const error = await generateTrip(validTripRequest, controller.signal).catch((e) => e);
+
+    expect(error).toBe(controller.signal.reason);
+    expect(stream).toHaveBeenCalledTimes(1);
+    expect(write).not.toHaveBeenCalled();
   });
 });
 

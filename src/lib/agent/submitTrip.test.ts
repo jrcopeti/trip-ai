@@ -36,6 +36,12 @@ describe("submit_trip", () => {
     expect(schema.properties).not.toHaveProperty("requiredItems");
   });
 
+  it("lists the fields in the prompt's order, tours first", () => {
+    const order = ["tours", "objectsList", "mustHave", "title", "description", "tip"];
+    expect(Object.keys(schema.properties as object)).toEqual(order);
+    expect(submitTripTool.description).toMatch(/^Submit the finished trip: five tours, packing list, must-haves, title, description and a tip\./);
+  });
+
   it("offers the tour kinds as an enum", () => {
     const tours = (schema.properties as Record<string, JsonSchema>).tours;
     expect((tours.items as JsonSchema).properties).toMatchObject({
@@ -81,28 +87,34 @@ describe("parseListFields", () => {
   });
 
   it("leaves lists that are already lists, and parses nothing", () => {
-    expect(parseListFields(tripDataFixture)).toEqual({ input: tripDataFixture, parsed: [] });
+    expect(parseListFields(tripDataFixture)).toEqual({
+      input: tripDataFixture,
+      parsed: [],
+      broken: {},
+    });
   });
 
   it.each([
     ["prose", "the castle, then the tram"],
     ["broken JSON", '[{"title": "x"'],
     ["a JSON object", '{"title": "x"}'],
-  ])("leaves %s as the string, for the schema to refuse", (_, value) => {
-    const { input, parsed } = parseListFields({ ...tripDataFixture, tours: value });
+  ])("leaves %s as the string, for the schema to refuse, and names it as broken", (_, value) => {
+    const { input, parsed, broken } = parseListFields({ ...tripDataFixture, tours: value });
 
     expect(input).toMatchObject({ tours: value });
     expect(parsed).toEqual([]);
+    expect(broken).toEqual({ tours: value });
     expect(TripDataSchema.safeParse(input).success).toBe(false);
   });
 
   it("touches no field but the lists", () => {
-    const { input } = parseListFields({ ...tripDataFixture, title: "[1, 2]" });
+    const { input, broken } = parseListFields({ ...tripDataFixture, title: "[1, 2]" });
     expect(input).toMatchObject({ title: "[1, 2]" });
+    expect(broken).toEqual({});
   });
 
   it("passes through input that is not an object", () => {
-    expect(parseListFields(null)).toEqual({ input: null, parsed: [] });
-    expect(parseListFields("text")).toEqual({ input: "text", parsed: [] });
+    expect(parseListFields(null)).toEqual({ input: null, parsed: [], broken: {} });
+    expect(parseListFields("text")).toEqual({ input: "text", parsed: [], broken: {} });
   });
 });
