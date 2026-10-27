@@ -1373,7 +1373,7 @@ its own, in this order (2h is independent and can land any time):
     Rico and the US; the visa summary's rule excludes a home passport, so the two rules no longer
     overlap; `TERRITORY_OF` is a flat list, of inhabited territories only (no `um`). Left: a
     written `\n` handled at the boundary (`TripDataSchema`), as 2l decided against it.
-- **2m-b · `string-tours`: why the list arrives as a string, before choosing a fix.** In 2m-a's
+- **2m-b · `string-tours`: why the list arrives as a string, and one retry for it.** In 2m-a's
   real runs `tours` came back as JSON text that does not parse in 6 of 15 (2k's slip), and the
   trip fails. A retry is one answer, not the assumed one: find the cause first.
   - Measure: a scratch harness (the real prompt and tool, no row written) that keeps each raw
@@ -1384,8 +1384,47 @@ its own, in this order (2h is independent and can land any time):
   - From 2m-a's review: the prompt lists the tours first, but `submit_trip`'s properties and its
     description still put them fifth, and the model likely writes in the schema's order. The two
     disagree until this branch measures the schema's order and aligns both.
-  - Decide from the numbers, then build the fix with its tests (the production string comes back
-    as a fixture if it is a retry). The DIAG log's comment points here until then.
+  - **Aligned before measuring (2026-10-23)**, to save a variant's runs: `submit_trip`'s
+    properties, `required` and description follow the prompt (tours, packing list, must-haves,
+    title, description, tip), pinned by a test. The harness measures this order as the baseline;
+    `main`'s order is a variant only if this one doesn't settle it.
+  - **The harness** (`scripts/string-tours/harness.ts`, run with `npx tsx`): the production call
+    on `validTripRequest` in Lisbon, no forecast, no row. `--variant` (one, a list, or `all`),
+    `--runs` (15), `--concurrency` (3), `--dry` (prints the variants, calls nothing), `--print`
+    (one variant's prompt and tool). Variants, each one change against `baseline`: the schema's
+    order, `strict`, the model, the prompt's wording, `main`'s prompt before 2m-a (captured in
+    `main-before-2m-a.json`), one 2m-a change put back, the passport, thinking and effort.
+    Each run is an outcome (ok, parsed, broken, invalid, error), the order the model wrote the
+    fields in, and for a list sent as text where it breaks (the tour, the text around it); every
+    raw input goes to `scripts/string-tours/runs/` (gitignored). The SDK's version, flat tour
+    fields and a tool of its own are added only if these don't settle it.
+  - **Measured (2026-10-23), in `string-tours-results.md`:** `main`'s prompt from before 2m-a
+    breaks 4 in 15, as production's string did (one tour, then `tip: "x"`), and never thinks;
+    today's prompt breaks 0 in 30, in either schema order, and thinks in every run (about 6,600
+    tokens: 4× the cost, 3× the time). The order is not the cause; the schema stays aligned with
+    the prompt. The thinking comes from 2m-a's entry rules (the old rule put back: 0 thinking),
+    not the line-break rule or the tours' section; with no passport and a home one it thinks
+    too, so every trip in production thinks. Without thinking (`between_tools`, or effort
+    `medium` or `low`, which skip it here) today's prompt breaks 1 in 27, the old one 4 in 15;
+    with thinking 0 in 36. The thinking also writes the better trip: it spots that 1 May is
+    Labour Day in 36 of 42, never without (0 in 40).
+  - **Decided (2026-10-27): one retry, and the thinking left as it is.** No setting makes Sonnet
+    5.5 think (adaptive decides; the old prompt never did at the default `high`), so the
+    thinking can't be what protects the list. A retry protects it whatever the prompt does.
+    Without thinking it costs little: every break seen failed in 5 to 13s for under $0.015.
+    With thinking, as production runs, none was seen (0 in 36); one would come after the
+    thinking, so its retry could cost a whole trip again, up to about 80s and $0.095 (twice
+    that for the trip, inside `maxDuration`'s 300s). 2k ruled a retry out before these numbers. The thinking stays for its quality; whether it is worth 4× the cost
+    and 3× the time is branch 6's to measure, across its cases, not one trip.
+  - **Build.** `generateTrip` asks once more when a list field is still text after
+    `parseListFields` (broken JSON, prose, an object), and logs each field's length, parse error
+    and the 200 characters before the break (not the whole string: it carries the trip);
+    a second broken answer fails as today, with no third call. The same request again, not a
+    follow-up turn (branch 4's loop answers with an `is_error` tool result instead). A stop
+    between the two calls starts nothing. The DIAG block goes: the retry's log replaces it.
+    Tests first, with production's string of 2026-10-21 (715 characters, Split) as a fixture:
+    asked again and written; two broken, two calls, the error; another invalid trip, one call;
+    stopped before the second, one call and the signal's reason.
 - **2m-c · `description-paragraphs`: the description shows its paragraphs.** It asks for up to
   three, but `DescriptionSection` renders one `<p>`, so real line breaks collapse into spaces.
   Render it with `paragraphs()`, as `Closing` does the tip. Tests: the paragraphs apart, a row
@@ -1513,6 +1552,10 @@ branch's diff.
 - `scripts/usage-report.ts` (`npm run usage`): trips, $ per trip (p50/p95), seconds per trip
   (p50/p95), cache hit rate, failures by stop reason. A script, not a page, since there's no auth for
   an admin page.
+- From 2m-b: thinking tokens are output tokens, so `outputTokens` counts them; record
+  `output_tokens_details.thinking_tokens` too, and retries (2m-b's broken-list retry is a second
+  call for one trip). 2m-b's measured baseline, one trip in Lisbon: about $0.095 and 65s with
+  thinking (production since #239), $0.025 and 22s without.
 - README wrap-up (see Branches), in this phase's last branch.
 
 ### 4 · `agent-tools`: the loop, the tools, live progress
@@ -1568,6 +1611,12 @@ branch's diff.
   interests; voice (second person, each tour's reason tied to the inputs, no repetitive narration).
 - `npm run eval` writes a report: score per case, plus **$ and seconds per case** from `Generation`
   rows (`kind: eval`). Real API spend, so **ask before each run**, with the cost estimated first.
+- From 2m-b (`string-tours-results.md`): its harness (variants, raw inputs kept) is a start for
+  the runner, and its checks are candidate code graders: the calendar (1 May 2030 is Labour Day:
+  thinking trips say so, others never), the entry rule stated when a foreign passport is set,
+  tours within 110 to 130 words, no written `\n`. `validTripRequest` (Lisbon) is one case.
+  Decide thinking and effort here: whether the thinking's quality is worth 4× the cost and 3×
+  the time, and whether `low`/`medium` (a third shorter) hold.
 - README wrap-up (see Branches), in this phase's last branch.
 
 ### 7 · `agent-mcp`: trip-ai as an MCP server
@@ -1589,7 +1638,8 @@ the `src/test/fixtures/` set (extended, not duplicated).
 ## Expected cost (to be measured in branch 3)
 Rough: 30–60k input tokens (search results included), about 6k output, about 5 searches comes to
 roughly $0.15–0.25 a trip on Sonnet 5.5, and 30–90s. The usage report and evals replace this guess
-with real numbers.
+with real numbers. Measured in 2m-b for today's single call (no tools): about $0.095 and 65s with
+thinking, $0.025 and 22s without.
 
 ## Verification (each branch)
 - `npx next typegen && npx tsc --noEmit`, `npm test`, `npm run build`, and `npm run test:e2e` against

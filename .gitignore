@@ -53,3 +53,6 @@ next-env.d.ts
 
 # prisma generate (postinstall and build)
 /src/generated/
+
+# 2m-b harness output: raw model inputs
+/scripts/string-tours/runs/

@@ -79,12 +79,61 @@ async function forecastFor(req: TripRequest, place: Place): Promise<ForecastDay[
   }
 }
 
+/**
+ * Asks the model for the trip, once more when a list arrives as text that won't parse into one.
+ * Throws on a second broken answer, an otherwise invalid trip, or anything `callForTrip` throws.
+ */
 async function askForTrip(
   req: TripRequest,
   place: Place,
   forecast: ForecastDay[],
   signal?: AbortSignal,
 ): Promise<TripData> {
+  for (let attempt = 1; ; attempt++) {
+    const { input, parsed, broken } = parseListFields(
+      await callForTrip(req, place, forecast, signal),
+    );
+    if (parsed.length > 0) console.warn("generateTrip: parsed lists sent as strings:", parsed);
+    if (Object.keys(broken).length > 0) {
+      console.warn("generateTrip: lists sent as broken text:", whereBroken(broken));
+      if (attempt === 1) {
+        signal?.throwIfAborted();
+        continue;
+      }
+    }
+    const trip = TripDataSchema.safeParse(input);
+    if (!trip.success) {
+      console.error("generateTrip: invalid trip", trip.error.flatten());
+      throw new Error("The model returned an invalid trip");
+    }
+    return trip.data;
+  }
+}
+
+/** Each broken list's length, its parse error and the 200 characters before the break. */
+function whereBroken(broken: Record<string, string>) {
+  return Object.fromEntries(
+    Object.entries(broken).map(([field, text]) => {
+      let error = "parses, but not to a list";
+      try {
+        JSON.parse(text);
+      } catch (e) {
+        error = String(e);
+      }
+      // V8 quotes the input in its message, so only "in JSON at position N" is the break.
+      const at = Number(/in JSON at position (\d+)/.exec(error)?.[1] ?? text.length);
+      return [field, { length: text.length, error, before: text.slice(Math.max(0, at - 200), at) }];
+    }),
+  );
+}
+
+/** One model call; returns `submit_trip`'s input, unchecked. */
+async function callForTrip(
+  req: TripRequest,
+  place: Place,
+  forecast: ForecastDay[],
+  signal?: AbortSignal,
+): Promise<unknown> {
   let response: Anthropic.Message;
   try {
     // Streamed so an abort ends the call where it is: a `create` call runs to its end, all of
@@ -132,25 +181,5 @@ async function askForTrip(
     throw new Error("The model did not return a trip");
   }
 
-  // `strict: true` still lets the model send a list as its JSON text now and then.
-  const { input, parsed } = parseListFields(call.input);
-  if (parsed.length > 0) console.warn("generateTrip: parsed lists sent as strings:", parsed);
-  const trip = TripDataSchema.safeParse(input);
-  if (!trip.success) {
-    console.error("generateTrip: invalid trip", trip.error.flatten());
-    // Logs a list field that came as a string, whole, until 2m-b finds why it does (PLAN.md).
-    for (const [field, value] of Object.entries(input as Record<string, unknown>)) {
-      if (typeof value !== "string" || !["tours", "objectsList", "mustHave"].includes(field)) continue;
-      let parseError = "parsed";
-      try {
-        JSON.parse(value);
-      } catch (e) {
-        parseError = String(e);
-      }
-      console.error(`DIAG ${field}: length ${value.length}; ${parseError}`);
-      console.error(`DIAG ${field} raw:`, value);
-    }
-    throw new Error("The model returned an invalid trip");
-  }
-  return trip.data;
+  return call.input;
 }
