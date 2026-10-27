@@ -23,7 +23,9 @@ import PhotoSection from "./PhotoSection";
 import WeatherSection from "./WeatherSection";
 import ForecastSection from "./ForecastSection";
 import FormDetailsSection from "./FormDetailsSection";
+import { Paragraphs } from "./Section";
 import {
+  description,
   details,
   forecast,
   mustHave,
@@ -134,6 +136,37 @@ describe("DescriptionSection", () => {
     expect(screen.getByText("Tiled facades.")).toBeInTheDocument();
     expect(screen.getByText("Long light.")).toBeInTheDocument();
     expect(container.textContent).not.toContain("\\");
+  });
+
+  it("shows only its heading when the description has no paragraphs", () => {
+    const { container } = renderWithProviders(
+      <DescriptionSection trip={{ ...generatedTripFixture, description: " \\n \n " }} />,
+    );
+
+    expect(screen.getByRole("heading", { level: 2 })).toBeInTheDocument();
+    expect([...container.querySelectorAll("p")].map((p) => p.textContent)).toEqual([
+      description.eyebrow,
+    ]);
+  });
+});
+
+describe("Paragraphs", () => {
+  it("renders one paragraph per line break, in a block with the caller's classes", () => {
+    const { container } = renderWithProviders(
+      <Paragraphs text={"Tiled facades.\nLong light."} className="text-lg" />,
+    );
+
+    expect(container.firstElementChild).toHaveClass("space-y-4", "text-lg");
+    expect([...container.querySelectorAll("p")].map((p) => p.textContent)).toEqual([
+      "Tiled facades.",
+      "Long light.",
+    ]);
+  });
+
+  it("renders nothing for text with no paragraphs", () => {
+    const { container } = renderWithProviders(<Paragraphs text={" \\n "} className="text-lg" />);
+
+    expect(container).toBeEmptyDOMElement();
   });
 });
 

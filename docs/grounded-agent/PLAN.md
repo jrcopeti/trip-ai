@@ -1432,6 +1432,10 @@ its own, in this order (2h is independent and can land any time):
   - **Done, staged.** `DescriptionSection` maps `paragraphs(description)` to one `<p>` each in a
     `space-y-4` block, the lead size and `/75` unchanged. Browser: three paragraphs apart at 1440,
     768 and 390, a written `\n` split with no backslash, no sideways scroll, no console errors.
+  - **Review**, fixed: `Paragraphs` (`Section.tsx`) renders the split for both the description
+    and the tip, and nothing when the text has no paragraphs, so a blank description leaves no
+    empty block. Left: a written `\r\n` (never seen), a written `\n` in tour or object text
+    (asked for as one paragraph; no slip measured there).
 - **2n · `second-photo`: a photo between the essentials and the weather,** styled like the third
   (`PhotoSection`).
   - `unsplashApi` keeps six photos (`slice(0, 6)`; Unsplash's page is 10); `imageDataFixture`

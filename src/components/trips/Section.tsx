@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Reveal from "@/components/sorbet/Reveal";
+import { paragraphs } from "@/lib/utils";
 
 /**
  * One trip-page section: a full-bleed ground, the system's gutter and rhythm, and
@@ -51,6 +52,20 @@ export function MediaFrame({ children }: { children: ReactNode }) {
   return (
     <div className="relative aspect-[16/10] w-full lg:aspect-[4/5] overflow-hidden rounded-[2rem] bg-sorbet-ink/5">
       {children}
+    </div>
+  );
+}
+
+/** The model's text as one `<p>` per paragraph (see `paragraphs`), or nothing when it has none. */
+export function Paragraphs({ text, className }: { text: string; className: string }) {
+  const items = paragraphs(text);
+  if (items.length === 0) return null;
+
+  return (
+    <div className={`space-y-4 ${className}`}>
+      {items.map((paragraph, i) => (
+        <p key={i}>{paragraph}</p>
+      ))}
     </div>
   );
 }
