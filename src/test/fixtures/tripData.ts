@@ -1,5 +1,6 @@
 import type { Trip } from "@/generated/prisma/client";
 import type { TripData } from "@/lib/agent/submitTrip";
+import { imageDataFixture } from "./image";
 import { makeTrip } from "./trip";
 
 /**
@@ -61,6 +62,7 @@ export const brokenToursString =
  */
 export const generatedTripFixture: Trip = makeTrip({
   ...tripDataFixture,
+  tripImages: imageDataFixture.tripImages,
   tripUrl: "0a1b2c3d4e5f",
   saved: false,
 });

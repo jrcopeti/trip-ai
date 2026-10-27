@@ -17,7 +17,7 @@ export const fetchTripImage = async (city: string) => {
     const { results }: UnsplashSearch = await search.json();
     if (!results.length) throw new Error(`Unsplash: no photos of ${city}`);
 
-    const tripImages = results.slice(0, 5).map((result) => result.urls.regular);
+    const tripImages = results.slice(0, 6).map((result) => result.urls.regular);
 
     const image = await fetch(tripImages[0]);
     if (!image.ok) throw new Error(`Unsplash image: ${image.status}`);

@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import type { Trip } from "@/generated/prisma/client";
+import defaultImage3 from "@/assets/travel-photos/3.jpg";
+import defaultImage6 from "@/assets/travel-photos/14.jpg";
 import SiteFooter from "../ui/SiteFooter";
 import TitleSection from "./TitleSection";
 import DescriptionSection from "./DescriptionSection";
@@ -16,9 +18,9 @@ import loadWeather from "./loadWeather";
 /**
  * The sections both trip routes share, in the sorbet system. Grounds run
  * canvas (title) → white (description) → offwhite (tours) → canvas (photo) →
- * white (packing) → canvas (list) → white (essentials) → offwhite (weather) →
- * white (forecast) → canvas (details) → lime (the route's closing section) →
- * ink footer, never two alike in a row.
+ * white (packing) → canvas (list) → white (essentials) → canvas (photo) →
+ * offwhite (weather) → white (forecast) → canvas (details) → lime (the route's
+ * closing section) → ink footer, never two alike in a row.
  *
  * Both routes read the row on the server and hand it down; only the weather
  * sections and the closing are client components, and they get only their fields.
@@ -42,10 +44,19 @@ function TripPage({
         <TitleSection trip={trip} />
         <DescriptionSection trip={trip} />
         <ToursSection trip={trip} />
-        <PhotoSection trip={trip} />
+        <PhotoSection
+          image={trip.tripImages[2]}
+          fallback={defaultImage3}
+          placeholder={trip.placeholder}
+        />
         <PackReadySection trip={trip} />
         <ObjectsSection trip={trip} />
         <MustHaveSection trip={trip} />
+        <PhotoSection
+          image={trip.tripImages[5]}
+          fallback={defaultImage6}
+          placeholder={trip.placeholder}
+        />
         <WeatherSection city={trip.city} country={trip.country} weather={weather} />
         <ForecastSection forecast={forecast} />
         <FormDetailsSection trip={trip} />

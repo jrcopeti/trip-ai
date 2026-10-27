@@ -3,7 +3,7 @@ import { LOCAL_IMAGES } from "./trip";
 import type { ImageDataTypes } from "@/types";
 
 /**
- * What `fetchTripImage` resolves to: five Unsplash URLs plus a blur placeholder.
+ * What `fetchTripImage` resolves to: six Unsplash URLs plus a blur placeholder.
  *
  * Left un-annotated so it infers as all-strings — that is what the API module
  * actually returns, and a mocked `mockResolvedValue` is typed against it.

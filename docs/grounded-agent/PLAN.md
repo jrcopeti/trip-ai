@@ -1447,6 +1447,13 @@ its own, in this order (2h is independent and can land any time):
     `TripPage`'s docblock and `design-notes.md` list the new order.
   - Rows with five photos fall back to the bundled one; the seed stays.
   - Tests: the sixth photo and the fallback for a row with five. Browser at 1440, 768, 390.
+  - **Done, staged.** The fallback is `14.jpg` (rowing boats on a lake). `LOCAL_IMAGES` gets
+    `trip-6.jpg` (a 1200px copy of `10.jpg`); `tripFixture` and the seed keep five, so the seeded
+    saved trips show the fallback, and `generatedTripFixture` has `imageDataFixture`'s six.
+    `TripPage.test` pins the photo between the essentials and the weather, both cases.
+    Browser: a seeded row (the fallback) and a journey row (the sixth) at 1440, 768 and 390,
+    grounds white → canvas → offwhite, 4:3 at `max-w-4xl`, shown under reduced motion, no
+    sideways scroll, no console errors.
 - **2o · `save-keeps-scroll`: answering keeps the page where it is.** After "Yes, save it" or
   "No, thanks" the trip page jumps to the top.
   - Cause unconfirmed. Suspect: `useSaveTrip`'s `router.refresh()` re-renders `TripPage`,

@@ -1,8 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import { act, renderWithProviders, screen } from "@/test/render";
-import { makeTrip, weatherFixture } from "@/test/fixtures";
+import { stubSrc } from "@/test/imageStub";
+import { LOCAL_IMAGES, generatedTripFixture, makeTrip, weatherFixture } from "@/test/fixtures";
+import type { Trip } from "@/generated/prisma/client";
 import { fetchForecast, fetchWeather } from "@/app/api/openWeatherApi";
 import TripPage from "./TripPage";
+import { mustHave, weather } from "./content";
 
 vi.mock("@/app/api/openWeatherApi", () => ({ fetchWeather: vi.fn(), fetchForecast: vi.fn() }));
 vi.mock("next/image", async () => ({
@@ -33,5 +36,30 @@ describe("TripPage", () => {
     expect(fetchWeather).toHaveBeenCalledWith({ lat: 35.02107, lon: 135.75385 });
     expect(fetchForecast).toHaveBeenCalledWith({ lat: 35.02107, lon: 135.75385 });
     expect(screen.getByText("Clear")).toBeInTheDocument();
+  });
+
+  describe("the photo between the essentials and the weather", () => {
+    async function photoAfterEssentials(trip: Trip) {
+      vi.mocked(fetchWeather).mockResolvedValue(weatherFixture);
+      vi.mocked(fetchForecast).mockResolvedValue([]);
+      await act(async () => renderWithProviders(<TripPage trip={trip} closing={null} />));
+
+      const essentials = screen.getByRole("heading", { name: new RegExp(mustHave.heading.claim) });
+      const photo = essentials.closest("section")!.nextElementSibling!;
+      const next = photo.nextElementSibling!;
+      expect(next).toHaveTextContent(weather.heading.claim);
+      return photo.querySelector("img");
+    }
+
+    it("is the trip's sixth", async () => {
+      expect(await photoAfterEssentials(generatedTripFixture)).toHaveAttribute(
+        "src",
+        LOCAL_IMAGES[5],
+      );
+    });
+
+    it("is a bundled one when the row has five", async () => {
+      expect(await photoAfterEssentials(makeTrip())).toHaveAttribute("src", stubSrc("14.jpg"));
+    });
   });
 });
