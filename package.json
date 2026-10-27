@@ -40,6 +40,8 @@
     "zustand": "^5.0.16"
   },
   "devDependencies": {
+    "@babel/parser": "^8.0.7",
+    "@babel/types": "^8.0.6",
     "@eslint/eslintrc": "^3.3.7",
     "@playwright/test": "^1.64.1",
     "@tailwindcss/postcss": "^4.3.3",
@@ -60,7 +62,7 @@
     "prisma": "^7.10.1",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
-    "typescript": "^5.9.3",
+    "typescript": "^7.0.2",
     "vitest": "^5.0.5"
   }
 }
