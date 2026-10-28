@@ -16,7 +16,7 @@ async function GeneratedTripPage({ params }: PageProps<"/trips/[tripUrl]">) {
         <SaveSection
           tripUrl={trip.tripUrl}
           saved={trip.saved}
-          photo={tripPhoto(trip, 4)}
+          photo={tripPhoto(trip, "closing")}
           tip={trip.tip}
         />
       }

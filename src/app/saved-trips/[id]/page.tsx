@@ -21,7 +21,7 @@ async function SavedTripPage({ params }: PageProps<"/saved-trips/[id]">) {
         </div>
       }
       closing={
-        <FinalSection photo={tripPhoto(trip, 4)} tip={trip.tip} />
+        <FinalSection photo={tripPhoto(trip, "closing")} tip={trip.tip} />
       }
     />
   );

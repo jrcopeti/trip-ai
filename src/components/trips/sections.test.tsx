@@ -3,7 +3,6 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import type { ReactElement } from "react";
 import { act, renderWithProviders, screen, within } from "@/test/render";
-import { stubSrc } from "@/test/imageStub";
 import {
   LOCAL_IMAGES,
   generatedTripFixture,
@@ -191,7 +190,7 @@ describe("ToursSection", () => {
 describe("PhotoSection", () => {
   it("shows the photo it is given", () => {
     const { container } = renderWithProviders(
-      <PhotoSection photo={tripPhoto(generatedTripFixture, 2)} />,
+      <PhotoSection photo={tripPhoto(generatedTripFixture, "afterTours")} />,
     );
 
     expect(container.querySelector("img")).toHaveAttribute("src", LOCAL_IMAGES[2]);

@@ -35,7 +35,8 @@ function TripPage({
   closing: ReactNode;
 }) {
   const { weather, forecast } = loadWeather(trip);
-  const afterEssentials = tripPhoto(trip, 5);
+  const afterTours = tripPhoto(trip, "afterTours");
+  const afterEssentials = tripPhoto(trip, "afterEssentials");
 
   return (
     <div className="bg-sorbet-canvas font-sorbet text-sorbet-ink antialiased">
@@ -44,7 +45,7 @@ function TripPage({
         <TitleSection trip={trip} />
         <DescriptionSection trip={trip} />
         <ToursSection trip={trip} />
-        <PhotoSection photo={tripPhoto(trip, 2)} />
+        <PhotoSection photo={afterTours} />
         <PackReadySection trip={trip} />
         <ObjectsSection trip={trip} />
         <MustHaveSection trip={trip} />

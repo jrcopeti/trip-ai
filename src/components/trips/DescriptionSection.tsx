@@ -7,7 +7,7 @@ import { tripPhoto } from "./tripPhoto";
 
 function DescriptionSection({ trip }: { trip: Trip }) {
   const { description } = trip;
-  const photo = tripPhoto(trip, 1);
+  const photo = tripPhoto(trip, "description");
 
   return (
     <Section ground="bg-white">

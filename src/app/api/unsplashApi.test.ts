@@ -6,7 +6,7 @@ vi.mock("plaiceholder", () => ({ getPlaiceholder: vi.fn() }));
 
 const fetchMock = vi.fn();
 const photo = (n: number) => `https://images.unsplash.com/photo-${n}`;
-const search = { results: [0, 1, 2, 3, 4, 5, 6].map((n) => ({ urls: { regular: photo(n) } })) };
+const search = { results: [0, 1, 2, 3, 4, 5].map((n) => ({ urls: { regular: photo(n) } })) };
 const imageBytes = new Uint8Array([1, 2, 3]);
 
 beforeEach(() => {
@@ -18,14 +18,16 @@ beforeEach(() => {
 });
 
 describe("fetchTripImage", () => {
-  it("searches for the city, keeps the first six photos in order and blurs the first", async () => {
+  it("asks for six photos of the city, keeps them in order and blurs the first", async () => {
     fetchMock
       .mockResolvedValueOnce(new Response(JSON.stringify(search)))
       .mockResolvedValueOnce(new Response(imageBytes));
 
     const result = await fetchTripImage("São Paulo");
 
-    expect(new URL(fetchMock.mock.calls[0][0]).searchParams.get("query")).toBe("São Paulo");
+    const { searchParams } = new URL(fetchMock.mock.calls[0][0]);
+    expect(searchParams.get("query")).toBe("São Paulo");
+    expect(searchParams.get("per_page")).toBe("6");
     expect(fetchMock.mock.calls[1][0]).toBe(photo(0));
     expect([...vi.mocked(getPlaiceholder).mock.calls[0][0] as Buffer]).toEqual([1, 2, 3]);
     expect(result).toEqual({

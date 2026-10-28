@@ -23,7 +23,7 @@ function TitleSection({ trip }: { trip: Trip }) {
   const endDate = dayjs.utc(trip.endDate);
   const start = startDate.format("DD.MM.YYYY");
   const end = endDate.format("DD.MM.YYYY");
-  const photo = tripPhoto(trip, 0);
+  const photo = tripPhoto(trip, "title");
   const kind = copy.kind(trip.type, durationInDays(startDate, endDate));
 
   // The real dates either way: a forecast trip's "next five days" were the five

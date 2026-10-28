@@ -8,23 +8,32 @@ import image9 from "@/assets/travel-photos/9.jpg";
 import { defaultPlaceholder } from "@/lib/constants";
 
 export type TripPhoto = { src: string | StaticImageData; blurDataURL: string };
+
+/** Each trip-page slot's index in `tripImages`, and its bundled photo. */
+const slots = {
+  title: { index: 0, fallback: image1 },
+  description: { index: 1, fallback: image2 },
+  afterTours: { index: 2, fallback: image3 },
+  details: { index: 3, fallback: image4 },
+  closing: { index: 4, fallback: image9 },
+  afterEssentials: { index: 5 },
+} satisfies Record<string, { index: number; fallback?: StaticImageData }>;
+
+type Slot = keyof typeof slots;
+type SlotWithFallback = {
+  [S in Slot]: (typeof slots)[S] extends { fallback: StaticImageData } ? S : never;
+}[Slot];
 type Photos = Pick<Trip, "tripImages" | "placeholder">;
 
 /**
- * The trip page's slots, in `tripImages`' order: title, description, photo after the
- * tours, details, closing, photo after the essentials. The last has no bundled photo.
- */
-const fallbacks: (StaticImageData | undefined)[] = [image1, image2, image3, image4, image9];
-
-/**
  * The photo for one slot: the trip's own, behind the row's placeholder, or the slot's
- * bundled one, behind its own blur. Undefined only for a slot with neither.
+ * bundled one, behind its own blur. Undefined only for a slot with no bundled photo.
  */
-export function tripPhoto(trip: Photos, slot: 0 | 1 | 2 | 3 | 4): TripPhoto;
-export function tripPhoto(trip: Photos, slot: number): TripPhoto | undefined;
-export function tripPhoto(trip: Photos, slot: number): TripPhoto | undefined {
-  const image = trip.tripImages[slot];
+export function tripPhoto(trip: Photos, slot: SlotWithFallback): TripPhoto;
+export function tripPhoto(trip: Photos, slot: Slot): TripPhoto | undefined;
+export function tripPhoto(trip: Photos, slot: Slot): TripPhoto | undefined {
+  const { index, fallback }: { index: number; fallback?: StaticImageData } = slots[slot];
+  const image = trip.tripImages[index];
   if (image) return { src: image, blurDataURL: trip.placeholder ?? defaultPlaceholder };
-  const fallback = fallbacks[slot];
   return fallback && { src: fallback, blurDataURL: fallback.blurDataURL ?? defaultPlaceholder };
 }

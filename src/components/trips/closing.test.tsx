@@ -17,7 +17,7 @@ vi.mock("next/image", async () => ({
 }));
 
 const mockSave = vi.mocked(setTripSaved);
-const photo = tripPhoto(generatedTripFixture, 4);
+const photo = tripPhoto(generatedTripFixture, "closing");
 
 beforeEach(() => {
   mockSave.mockReset();

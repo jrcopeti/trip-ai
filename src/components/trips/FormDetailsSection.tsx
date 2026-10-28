@@ -30,7 +30,7 @@ function FormDetailsSection({ trip }: { trip: Trip }) {
   const endDate = dayjs.utc(trip.endDate);
   const duration = displayDuration(durationInDays(startDate, endDate));
 
-  const photo = tripPhoto(trip, 3);
+  const photo = tripPhoto(trip, "details");
 
   const { labels } = copy;
   type Row = { label: string; value: string | null | undefined; sentence?: boolean; asLabel?: boolean };
