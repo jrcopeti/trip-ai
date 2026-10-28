@@ -44,7 +44,9 @@ describe("TripPage", () => {
       await act(async () => renderWithProviders(<TripPage trip={trip} closing={null} />));
 
       const essentials = screen.getByRole("heading", { name: new RegExp(mustHave.heading.claim) });
-      return essentials.closest("section")!.nextElementSibling!;
+      const next = essentials.closest("section")?.nextElementSibling;
+      expect(next).toBeInstanceOf(HTMLElement);
+      return next!;
     }
 
     it("is the trip's sixth, before the weather", async () => {

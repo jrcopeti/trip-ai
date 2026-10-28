@@ -1443,22 +1443,27 @@ its own, in this order (2h is independent and can land any time):
     canvas; rows with five fall back to a bundled photo. The review changed the last (below).
   - **Done, staged.** `unsplashApi` asks for six (`per_page`). `tripPhoto(trip, slot)`
     (`trips/tripPhoto.ts`) picks every slot's photo by name (`title`, `description`,
-    `afterTours`, `details`, `closing`, `afterEssentials`): the trip's own behind the row's
+    `afterTours`, `details`, `closing`; the sixth is `TripPage`'s): the trip's own behind the row's
     placeholder, or the slot's bundled one behind its own blur, where every fallback used to
-    show the first Unsplash photo's blur. `afterEssentials` has no bundled photo, so a row with
+    show the first Unsplash photo's blur. The sixth has no bundled photo, so a row with
     five (every older one, and a city with fewer results) leaves the section out, and the
-    essentials meet the weather. Removing a slot's bundled photo fails the typecheck at every
-    caller that relies on it. Title, description, details, both photo sections and both
-    closings use it; `PhotoSection` and the closings take a `TripPhoto`.
+    essentials meet the weather. Title, description, details, the photo after the tours and
+    both closings use it; `PhotoSection` and the closings take a `TripPhoto`.
   - Fixtures: `LOCAL_IMAGES` gets `trip-6.jpg` (a 1200px copy of `10.jpg`); `tripFixture` and
     the seed keep five, so the seeded trips leave the section out; `generatedTripFixture` has
     `imageDataFixture`'s six.
-  - Tests: `tripPhoto.test` (each slot's fallback and blur, five vs six), `TripPage.test` (the
+  - Tests: `tripPhoto.test` (each slot's fallback and blur), `TripPage.test` (the
     sixth before the weather, left out for five), the journey spec (the sixth at 390).
     Browser: a five-photo and a six-photo row at 1440, 768 and 390, under reduced motion, no
     sideways scroll, no console errors.
   - Two reviews, fixed: the section left out rather than one bundled lake on every older trip;
     the fallbacks' blur; named slots; `ImageDataTypes`' docblock (no longer page order).
+  - Third review, fixed: `tripPhoto` covers the five slots with a bundled photo, and
+    `TripPage` reads the sixth itself (the overloads went); `unsplashApi` caps at `PHOTOS`
+    beside `per_page`; the landing deck and the saved grid pick their photo with
+    `tripPhoto(trip, "title")`; `TripPage`'s ground order moved to `design-notes.md`;
+    `PhotoSection`'s docblock to one line; CLAUDE.md says six photos. Left: Title, description
+    and details call `tripPhoto` themselves, the photo sections and closings get a `photo`.
   - Accepted: `trip-6.jpg` ships in `public/` like the other five fixtures.
   - **Parked, from the review:** the trip's own photos after the first fade in from the first
     one's blur, as only one is stored. Fix: a blur per photo (`placeholders[]` from

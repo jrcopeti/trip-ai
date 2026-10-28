@@ -5,14 +5,13 @@ import { LuCamera } from "react-icons/lu";
 import { useSavedTrips } from "@/hooks/useSavedTrips";
 
 import { TextField, Label, Input } from "@heroui/react";
-import image1 from "@/assets/travel-photos/1.jpg";
 import Polaroid from "@/components/sorbet/Polaroid";
+import { tripPhoto } from "@/components/trips/tripPhoto";
 import Reveal from "@/components/sorbet/Reveal";
 import SquiggleArrow from "@/components/sorbet/SquiggleArrow";
 import StickerBadge from "@/components/sorbet/StickerBadge";
 import SquiggleLoader from "@/components/sorbet/SquiggleLoader";
 import ErrorComponent from "@/components/ui/NotFoundComponent";
-import { defaultPlaceholder } from "@/lib/constants";
 import { badge, empty, error, header, loading, more } from "./content";
 
 
@@ -187,23 +186,26 @@ function SavedTripsDisplay() {
                 isSearchingSavedTrips ? "opacity-60" : ""
               }`}
             >
-              {savedTrips?.map((trip, i) => (
-                <li key={trip.id}>
-                  {/* Staggered along the row, not down the whole list: each row
-                      enters the viewport on its own, so `0.06 * i` would hold the
-                      twentieth card back over a second after it scrolled in. */}
-                  <Reveal delay={0.06 * (i % 3)}>
-                    <Polaroid
-                      href={`/saved-trips/${trip.id}`}
-                      image={trip.tripImages[0] ?? image1}
-                      placeholder={trip.placeholder ?? defaultPlaceholder}
-                      caption={`${trip.city.trim()}, ${trip.country}`}
-                      username={`${trip.userName}`}
-                      index={i}
-                    />
-                  </Reveal>
-                </li>
-              ))}
+              {savedTrips?.map((trip, i) => {
+                const photo = tripPhoto(trip, "title");
+                return (
+                  <li key={trip.id}>
+                    {/* Staggered along the row, not down the whole list: each row
+                        enters the viewport on its own, so `0.06 * i` would hold the
+                        twentieth card back over a second after it scrolled in. */}
+                    <Reveal delay={0.06 * (i % 3)}>
+                      <Polaroid
+                        href={`/saved-trips/${trip.id}`}
+                        image={photo.src}
+                        placeholder={photo.blurDataURL}
+                        caption={`${trip.city.trim()}, ${trip.country}`}
+                        username={`${trip.userName}`}
+                        index={i}
+                      />
+                    </Reveal>
+                  </li>
+                );
+              })}
             </ul>
           )}
 

@@ -2,10 +2,9 @@
 
 import { motion } from "framer-motion";
 
-import image1 from "@/assets/travel-photos/1.jpg";
 import type { LatestTrip } from "@/db/actions";
-import { defaultPlaceholder } from "@/lib/constants";
 import Polaroid from "@/components/sorbet/Polaroid";
+import { tripPhoto } from "@/components/trips/tripPhoto";
 import { useIntro } from "./IntroContext";
 import { hero } from "./content";
 
@@ -29,24 +28,27 @@ function HeroDeck({ trips }: Props) {
       aria-label={hero.deck.label}
       className="mt-16 flex flex-col items-center md:mt-20 md:flex-row md:items-end md:justify-center"
     >
-      {trips.map((trip, i) => (
-        <motion.li
-          key={trip.id}
-          initial={{ opacity: 0, y: 28 }}
-          animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
-          transition={{ duration: 0.6, delay: 0.3 + 0.15 * i, ease: [0.22, 1, 0.36, 1] }}
-          className={`relative ${i > 0 ? "mt-8 md:ml-5 md:mt-0" : ""} w-60 md:w-64`}
-        >
-          <Polaroid
-            href={`/saved-trips/${trip.id}`}
-            image={trip.tripImages[0] ?? image1}
-            placeholder={trip.placeholder ?? defaultPlaceholder}
-            caption={`${trip.city.trim()}, ${trip.country}`}
-            username={trip.userName}
-            index={i}
-          />
-        </motion.li>
-      ))}
+      {trips.map((trip, i) => {
+        const photo = tripPhoto(trip, "title");
+        return (
+          <motion.li
+            key={trip.id}
+            initial={{ opacity: 0, y: 28 }}
+            animate={introDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+            transition={{ duration: 0.6, delay: 0.3 + 0.15 * i, ease: [0.22, 1, 0.36, 1] }}
+            className={`relative ${i > 0 ? "mt-8 md:ml-5 md:mt-0" : ""} w-60 md:w-64`}
+          >
+            <Polaroid
+              href={`/saved-trips/${trip.id}`}
+              image={photo.src}
+              placeholder={photo.blurDataURL}
+              caption={`${trip.city.trim()}, ${trip.country}`}
+              username={trip.userName}
+              index={i}
+            />
+          </motion.li>
+        );
+      })}
     </ul>
   );
 }

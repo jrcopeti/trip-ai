@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { stubSrc } from "@/test/imageStub";
-import { LOCAL_IMAGES, generatedTripFixture, makeTrip } from "@/test/fixtures";
+import { LOCAL_IMAGES, makeTrip } from "@/test/fixtures";
 import { defaultPlaceholder } from "@/lib/constants";
 import { tripPhoto } from "./tripPhoto";
 
@@ -12,7 +12,6 @@ describe("tripPhoto", () => {
       src: LOCAL_IMAGES[2],
       blurDataURL: "data:image/png;base64,row",
     });
-    expect(tripPhoto(trip, "afterEssentials")?.src).toBe(LOCAL_IMAGES[5]);
   });
 
   it("uses the default blur when the row has no placeholder", () => {
@@ -30,10 +29,5 @@ describe("tripPhoto", () => {
 
     expect(photo.src).toMatchObject({ src: stubSrc(file) });
     expect(photo.blurDataURL).toBe(`data:image/png;base64,${file}`);
-  });
-
-  it("has nothing after the essentials for a row with five", () => {
-    expect(tripPhoto(makeTrip(), "afterEssentials")).toBeUndefined();
-    expect(tripPhoto(generatedTripFixture, "afterEssentials")).toBeDefined();
   });
 });

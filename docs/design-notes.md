@@ -55,6 +55,11 @@ page's use of them.
 Reading top to bottom, the landing page runs
 `canvas → white → offwhite → white → canvas → white → lime → ink`.
 
+Both trip routes (`TripPage`) run title canvas → description white → tours offwhite →
+photo canvas → packing white → list canvas → essentials white → photo canvas (only when
+the trip has a sixth photo) → weather offwhite → forecast white → details canvas → the
+route's closing lime → ink footer.
+
 Adjacent sections never share a ground. That alternation is what gives the page
 rhythm without any dividers.
 
