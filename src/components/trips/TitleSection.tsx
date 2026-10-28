@@ -1,11 +1,10 @@
 import type { Trip } from "@/generated/prisma/client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import defaultImage1 from "@/assets/travel-photos/1.jpg";
 import Polaroid from "@/components/sorbet/Polaroid";
-import { defaultPlaceholder } from "@/lib/constants";
 import { durationInDays } from "@/lib/utils";
 import { title as copy } from "./content";
+import { tripPhoto } from "./tripPhoto";
 
 // Row dates are calendar days at UTC midnight (`toTripRow`), so they're read in UTC.
 dayjs.extend(utc);
@@ -24,6 +23,7 @@ function TitleSection({ trip }: { trip: Trip }) {
   const endDate = dayjs.utc(trip.endDate);
   const start = startDate.format("DD.MM.YYYY");
   const end = endDate.format("DD.MM.YYYY");
+  const photo = tripPhoto(trip, 0);
   const kind = copy.kind(trip.type, durationInDays(startDate, endDate));
 
   // The real dates either way: a forecast trip's "next five days" were the five
@@ -44,8 +44,8 @@ function TitleSection({ trip }: { trip: Trip }) {
         <div className="flex justify-center md:justify-start">
           <Polaroid
             size="lg"
-            image={trip.tripImages[0] ?? defaultImage1}
-            placeholder={trip.placeholder ?? defaultPlaceholder}
+            image={photo.src}
+            placeholder={photo.blurDataURL}
             caption={title}
           />
         </div>

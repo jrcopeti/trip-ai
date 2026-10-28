@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 import { act, renderWithProviders, screen } from "@/test/render";
-import { stubSrc } from "@/test/imageStub";
 import { LOCAL_IMAGES, generatedTripFixture, makeTrip, weatherFixture } from "@/test/fixtures";
 import type { Trip } from "@/generated/prisma/client";
 import { fetchForecast, fetchWeather } from "@/app/api/openWeatherApi";
@@ -38,28 +37,25 @@ describe("TripPage", () => {
     expect(screen.getByText("Clear")).toBeInTheDocument();
   });
 
-  describe("the photo between the essentials and the weather", () => {
-    async function photoAfterEssentials(trip: Trip) {
+  describe("the photo after the essentials", () => {
+    async function afterEssentials(trip: Trip) {
       vi.mocked(fetchWeather).mockResolvedValue(weatherFixture);
       vi.mocked(fetchForecast).mockResolvedValue([]);
       await act(async () => renderWithProviders(<TripPage trip={trip} closing={null} />));
 
       const essentials = screen.getByRole("heading", { name: new RegExp(mustHave.heading.claim) });
-      const photo = essentials.closest("section")!.nextElementSibling!;
-      const next = photo.nextElementSibling!;
-      expect(next).toHaveTextContent(weather.heading.claim);
-      return photo.querySelector("img");
+      return essentials.closest("section")!.nextElementSibling!;
     }
 
-    it("is the trip's sixth", async () => {
-      expect(await photoAfterEssentials(generatedTripFixture)).toHaveAttribute(
-        "src",
-        LOCAL_IMAGES[5],
-      );
+    it("is the trip's sixth, before the weather", async () => {
+      const photo = await afterEssentials(generatedTripFixture);
+
+      expect(photo.querySelector("img")).toHaveAttribute("src", LOCAL_IMAGES[5]);
+      expect(photo.nextElementSibling).toHaveTextContent(weather.heading.claim);
     });
 
-    it("is a bundled one when the row has five", async () => {
-      expect(await photoAfterEssentials(makeTrip())).toHaveAttribute("src", stubSrc("14.jpg"));
+    it("is left out when the row has five", async () => {
+      expect(await afterEssentials(makeTrip())).toHaveTextContent(weather.heading.claim);
     });
   });
 });

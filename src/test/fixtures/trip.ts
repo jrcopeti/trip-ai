@@ -19,7 +19,7 @@ export const LOCAL_IMAGES = [
 
 /**
  * A saved `Trip` row, matching the Prisma model field for field. It has five photos, as
- * older rows do, so the seed shows the bundled fallback for the sixth.
+ * older rows do, so the seeded trips leave out the photo after the essentials.
  */
 export const tripFixture: Trip = {
   id: 1,

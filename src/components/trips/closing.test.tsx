@@ -7,6 +7,7 @@ import { setTripSaved } from "@/db/actions";
 import { generatedTripFixture, tripDataFixture } from "@/test/fixtures";
 import SaveSection from "./SaveSection";
 import FinalSection from "./FinalSection";
+import { tripPhoto } from "./tripPhoto";
 import { closing } from "./content";
 
 vi.mock("@/db/actions", () => ({ setTripSaved: vi.fn() }));
@@ -16,6 +17,7 @@ vi.mock("next/image", async () => ({
 }));
 
 const mockSave = vi.mocked(setTripSaved);
+const photo = tripPhoto(generatedTripFixture, 4);
 
 beforeEach(() => {
   mockSave.mockReset();
@@ -23,13 +25,12 @@ beforeEach(() => {
 });
 
 function renderSave(props: Partial<ComponentProps<typeof SaveSection>> = {}) {
-  const { tripUrl, saved, tripImages, placeholder, tip } = generatedTripFixture;
+  const { tripUrl, saved, tip } = generatedTripFixture;
   return renderWithProviders(
     <SaveSection
       tripUrl={tripUrl}
       saved={saved}
-      image={tripImages[4]}
-      placeholder={placeholder}
+      photo={photo}
       tip={tip}
       {...props}
     />,
@@ -111,7 +112,7 @@ describe("SaveSection", () => {
 
 describe("FinalSection", () => {
   const renderFinal = () =>
-    renderWithProviders(<FinalSection placeholder={null} tip="Bring a scarf." />);
+    renderWithProviders(<FinalSection photo={photo} tip="Bring a scarf." />);
 
   it("leads with the trip's tip", () => {
     renderFinal();
@@ -121,7 +122,7 @@ describe("FinalSection", () => {
 
   it("shows the tip's paragraphs apart, with no backslash", () => {
     const { container } = renderWithProviders(
-      <FinalSection placeholder={null} tip={"Book ahead.\\nCarry cash."} />,
+      <FinalSection photo={photo} tip={"Book ahead.\\nCarry cash."} />,
     );
 
     expect(screen.getByText("Book ahead.")).toBeInTheDocument();
@@ -130,7 +131,7 @@ describe("FinalSection", () => {
   });
 
   it("shows no tip, and no eyebrow over it, when the tip is blank", () => {
-    renderWithProviders(<FinalSection placeholder={null} tip={" \\n "} />);
+    renderWithProviders(<FinalSection photo={photo} tip={" \\n "} />);
 
     expect(screen.queryByText(closing.eyebrow)).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: closing.final.heading })).toBeInTheDocument();

@@ -20,7 +20,7 @@ import PackReadySection from "./PackReadySection";
 import ObjectsSection from "./ObjectsSection";
 import MustHaveSection from "./MustHaveSection";
 import PhotoSection from "./PhotoSection";
-import fallback from "@/assets/travel-photos/3.jpg";
+import { tripPhoto } from "./tripPhoto";
 import WeatherSection from "./WeatherSection";
 import ForecastSection from "./ForecastSection";
 import FormDetailsSection from "./FormDetailsSection";
@@ -191,18 +191,10 @@ describe("ToursSection", () => {
 describe("PhotoSection", () => {
   it("shows the photo it is given", () => {
     const { container } = renderWithProviders(
-      <PhotoSection image={LOCAL_IMAGES[2]} fallback={fallback} placeholder={null} />,
+      <PhotoSection photo={tripPhoto(generatedTripFixture, 2)} />,
     );
 
     expect(container.querySelector("img")).toHaveAttribute("src", LOCAL_IMAGES[2]);
-  });
-
-  it("falls back to the bundled photo when the search found too few", () => {
-    const { container } = renderWithProviders(
-      <PhotoSection image={undefined} fallback={fallback} placeholder={null} />,
-    );
-
-    expect(container.querySelector("img")).toHaveAttribute("src", stubSrc("3.jpg"));
   });
 });
 

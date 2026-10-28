@@ -90,7 +90,7 @@ export type FormContextType = FormStepsContextType &
   FormFieldsContextType &
   CityCheckContextType;
 export interface ImageDataTypes {
-  /** In the order the trip page shows them; `placeholder` is the blur of the first. */
+  /** In Unsplash's order, one per trip-page slot (`tripPhoto`); `placeholder` is the blur of the first. */
   tripImages: string[];
   placeholder: string | null;
 }

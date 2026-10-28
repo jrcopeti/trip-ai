@@ -1454,6 +1454,16 @@ its own, in this order (2h is independent and can land any time):
     Browser: a seeded row (the fallback) and a journey row (the sixth) at 1440, 768 and 390,
     grounds white → canvas → offwhite, 4:3 at `max-w-4xl`, shown under reduced motion, no
     sideways scroll, no console errors.
+  - **Review**, all fixed:
+    - A row with five photos leaves the section out rather than show one bundled lake on
+      every older trip; essentials (white) then meet the weather (offwhite). The seed keeps five.
+    - `tripPhoto(trip, slot)` (`trips/tripPhoto.ts`) picks every slot's photo: the trip's own
+      behind the row's placeholder, or the slot's bundled one behind its own blur, where every
+      fallback used to show the first Unsplash photo's blur. Slot 5 has no fallback. Title,
+      description, details, both photo sections and both closings use it.
+    - `ImageDataTypes`' docblock no longer claims page order; the journey spec checks the sixth
+      photo at 390.
+    - Left: the trip's own photos after the first still share its blur (one is stored).
 - **2o · `save-keeps-scroll`: answering keeps the page where it is.** After "Yes, save it" or
   "No, thanks" the trip page jumps to the top.
   - Cause unconfirmed. Suspect: `useSaveTrip`'s `router.refresh()` re-renders `TripPage`,
