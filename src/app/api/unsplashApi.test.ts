@@ -18,18 +18,20 @@ beforeEach(() => {
 });
 
 describe("fetchTripImage", () => {
-  it("searches for the city, keeps the first five photos in order and blurs the first", async () => {
+  it("asks for six photos of the city, keeps them in order and blurs the first", async () => {
     fetchMock
       .mockResolvedValueOnce(new Response(JSON.stringify(search)))
       .mockResolvedValueOnce(new Response(imageBytes));
 
     const result = await fetchTripImage("São Paulo");
 
-    expect(new URL(fetchMock.mock.calls[0][0]).searchParams.get("query")).toBe("São Paulo");
+    const { searchParams } = new URL(fetchMock.mock.calls[0][0]);
+    expect(searchParams.get("query")).toBe("São Paulo");
+    expect(searchParams.get("per_page")).toBe("6");
     expect(fetchMock.mock.calls[1][0]).toBe(photo(0));
     expect([...vi.mocked(getPlaiceholder).mock.calls[0][0] as Buffer]).toEqual([1, 2, 3]);
     expect(result).toEqual({
-      tripImages: [0, 1, 2, 3, 4].map(photo),
+      tripImages: [0, 1, 2, 3, 4, 5].map(photo),
       placeholder: "data:image/png;base64,blur",
     });
   });

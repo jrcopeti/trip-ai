@@ -1,14 +1,13 @@
 import Image from "next/image";
 import type { Trip } from "@/generated/prisma/client";
-import defaultImage2 from "@/assets/travel-photos/2.jpg";
 import Reveal from "@/components/sorbet/Reveal";
-import { defaultPlaceholder } from "@/lib/constants";
 import { MediaFrame, Paragraphs, Section, SectionHeading } from "./Section";
 import { description as copy } from "./content";
+import { tripPhoto } from "./tripPhoto";
 
 function DescriptionSection({ trip }: { trip: Trip }) {
-  const { description, placeholder } = trip;
-  const image2 = trip.tripImages[1];
+  const { description } = trip;
+  const photo = tripPhoto(trip, "description");
 
   return (
     <Section ground="bg-white">
@@ -25,11 +24,11 @@ function DescriptionSection({ trip }: { trip: Trip }) {
         <Reveal delay={0.12}>
           <MediaFrame>
             <Image
-              src={image2 ?? defaultImage2}
+              src={photo.src}
               alt=""
               fill
               placeholder="blur"
-              blurDataURL={placeholder ?? defaultPlaceholder}
+              blurDataURL={photo.blurDataURL}
               sizes="(min-width: 1024px) 400px, 100vw"
               className="object-cover"
             />

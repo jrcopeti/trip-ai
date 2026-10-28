@@ -2,26 +2,25 @@
 import Link from "next/link";
 import type { Trip } from "@/generated/prisma/client";
 import { useSaveTrip } from "@/hooks/useSaveTrip";
-import defaultImage5 from "@/assets/travel-photos/9.jpg";
-import { defaultPlaceholder } from "@/lib/constants";
 import Closing, { buttonExtras, primaryPill, secondaryPill } from "./Closing";
 import { closing as copy } from "./content";
+import type { TripPhoto } from "./tripPhoto";
 
-type Props = Pick<Trip, "tripUrl" | "saved" | "placeholder" | "tip"> & { image?: string };
+type Props = Pick<Trip, "tripUrl" | "saved" | "tip"> & { photo: TripPhoto };
 
 /**
  * The generated route's last section: keep the trip or not, then where next.
  * A saved row is already answered; a discarded one is still unsaved, so after a
  * refresh the question comes back, and yes still saves it.
  */
-function SaveSection({ tripUrl, saved, image, placeholder, tip }: Props) {
+function SaveSection({ tripUrl, saved, photo, tip }: Props) {
   const { handleYesAnswer, handleNoAnswer, isSavingTrip, isAnswered } = useSaveTrip(tripUrl);
   const answered = saved || isAnswered;
 
   return (
     <Closing
-      image={image ?? defaultImage5}
-      placeholder={placeholder ?? defaultPlaceholder}
+      image={photo.src}
+      placeholder={photo.blurDataURL}
       tip={tip}
       heading={answered ? copy.saved.heading : copy.save.question}
     >

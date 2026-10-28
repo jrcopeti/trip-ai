@@ -176,9 +176,13 @@ test.describe("trip journey", () => {
     await noHorizontalScroll(page);
 
     // Every photo shows on a phone too — the details and closing photos used to
-    // be desktop-only.
+    // be desktop-only — and the trip's sixth sits between the essentials and the weather.
     const sections = page.locator("main > section");
-    for (const section of [sections.nth(-2), sections.last()]) {
+    const afterEssentials = sections
+      .filter({ has: page.getByRole("heading", { name: /Don't leave without these/ }) })
+      .locator("xpath=following-sibling::section[1]");
+    await expect(afterEssentials.locator("img")).toHaveAttribute("src", /trip-6\.jpg/);
+    for (const section of [afterEssentials, sections.nth(-2), sections.last()]) {
       const photo = section.locator("img").last(); // the details also hold the flag
       await photo.scrollIntoViewIfNeeded();
       await expect(photo).toBeVisible();

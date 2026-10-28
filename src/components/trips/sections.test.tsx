@@ -3,7 +3,6 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import type { ReactElement } from "react";
 import { act, renderWithProviders, screen, within } from "@/test/render";
-import { stubSrc } from "@/test/imageStub";
 import {
   LOCAL_IMAGES,
   generatedTripFixture,
@@ -20,6 +19,7 @@ import PackReadySection from "./PackReadySection";
 import ObjectsSection from "./ObjectsSection";
 import MustHaveSection from "./MustHaveSection";
 import PhotoSection from "./PhotoSection";
+import { tripPhoto } from "./tripPhoto";
 import WeatherSection from "./WeatherSection";
 import ForecastSection from "./ForecastSection";
 import FormDetailsSection from "./FormDetailsSection";
@@ -188,18 +188,12 @@ describe("ToursSection", () => {
 });
 
 describe("PhotoSection", () => {
-  it("shows the generated trip's third photo", () => {
-    const { container } = renderWithProviders(<PhotoSection trip={generatedTripFixture} />);
-
-    expect(container.querySelector("img")).toHaveAttribute("src", LOCAL_IMAGES[2]);
-  });
-
-  it("falls back to a bundled photo when the search found fewer than three", () => {
+  it("shows the photo it is given", () => {
     const { container } = renderWithProviders(
-      <PhotoSection trip={makeTrip({ tripImages: ["/a.jpg", "/b.jpg"] })} />,
+      <PhotoSection photo={tripPhoto(generatedTripFixture, "afterTours")} />,
     );
 
-    expect(container.querySelector("img")).toHaveAttribute("src", stubSrc("3.jpg"));
+    expect(container.querySelector("img")).toHaveAttribute("src", LOCAL_IMAGES[2]);
   });
 });
 

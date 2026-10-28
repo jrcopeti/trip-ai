@@ -14,9 +14,13 @@ export const LOCAL_IMAGES = [
   "/fixtures/trip-3.jpg",
   "/fixtures/trip-4.jpg",
   "/fixtures/trip-5.jpg",
+  "/fixtures/trip-6.jpg",
 ] as const;
 
-/** A saved `Trip` row, matching the Prisma model field for field. */
+/**
+ * A saved `Trip` row, matching the Prisma model field for field. It has five photos, as
+ * older rows do, so the seeded trips leave out the photo after the essentials.
+ */
 export const tripFixture: Trip = {
   id: 1,
   userName: "ana",
@@ -42,7 +46,7 @@ export const tripFixture: Trip = {
   agreement: true,
   byWeather: false,
   tripUrl: "ab12c",
-  tripImages: [...LOCAL_IMAGES],
+  tripImages: LOCAL_IMAGES.slice(0, 5),
   placeholder: defaultPlaceholder,
   saved: true,
   title: "Ana's Seven Sunlit Days Across Lisbon, Portugal",
@@ -74,7 +78,7 @@ export const tripFixture2: Trip = {
   lng: 135.75385,
   tripUrl: "de34f",
   title: "Bruno's Quiet Week Among the Temples of Kyoto, Japan",
-  tripImages: [LOCAL_IMAGES[1], ...LOCAL_IMAGES.slice(2), LOCAL_IMAGES[0]],
+  tripImages: [...LOCAL_IMAGES.slice(1, 5), LOCAL_IMAGES[0]],
 };
 
 export function makeTrip(overrides: Partial<Trip> = {}): Trip {

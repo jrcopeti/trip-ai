@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getTripByUrl } from "@/db/actions";
 import TripPage from "@/components/trips/TripPage";
 import SaveSection from "@/components/trips/SaveSection";
+import { tripPhoto } from "@/components/trips/tripPhoto";
 
 async function GeneratedTripPage({ params }: PageProps<"/trips/[tripUrl]">) {
   const { tripUrl } = await params;
@@ -15,8 +16,7 @@ async function GeneratedTripPage({ params }: PageProps<"/trips/[tripUrl]">) {
         <SaveSection
           tripUrl={trip.tripUrl}
           saved={trip.saved}
-          image={trip.tripImages[4]}
-          placeholder={trip.placeholder}
+          photo={tripPhoto(trip, "closing")}
           tip={trip.tip}
         />
       }

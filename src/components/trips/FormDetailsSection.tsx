@@ -2,9 +2,7 @@ import Image from "next/image";
 import type { Trip } from "@/generated/prisma/client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import defaultImage4 from "@/assets/travel-photos/4.jpg";
 import Reveal from "@/components/sorbet/Reveal";
-import { defaultPlaceholder } from "@/lib/constants";
 import { flagUrl } from "@/lib/place";
 import { displayDuration, durationInDays } from "@/lib/utils";
 import {
@@ -17,13 +15,14 @@ import {
 } from "@/data";
 import { MediaFrame, Section, SectionHeading } from "./Section";
 import { details as copy } from "./content";
+import { tripPhoto } from "./tripPhoto";
 
 // Row dates are calendar days at UTC midnight (`toTripRow`), so they're read in UTC.
 dayjs.extend(utc);
 
 /** What the traveller entered, as the `<dl>` it is. Known options show their label. */
 function FormDetailsSection({ trip }: { trip: Trip }) {
-  const { countryCode, city, country, byWeather, note, placeholder } = trip;
+  const { countryCode, city, country, byWeather, note } = trip;
   const { travellers, ageRanges, pace, passport, type } = trip;
   const interests = trip.interests.filter((interest) => interest.trim() !== "");
 
@@ -31,7 +30,7 @@ function FormDetailsSection({ trip }: { trip: Trip }) {
   const endDate = dayjs.utc(trip.endDate);
   const duration = displayDuration(durationInDays(startDate, endDate));
 
-  const image4 = trip.tripImages[3];
+  const photo = tripPhoto(trip, "details");
 
   const { labels } = copy;
   type Row = { label: string; value: string | null | undefined; sentence?: boolean; asLabel?: boolean };
@@ -127,11 +126,11 @@ function FormDetailsSection({ trip }: { trip: Trip }) {
         <Reveal delay={0.12}>
           <MediaFrame>
             <Image
-              src={image4 ?? defaultImage4}
+              src={photo.src}
               alt=""
               fill
               placeholder="blur"
-              blurDataURL={placeholder ?? defaultPlaceholder}
+              blurDataURL={photo.blurDataURL}
               sizes="(min-width: 1024px) 400px, 100vw"
               className="object-cover"
             />

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getSingleSavedTrip } from "@/db/actions";
 import TripPage from "@/components/trips/TripPage";
 import FinalSection from "@/components/trips/FinalSection";
+import { tripPhoto } from "@/components/trips/tripPhoto";
 import ButtonBackOutlined from "@/components/ui/ButtonBackOutlined";
 
 async function SavedTripPage({ params }: PageProps<"/saved-trips/[id]">) {
@@ -20,7 +21,7 @@ async function SavedTripPage({ params }: PageProps<"/saved-trips/[id]">) {
         </div>
       }
       closing={
-        <FinalSection image={trip.tripImages[4]} placeholder={trip.placeholder} tip={trip.tip} />
+        <FinalSection photo={tripPhoto(trip, "closing")} tip={trip.tip} />
       }
     />
   );

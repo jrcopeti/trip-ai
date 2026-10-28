@@ -12,17 +12,13 @@ import WeatherSection from "./WeatherSection";
 import ForecastSection from "./ForecastSection";
 import FormDetailsSection from "./FormDetailsSection";
 import loadWeather from "./loadWeather";
+import { defaultPlaceholder } from "@/lib/constants";
+import { tripPhoto } from "./tripPhoto";
 
 /**
- * The sections both trip routes share, in the sorbet system. Grounds run
- * canvas (title) → white (description) → offwhite (tours) → canvas (photo) →
- * white (packing) → canvas (list) → white (essentials) → offwhite (weather) →
- * white (forecast) → canvas (details) → lime (the route's closing section) →
- * ink footer, never two alike in a row.
- *
- * Both routes read the row on the server and hand it down; only the weather
- * sections and the closing are client components, and they get only their fields.
- * The weather is fetched here too, at the row's coordinates, and streams in.
+ * The sections both trip routes share, grounds alternating as `design-notes.md` lists.
+ * Only the weather sections and the closing are client components, given only their
+ * fields; the weather is fetched here, at the row's coordinates, and streams in.
  */
 function TripPage({
   trip,
@@ -34,6 +30,7 @@ function TripPage({
   closing: ReactNode;
 }) {
   const { weather, forecast } = loadWeather(trip);
+  const sixth = trip.tripImages[5];
 
   return (
     <div className="bg-sorbet-canvas font-sorbet text-sorbet-ink antialiased">
@@ -42,10 +39,15 @@ function TripPage({
         <TitleSection trip={trip} />
         <DescriptionSection trip={trip} />
         <ToursSection trip={trip} />
-        <PhotoSection trip={trip} />
+        <PhotoSection photo={tripPhoto(trip, "afterTours")} />
         <PackReadySection trip={trip} />
         <ObjectsSection trip={trip} />
         <MustHaveSection trip={trip} />
+        {sixth && (
+          <PhotoSection
+            photo={{ src: sixth, blurDataURL: trip.placeholder ?? defaultPlaceholder }}
+          />
+        )}
         <WeatherSection city={trip.city} country={trip.country} weather={weather} />
         <ForecastSection forecast={forecast} />
         <FormDetailsSection trip={trip} />
