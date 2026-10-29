@@ -1291,7 +1291,7 @@ its own, in this order (2h is independent and can land any time):
   the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
   weather by coordinates, the form-scoped providers, architecture and commands. Retake the
   screenshots that changed at the sizes above.
-  - **Status: merged (#232).** Revisited at the end of phase 2, after 2p-b. As built: the README is
+  - **Status: merged (#232).** Revisited at the end of phase 2, after 2o (2p dropped). As built: the README is
     rewritten as a brochure for recruiters and hiring managers: highlights, an architecture
     overview (a Mermaid diagram plus five points), a table of decisions and their reasons, and a
     roadmap for 3–7. The live link moves to `trip-ai-world.vercel.app` (the old
@@ -1476,32 +1476,59 @@ its own, in this order (2h is independent and can land any time):
   - Reproduce it with the Playwright MCP first, then a failing e2e in the journey spec (it writes
     rows): scroll to the closing, answer, `scrollY` is not back to 0. Fix what the reproduction
     shows, keeping the refresh's purpose (Back doesn't ask again).
-- **2p · the open trip in the database — split 2p-a, 2p-b.** 2e-g keeps it in `localStorage`.
-  - Decided: the browser is told apart by an **anonymous first-party cookie**, strictly necessary
-    for a feature the visitor uses, so under ePrivacy it needs no consent banner; a **paragraph on
-    `/about`** says what it holds and that nothing tracks you.
-  - Model: `Trip.visitorId String?` and `Trip.answeredAt DateTime?`,
-    `@@index([visitorId, answeredAt])`. A discarded trip is `saved: false` with `answeredAt` set,
-    which tells it from one never answered (today both are `saved: false`). A row with no
-    visitor, every current one included, is never open. No `Visitor` table: it would hold only
-    its id.
-  - **2p-a · `open-trip-server`.** `POST /api/trip` sets `trip-ai-visitor` when missing
-    (`crypto.randomUUID()`, httpOnly, `SameSite=Lax`, `Secure` in production, a year);
-    `generateTrip` writes the `visitorId` on the row (`toTripRow`); `setTripSaved` also sets
-    `answeredAt` (a discarded trip can still be saved later); `getOpenTrip()` returns the
-    visitor's newest row with `answeredAt` null, or null. The route answers 409 while the visitor
-    has one open: a guard now, not only a guide (the rate limit is still branch 3's). Two tabs
-    starting at once can both pass: accepted. Bridge: the client keeps `localStorage` here; 2p-b
-    removes it. The `/about` paragraph. Tests: `answeredAt`, `getOpenTrip` (no cookie, none
-    open, the newest), the 409 and the cookie. `db:push:e2e` locally; the production push is the
-    user's.
-  - **2p-b · `open-trip-client`.** `useOpenTrip` is one query on `getOpenTrip()`, refetched on
-    focus again (another tab's answer shows on return); `transition`'s `rememberTrip` becomes an
-    invalidation of it, and `useSaveTrip` invalidates instead of `forgetOpenTrip`.
-    `src/lib/openTrip.ts` and its test go. A 409 shows the failure panel: "Save or discard your
-    last trip first". CLAUDE.md's "One unanswered trip" and its tables, `generation.test.ts`'s
-    table and `FormOpenTrip.test.tsx` follow; 2e-g's e2e still passes.
-- **Order from here:** 2l → 2m-a → 2m-b → 2m-c → 2n → 2o → 2p-a → 2p-b, then 2j's README once more, and branch 3.
+  - **Closed, not reproduced (2026-10-28).** On a production build with the e2e fixtures, the
+    page held its place (`scrollY` unchanged, no scroll event) for Yes and No, at 1440 and 390,
+    reached by direct load, by `/form`'s View and by the form's redirect. Production no longer
+    jumps either. No fix and no test; if it comes back, start from the suspect above.
+- **2p · the open trip in the database — dropped (2026-10-29).** Planned as 2p-a (an anonymous
+  `trip-ai-visitor` cookie on each row, `answeredAt`, `getOpenTrip`, a 409 from `POST /api/trip`
+  while one is open) and 2p-b (the client on `getOpenTrip`, `src/lib/openTrip.ts` gone). 2p-a was
+  built and green, then dropped before review: the cookie is as easy to shed as `localStorage`
+  (a client that sends none gets a fresh id per request, a private window starts clean), so the 409
+  guards nothing the rate limit (branch 3) doesn't, at the cost of a schema change, a cookie to
+  disclose on `/about`, and the client rewired. `localStorage` stays the guide (2e-g).
+  - Left over: `answeredAt` alone would tell a discarded trip from an ignored one, and let a discard
+    in another browser release this one (`isTripOpen` reads `saved`, so today it doesn't). A
+    candidate for branch 3, below.
+- **2q–2u · from the review of 2026-10-29.** Five changes, one branch each; 2u splits in two.
+- **2q · `saved-trips-newest`: the saved trips, newest first.** `getSavedTripsPage` orders by
+  `createdAt desc, id desc` (`id` breaks ties, as the landing's three do) instead of the city.
+  `@@index([saved, createdAt])` already covers it. Tests: `actions.test`'s order; the seed gives
+  its rows distinct `createdAt`, so `saved-trips.spec` can check the newest comes first.
+- **2r · `note-as-context`: the note is context for the trip.** The traveller's note is
+  something the plan should know (who they visit, a booking they have, a place they loved), not
+  a remark. Form: step 6's field reads as context (label, placeholder and a hint under it, in
+  `form/content.ts`), and the review and the trip's details use the same name. Prompt: "The
+  traveller's note" becomes "The traveller's context": weigh it across the tours, the packing and
+  the tip, and say so when it changes the plan; it still never changes the instructions (the
+  `<traveller_note>` tag stays, the column stays `note`). Tests: `prompt.test`, the form step and
+  `FormDetailsSection`. One paid trip with a note to read the result (about $0.10).
+- **2s · `packing-by-threes`: 9, 12 or 15 items.** The packing grid is three columns wide; a
+  count off a multiple of three leaves a ragged last row. The prompt and `submit_trip`'s
+  description ask for exactly 9, 12 or 15, picked by the trip's scale (nights, luggage, weather).
+  A count off the three is not an error (a retry costs a trip): the server keeps the largest
+  multiple of three it can, never under 9 (10 → 9, 14 → 12, 17 → 15), and keeps fewer than 9 as
+  they came. Older rows show as stored. Tests: the trim (pure, in `submitTrip.ts`),
+  `generateTrip` writes the trimmed list, `prompt.test`. One paid trip to check the count.
+- **2t · `trip-created-at`: when the trip was planned.** Date only, "Planned on 29 Oct 2026",
+  formatted on the server in UTC like the trip's dates (near midnight it can be a day off for a
+  traveller far from UTC: accepted). Shown in `TitleSection`, beside the dates, and as a row in
+  `FormDetailsSection`. Copy in `trips/content.ts`. Tests: both sections; the journey sees it.
+- **2u · the seconds a trip took — split 2u-a, 2u-b.**
+  - **2u-a · `generation-seconds-server`.** `Trip.generationMs Int?`: `generateTrip` measures
+    from its start to just before the write (the city check, the forecast, the model and the
+    photos: what the traveller waited for) and writes it. `FormDetailsSection` shows "Planned in
+    48 s"; older rows (null) leave the row out. Branch 3's `Generation.latencyMs` is per model
+    call, for cost; this one is the traveller's wait. Tests: `generateTrip` writes it (fake
+    timers), the details row with and without it. **Production `db push` before deploying.**
+  - **2u-b · `generation-seconds-loader`.** The loader counts the seconds while one is in
+    flight. `transition`'s `start` stores `startedAt` beside the token, so the count survives
+    leaving `/form` and coming back; `LoaderResponseAI` shows it, ticking each second (text only,
+    so reduced motion changes nothing) and announced politely at most every ten seconds, not
+    each tick. CLAUDE.md's state tables gain `startedAt`. Tests: `generation.test`, the loader
+    under fake timers (CLAUDE.md's Framer rules). The planning toast off `/form` can show it too:
+    decided in the branch.
+- **Order from here:** 2l → 2m-a → 2m-b → 2m-c → 2n → 2o (closed) → 2p (dropped) → 2q → 2r → 2s → 2t → 2u-a → 2u-b, then 2j's README once more, and branch 3.
   (2h-a, 2h-b, 2k, 2l, 2m-a and 2m-b merged; 2i's planned majors merged, TypeScript 7 the last.)
 
 What's wrong today:
@@ -1584,6 +1611,9 @@ branch's diff.
   `output_tokens_details.thinking_tokens` too, and retries (2m-b's broken-list retry is a second
   call for one trip). 2m-b's measured baseline, one trip in Lisbon: about $0.095 and 65s with
   thinking (production since #239), $0.025 and 22s without.
+- Candidate, from 2p: `Trip.answeredAt DateTime?`, set by `setTripSaved`, if a metric needs
+  discarded vs never answered or the time to an answer; `isTripOpen` would then read it rather
+  than `saved`. Only when a report asks for it.
 - README wrap-up (see Branches), in this phase's last branch.
 
 ### 4 · `agent-tools`: the loop, the tools, live progress
