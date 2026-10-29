@@ -1495,6 +1495,9 @@ its own, in this order (2h is independent and can land any time):
   `createdAt desc, id desc` (`id` breaks ties, as the landing's three do) instead of the city.
   `@@index([saved, createdAt])` already covers it. Tests: `actions.test`'s order; the seed gives
   its rows distinct `createdAt`, so `saved-trips.spec` can check the newest comes first.
+  - Done. Lisbon is seeded a day newer than Kyoto, so newest first is neither the city's order
+    nor the id's; `landing.spec`'s deck, which leaned on the shared `createdAt` (higher id
+    first), now leads with Lisbon too.
 - **2r · `note-as-context`: the note is context for the trip.** The traveller's note is
   something the plan should know (who they visit, a booking they have, a place they loved), not
   a remark. Form: step 6's field reads as context (label, placeholder and a hint under it, in
@@ -1528,7 +1531,7 @@ its own, in this order (2h is independent and can land any time):
     each tick. CLAUDE.md's state tables gain `startedAt`. Tests: `generation.test`, the loader
     under fake timers (CLAUDE.md's Framer rules). The planning toast off `/form` can show it too:
     decided in the branch.
-- **Order from here:** 2l → 2m-a → 2m-b → 2m-c → 2n → 2o (closed) → 2p (dropped) → 2q → 2r → 2s → 2t → 2u-a → 2u-b, then 2j's README once more, and branch 3.
+- **Order from here:** 2l → 2m-a → 2m-b → 2m-c → 2n → 2o (closed) → 2p (dropped) → 2q (done) → 2r → 2s → 2t → 2u-a → 2u-b, then 2j's README once more, and branch 3.
   (2h-a, 2h-b, 2k, 2l, 2m-a and 2m-b merged; 2i's planned majors merged, TypeScript 7 the last.)
 
 What's wrong today:
