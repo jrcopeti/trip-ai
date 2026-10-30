@@ -1498,6 +1498,10 @@ its own, in this order (2h is independent and can land any time):
   - Done. Lisbon is seeded a day newer than Kyoto, so newest first is neither the city's order
     nor the id's; `landing.spec`'s deck, which leaned on the shared `createdAt` (higher id
     first), now leads with Lisbon too.
+  - Review: `useSavedTrips` counts distinct ids toward the total and stops at an empty page, so
+    a trip saved mid-browse no longer ends "Show more" one short. "Newest" is newest planned
+    (`createdAt`), not newest saved; a `savedAt` waits with `answeredAt` for branch 3. Left: a
+    keyset cursor on `(createdAt, id)` instead of `skip`, which would end the shifting pages.
 - **2r · `note-as-context`: the note is context for the trip.** The traveller's note is
   something the plan should know (who they visit, a booking they have, a place they loved), not
   a remark. Form: step 6's field reads as context (label, placeholder and a hint under it, in

@@ -25,7 +25,7 @@ export type SavedTripsPage = {
 };
 
 /**
- * One page of saved trips matching `searchTerm`, newest first, plus the total to page through.
+ * One page of saved trips matching `searchTerm`, newest planned first, plus the total to page through.
  * The page size is fixed here rather than taken from the caller, so a client
  * cannot ask for the whole table in one go.
  */
@@ -63,8 +63,8 @@ export const getSavedTripsPage = async (
   const [trips, total] = await Promise.all([
     prisma.trip.findMany({
       where: whereClause,
-      // `id` breaks ties: rows written in one statement share a `createdAt`, and
-      // without a total order `skip` could show one on two pages and another on none.
+      // `id` breaks ties: two rows can share a `createdAt`, and without a total
+      // order `skip` could show one on two pages and another on none.
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       skip: safePage * SAVED_TRIPS_PAGE_SIZE,
       take: SAVED_TRIPS_PAGE_SIZE,
@@ -82,7 +82,7 @@ export type LatestTrip = Pick<
 >;
 
 /**
- * The three most recently saved trips, newest first, for the landing's hero.
+ * The three most recently planned saved trips, newest first, for the landing's hero.
  * Fixed at three for the same reason the saved-trips page size is fixed here.
  */
 export const getLatestSavedTrips = async (): Promise<LatestTrip[]> => {

@@ -176,6 +176,31 @@ describe("useSavedTrips", () => {
     await waitFor(() => {
       expect(hook.savedTrips?.map((trip) => trip.id)).toEqual([1, 2]);
     });
+    // Two distinct trips of three: the repeat is not counted as loaded.
+    expect(hook.hasMoreSavedTrips).toBe(true);
+  });
+
+  it("stops at an empty page, though the total was not reached", async () => {
+    // The trip saved mid-browse sits on page 0, already loaded, so the
+    // offsets run out one short of the total.
+    mockGetPage
+      .mockResolvedValueOnce(savedTripsPage([tripFixture], 3))
+      .mockResolvedValueOnce(savedTripsPage([tripFixture, tripFixture2], 3))
+      .mockResolvedValueOnce(savedTripsPage([], 3));
+    renderWithProviders(<Probe />);
+    await waitFor(() => expect(hook.hasMoreSavedTrips).toBe(true));
+
+    await act(async () => {
+      await hook.loadMoreSavedTrips();
+    });
+    await waitFor(() => expect(hook.hasMoreSavedTrips).toBe(true));
+    await act(async () => {
+      await hook.loadMoreSavedTrips();
+    });
+
+    expect(mockGetPage).toHaveBeenLastCalledWith("", 2);
+    await waitFor(() => expect(hook.hasMoreSavedTrips).toBe(false));
+    expect(hook.savedTrips?.map((trip) => trip.id)).toEqual([1, 2]);
   });
 
   it("keeps the loaded trips when loading more fails", async () => {
