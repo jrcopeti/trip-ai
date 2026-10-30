@@ -15,10 +15,13 @@ import { createPrismaClient } from "../src/db/client";
 import { tripCreateInput, tripFixture, tripFixture2 } from "../src/test/fixtures/trip";
 import { E2E_DATABASE_URL, mayWriteToDatabase } from "./localDatabase";
 
-/** The rows `saved-trips.spec.ts` asserts against. */
+/**
+ * The rows `saved-trips.spec.ts` and `landing.spec.ts` assert against. Lisbon is the
+ * newest, so newest first (Lisbon, Kyoto) is not also the city's order or the id's.
+ */
 const seeds = [
-  tripCreateInput(tripFixture),
-  tripCreateInput(tripFixture2),
+  { ...tripCreateInput(tripFixture), createdAt: new Date("2026-01-02T00:00:00.000Z") },
+  { ...tripCreateInput(tripFixture2), createdAt: new Date("2026-01-01T00:00:00.000Z") },
   // An unsaved trip, so the `saved: true` filter has something to exclude.
   tripCreateInput({
     ...tripFixture,

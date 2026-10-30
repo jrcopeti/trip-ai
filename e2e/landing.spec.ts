@@ -113,13 +113,13 @@ test.describe("landing page", () => {
 
   test.describe("hero deck", () => {
     // Runs against `scripts/seed-e2e.ts`: Lisbon and Kyoto saved, Oslo discarded.
-    // Seeded in one statement, so they share `createdAt` and the higher id leads.
+    // Lisbon is seeded newer, with the lower id, so the order is `createdAt`'s.
     test("deals the saved trips as polaroids, newest first", async ({ page }) => {
       const deck = page.getByRole("list", { name: "Latest saved trips" });
       const cards = deck.getByRole("link");
       await expect(cards).toHaveCount(2);
-      await expect(cards.nth(0)).toHaveAccessibleName(/^kyoto, Japan/i);
-      await expect(cards.nth(1)).toHaveAccessibleName(/^lisbon, Portugal/i);
+      await expect(cards.nth(0)).toHaveAccessibleName(/^lisbon, Portugal/i);
+      await expect(cards.nth(1)).toHaveAccessibleName(/^kyoto, Japan/i);
     });
 
     test("never deals a discarded trip", async ({ page }) => {
@@ -145,7 +145,7 @@ test.describe("landing page", () => {
 
       await first.click();
       await expect(page).toHaveURL(new RegExp(`${href}$`));
-      await expect(page.getByRole("heading", { level: 1 })).toContainText(/kyoto/i);
+      await expect(page.getByRole("heading", { level: 1 })).toContainText(/lisbon/i);
     });
   });
 

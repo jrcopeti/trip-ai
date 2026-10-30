@@ -24,9 +24,12 @@ export function useSavedTrips() {
     queryKey: ["trips", debouncedSearchTerm],
     queryFn: ({ pageParam }) => getSavedTripsPage(debouncedSearchTerm, pageParam),
     initialPageParam: 0,
+    // Counts distinct ids: a repeat (see `savedTrips`) counted twice would end
+    // the paging one short. An empty page ends it, as a trip saved mid-browse
+    // sits on a loaded page and the offsets run out under the total.
     getNextPageParam: (lastPage, pages) => {
-      const loaded = pages.reduce((n, page) => n + page.trips.length, 0);
-      return loaded < lastPage.total ? pages.length : undefined;
+      const loaded = new Set(pages.flatMap((page) => page.trips.map((trip) => trip.id))).size;
+      return lastPage.trips.length > 0 && loaded < lastPage.total ? pages.length : undefined;
     },
     // Keep the last result on screen while the next search loads, so the grid
     // does not drop to the spinner on every keystroke.

@@ -17,6 +17,14 @@ test.describe("/saved-trips", () => {
     await expect(page.getByRole("link", { name: /kyoto/i })).toBeVisible();
   });
 
+  test("lists the newest trip first", async ({ page }) => {
+    // Lisbon is seeded newer: by city (the old order) Kyoto would lead.
+    const cards = page.getByRole("link", { name: /lisbon|kyoto/i });
+    await expect(cards).toHaveCount(2);
+    await expect(cards.nth(0)).toHaveAccessibleName(/lisbon/i);
+    await expect(cards.nth(1)).toHaveAccessibleName(/kyoto/i);
+  });
+
   test("counts the trips and offers no more when they all fit", async ({ page }) => {
     // Two saved seeds, well under a page of 18.
     await expect(page.getByText("2 of 2 trips")).toBeVisible();

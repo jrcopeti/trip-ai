@@ -180,7 +180,7 @@ docker run -d --name trip-ai-e2e-pg -p 5432:5432 -e POSTGRES_PASSWORD=postgres \
 npm run db:push:e2e && npm run seed:e2e && npm run build && npm run test:e2e
 ```
 
-`saved-trips.spec.ts` asserts against the rows in `scripts/seed-e2e.ts`.
+`saved-trips.spec.ts` and the landing's hero deck in `landing.spec.ts` assert against the rows in `scripts/seed-e2e.ts`.
 `trip-journey.spec.ts` (form → trip → save/discard) is the one spec that **writes**: it
 runs as its own Playwright project after the rest, serially, deletes its own rows before
 and after, and skips unless the database is local (`scripts/localDatabase.ts`). **The
@@ -374,7 +374,7 @@ the forecast.
   `src/components/trips/loadWeather.ts` calls both from `TripPage` at the row's `lat`/`lng`, and
   the weather sections read the promises with `use()` inside their own `<Suspense>`.
 - `src/app/api/geoNamesApi.ts` — `resolvePlace(city, countryCode)`: GeoNames search plus `matchCity` (`src/lib/place.ts`); returns the canonical place or a typed `not-found`/`unavailable`.
-- `src/db/actions.ts` — Prisma server actions: `setTripSaved` (flips an unsaved row's flag, once), `getSavedTripsPage` (18 saved trips per page plus the total, for the "Show more" grid), `getTripByUrl` and `getSingleSavedTrip` (each takes the route's string and returns null for one it could never match), `isTripOpen` (reads only a row's flag, for `/form`'s open-trip check), `getLatestSavedTrips` (the landing hero's three newest).
+- `src/db/actions.ts` — Prisma server actions: `setTripSaved` (flips an unsaved row's flag, once), `getSavedTripsPage` (18 saved trips per page, newest planned first, plus the total, for the "Show more" grid), `getTripByUrl` and `getSingleSavedTrip` (each takes the route's string and returns null for one it could never match), `isTripOpen` (reads only a row's flag, for `/form`'s open-trip check), `getLatestSavedTrips` (the landing hero's three newest planned).
 - `src/db/index.ts` — singleton Prisma client, built by `createPrismaClient` (`src/db/client.ts`): the
   `pg` driver adapter, a 5s connection timeout. The seed and the journey spec build theirs there too.
   The client is generated into `src/generated/prisma` (gitignored); import its types from

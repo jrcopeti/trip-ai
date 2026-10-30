@@ -61,7 +61,7 @@ describe("setTripSaved", () => {
 });
 
 describe("getSavedTripsPage", () => {
-  const ORDER = [{ city: "asc" }, { id: "asc" }];
+  const ORDER = [{ createdAt: "desc" }, { id: "desc" }];
 
   function resolve(trips = [tripFixture, tripFixture2], total = trips.length) {
     vi.mocked(trip.findMany).mockResolvedValue(trips);
@@ -101,7 +101,7 @@ describe("getSavedTripsPage", () => {
     );
   });
 
-  it("breaks ties on id, so trips sharing a city cannot repeat across pages", async () => {
+  it("orders newest first, with id breaking ties so no trip repeats across pages", async () => {
     resolve();
 
     await getSavedTripsPage("", 1);
