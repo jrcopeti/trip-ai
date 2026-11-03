@@ -44,7 +44,7 @@ async function main() {
   if (!mayWriteToDatabase(url)) {
     throw new Error(
       `Refusing to seed ${host}: this deletes every trip. Point E2E_DATABASE_URL at a ` +
-        `throwaway database, or set ALLOW_REMOTE_E2E_SEED=1 if you really mean it.`,
+        `throwaway database.`,
     );
   }
 

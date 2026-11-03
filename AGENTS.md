@@ -45,6 +45,9 @@ settings, deploys: same rule, and ask first. Reading is always fine.
 `npm run dev` and a bare `npx prisma db push` use `.env.local`'s, then `.env`'s. On the owner's
 machine that is `.env`'s, which is production.
 
+**`npm run seed:e2e` deletes every trip in `E2E_DATABASE_URL`.** `ALLOW_REMOTE_E2E_SEED=1` lets the
+seed, the push script and `trip-journey.spec.ts` write to a remote host. Don't set it unless asked.
+
 ## Per-branch checklist
 
 Every piece of work is one branch off `main`, one PR:

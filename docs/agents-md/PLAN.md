@@ -8,11 +8,10 @@ One branch, `agents-md`:
 - `AGENTS.md` holds what passed; `CLAUDE.md` is `@AGENTS.md`.
 - Moved: testing rules to `docs/testing.md`, the generation's tables to `docs/generation.md`, folder
   rules to `e2e/`, `prisma/` and `src/app/api/`, browser checks to the `verify-in-browser` skill.
-- Enforced as well as written: the Prisma import rule (`hygiene.test.ts`), and asking before a commit,
-  push, PR write, repository write, deploy or worktree (`.claude/hooks/ask-before-publish.sh`, skipped
-  in GitHub Actions). The hook matches command text outside quotes and heredocs, and sees only Claude
-  Code's tools, so a script's own calls, anything else outward-facing, and every other agent still
-  rest on the rule in `AGENTS.md`.
+- Enforced as well as written: the Prisma import rule (`hygiene.test.ts`).
+- Commits, pushes and other outward-facing actions rest on the written rule in `AGENTS.md`. A hook and
+  then `permissions.ask` rules were tried and dropped as overhead. A container layer is planned to
+  limit what an agent can reach.
 - Done outside the branch: `Unit tests` and `E2E` added to `main`'s required checks.
 
 Left for later: the broken `lint` script, a `typecheck` script, the stale `.claude/commands/`, the
