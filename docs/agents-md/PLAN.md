@@ -19,6 +19,8 @@ What it left, split by concern:
 - `repo-tidy`, on top of this branch: the `typecheck` script; `.claude/commands/` and `prompts/`
   removed; Renovate's dead 0.x rule removed and `@prisma/adapter-pg` in its Prisma group; the comments
   in `ci.yml` no longer call every API module `"use server"`.
-- `lint`, next: `eslint.config.mjs` on `eslint-config-next`'s flat config and `lint` running
-  `eslint .`. A trial reports 19 errors and 2 warnings across 247 files: 14 `react-hooks/globals`,
-  4 `react-hooks/set-state-in-effect`, 1 `react-hooks/static-components`.
+- `lint`, left for now by decision: `npm run lint` stays broken and `npm run typecheck` stays the check
+  that works. When it's picked up: `eslint.config.mjs` on `eslint-config-next`'s flat config and `lint`
+  running `eslint .`. A trial on 2026-11-03 reported 19 errors and 2 warnings across 247 files:
+  14 `react-hooks/globals`, 4 `react-hooks/set-state-in-effect`, 1 `react-hooks/static-components`.
+  Fix or triage those in the same branch, or lint stays red and still isn't a signal.
