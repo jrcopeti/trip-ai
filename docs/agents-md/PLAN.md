@@ -14,7 +14,11 @@ One branch, `agents-md`:
   limit what an agent can reach.
 - Done outside the branch: `Unit tests` and `E2E` added to `main`'s required checks.
 
-Left for later: the broken `lint` script, a `typecheck` script, the stale `.claude/commands/`, the
-dead 0.x rule in `renovate.json`, `@prisma/adapter-pg` outside Renovate's Prisma group, the
-`prompts/` folder that nothing appears to use, the comments in `ci.yml` calling every API module
-`"use server"`.
+What it left, split by concern:
+
+- `repo-tidy`, on top of this branch: the `typecheck` script; `.claude/commands/` and `prompts/`
+  removed; Renovate's dead 0.x rule removed and `@prisma/adapter-pg` in its Prisma group; the comments
+  in `ci.yml` no longer call every API module `"use server"`.
+- `lint`, next: `eslint.config.mjs` on `eslint-config-next`'s flat config and `lint` running
+  `eslint .`. A trial reports 19 errors and 2 warnings across 247 files: 14 `react-hooks/globals`,
+  4 `react-hooks/set-state-in-effect`, 1 `react-hooks/static-components`.

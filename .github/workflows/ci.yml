@@ -6,7 +6,7 @@
 # that is migrated.
 #
 # The build needs no secrets. `prisma generate` reads only the schema, and Next
-# does not evaluate the "use server" API modules at build time — verified by
+# does not evaluate the API modules at build time — verified by
 # building in an empty environment.
 name: CI
 
@@ -90,7 +90,7 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/trip_ai_e2e
-      # The "use server" modules answer from fixtures rather than calling
+      # The API modules answer from fixtures rather than calling
       # Anthropic, Unsplash, OpenWeather and GeoNames, so the run needs no API keys.
       E2E_FIXTURES: "1"
 

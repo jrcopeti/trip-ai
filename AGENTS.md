@@ -58,7 +58,7 @@ Every piece of work is one branch off `main`, one PR:
    and "Gotchas that cost real time".
 3. Do the work, and write its tests in the same PR — a failing test first for a bug. Read
    `docs/testing.md` before writing tests.
-4. Green: `npx next typegen && npx tsc --noEmit`, `npm test`, `npm run build`, and
+4. Green: `npm run typecheck`, `npm test`, `npm run build`, and
    `npm run test:e2e` when the change touches a covered flow. `npm run lint` is broken
    and is not a signal.
 5. When the change is visible, verify it in a browser at 1440, 768 and **390** wide, with

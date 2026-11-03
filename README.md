@@ -235,9 +235,9 @@ to whatever `DATABASE_URL` resolves to, so check it first;** for the e2e databas
 ## Tests
 
 ```bash
-npx next typegen && npx tsc --noEmit   # the type check
-npm test                               # unit: Vitest + React Testing Library
-npm run test:e2e                       # end-to-end: Playwright, against a production build
+npm run typecheck   # next typegen, then tsc --noEmit
+npm test            # unit: Vitest + React Testing Library
+npm run test:e2e    # end-to-end: Playwright, against a production build
 ```
 
 The unit suite needs no network, database or keys. Prisma and the four external API modules

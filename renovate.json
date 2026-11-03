@@ -37,14 +37,7 @@
       "groupName": "anthropic sdk"
     },
     {
-      "description": "Pre-1.0, so a minor may break the agent: it waits for approval like a major.",
-      "matchPackageNames": ["@anthropic-ai/sdk"],
-      "matchCurrentVersion": "<1.0.0",
-      "matchUpdateTypes": ["minor"],
-      "dependencyDashboardApproval": true
-    },
-    {
-      "matchPackageNames": ["prisma", "@prisma/client"],
+      "matchPackageNames": ["prisma", "@prisma/client", "@prisma/adapter-pg"],
       "groupName": "prisma"
     }
   ]
