@@ -575,7 +575,7 @@ Each of these was a bug, not a theory.
 9. `priority` on a `next/image` only when it is above the fold on first paint — never
    inside a `Reveal`, which starts it at opacity 0, so the preload buys nothing.
 10. Check it at 390px — the custom `xs` breakpoint is there for a reason.
-11. Verify and test as CLAUDE.md's per-branch checklist says.
+11. Verify and test as `AGENTS.md`'s per-branch checklist says.
 
 ## Known debt
 
