@@ -1532,8 +1532,8 @@ its own, in this order (2h is independent and can land any time):
     flight. `transition`'s `start` stores `startedAt` beside the token, so the count survives
     leaving `/form` and coming back; `LoaderResponseAI` shows it, ticking each second (text only,
     so reduced motion changes nothing) and announced politely at most every ten seconds, not
-    each tick. CLAUDE.md's state tables gain `startedAt`. Tests: `generation.test`, the loader
-    under fake timers (CLAUDE.md's Framer rules). The planning toast off `/form` can show it too:
+    each tick. `docs/generation.md`'s state tables gain `startedAt`. Tests: `generation.test`, the loader
+    under fake timers (`docs/testing.md`). The planning toast off `/form` can show it too:
     decided in the branch.
 - **Order from here:** 2l → 2m-a → 2m-b → 2m-c → 2n → 2o (closed) → 2p (dropped) → 2q (done) → 2r → 2s → 2t → 2u-a → 2u-b, then 2j's README once more, and branch 3.
   (2h-a, 2h-b, 2k, 2l, 2m-a and 2m-b merged; 2i's planned majors merged, TypeScript 7 the last.)

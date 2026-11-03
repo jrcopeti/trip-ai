@@ -108,7 +108,7 @@ The existing `if (parsedData.trip === null)` check was never reachable (the sche
 ## Files to modify
 
 - `src/app/api/openaiApi.ts` — full rewrite (primary change)
-- `CLAUDE.md` — replace `OPENAI_API_KEY` with `ANTHROPIC_API_KEY` in the Environment Variables section
+- `.env.example` — replace `OPENAI_API_KEY` with `ANTHROPIC_API_KEY`
 - `.env.local` — add `ANTHROPIC_API_KEY=...` and remove or comment out `OPENAI_API_KEY`
 
 ## After updating

@@ -1,7 +1,7 @@
 /**
  * The trip generation as one state, the one in flight and the last trip and failure: `transition`
  * changes it and returns the effects to run; `isLoading`, `asksBeforeReload` and `toastsFor` follow.
- * As tables, each row asserted: CLAUDE.md, "The generation's state, as tables".
+ * As tables, each row asserted: `docs/generation.md`.
  */
 
 export type GenerationTrip =
