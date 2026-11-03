@@ -82,17 +82,21 @@ describe("the old look is gone", () => {
   });
 });
 
-// A custom toast shown another way stays drawn and focusable for 1s once dismissed; a removed
-// one, if under the cursor, leaves the Toaster's hover pause on and every later toast stuck.
 describe("the Prisma client", () => {
   it("is imported from where it is generated", () => {
-    const direct = files.filter(
-      ({ path, text }) => !path.startsWith("src/generated/") && /from\s+["']@prisma\/client["']/.test(text),
-    );
-    expect(direct.map(({ path }) => path)).toEqual([]);
+    const direct = /["']@prisma\/client["']/;
+    const outsideSrc = [
+      ...sourceFiles(join(root, "scripts")),
+      ...sourceFiles(join(root, "e2e")),
+      join(root, "prisma.config.ts"),
+    ].filter((path) => direct.test(readFileSync(path, "utf8")));
+
+    expect([...offenders(direct), ...outsideSrc]).toEqual([]);
   });
 });
 
+// A custom toast shown another way stays drawn and focusable for 1s once dismissed; a removed
+// one, if under the cursor, leaves the Toaster's hover pause on and every later toast stuck.
 describe("toasts", () => {
   const app = files.filter(({ path }) => !/\.test\.tsx?$/.test(path));
 

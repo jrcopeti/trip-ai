@@ -41,8 +41,9 @@ agree on where the work is.
 Corollary for anything outward-facing — pushing, PR bodies, PR comments, repository
 settings, deploys: same rule, and ask first. Reading is always fine.
 
-**`.env` holds the production `DATABASE_URL`.** `npm run dev` and a bare `npx prisma db push`
-both use it here, as `.env.local` doesn't set one.
+**Check which database `DATABASE_URL` resolves to before running anything that writes.**
+`npm run dev` and a bare `npx prisma db push` use `.env.local`'s, then `.env`'s. On the owner's
+machine that is `.env`'s, which is production.
 
 ## Per-branch checklist
 
@@ -104,7 +105,8 @@ what you write; older code doesn't all meet them yet.
 - **`README.md`** — the architecture, running locally, CI.
 - **`docs/<topic>/PLAN.md`** — one folder and plan per piece of work. Tracked. Read
   the relevant plan at the start of a task and keep it updated as the work changes
-  shape; churn there is expected. A new piece of work gets a new folder.
+  shape; churn there is expected. A new piece of work gets a new folder. The plan in flight is
+  `docs/grounded-agent/PLAN.md`; the others are records.
 - **A folder's own `AGENTS.md`** — rules only that folder needs: `e2e/`, `prisma/`, `src/app/api/`.
   Each has a `CLAUDE.md` beside it that imports it, as Claude Code won't load it otherwise.
 

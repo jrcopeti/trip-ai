@@ -228,7 +228,9 @@ npm run dev
 | `OPEN_WEATHER_KEY` | Weather and forecast |
 | `GEONAMES_USERNAME` | City check (server-only) |
 
-After a Prisma schema change: `npx prisma generate`, then `npx prisma db push`.
+After a Prisma schema change: `npx prisma generate`, then `npx prisma db push`. **That push writes
+to whatever `DATABASE_URL` resolves to, so check it first;** for the e2e database, use
+`npm run db:push:e2e`.
 
 ## Tests
 
@@ -238,7 +240,7 @@ npm test                               # unit: Vitest + React Testing Library
 npm run test:e2e                       # end-to-end: Playwright, against a production build
 ```
 
-The unit suite needs no network, database or keys. Prisma and the three external API modules
+The unit suite needs no network, database or keys. Prisma and the four external API modules
 are mocked at the module edge.
 
 ### End-to-end, locally

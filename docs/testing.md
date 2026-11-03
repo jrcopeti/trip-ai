@@ -11,8 +11,9 @@ Unit tests sit beside the code as `*.test.ts(x)`; specs are in `e2e/`, which has
   and the e2e fixtures use it too.
 - **Mock boundaries at the module edge, never deeper.** `@/db` for the Prisma singleton,
   `@/db/actions` for components, and the API modules (`anthropicApi`, `geoNamesApi`, `openWeatherApi`,
-  `unsplashApi`) for their callers. Only an API module's own test goes beneath it, to `fetch` or the
-  SDK. No network, no database, no keys.
+  `unsplashApi`) for their callers. Only the test of the code making a call goes beneath it, to `fetch`
+  or the SDK: an API module's own test, or `requestTrip.test.ts`. Another test may stub `fetch` to
+  assert it is never called. No network, no database, no keys.
 - **`whileInView` never fires in jsdom**, so assert that `Reveal`'s children render, never that an
   animation ran.
 - **RTL can't render async server components**, so cover their logic as a pure helper and the page
@@ -27,7 +28,7 @@ work. E2E runs on the real clock; its forecast fixture moves itself to now.
 
 ## Fake timers over a Framer animation
 
-Most tests fake only `Date`. A test that has to advance a Framer animation copies the `beforeEach`
+To pin the date alone, fake only `Date`. A test that has to advance a Framer animation copies the `beforeEach`
 and `afterEach` of `LoaderResponseAI.test.tsx`, whose comments say why each is needed.
 Don't assert an animated swap at an exact timestamp. Advance in small steps until the
 expected content is on screen, with a budget; that still pins the order, which is what

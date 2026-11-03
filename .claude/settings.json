@@ -2,7 +2,7 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash|EnterWorktree",
+        "matcher": "Bash|EnterWorktree|Agent",
         "hooks": [
           {
             "type": "command",
