@@ -30,14 +30,14 @@ The brain and `--docker` share this branch by the owner's decision, against the 
 - **`--docker` builds its image in `./box`,** and `docker/compose.yaml` only runs it (`build: !reset null`).
   Compose's bake refuses `build.network: host` with no way to allow it, and a build on the container
   network is blocked by the VM's firewall. A prebuild alone can't feed Compose: the network mode is part
-  of the build cache key.
+  of the build cache key. It builds only when the box has no container, as `up` wouldn't use a new image.
 - **`./box` refuses a taken port before it starts anything.** Compose hides the reason, and the next
   `./box` reuses a container left with no network, which then fails on DNS.
 - **The Playwright MCP line uses `--scope local`,** as `--scope project` would edit the tracked `.mcp.json`.
 - **Gone, as this repo has none of it:** Better Auth, `db:migrate`, `db:seed`, `test:unit`, `test:http`,
   `test:ui`, the CI gate workflow.
 
-Renovate doesn't see the pins in `Dockerfile` and `compose.yaml`. When `prisma` or `@playwright/test`
+Renovate doesn't see the pins in the `Dockerfile`, the one place they live. When `prisma` or `@playwright/test`
 moves in `package-lock.json`, bump them by hand: a stale Playwright fails the e2e run, and a stale
 Prisma engine runs without complaint.
 
@@ -52,7 +52,10 @@ Most are in ticket-bay too. #1 and #2 of that review are fixed.
 - **"Reopen in Container" on the VM** can start without the VM's firewall after a reboot.
 - **Rerunning `init-firewall.sh`** in a running box cuts its network.
 - **The Postgres health check** can pass before TCP is up or `trip_ai_e2e` exists.
-- **`--docker` rebuilds on every command,** and versions are pinned in both `compose.yaml` and the `Dockerfile`.
+- **The box can reach your machine through `.git`.** `.git/config`, `.git/hooks` and `.git/commondir` are
+  writable, and Git on the Mac, an editor's included, runs what they name. Tested: a planted `.git/commondir`
+  ran a command on `git status`, so read-only mounts on `config` and `hooks` don't close it, and a read-only
+  `.git` stops staging in the box. Left documented. A separate clone or "Reopen in Container" closes it.
 - `verify-in-browser` can't run in the box, and Playwright MCP may move to the project's `.mcp.json`.
 
 Decided or waiting:

@@ -45,10 +45,14 @@ if [ "${1:-}" = "--docker" ]; then
   config=(--config "$repo_root/.devcontainer/docker/devcontainer.json")
   # The VM's firewall blocks the build's apt and browser downloads on the container network, and
   # Compose's bake refuses `build.network: host`. So it is built here, and docker/compose.yaml only runs it.
-  if ! build_log="$(docker build --network host --build-arg TZ="${TZ:-UTC}" -t tripai-box "$repo_root/.devcontainer" 2>&1)"; then
-    echo "$build_log" >&2
-    echo "box: could not build the image (see the log above)." >&2
-    exit 1
+  # Only with no container: `up` keeps an existing one on its old image.
+  if [ -z "$(docker ps -aq --filter "label=devcontainer.local_folder=$repo_root")" ]; then
+    echo "box: building the image (the first time takes several minutes)..." >&2
+    if ! build_log="$(docker build --network host --build-arg TZ="${TZ:-UTC}" -t tripai-box "$repo_root/.devcontainer" 2>&1)"; then
+      echo "$build_log" >&2
+      echo "box: could not build the image (see the log above)." >&2
+      exit 1
+    fi
   fi
 fi
 

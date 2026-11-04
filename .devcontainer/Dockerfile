@@ -50,16 +50,16 @@ RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
 
 # Playwright MCP, pinned, with its browser downloaded here at build time: the firewall allows no
 # browser downloads, so @latest would ask for a browser the running box cannot fetch.
-# Keep the version in sync with compose.yaml and the `claude mcp add` line in README.md.
+# Keep the version in sync with the `claude mcp add` line in README.md.
 ARG PLAYWRIGHT_MCP_VERSION=0.0.83
 RUN npx --yes @playwright/mcp@${PLAYWRIGHT_MCP_VERSION} install-browser chrome-for-testing
 
 # The browser of the e2e suite (npm run test:e2e), for the same reason.
-# Keep the version in sync with @playwright/test in package-lock.json and compose.yaml.
+# Keep the version in sync with @playwright/test in package-lock.json.
 RUN npx --yes playwright@${PLAYWRIGHT_VERSION} install chromium
 
 # Prisma's schema engine, for the same reason: `npm ci` and `prisma db push` otherwise fetch it from
-# binaries.prisma.sh. Keep the version in sync with prisma in package-lock.json and compose.yaml.
+# binaries.prisma.sh. Keep the version in sync with prisma in package-lock.json.
 ARG PRISMA_VERSION=7.10.1
 RUN mkdir -p /home/node/prisma-engine && cd /home/node/prisma-engine && \
   npm install --no-audit --no-fund @prisma/engines@${PRISMA_VERSION} && \

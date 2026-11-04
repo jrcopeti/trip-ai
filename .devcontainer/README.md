@@ -94,7 +94,7 @@ brew install colima
 - The brain's deploy key is readable in the box: anything in the box can read it, and read and write the brain repo with it (and nothing else). What the box pushes to the brain, every agent that pulls the brain reads next, including agents on your laptop. Read the brain's `git log -p` for changes to `skills/` and its scripts (`sync.mjs`, `install.mjs`) before you run them on your laptop.
 - Allowed hosts are a way out too (for example GitHub, if you log `gh` in, or with any token the agent is given), and DNS lookups still leave the box. GitHub's ranges are allowed on every port, so SSH to GitHub works too (the brain's deploy key uses it).
 - The repo folder is shared with your machine, so the agent's edits land on your disk. Git is the undo button.
-- What the box writes can still run on your machine: `.git/hooks`, `package.json` scripts and `.vscode/` are all in the shared folder. Read the diff before you run the repo outside the box.
+- What the box writes can run on your machine, with no step from you: Git on your Mac, including your editor's background `git status`, runs commands named in `.git/config`, `.git/commondir` or a nested repo's config, and `.git/hooks`, `package.json` scripts and `.vscode/` can run too. `git diff` shows none of `.git`. Read-only mounts don't close this; a separate clone or "Reopen in Container" does.
 - `./box --docker` is weaker on the network: see "What `--docker` does not protect" above.
 
 Use it on repos you trust, and watch what the agent does.
