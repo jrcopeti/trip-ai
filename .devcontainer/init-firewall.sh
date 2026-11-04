@@ -3,14 +3,15 @@
 # Based on Anthropic's reference init-firewall.sh:
 # https://github.com/anthropics/claude-code/blob/main/.devcontainer/init-firewall.sh (MIT)
 # Changes: DNS only to the container's own resolvers, no outbound SSH except to GitHub (its ranges
-# are allowed on every port), Claude sign-in domains added, IPv6 egress dropped, npm registry
-# verified, the box's Postgres allowed, an --engine mode for the Docker engine VM of `./box --docker`.
+# are allowed on every port), Claude sign-in domains and Context7's MCP host added, IPv6 egress
+# dropped, npm registry verified, the box's Postgres allowed, an --engine mode for the Docker engine
+# VM of `./box --docker`.
 #   init-firewall.sh           the box itself (postStartCommand)
 #   init-firewall.sh --engine <box IP>  the engine VM: the box keeps the allowlist, other containers get none
 set -euo pipefail
 IFS=$'\n\t'
 
-# fill_allowlist <ipset>: GitHub's published ranges, Claude Code (API + sign-in) and the npm registry.
+# fill_allowlist <ipset>: GitHub's published ranges, Claude Code (API + sign-in), the npm registry and Context7's MCP host.
 fill_allowlist() {
   local set="$1" gh_ranges cidr domain ips ip
   # GitHub (git over HTTPS, gh, api.github.com): the published IP ranges.
@@ -21,13 +22,15 @@ fill_allowlist() {
     ipset add "$set" "$cidr"
   done < <(echo "$gh_ranges" | jq -r '(.web + .api + .git)[]' | aggregate -q)
 
-  # Claude Code (API + sign-in) and the npm registry. Nothing else.
+  # Claude Code (API + sign-in), the npm registry and Context7's MCP host. Nothing else.
+  # Not context7.com, which Context7's npm server calls: it resolves to an IP shared across Vercel.
   for domain in \
     "api.anthropic.com" \
     "claude.ai" \
     "claude.com" \
     "platform.claude.com" \
-    "registry.npmjs.org"; do
+    "registry.npmjs.org" \
+    "mcp.context7.com"; do
     ips=$(dig +noall +answer A "$domain" | awk '$4 == "A" {print $5}')
     [ -n "$ips" ] || { echo "ERROR: failed to resolve $domain"; exit 1; }
     while read -r ip; do
@@ -59,7 +62,7 @@ if [ "${1:-}" = "--engine" ]; then
   iptables -A DOCKER-USER ! -o "$EXT_IF" -j RETURN
   iptables -A DOCKER-USER -s "$BOX_IP" -m set --match-set box-egress dst -j RETURN
   iptables -A DOCKER-USER -j REJECT --reject-with icmp-admin-prohibited
-  echo "Engine firewall OK: the box ($BOX_IP) reaches GitHub, npm and Claude; other containers reach only containers."
+  echo "Engine firewall OK: the box ($BOX_IP) reaches GitHub, npm, Claude and Context7; other containers reach only containers."
   exit 0
 fi
 

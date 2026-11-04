@@ -9,8 +9,9 @@ what the box does is in `.devcontainer/README.md`.
 
 | Branch | Holds | State |
 | --- | --- | --- |
-| `dev-container` | The box: `./box`, the image, the firewall, its Postgres, Playwright and Playwright MCP, no connectors. The brain. `./box --docker`. The README | Committed, with the review's two fixes staged |
-| `rubik-self-hosted` | Rubik through `next/font/local`, as Caveat is, so `npm run build` runs behind the firewall | Committed, with the review's fixes staged |
+| `dev-container` | The box: `./box`, the image, the firewall, its Postgres, Playwright and Playwright MCP, no connectors. The brain. `./box --docker`. The README | Merged (#253) |
+| `rubik-self-hosted` | Rubik through `next/font/local`, as Caveat is, so `npm run build` runs behind the firewall | Merged (#254) |
+| `playwright-mcp-project` | Playwright, Chrome DevTools and Context7 in the tracked `.mcp.json`, with what each needs to run in the box | Staged, not committed |
 
 The brain and `--docker` share this branch by the owner's decision, against the one-concern rule.
 
@@ -33,13 +34,30 @@ The brain and `--docker` share this branch by the owner's decision, against the 
   of the build cache key. It builds only when the box has no container, as `up` wouldn't use a new image.
 - **`./box` refuses a taken port before it starts anything.** Compose hides the reason, and the next
   `./box` reuses a container left with no network, which then fails on DNS.
-- **The Playwright MCP line uses `--scope local`,** as `--scope project` would edit the tracked `.mcp.json`.
+- **MCP servers are at project scope,** in the tracked `.mcp.json`, so the box needs no `claude mcp add`.
 - **Gone, as this repo has none of it:** Better Auth, `db:migrate`, `db:seed`, `test:unit`, `test:http`,
   `test:ui`, the CI gate workflow.
 
-Renovate doesn't see the pins in the `Dockerfile`, the one place they live. When `prisma` or `@playwright/test`
-moves in `package-lock.json`, bump them by hand: a stale Playwright fails the e2e run, and a stale
-Prisma engine runs without complaint.
+Renovate doesn't see the pins in the `Dockerfile`. When `prisma` or `@playwright/test` moves in
+`package-lock.json`, bump them by hand: a stale Playwright fails the e2e run, and a stale Prisma engine runs
+without complaint. Playwright MCP's pin is in the `Dockerfile` and `.mcp.json`; bump both together.
+
+## The project's MCP servers
+
+The three servers can't run in the box from a plain `claude mcp add`:
+
+- **Playwright is pinned to 0.0.83, not `@latest`.** The image holds that version's browser and the firewall
+  blocks browser downloads: 0.0.84 fails in the box with `Browser "chrome-for-testing" is not installed`.
+  The Mac needs the same browser for this entry, installed once. The owner removed the Mac's user-scope
+  `@latest` entry, which had the same name, so this is the only Playwright server in this repo.
+- **Chrome DevTools gets a launcher at `/opt/google/chrome/chrome`.** Linux arm64 has no Chrome, and Chromium
+  exits on start without `--no-sandbox`. Living in the image, it leaves one `.mcp.json` entry for both: the
+  Mac opens its real Chrome. `--no-usage-statistics` and `--no-performance-crux` stop calls to Google, which
+  the firewall would block in the box and which would send trace URLs out on the Mac.
+- **Context7 is the remote server, and the firewall allows `mcp.context7.com`.** This is the first host past
+  "GitHub, npm and Claude", and the owner decides it at review. The npm server calls `context7.com`,
+  which resolves to `76.76.21.21`, shared across Vercel: the reason Google Fonts was refused. `mcp.context7.com`
+  resolves to one AWS load balancer IP. It takes free text with no key, so it is a way out for anything in the box.
 
 ## Open
 
@@ -56,7 +74,9 @@ Most are in ticket-bay too. #1 and #2 of that review are fixed.
   writable, and Git on the Mac, an editor's included, runs what they name. Tested: a planted `.git/commondir`
   ran a command on `git status`, so read-only mounts on `config` and `hooks` don't close it, and a read-only
   `.git` stops staging in the box. Left documented. A separate clone or "Reopen in Container" closes it.
-- `verify-in-browser` can't run in the box, and Playwright MCP may move to the project's `.mcp.json`.
+- `verify-in-browser` can't run in the box.
+- **Context7's DNS can stop the box.** The firewall fails closed when an allowlisted name doesn't resolve, as
+  for any host on the list. Its IP is read at start, so if it changes, Context7 fails until the box restarts.
 
 Decided or waiting:
 
@@ -132,3 +152,21 @@ The review's two fixes, on a throwaway copy with a name in the allowlist that ca
 
 Not exercised: "Reopen in Container" in an editor,
 `--docker`'s e2e suite (open item 1), and the brain over SSH with a real deploy key.
+
+`playwright-mcp-project`, in a plain box built from a copy of the working tree:
+
+- With the servers marked approved, `claude mcp list` connects all four in `.mcp.json`, signed out.
+- Over stdio, Playwright 0.0.83 and Chrome DevTools 1.12.0 each open a page, with the `.mcp.json` arguments.
+- A Context7 `resolve-library-id` call answers. `mcp.context7.com`, npm and GitHub are reachable;
+  `context7.com` and `example.com` are blocked.
+- On the Mac, over stdio and headless, Chrome DevTools opens a page on the real Chrome, and Playwright 0.0.83
+  opens one after `install-browser chrome-for-testing`.
+
+In the owner's recreated box, from a signed-in `claude` session:
+
+- Playwright, Chrome DevTools, Context7 and next-devtools each answer a tool call. Playwright gets
+  `net::ERR_ADDRESS_UNREACHABLE` from `example.com`, the firewall's block. `nextjs_docs` points at the docs in
+  `node_modules/next/dist/docs/`, not returning them.
+- No approval is saved: `claude mcp list` still says "Pending approval" for the three new servers.
+
+Not exercised: `--docker`, and the approval prompt on the Mac.

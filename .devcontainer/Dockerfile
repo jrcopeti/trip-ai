@@ -50,7 +50,7 @@ RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
 
 # Playwright MCP, pinned, with its browser downloaded here at build time: the firewall allows no
 # browser downloads, so @latest would ask for a browser the running box cannot fetch.
-# Keep the version in sync with the `claude mcp add` line in README.md.
+# Keep the version in sync with the playwright entry in the repo's .mcp.json.
 ARG PLAYWRIGHT_MCP_VERSION=0.0.83
 RUN npx --yes @playwright/mcp@${PLAYWRIGHT_MCP_VERSION} install-browser chrome-for-testing
 
@@ -72,4 +72,11 @@ USER root
 RUN chmod +x /usr/local/bin/init-firewall.sh && \
   echo "node ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh, /usr/bin/chown node\:node /workspace/node_modules /workspace/.next" > /etc/sudoers.d/node-firewall && \
   chmod 0440 /etc/sudoers.d/node-firewall
+
+# Chrome DevTools MCP launches Chrome from this path, and Linux arm64 has no Chrome: Playwright's
+# Chromium stands in. Headless as the box has no display; without --no-sandbox it exits on start.
+RUN mkdir -p /opt/google/chrome && \
+  printf '#!/bin/sh\nexec %s --headless=new --no-sandbox "$@"\n' \
+    "$(ls /home/node/.cache/ms-playwright/chromium-*/chrome-linux*/chrome | sort -V | tail -n 1)" > /opt/google/chrome/chrome && \
+  chmod +x /opt/google/chrome/chrome
 USER node

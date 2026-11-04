@@ -34,7 +34,7 @@ Check the pages a change touches, then report. The job ends with the report and 
 
 - `npm run dev` on port 3000 reads `.env`, which is production on the owner's machine. Use it only when the user asks, and never submit the form or save or discard a trip on it: that writes real rows and calls paid APIs.
 - Run `npm run seed:e2e` only through the script. It deletes every trip, and the script refuses a remote database even with `ALLOW_REMOTE_E2E_SEED` set.
-- If the `browser_*` tools are missing, say so and stop. The Playwright server comes from the user's config, not this repo's `.mcp.json`. Don't ask for a manual pass, and don't report a pass.
+- If the `browser_*` tools are missing, say so and stop. The Playwright server comes from this repo's `.mcp.json`. Don't ask for a manual pass, and don't report a pass.
 - Never delete screenshots or other files in `.playwright-mcp/` without asking. The user wants to see them.
 - Under reduced motion, a moving squiggle isn't a bug. `SquiggleLoader` keeps running on purpose, as the only sign a wait isn't stuck.
 - Under `npm run dev`, a new token with no effect is usually Turbopack's stale CSS, not a bug. Stop it, run `rm -rf .next` and restart.
