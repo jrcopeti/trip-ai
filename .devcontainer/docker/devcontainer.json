@@ -8,7 +8,8 @@
   "runServices": ["app", "postgres"],
   // Refuses any engine but a Colima VM that shares only this repo (Docker Desktop shares your home).
   // Also creates the brain settings folder the box mounts read-only (compose.yaml).
-  "initializeCommand": "mkdir -p \"${BOX_BRAIN_CONFIG:-$HOME/.config/brain}\" && ${localWorkspaceFolder}/.devcontainer/docker/check-engine.sh",
+  // And the two files compose.yaml mounts empty: in a clone without them, the box's first start fails.
+  "initializeCommand": "mkdir -p \"${BOX_BRAIN_CONFIG:-$HOME/.config/brain}\" && touch ${localWorkspaceFolder}/.env ${localWorkspaceFolder}/.env.local && ${localWorkspaceFolder}/.devcontainer/docker/check-engine.sh",
   "customizations": {
     "vscode": {
       "extensions": ["anthropic.claude-code", "esbenp.prettier-vscode"]

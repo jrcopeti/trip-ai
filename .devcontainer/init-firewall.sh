@@ -63,6 +63,17 @@ if [ "${1:-}" = "--engine" ]; then
   exit 0
 fi
 
+# A new container allows all traffic, and a failed postStartCommand is not retried: on failure, block everything.
+fail_closed() {
+  iptables -F || true
+  iptables -P INPUT DROP || true
+  iptables -P FORWARD DROP || true
+  iptables -P OUTPUT DROP || true
+  ip6tables -P INPUT DROP 2>/dev/null || true
+  ip6tables -P OUTPUT DROP 2>/dev/null || true
+}
+trap '[ $? -eq 0 ] || fail_closed' EXIT
+
 # Keep Docker's internal DNS rules before flushing.
 DOCKER_DNS_RULES=$(iptables-save -t nat | grep "127\.0\.0\.11" || true)
 

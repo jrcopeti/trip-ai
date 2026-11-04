@@ -72,6 +72,7 @@ brew install colima
 **What `--docker` does not protect**
 - The socket makes the agent root in the VM. It can open a root shell in the box (`docker exec -u 0`) and remove the box's own firewall; the VM's firewall then still limits the box to the allowlist.
 - A container started with `--privileged` or `--network host` skips the VM's firewall: it reaches the internet and the ports on your machine (`host.docker.internal`), and it can remove the VM's firewall.
+- A container bound to the repo through the socket can still write `box` and `.devcontainer/`, which your machine runs on the next `./box`.
 - A container that shares the box's network (`--network container:<box>`) has the box's allowlist.
 - What stays out of reach in every case: your files. The VM shares only this repo and the brain settings folder, so no container sees the rest of your home folder, `~/.ssh` or Docker Desktop's socket.
 - **`.env` and `.env.local` are not out of reach.** The VM shares the real repo folder, so a container started through the socket can bind it and read both: the empty mounts stop only the box itself. Don't run `--docker` from a folder that holds them: use a clone with no secrets (`git clone <url> trip-ai-box`).
@@ -83,6 +84,8 @@ brew install colima
 - The agent sees this repo, without `.env` and `.env.local`, and `~/.config/brain` read-only, and nothing else from your machine: no other home folder files, no `~/.ssh`. Plain `./box` has no Docker socket; `./box --docker` has the socket of a VM that shares only this repo and that folder.
 - `node_modules` and `.next` are the box's own volumes, so its Linux install and build never mix with yours.
 - Outgoing traffic is default-deny. Allowed: GitHub, the npm registry, Claude's API and sign-in, and the box's own Postgres (`postgres:5432`). Everything else is blocked (`init-firewall.sh`, checked on every start).
+- A firewall that fails at start blocks all traffic, and `./box` runs nothing unless the firewall's rules are in place. To recover: `docker compose -p <repo-folder>_devcontainer down`, then `./box`. An editor's "Reopen in Container" gets the same block, not the check.
+- `box` and `.devcontainer/` are read-only in the box: your machine runs them on the next `./box`. Change them from outside the box. On your machine, `./box` reads no `.npmrc` from the repo.
 - The agent cannot change the firewall: its only root commands are the firewall script itself and the `chown` of those two volumes (plain `./box`).
 
 **What it does not do**
@@ -91,7 +94,7 @@ brew install colima
 - The brain's deploy key is readable in the box: anything in the box can read it, and read and write the brain repo with it (and nothing else). What the box pushes to the brain, every agent that pulls the brain reads next, including agents on your laptop. Read the brain's `git log -p` for changes to `skills/` and its scripts (`sync.mjs`, `install.mjs`) before you run them on your laptop.
 - Allowed hosts are a way out too (for example GitHub, if you log `gh` in, or with any token the agent is given), and DNS lookups still leave the box. GitHub's ranges are allowed on every port, so SSH to GitHub works too (the brain's deploy key uses it).
 - The repo folder is shared with your machine, so the agent's edits land on your disk. Git is the undo button.
-- What the box writes can run on your machine: `.git/hooks`, `package.json` scripts and `.vscode/` are all in the shared folder. Read the diff before you run the repo outside the box.
+- What the box writes can still run on your machine: `.git/hooks`, `package.json` scripts and `.vscode/` are all in the shared folder. Read the diff before you run the repo outside the box.
 - `./box --docker` is weaker on the network: see "What `--docker` does not protect" above.
 
 Use it on repos you trust, and watch what the agent does.

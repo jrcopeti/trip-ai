@@ -14,7 +14,9 @@ export BUILDX_BAKE_ENTITLEMENTS_FS=0
 
 CLI="@devcontainers/cli@0.89.0"   # pinned devcontainer CLI
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-config=()
+# The box can write the repo. Outside it, npx would read the repo's .npmrc, and the CLI could find its config at the root.
+cd "$HOME"
+config=(--config "$repo_root/.devcontainer/devcontainer.json")
 
 if [ "${1:-}" = "--docker" ]; then
   shift
@@ -69,10 +71,22 @@ if ! up_log="$(npx --yes "$CLI" up --workspace-folder "$repo_root" ${config[@]+"
   exit 1
 fi
 
+app="$(docker ps -q --filter "label=devcontainer.local_folder=$repo_root")"
+
+# `up` succeeds on a box whose firewall failed, as it runs postStartCommand once. Read as root, from here.
+rules="$(docker exec -u root "$app" iptables -S OUTPUT 2>/dev/null || true)"
+case "$rules" in
+  *"-P OUTPUT DROP"*"--match-set allowed-domains"*) ;;
+  *)
+    project="$(docker inspect --format '{{index .Config.Labels "com.docker.compose.project"}}' "$app")"
+    echo "box: the firewall is not in place, so nothing runs. Recreate the box: docker compose -p $project down, then ./box again." >&2
+    exit 1
+    ;;
+esac
+
 # The engine VM's own firewall (init-firewall.sh --engine), once per VM boot or box IP: with the
 # socket, the box can start containers that skip the box's firewall, so the VM limits them all.
 if [ -n "${profile:-}" ]; then
-  app="$(docker ps -q --filter "label=devcontainer.local_folder=$repo_root" --filter "label=devcontainer.config_file=$repo_root/.devcontainer/docker/devcontainer.json")"
   box_ip="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$app")"
   if ! colima ssh -p "$profile" -- sudo iptables -C DOCKER-USER -s "$box_ip" -m set --match-set box-egress dst -j RETURN 2>/dev/null; then
     image="$(docker inspect --format '{{.Config.Image}}' "$app")"
@@ -86,7 +100,7 @@ if [ -n "${profile:-}" ]; then
 fi
 
 # On stderr, so a piped `./box <command>` stays clean. `docker port` is right even if BOX_PORT is unset now.
-published="$(docker port "$(docker ps -q --filter "label=devcontainer.local_folder=$repo_root")" 3000/tcp | head -n 1)"
+published="$(docker port "$app" 3000/tcp | head -n 1)"
 echo "The box is running on http://localhost:${published##*:}" >&2
 
 if [ "$#" -eq 0 ]; then

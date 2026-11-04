@@ -7,7 +7,8 @@
   "service": "app",
   "runServices": ["app", "postgres"],
   // The brain settings folder the box mounts read-only (compose.yaml), so Docker never creates it as root.
-  "initializeCommand": "mkdir -p \"${BOX_BRAIN_CONFIG:-$HOME/.config/brain}\"",
+  // The two files compose.yaml mounts empty: in a clone without them, the box's first start fails.
+  "initializeCommand": "mkdir -p \"${BOX_BRAIN_CONFIG:-$HOME/.config/brain}\" && touch ${localWorkspaceFolder}/.env ${localWorkspaceFolder}/.env.local",
   "customizations": {
     "vscode": {
       "extensions": ["anthropic.claude-code", "esbenp.prettier-vscode"]

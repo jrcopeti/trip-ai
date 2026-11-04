@@ -9,7 +9,7 @@ what the box does is in `.devcontainer/README.md`.
 
 | Branch | Holds | State |
 | --- | --- | --- |
-| `dev-container` | The box: `./box`, the image, the firewall, its Postgres, Playwright and Playwright MCP, no connectors. The brain. `./box --docker`. The README | The box committed; the brain and `--docker` staged, in review |
+| `dev-container` | The box: `./box`, the image, the firewall, its Postgres, Playwright and Playwright MCP, no connectors. The brain. `./box --docker`. The README | Committed, with the review's two fixes staged |
 | `rubik-self-hosted` | Rubik through `next/font/local`, as Caveat is, so `npm run build` runs behind the firewall | Not started |
 
 The brain and `--docker` share this branch by the owner's decision, against the one-concern rule.
@@ -42,6 +42,20 @@ moves in `package-lock.json`, bump them by hand: a stale Playwright fails the e2
 Prisma engine runs without complaint.
 
 ## Open
+
+Findings from the branch's code review, reproduced by nobody unless noted, and left by the owner's decision.
+Most are in ticket-bay too. #1 and #2 of that review are fixed.
+
+- **The firewall allows its whole /24** (`init-firewall.sh`), so the gateway and every port on Postgres are
+  reachable, and the "5432 only" rule never applies. The live rules show the order.
+- **The VM's firewall goes stale:** its allowlist fills once, and a new box IP is rejected before the refresh.
+- **"Reopen in Container" on the VM** can start without the VM's firewall after a reboot.
+- **Rerunning `init-firewall.sh`** in a running box cuts its network.
+- **The Postgres health check** can pass before TCP is up or `trip_ai_e2e` exists.
+- **`--docker` rebuilds on every command,** and versions are pinned in both `compose.yaml` and the `Dockerfile`.
+- `verify-in-browser` can't run in the box, and Playwright MCP may move to the project's `.mcp.json`.
+
+Decided or waiting:
 
 1. **Rubik.** `npm run build` fails in the box: `next/font/google` fetches Rubik and the firewall blocks
    Google Fonts. Allowing it would allow an IP on Google's shared front end, so all of Google. The
@@ -92,6 +106,15 @@ The brain, with no brain repo yet:
 - `npm ci`, `prisma db push`, `npm run typecheck`, and `npx vitest run --maxWorkers=2` (1163 passed).
 
 Signing in to Claude in the plain box works: the owner did it, and the firewall let it through.
+
+The review's two fixes, on a throwaway copy with a name in the allowlist that can't resolve:
+
+- The firewall fails: `OUTPUT` is `DROP`, and GitHub and `example.com` are both unreachable.
+- The next `./box` refuses to run, and also refuses a box whose policy is set back to `ACCEPT`.
+- After the `down` it asks for, the box starts with the firewall in place.
+- `box` and `.devcontainer/` are read-only in the box, plain and `--docker`. A root `.devcontainer.json` is
+  ignored. With a bad registry in a project `.npmrc`, `npx` fails from the repo and works from `$HOME`.
+- A folder with no `.env` files fails its first start without the `touch` in `initializeCommand`, and starts with it.
 
 Not exercised: "Reopen in Container" in an editor,
 `--docker`'s e2e suite (open item 1), and the brain over SSH with a real deploy key.

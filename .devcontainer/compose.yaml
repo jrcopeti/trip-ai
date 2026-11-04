@@ -22,6 +22,9 @@ services:
       # The repo's secrets stay out: `.env` holds the production database URL, `.env.local` the API keys.
       - /dev/null:/workspace/.env:ro
       - /dev/null:/workspace/.env.local:ro
+      # Your machine runs these on the next ./box, so the box can't write them.
+      - ../box:/workspace/box:ro
+      - .:/workspace/.devcontainer:ro
       # Your second brain's settings, read-only: box.env (BRAIN_REPO) and box_deploy_key,
       # a deploy key that can write only the brain repo. Empty folder: the box has no brain.
       - ${BOX_BRAIN_CONFIG:-~/.config/brain}:/home/node/.config/brain:ro
