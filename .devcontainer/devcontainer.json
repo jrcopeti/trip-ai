@@ -1,0 +1,35 @@
+{
+  // Trip AI sandbox. Based on Anthropic's reference dev container:
+  // https://github.com/anthropics/claude-code/tree/main/.devcontainer (MIT)
+  "name": "Trip AI Sandbox",
+  // Two containers (compose.yaml): this one, and the Postgres it reaches as postgres:5432.
+  "dockerComposeFile": "compose.yaml",
+  "service": "app",
+  "runServices": ["app", "postgres"],
+  "customizations": {
+    "vscode": {
+      "extensions": ["anthropic.claude-code", "esbenp.prettier-vscode"]
+    }
+  },
+  // Never root: Claude Code refuses --dangerously-skip-permissions as root.
+  "remoteUser": "node",
+  "mounts": [
+    "source=tripai-bashhistory-${devcontainerId},target=/commandhistory,type=volume",
+    "source=tripai-claude-config-${devcontainerId},target=/home/node/.claude,type=volume",
+    "source=tripai-node-modules-${devcontainerId},target=/workspace/node_modules,type=volume",
+    // Its own build: a shared `.next` would mix the box's Linux build with the one on your machine.
+    "source=tripai-next-${devcontainerId},target=/workspace/.next,type=volume"
+  ],
+  "containerEnv": {
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "CLAUDE_CONFIG_DIR": "/home/node/.claude",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "DISABLE_AUTOUPDATER": "1",
+    // No claude.ai connectors (Gmail, Drive, ...) in the box: they would reach past the firewall.
+    "ENABLE_CLAUDEAI_MCP_SERVERS": "false"
+  },
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "sudo chown node:node /workspace/node_modules /workspace/.next",
+  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
+  "waitFor": "postStartCommand"
+}

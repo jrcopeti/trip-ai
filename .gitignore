@@ -56,3 +56,6 @@ next-env.d.ts
 
 # 2m-b harness output: raw model inputs
 /scripts/string-tours/runs/
+
+# Claude Code, per machine
+.claude/settings.local.json

@@ -1,0 +1,51 @@
+# The box as two containers: `app` (the sandbox you work in) and `postgres` (its own
+# Postgres 16, as CI). The app reaches the database by name (postgres:5432); the database is
+# not published to your machine, so it never clashes with the `trip-ai-e2e-pg` container.
+# The app's port 3000 is published on 127.0.0.1 only. Taken? BOX_PORT=3200 ./box
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        TZ: ${TZ:-UTC}
+        CLAUDE_CODE_VERSION: "2.1.311"
+        GIT_DELTA_VERSION: "0.18.2"
+        PLAYWRIGHT_VERSION: "1.64.1"
+        PLAYWRIGHT_MCP_VERSION: "0.0.83"
+        PRISMA_VERSION: "7.10.1"
+    # The firewall runs inside the container, so it needs these two capabilities.
+    cap_add: [NET_ADMIN, NET_RAW]
+    volumes:
+      - ..:/workspace:cached
+      # The repo's secrets stay out: `.env` holds the production database URL, `.env.local` the API keys.
+      - /dev/null:/workspace/.env:ro
+      - /dev/null:/workspace/.env.local:ro
+    environment:
+      DATABASE_URL: postgresql://postgres:local-dev-only@postgres:5432/trip_ai
+      E2E_DATABASE_URL: postgresql://postgres:local-dev-only@postgres:5432/trip_ai_e2e
+    ports:
+      - "127.0.0.1:${BOX_PORT:-3000}:3000"
+    command: sleep infinity
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # `scripts/localDatabase.ts` allows the e2e seed on the host named `postgres`; another name fails it.
+  postgres:
+    image: postgres:16
+    # Local-only values. Never real secrets.
+    environment:
+      POSTGRES_PASSWORD: local-dev-only
+      POSTGRES_DB: trip_ai
+    volumes:
+      - pg:/var/lib/postgresql/data
+      - ./create-e2e-database.sql:/docker-entrypoint-initdb.d/create-e2e-database.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d trip_ai"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  pg:

@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# box: work inside the sandbox (.devcontainer/) from the terminal, no editor needed.
+#   ./box                  start the box if needed, then run Claude Code inside it
+#   ./box <command...>     run any command inside the box, e.g. ./box npm test
+# Inside the box Claude Code runs with --dangerously-skip-permissions: the box is the safety
+# (only this repo, default-deny network). See .devcontainer/README.md for what it does not do.
+set -euo pipefail
+
+# Compose v5 builds with buildx bake, which stops at the generated Dockerfile and asks for --allow=fs.read: skip that check.
+export BUILDX_BAKE_ENTITLEMENTS_FS=0
+
+CLI="@devcontainers/cli@0.89.0"   # pinned devcontainer CLI
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if ! docker info >/dev/null 2>&1; then
+  echo "box: Docker is not running. Start Docker Desktop (or your Docker daemon) and try again." >&2
+  exit 1
+fi
+
+# Start the box (fast no-op when it is already running). Output only on failure.
+if ! up_log="$(npx --yes "$CLI" up --workspace-folder "$repo_root" 2>&1)"; then
+  echo "$up_log" >&2
+  echo "box: could not start the dev container (see the log above)." >&2
+  exit 1
+fi
+
+if [ "$#" -eq 0 ]; then
+  set -- claude --dangerously-skip-permissions
+fi
+exec npx --yes "$CLI" exec --workspace-folder "$repo_root" "$@"

@@ -1,0 +1,1 @@
+CREATE DATABASE trip_ai_e2e;
