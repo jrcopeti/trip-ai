@@ -14,6 +14,7 @@ services:
         PLAYWRIGHT_VERSION: "1.64.1"
         PLAYWRIGHT_MCP_VERSION: "0.0.83"
         PRISMA_VERSION: "7.10.1"
+        DOCKER_CLI_VERSION: "29.8.2"
     # The firewall runs inside the container, so it needs these two capabilities.
     cap_add: [NET_ADMIN, NET_RAW]
     volumes:
@@ -21,7 +22,14 @@ services:
       # The repo's secrets stay out: `.env` holds the production database URL, `.env.local` the API keys.
       - /dev/null:/workspace/.env:ro
       - /dev/null:/workspace/.env.local:ro
+      # Your second brain's settings, read-only: box.env (BRAIN_REPO) and box_deploy_key,
+      # a deploy key that can write only the brain repo. Empty folder: the box has no brain.
+      - ${BOX_BRAIN_CONFIG:-~/.config/brain}:/home/node/.config/brain:ro
+    env_file:
+      - path: ${BOX_BRAIN_CONFIG:-~/.config/brain}/box.env
+        required: false
     environment:
+      BRAIN_SSH_KEY: /home/node/.config/brain/box_deploy_key
       DATABASE_URL: postgresql://postgres:local-dev-only@postgres:5432/trip_ai
       E2E_DATABASE_URL: postgresql://postgres:local-dev-only@postgres:5432/trip_ai_e2e
     ports:

@@ -6,6 +6,8 @@
   "dockerComposeFile": "compose.yaml",
   "service": "app",
   "runServices": ["app", "postgres"],
+  // The brain settings folder the box mounts read-only (compose.yaml), so Docker never creates it as root.
+  "initializeCommand": "mkdir -p \"${BOX_BRAIN_CONFIG:-$HOME/.config/brain}\"",
   "customizations": {
     "vscode": {
       "extensions": ["anthropic.claude-code", "esbenp.prettier-vscode"]
@@ -18,7 +20,9 @@
     "source=tripai-claude-config-${devcontainerId},target=/home/node/.claude,type=volume",
     "source=tripai-node-modules-${devcontainerId},target=/workspace/node_modules,type=volume",
     // Its own build: a shared `.next` would mix the box's Linux build with the one on your machine.
-    "source=tripai-next-${devcontainerId},target=/workspace/.next,type=volume"
+    "source=tripai-next-${devcontainerId},target=/workspace/.next,type=volume",
+    // The box's own copy of your second brain, cloned by brain-start.sh.
+    "source=tripai-brain-${devcontainerId},target=/home/node/brain,type=volume"
   ],
   "containerEnv": {
     "NODE_OPTIONS": "--max-old-space-size=4096",
@@ -30,6 +34,7 @@
   },
   "workspaceFolder": "/workspace",
   "postCreateCommand": "sudo chown node:node /workspace/node_modules /workspace/.next",
-  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
+  // Then clones or pulls your brain and connects it to Claude Code in the box (brain-start.sh).
+  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh && bash /workspace/.devcontainer/brain-start.sh",
   "waitFor": "postStartCommand"
 }

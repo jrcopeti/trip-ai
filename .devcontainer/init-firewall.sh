@@ -4,7 +4,9 @@
 # https://github.com/anthropics/claude-code/blob/main/.devcontainer/init-firewall.sh (MIT)
 # Changes: DNS only to the container's own resolvers, no outbound SSH except to GitHub (its ranges
 # are allowed on every port), Claude sign-in domains added, IPv6 egress dropped, npm registry
-# verified, the box's Postgres allowed.
+# verified, the box's Postgres allowed, an --engine mode for the Docker engine VM of `./box --docker`.
+#   init-firewall.sh           the box itself (postStartCommand)
+#   init-firewall.sh --engine <box IP>  the engine VM: the box keeps the allowlist, other containers get none
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -34,6 +36,32 @@ fill_allowlist() {
     done < <(echo "$ips")
   done
 }
+
+# --engine <box IP>: run by `./box --docker` in a host-network container on the Colima VM, so
+# these rules land in the VM. A container started through the box's Docker socket skips the box's
+# own firewall (and can remove it: the socket can exec into the box as root), so the VM limits
+# every container: Docker sends all container traffic through the DOCKER-USER chain. Containers
+# reach each other; the box also reaches the allowlist; nothing else leaves the VM (no internet,
+# no ports on your machine). Testcontainers needs no more: its images are pulled by the engine.
+if [ "${1:-}" = "--engine" ]; then
+  BOX_IP="${2:-}"
+  [[ "$BOX_IP" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]] || { echo "ERROR: --engine needs the box's IP"; exit 1; }
+  EXT_IF=$(ip route | awk '/default/ {print $5; exit}')
+  [ -n "$EXT_IF" ] || { echo "ERROR: no default route in the VM"; exit 1; }
+  ipset create box-egress hash:net -exist
+  ipset create box-egress-next hash:net -exist
+  ipset flush box-egress-next
+  fill_allowlist box-egress-next
+  ipset swap box-egress-next box-egress
+  ipset destroy box-egress-next
+  iptables -F DOCKER-USER
+  iptables -A DOCKER-USER -m conntrack --ctstate ESTABLISHED,RELATED -j RETURN
+  iptables -A DOCKER-USER ! -o "$EXT_IF" -j RETURN
+  iptables -A DOCKER-USER -s "$BOX_IP" -m set --match-set box-egress dst -j RETURN
+  iptables -A DOCKER-USER -j REJECT --reject-with icmp-admin-prohibited
+  echo "Engine firewall OK: the box ($BOX_IP) reaches GitHub, npm and Claude; other containers reach only containers."
+  exit 0
+fi
 
 # Keep Docker's internal DNS rules before flushing.
 DOCKER_DNS_RULES=$(iptables-save -t nat | grep "127\.0\.0\.11" || true)

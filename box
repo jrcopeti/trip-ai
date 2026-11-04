@@ -2,6 +2,9 @@
 # box: work inside the sandbox (.devcontainer/) from the terminal, no editor needed.
 #   ./box                  start the box if needed, then run Claude Code inside it
 #   ./box <command...>     run any command inside the box, e.g. ./box npm test
+#   ./box --docker [...]   the same box on its own Docker engine (a Colima VM that shares only
+#                          this repo, and your brain settings read-only), so anything that needs
+#                          Docker runs inside it. macOS only: the VM uses Apple's virtualization.
 # Inside the box Claude Code runs with --dangerously-skip-permissions: the box is the safety
 # (only this repo, default-deny network). See .devcontainer/README.md for what it does not do.
 set -euo pipefail
@@ -11,20 +14,84 @@ export BUILDX_BAKE_ENTITLEMENTS_FS=0
 
 CLI="@devcontainers/cli@0.89.0"   # pinned devcontainer CLI
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+config=()
+
+if [ "${1:-}" = "--docker" ]; then
+  shift
+  [ "$(uname -s)" = Darwin ] || { echo "box --docker: runs on macOS only. On Linux or WSL, run the task outside the box: it then uses your own Docker Engine." >&2; exit 1; }
+  repo_root="$(cd "$repo_root" && pwd -P)"   # the path the VM shares: no symlinks
+  command -v colima >/dev/null || { echo "box --docker: needs Colima. Install it: brew install colima" >&2; exit 1; }
+  profile="${BOX_DOCKER_PROFILE:-tripai-box}"
+  # The brain settings folder the box mounts read-only: the VM shares it read-only too.
+  mkdir -p "${BOX_BRAIN_CONFIG:-$HOME/.config/brain}"
+  BOX_BRAIN_CONFIG="$(cd "${BOX_BRAIN_CONFIG:-$HOME/.config/brain}" && pwd -P)"
+  export BOX_BRAIN_CONFIG
+  if ! colima status "$profile" >/dev/null 2>&1; then
+    echo "box: starting the Colima VM '$profile' (shares only $repo_root, and $BOX_BRAIN_CONFIG read-only)..." >&2
+    # --activate=false and --ssh-config=false: your default Docker context and ~/.ssh/config stay as they are.
+    if ! vm_log="$(colima start "$profile" --vm-type vz --cpus 4 --memory 4 --disk 40 \
+      --mount "$repo_root:w" --mount "$BOX_BRAIN_CONFIG" --mount-inotify --activate=false --ssh-config=false 2>&1)"; then
+      echo "$vm_log" >&2
+      echo "box: could not start the Colima VM (see the log above)." >&2
+      exit 1
+    fi
+  fi
+  export DOCKER_CONTEXT="colima-$profile"
+  "$repo_root/.devcontainer/docker/check-engine.sh"
+  BOX_DOCKER_GID="$(colima ssh -p "$profile" -- stat -c %g /var/run/docker.sock)"
+  export BOX_DOCKER_GID
+  config=(--config "$repo_root/.devcontainer/docker/devcontainer.json")
+  # The VM's firewall blocks the build's apt and browser downloads on the container network, and
+  # Compose's bake refuses `build.network: host`. So it is built here, and docker/compose.yaml only runs it.
+  if ! build_log="$(docker build --network host --build-arg TZ="${TZ:-UTC}" -t tripai-box "$repo_root/.devcontainer" 2>&1)"; then
+    echo "$build_log" >&2
+    echo "box: could not build the image (see the log above)." >&2
+    exit 1
+  fi
+fi
 
 if ! docker info >/dev/null 2>&1; then
   echo "box: Docker is not running. Start Docker Desktop (or your Docker daemon) and try again." >&2
   exit 1
 fi
 
+# Compose would fail on a taken port with no reason given, and leave a container with no network behind.
+port="${BOX_PORT:-3000}"
+if [ -z "$(docker ps -q --filter "label=devcontainer.local_folder=$repo_root")" ] && (exec 3<>"/dev/tcp/127.0.0.1/$port") 2>/dev/null; then
+  echo "box: port $port on your machine is taken. Use another: BOX_PORT=3200 ./box" >&2
+  exit 1
+fi
+
 # Start the box (fast no-op when it is already running). Output only on failure.
-if ! up_log="$(npx --yes "$CLI" up --workspace-folder "$repo_root" 2>&1)"; then
+if ! up_log="$(npx --yes "$CLI" up --workspace-folder "$repo_root" ${config[@]+"${config[@]}"} 2>&1)"; then
   echo "$up_log" >&2
   echo "box: could not start the dev container (see the log above)." >&2
   exit 1
 fi
 
+# The engine VM's own firewall (init-firewall.sh --engine), once per VM boot or box IP: with the
+# socket, the box can start containers that skip the box's firewall, so the VM limits them all.
+if [ -n "${profile:-}" ]; then
+  app="$(docker ps -q --filter "label=devcontainer.local_folder=$repo_root" --filter "label=devcontainer.config_file=$repo_root/.devcontainer/docker/devcontainer.json")"
+  box_ip="$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$app")"
+  if ! colima ssh -p "$profile" -- sudo iptables -C DOCKER-USER -s "$box_ip" -m set --match-set box-egress dst -j RETURN 2>/dev/null; then
+    image="$(docker inspect --format '{{.Config.Image}}' "$app")"
+    if ! fw_log="$(docker run --rm --network host --cap-add NET_ADMIN --cap-add NET_RAW --user root \
+      --entrypoint /usr/local/bin/init-firewall.sh "$image" --engine "$box_ip" 2>&1)"; then
+      echo "$fw_log" >&2
+      echo "box: could not set the engine VM's firewall (see the log above)." >&2
+      exit 1
+    fi
+  fi
+fi
+
+# On stderr, so a piped `./box <command>` stays clean. `docker port` is right even if BOX_PORT is unset now.
+published="$(docker port "$(docker ps -q --filter "label=devcontainer.local_folder=$repo_root")" 3000/tcp | head -n 1)"
+echo "The box is running on http://localhost:${published##*:}" >&2
+
 if [ "$#" -eq 0 ]; then
   set -- claude --dangerously-skip-permissions
 fi
-exec npx --yes "$CLI" exec --workspace-folder "$repo_root" "$@"
+# Without these, `devcontainer exec` gives the command no colour settings and Claude Code falls back to fewer colours.
+exec npx --yes "$CLI" exec --workspace-folder "$repo_root" ${config[@]+"${config[@]}"} \
+  --remote-env TERM=xterm-256color --remote-env COLORTERM=truecolor "$@"

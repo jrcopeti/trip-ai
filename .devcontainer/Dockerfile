@@ -24,13 +24,19 @@ RUN echo "export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/
 
 ENV DEVCONTAINER=true
 
-RUN mkdir -p /workspace /home/node/.claude && chown -R node:node /workspace /home/node/.claude
+RUN mkdir -p /workspace /home/node/.claude /home/node/brain /home/node/.config/brain && chown -R node:node /workspace /home/node/.claude /home/node/brain /home/node/.config
 WORKDIR /workspace
 
 ARG GIT_DELTA_VERSION=0.18.2
 RUN ARCH=$(dpkg --print-architecture) && \
   curl -fsSLO "https://github.com/dandavison/delta/releases/download/${GIT_DELTA_VERSION}/git-delta_${GIT_DELTA_VERSION}_${ARCH}.deb" && \
   dpkg -i "git-delta_${GIT_DELTA_VERSION}_${ARCH}.deb" && rm "git-delta_${GIT_DELTA_VERSION}_${ARCH}.deb"
+
+# The docker CLI only (no engine). It does nothing in the plain box, which has no socket;
+# `./box --docker` gives it the socket of the box's own Colima VM.
+ARG DOCKER_CLI_VERSION=29.8.2
+RUN curl -fsSL "https://download.docker.com/linux/static/stable/$(uname -m)/docker-${DOCKER_CLI_VERSION}.tgz" | \
+  tar -xz -C /usr/local/bin --strip-components=1 docker/docker
 
 USER node
 ENV NPM_CONFIG_PREFIX=/usr/local/share/npm-global

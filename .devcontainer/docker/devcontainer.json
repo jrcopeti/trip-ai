@@ -1,0 +1,41 @@
+{
+  // The box with its own Docker engine: `./box --docker`. The same box as ../devcontainer.json
+  // (keep the two in sync), plus the Docker socket of a Colima VM that shares only this repo,
+  // so anything that needs Docker (Testcontainers, for one) runs inside the box.
+  "name": "Trip AI Sandbox + Docker (Colima)",
+  "dockerComposeFile": ["../compose.yaml", "compose.yaml"],
+  "service": "app",
+  "runServices": ["app", "postgres"],
+  // Refuses any engine but a Colima VM that shares only this repo (Docker Desktop shares your home).
+  // Also creates the brain settings folder the box mounts read-only (compose.yaml).
+  "initializeCommand": "mkdir -p \"${BOX_BRAIN_CONFIG:-$HOME/.config/brain}\" && ${localWorkspaceFolder}/.devcontainer/docker/check-engine.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": ["anthropic.claude-code", "esbenp.prettier-vscode"]
+    }
+  },
+  // Never root: Claude Code refuses --dangerously-skip-permissions as root.
+  "remoteUser": "node",
+  "mounts": [
+    "source=tripai-bashhistory-${devcontainerId},target=/commandhistory,type=volume",
+    "source=tripai-claude-config-${devcontainerId},target=/home/node/.claude,type=volume",
+    "source=tripai-node-modules-${devcontainerId},target=/workspace/node_modules,type=volume",
+    // Its own build: a shared `.next` would mix the box's Linux build with the one on your machine.
+    "source=tripai-next-${devcontainerId},target=/workspace/.next,type=volume",
+    // The box's own copy of your second brain, cloned by brain-start.sh.
+    "source=tripai-brain-${devcontainerId},target=/home/node/brain,type=volume"
+  ],
+  "containerEnv": {
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "CLAUDE_CONFIG_DIR": "/home/node/.claude",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "DISABLE_AUTOUPDATER": "1",
+    // No claude.ai connectors (Gmail, Drive, ...) in the box: they would reach past the firewall.
+    "ENABLE_CLAUDEAI_MCP_SERVERS": "false"
+  },
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "sudo chown node:node /workspace/node_modules /workspace/.next",
+  // Then clones or pulls your brain and connects it to Claude Code in the box (brain-start.sh).
+  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh && bash /workspace/.devcontainer/brain-start.sh",
+  "waitFor": "postStartCommand"
+}
