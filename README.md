@@ -232,6 +232,9 @@ After a Prisma schema change: `npx prisma generate`, then `npx prisma db push`. 
 to whatever `DATABASE_URL` resolves to, so check it first;** for the e2e database, use
 `npm run db:push:e2e`.
 
+To work in a sandbox with its own database and a default-deny network, use `./box`:
+see [`.devcontainer/README.md`](.devcontainer/README.md).
+
 ## Tests
 
 ```bash

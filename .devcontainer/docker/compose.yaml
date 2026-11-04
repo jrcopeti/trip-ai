@@ -1,0 +1,25 @@
+# Added on top of ../compose.yaml by `./box --docker` (docker/devcontainer.json): the box gets
+# the Docker socket of the engine it runs on. That engine must be the box's own Colima VM, which
+# shares only this repo with your machine (check-engine.sh refuses any other engine). Never use
+# this file with Docker Desktop: its VM shares your home folder.
+services:
+  app:
+    # Built by `./box --docker`, on the VM's network. Without !reset, Compose would build it on the container network.
+    build: !reset null
+    image: tripai-box
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # The socket belongs to the VM's docker group; ./box reads its id from the VM.
+    group_add: ["${BOX_DOCKER_GID:-991}"]
+    environment:
+      # Testcontainers, when a test uses it, reaches its containers on ports the VM publishes. The box's
+      # firewall allows its own network (below), so Testcontainers uses that network's gateway.
+      TESTCONTAINERS_HOST_OVERRIDE: 10.217.0.1
+
+# A fixed subnet, outside Docker's default pools, so the gateway above is known.
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 10.217.0.0/24
+          gateway: 10.217.0.1
