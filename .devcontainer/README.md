@@ -24,7 +24,7 @@ Prefer an editor? VS Code and Cursor open the same box with "Reopen in Container
 ```bash
 ./box npm run db:push:e2e
 ./box npm run seed:e2e
-./box npm run build        # fails for now: see "What it does not do"
+./box npm run build
 ./box npm run test:e2e
 ```
 
@@ -89,7 +89,6 @@ brew install colima
 - The agent cannot change the firewall: its only root commands are the firewall script itself and the `chown` of those two volumes (plain `./box`).
 
 **What it does not do**
-- `npm run build` fails in the box, and with it `npm run test:e2e`: `src/app/layout.tsx` loads Rubik through `next/font/google`, and the firewall blocks Google Fonts. `npm run dev` falls back to another font and works. See `docs/dev-container/PLAN.md`.
 - Anything inside the box can still leak: the repo, the box's copy of your brain, and any token you put in. Keep secrets out; use repo-scoped, short-lived tokens.
 - The brain's deploy key is readable in the box: anything in the box can read it, and read and write the brain repo with it (and nothing else). What the box pushes to the brain, every agent that pulls the brain reads next, including agents on your laptop. Read the brain's `git log -p` for changes to `skills/` and its scripts (`sync.mjs`, `install.mjs`) before you run them on your laptop.
 - Allowed hosts are a way out too (for example GitHub, if you log `gh` in, or with any token the agent is given), and DNS lookups still leave the box. GitHub's ranges are allowed on every port, so SSH to GitHub works too (the brain's deploy key uses it).

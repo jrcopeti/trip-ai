@@ -77,6 +77,10 @@ describe("the old look is gone", () => {
     expect(offenders(/Red_Hat_Display|League_Spartan|\bInter\(/)).toEqual([]);
   });
 
+  it("fetches no font at build time, as the box's firewall blocks Google Fonts", () => {
+    expect(offenders(/from ["']next\/font\/google["']/)).toEqual([]);
+  });
+
   it("has no `data-sorbet` scope left, now HeroUI is sorbet on :root", () => {
     expect(offenders(/data-sorbet/)).toEqual([]);
   });

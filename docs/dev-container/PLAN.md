@@ -10,7 +10,7 @@ what the box does is in `.devcontainer/README.md`.
 | Branch | Holds | State |
 | --- | --- | --- |
 | `dev-container` | The box: `./box`, the image, the firewall, its Postgres, Playwright and Playwright MCP, no connectors. The brain. `./box --docker`. The README | Committed, with the review's two fixes staged |
-| `rubik-self-hosted` | Rubik through `next/font/local`, as Caveat is, so `npm run build` runs behind the firewall | Not started |
+| `rubik-self-hosted` | Rubik through `next/font/local`, as Caveat is, so `npm run build` runs behind the firewall | Staged |
 
 The brain and `--docker` share this branch by the owner's decision, against the one-concern rule.
 
@@ -60,9 +60,10 @@ Most are in ticket-bay too. #1 and #2 of that review are fixed.
 
 Decided or waiting:
 
-1. **Rubik.** `npm run build` fails in the box: `next/font/google` fetches Rubik and the firewall blocks
-   Google Fonts. Allowing it would allow an IP on Google's shared front end, so all of Google. The
-   `rubik-self-hosted` branch fixes it. It is a visible change, so it gets the browser checks.
+1. **Rubik.** `next/font/google` fetched Rubik at build time and the firewall blocks Google Fonts. Allowing
+   it would allow an IP on Google's shared front end, so all of Google. `rubik-self-hosted` moves it to
+   `next/font/local`: one file, `latin` and `latin-ext`. Cyrillic, Hebrew and Arabic, which Google's CSS
+   also served, now render in the system font: one file holding them all would preload at about 120 KB.
 2. **`--docker` exposes `.env` and `.env.local`.** The VM shares the real repo folder, so a container
    started through the socket binds it and reads both; the empty mounts stop only the box itself. The
    agent is root in the VM, so nothing set in the VM holds. Left as it is and documented while `--docker`
@@ -90,6 +91,15 @@ In the box, on Docker Desktop (arm64), port 3200 because ticket-bay's box held 3
   out of this branch): 74 passed, 2 failed, 6 not run behind them in the `chromium` project. One failure
   is `logs no console errors`, on the stub's fake font URL; the other is open item 4. The journey
   project, run alone: 4 passed, Cancel failed as in item 4 and passed on a rerun, 1 not run.
+
+`rubik-self-hosted`, in the plain box with Google Fonts unreachable:
+
+- `npm run build` passes. `npm run test:e2e`: 75 passed, 1 failed (open item 4, passed on a rerun), and
+  the 6 journey tests behind it passed when run on their own. `logs no console errors` passes.
+- On the host, against the Google build: page heights and latin text widths are unchanged at 400, 500, 600
+  and 800, and glyph data matches Google's for all 221 latin characters. `/form`, `/saved-trips` and a saved
+  trip still differ in text anti-aliasing, invisible at 3x and cause not found. Weight 700 is now a true
+  700 rather than the 800 face; nothing uses it.
 
 The brain, with no brain repo yet:
 

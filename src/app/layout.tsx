@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Rubik } from "next/font/google";
 
 import "./globals.css";
 import Providers from "@/app/providers";
 import SiteNav from "@/components/ui/SiteNav";
 
-export const rubik = Rubik({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "800"],
+// Self-hosted so a build fetches nothing: the box's firewall blocks Google Fonts.
+// One variable file, latin and latin-ext. OFL, licence beside it.
+export const rubik = localFont({
+  src: "../assets/fonts/rubik-latin-wght.woff2",
+  weight: "400 800",
   variable: "--font-rubik",
 });
 // The one exception to "Rubik is the display face": polaroid captions are

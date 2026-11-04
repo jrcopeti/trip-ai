@@ -87,16 +87,21 @@ On the ink footer this inverts: `sorbet-offwhite` at `/80`, `/60`, `/45`.
 
 ## Typography
 
-**Rubik**, exposed as `font-sorbet`. Loaded in `src/app/layout.tsx` with weights
-**400, 500, 600, 800**.
+**Rubik**, exposed as `font-sorbet`. Self-hosted from `src/assets/fonts/` with
+`next/font/local` in `src/app/layout.tsx`, so a build fetches nothing and runs behind the
+box's firewall. One variable file declared 400–800; the scale uses **400, 500, 600, 800**.
 
-**700 is not loaded.** `font-bold` will synthesise a fake bold. Use `font-semibold`
-(600) or `font-extrabold` (800).
+**700 is not in the scale.** Use `font-semibold` (600) or `font-extrabold` (800).
+
+The file holds Google's `latin` and `latin-ext` ranges, so Gdańsk and Łódź stay in Rubik.
+Cyrillic, Hebrew and Arabic render in the system font. `next/font/local` can't give each file
+its own `unicode-range`, so adding a script means adding it to this one file, which every page
+preloads. Rebuild it from Google's variable TTF with `pyftsubset --layout-features='*' --no-hinting --flavor=woff2`.
 
 `font-sorbet` is on `<body>`, so everything inherits Rubik — portals and toasters
 included. Pages and the shared pieces (`SiteNav`, `SiteFooter`, the toasters, the
 loaders, `NotFoundComponent`) also set it on their own root; that predates `<body>`
-having it, and is harmless. Rubik is the only Google font loaded.
+having it, and is harmless.
 
 **One exception to Rubik: `font-sorbet-hand`.** Caveat (variable, 400–700), self-hosted
 from `src/assets/fonts/` with `next/font/local` in `layout.tsx` as `--font-caveat`
