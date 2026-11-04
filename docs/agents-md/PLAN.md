@@ -19,8 +19,17 @@ What it left, split by concern:
 - `repo-tidy`, on top of this branch: the `typecheck` script; `.claude/commands/` and `prompts/`
   removed; Renovate's dead 0.x rule removed and `@prisma/adapter-pg` in its Prisma group; the comments
   in `ci.yml` no longer call every API module `"use server"`.
-- `lint`, left for now by decision: `npm run lint` stays broken and `npm run typecheck` stays the check
-  that works. When it's picked up: `eslint.config.mjs` on `eslint-config-next`'s flat config and `lint`
-  running `eslint .`. A trial on 2026-11-03 reported 19 errors and 2 warnings across 247 files:
-  14 `react-hooks/globals`, 4 `react-hooks/set-state-in-effect`, 1 `react-hooks/static-components`.
-  Fix or triage those in the same branch, or lint stays red and still isn't a signal.
+- `lint`, parked until `typescript-eslint` supports TypeScript 7: `npm run lint` stays broken and
+  `npm run typecheck` stays the check that works. `eslint-config-next` loads `typescript-eslint`, which
+  throws `typescript-eslint does not support TS 7.0`; its support is PR #12803, open on 2026-11-04.
+  - **What doesn't get around it:** an npm override on `eslint-config-next` fails with a dependency
+    conflict, and one on `typescript-eslint` and its packages installs no TypeScript 6. Aliasing
+    `typescript` to `@typescript/typescript6` was rejected in the grounded agent's 2i-h: `npx tsc` ran 6.
+  - **When it's picked up:** `eslint.config.mjs` on `eslint-config-next`'s flat config, `lint` running
+    `eslint .`, `@eslint/eslintrc` removed, a `Lint` job in `ci.yml`, and `AGENTS.md`, the README and the
+    `ci.yml` header updated. Run `npm ci` first.
+  - **What to expect:** 19 errors and 1 warning, from trials on an out-of-date `node_modules`, so re-count.
+    14 `react-hooks/globals` are test `Probe`s: turn that rule off for `*.test.tsx`. `DatePicker` copies a
+    prop into state: make it controlled and give its two tests a wrapper that feeds the value back. The
+    others are false alarms or harmless, so disable each inline with its reason: `ToursCarousel`, `Intro`,
+    `SiteNav`, `useGeoNames`, and the warning in `FormContext`.
