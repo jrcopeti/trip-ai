@@ -6,11 +6,28 @@ import Providers from "@/app/providers";
 import SiteNav from "@/components/ui/SiteNav";
 
 // Self-hosted so a build fetches nothing: the box's firewall blocks Google Fonts.
-// One variable file, latin and latin-ext. OFL, licence beside it.
+// Two files under one family. OFL, licence beside them. See design-notes, Typography.
 export const rubik = localFont({
   src: "../assets/fonts/rubik-latin-wght.woff2",
   weight: "400 800",
   variable: "--font-rubik",
+  declarations: [{ prop: "font-family", value: "Rubik" }],
+});
+// Not preloaded: the browser fetches it only for a character in this range.
+// Without the shared `font-family` these characters would skip Rubik altogether.
+export const rubikExtended = localFont({
+  src: "../assets/fonts/rubik-extended-wght.woff2",
+  weight: "400 800",
+  preload: false,
+  adjustFontFallback: false,
+  declarations: [
+    { prop: "font-family", value: "Rubik" },
+    {
+      prop: "unicode-range",
+      value:
+        "U+0100-0130,U+0132-0151,U+0154-0192,U+01FC-0237,U+02C7,U+02DD,U+0307,U+0400-04F9,U+051A-0525,U+05B0-06CC,U+06F0-06F9,U+1E80-1E9E,U+1EF2-1EF3,U+20AA,U+20AE-20BD,U+2116,U+FB2A-FB59,U+FB7B-FB9F,U+FBFD-FC96,U+FCFB-FD3F",
+    },
+  ],
 });
 // The one exception to "Rubik is the display face": polaroid captions are
 // handwritten. Exposed as `font-sorbet-hand`.

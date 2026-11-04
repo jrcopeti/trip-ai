@@ -10,7 +10,7 @@ what the box does is in `.devcontainer/README.md`.
 | Branch | Holds | State |
 | --- | --- | --- |
 | `dev-container` | The box: `./box`, the image, the firewall, its Postgres, Playwright and Playwright MCP, no connectors. The brain. `./box --docker`. The README | Committed, with the review's two fixes staged |
-| `rubik-self-hosted` | Rubik through `next/font/local`, as Caveat is, so `npm run build` runs behind the firewall | Staged |
+| `rubik-self-hosted` | Rubik through `next/font/local`, as Caveat is, so `npm run build` runs behind the firewall | Committed, with the review's fixes staged |
 
 The brain and `--docker` share this branch by the owner's decision, against the one-concern rule.
 
@@ -62,8 +62,7 @@ Decided or waiting:
 
 1. **Rubik.** `next/font/google` fetched Rubik at build time and the firewall blocks Google Fonts. Allowing
    it would allow an IP on Google's shared front end, so all of Google. `rubik-self-hosted` moves it to
-   `next/font/local`: one file, `latin` and `latin-ext`. Cyrillic, Hebrew and Arabic, which Google's CSS
-   also served, now render in the system font: one file holding them all would preload at about 120 KB.
+   `next/font/local`: a preloaded `latin` file and an on-demand one for the rest, sharing a family.
 2. **`--docker` exposes `.env` and `.env.local`.** The VM shares the real repo folder, so a container
    started through the socket binds it and reads both; the empty mounts stop only the box itself. The
    agent is root in the VM, so nothing set in the VM holds. Left as it is and documented while `--docker`
@@ -72,7 +71,7 @@ Decided or waiting:
    dangle in the VM.
 3. **`--docker` has no job here yet.** In ticket-bay it exists for Testcontainers, and this repo has none.
    It is here for the course setup and for later.
-4. **Form-walk flakes in the box.** Each e2e run lost a different form test to a 30 s timeout on a country
+4. **Form-walk flakes in the box.** Each e2e run lost a different form test to a timeout on a country
    option, "element is not stable". They pass on a rerun and CI on `main` is green. Not root-caused;
    the box shared Docker's 4 GB VM with ticket-bay's box in these runs.
 5. **Unit tests under load in the Docker box.** `npm test` failed 15, then 3, form tests with no change.
@@ -94,12 +93,14 @@ In the box, on Docker Desktop (arm64), port 3200 because ticket-bay's box held 3
 
 `rubik-self-hosted`, in the plain box with Google Fonts unreachable:
 
-- `npm run build` passes. `npm run test:e2e`: 75 passed, 1 failed (open item 4, passed on a rerun), and
-  the 6 journey tests behind it passed when run on their own. `logs no console errors` passes.
-- On the host, against the Google build: page heights and latin text widths are unchanged at 400, 500, 600
-  and 800, and glyph data matches Google's for all 221 latin characters. `/form`, `/saved-trips` and a saved
-  trip still differ in text anti-aliasing, invisible at 3x and cause not found. Weight 700 is now a true
-  700 rather than the 800 face; nothing uses it.
+- `npm run build` passes. `npm run test:e2e`: 81 passed, 1 failed (open item 4, on `trip-journey.spec.ts:329`).
+  `logs no console errors` passes. `next dev --turbopack` loads both `Rubik` faces in a browser.
+- On the host, against the Google build: page heights are unchanged. At 40 px, latin text is about 0.015% wider,
+  as the moved default rounds advances; latin-ext, Cyrillic, Hebrew and Arabic are within 0.1 px. `/`, `/about`,
+  `/form`, `/saved-trips` and a saved trip fetch only the latin file; a Cyrillic or latin-ext character fetches the
+  other. The country list holds no such character, so opening it fetches nothing and item 4 isn't the font swap.
+- `/form`, `/saved-trips` and a saved trip still differ in text anti-aliasing, cause not found. Weight 700 is now a
+  true 700 rather than the 800 face; nothing uses it. The fallback's `size-adjust` is 105.79%, Google's was 104.98%.
 
 The brain, with no brain repo yet:
 

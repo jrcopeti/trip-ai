@@ -1,4 +1,5 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
+import { createRequire } from "node:module";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -77,10 +78,6 @@ describe("the old look is gone", () => {
     expect(offenders(/Red_Hat_Display|League_Spartan|\bInter\(/)).toEqual([]);
   });
 
-  it("fetches no font at build time, as the box's firewall blocks Google Fonts", () => {
-    expect(offenders(/from ["']next\/font\/google["']/)).toEqual([]);
-  });
-
   it("has no `data-sorbet` scope left, now HeroUI is sorbet on :root", () => {
     expect(offenders(/data-sorbet/)).toEqual([]);
   });
@@ -115,5 +112,30 @@ describe("toasts", () => {
 
   it("are dismissed, never removed", () => {
     expect(app.filter(({ text }) => /toast\.remove\(/.test(text)).map(({ path }) => path)).toEqual([]);
+  });
+});
+
+describe("the fonts", () => {
+  // Next's bundled copy, the one `next/font/local` reads these files with. It ships no types.
+  const fontkit = createRequire(__filename)("next/dist/compiled/@next/font/dist/fontkit").default as (
+    file: Buffer,
+  ) => { hasGlyphForCodePoint(codePoint: number): boolean };
+
+  const missing = (file: string, characters: string) => {
+    const font = fontkit(readFileSync(join(src, "assets", "fonts", file)));
+    return [...characters].filter((character) => !font.hasGlyphForCodePoint(character.codePointAt(0)!));
+  };
+
+  it("don't import next/font/google, as the box's firewall blocks it at build time", () => {
+    expect(offenders(/from ["']next\/font\/google["']/)).toEqual([]);
+  });
+
+  // A missing glyph fails silently into the fallback, so no render or build would notice.
+  it("hold latin in the preloaded file", () => {
+    expect(missing("rubik-latin-wght.woff2", "Az09é€–’")).toEqual([]);
+  });
+
+  it("hold latin-ext, Cyrillic, Hebrew and Arabic in the on-demand file", () => {
+    expect(missing("rubik-extended-wght.woff2", "ńŁźŞЖяאשعق")).toEqual([]);
   });
 });

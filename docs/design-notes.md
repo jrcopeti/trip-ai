@@ -93,10 +93,27 @@ box's firewall. One variable file declared 400–800; the scale uses **400, 500,
 
 **700 is not in the scale.** Use `font-semibold` (600) or `font-extrabold` (800).
 
-The file holds Google's `latin` and `latin-ext` ranges, so Gdańsk and Łódź stay in Rubik.
-Cyrillic, Hebrew and Arabic render in the system font. `next/font/local` can't give each file
-its own `unicode-range`, so adding a script means adding it to this one file, which every page
-preloads. Rebuild it from Google's variable TTF with `pyftsubset --layout-features='*' --no-hinting --flavor=woff2`.
+Two files share the family `Rubik`, as Google's subsets do. `rubik-latin-wght.woff2` is preloaded on
+every page. `rubik-extended-wght.woff2` holds latin-ext, Cyrillic, Hebrew and Arabic, and the browser
+fetches it only for a character in its `unicode-range`, so Gdańsk and Москва stay in Rubik. Without the
+`font-family` declaration in both `localFont` calls, each file gets its own family and the range does nothing.
+
+Rebuild them from [Google's variable TTF](https://github.com/google/fonts/tree/main/ofl/rubik). The instancer
+moves the default to 400: `next/font` measures the fallback from the default, and at 300 it comes out narrow.
+`--name-IDs='*'` keeps the licence entries, which are all the OFL has in a deployed build.
+
+```sh
+fonttools varLib.instancer 'Rubik[wght].ttf' wght=400:400:800 -o Rubik-400-800.ttf
+pyftsubset Rubik-400-800.ttf --layout-features+=pnum,tnum --no-hinting '--name-IDs=*' --flavor=woff2 \
+  --output-file=rubik-latin-wght.woff2 \
+  --unicodes=U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0300-0301,U+0303-0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD
+pyftsubset Rubik-400-800.ttf --layout-features+=pnum,tnum --no-hinting '--name-IDs=*' --flavor=woff2 \
+  --output-file=rubik-extended-wght.woff2 \
+  --unicodes=U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0301,U+0304,U+0307-0308,U+0329,U+0400-052F,U+0590-06FF,U+0750-077F,U+0870-0891,U+0897-08FF,U+1C80-1C8A,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+200C-2011,U+2020,U+204F,U+20A0-20C4,U+2113,U+2116,U+25CC,U+2C60-2C7F,U+2DE0-2DFF,U+2E41,U+A640-A69F,U+A720-A7FF,U+FB1D-FDFF,U+FE2E-FE2F,U+FE70-FEFC
+```
+
+The `unicode-range` in `layout.tsx` is the extended file's characters minus the latin file's, with small
+gaps closed. A character in both ranges would fetch the extended file on pages that don't need it.
 
 `font-sorbet` is on `<body>`, so everything inherits Rubik — portals and toasters
 included. Pages and the shared pieces (`SiteNav`, `SiteFooter`, the toasters, the
