@@ -232,8 +232,48 @@ After a Prisma schema change: `npx prisma generate`, then `npx prisma db push`. 
 to whatever `DATABASE_URL` resolves to, so check it first;** for the e2e database, use
 `npm run db:push:e2e`.
 
-To work in a sandbox with its own database and a default-deny network, use `./box`:
-see [`.devcontainer/README.md`](.devcontainer/README.md).
+The repo's rules for coding agents moved from `CLAUDE.md` to [`AGENTS.md`](AGENTS.md), so any agent
+that reads that file can follow them. `CLAUDE.md` now only imports it.
+
+## The box
+
+`./box` is a dev container to work in, so a coding agent can run with full permissions away from
+your files, your keys and the production database. Claude Code runs inside it with
+`--dangerously-skip-permissions`, as the non-root `node` user. The agent's edits land in your repo
+folder, where you review them as usual.
+
+With Docker running:
+
+```bash
+./box npm ci               # first run: install in the box
+./box npx prisma db push   # first run: the schema, on the box's own Postgres
+./box                      # start the box if needed, then Claude Code inside it
+./box npm test             # run any command inside the box
+./box bash                 # a shell inside the box
+```
+
+To see the app, run `E2E_FIXTURES=1 npm run dev` inside the box and open http://localhost:3000. If
+that port is taken, start the box with `BOX_PORT=3200 ./box`. VS Code and Cursor open the same box
+with "Reopen in Container".
+
+- **Your machine stays out.** The box sees this repo and nothing else from your home folder, apart
+  from the brain's settings folder, read-only.
+- **No production database, no API keys.** `.env` and `.env.local` are mounted empty, so the
+  external APIs answer from fixtures.
+- **Its own Postgres 16,** with a second database for the e2e suite, which `seed:e2e` may wipe.
+- **Default-deny network.** Only GitHub, the npm registry, Claude and Context7 are allowed. A
+  firewall that fails at start blocks all traffic, and `./box` then runs nothing.
+- **The same tools as your machine.** The MCP servers in `.mcp.json` run in the box, with the
+  browsers in the image.
+- **A second brain, if you have one.** The box keeps its own copy, in its own volume, pushed with a
+  deploy key for that one repo.
+- **Docker when you need it.** `./box --docker` runs the box on a separate Colima VM (macOS only),
+  with weaker network limits.
+- **It is not airtight.** Anything inside can still leak through an allowed host, and what the box
+  writes to the repo, `.git` included, can run on your machine. Use it on repos you trust.
+
+Setup, the limits and the `--docker` details are in
+[`.devcontainer/README.md`](.devcontainer/README.md).
 
 ## Tests
 

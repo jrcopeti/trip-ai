@@ -11,7 +11,8 @@ what the box does is in `.devcontainer/README.md`.
 | --- | --- | --- |
 | `dev-container` | The box: `./box`, the image, the firewall, its Postgres, Playwright and Playwright MCP, no connectors. The brain. `./box --docker`. The README | Merged (#253) |
 | `rubik-self-hosted` | Rubik through `next/font/local`, as Caveat is, so `npm run build` runs behind the firewall | Merged (#254) |
-| `playwright-mcp-project` | Playwright, Chrome DevTools and Context7 in the tracked `.mcp.json`, with what each needs to run in the box | In review (#255) |
+| `playwright-mcp-project` | Playwright, Chrome DevTools and Context7 in the tracked `.mcp.json`, with what each needs to run in the box | Merged (#255) |
+| `readme-box` | The box in the root `README.md`: overview, how to use it, a summary, a pointer to `.devcontainer/README.md`. A line on `AGENTS.md` under "Running locally" | In review |
 
 The brain and `--docker` share this branch by the owner's decision, against the one-concern rule.
 
