@@ -6,12 +6,15 @@ comes next is in [`PLAN.md`](PLAN.md).
 Entries stand as written, so "today" means the day of the entry and a status inside one can be
 out of date. The index below holds each branch's final state.
 
-**Writing here:** a branch adds its entry at the end of the file when its work is staged, newest
-last, and adds a row to the index. An entry says what was built and how it differs from the plan,
-what was checked, and each review's fixes and what it left. Anything left open also goes in
-`PLAN.md`'s extras.
+**Writing here:** a branch adds its entry at the end of the file when its work is staged, and adds
+a row to the index. The entries before 2r keep the order they were planned in. An entry says what
+was built and how it differs from the plan, what was checked, and each review's fixes and what it
+left. What is left open and worth doing also goes in `PLAN.md`'s extras.
 
 ## Index
+
+Every merged PR of this work. Those that aren't a branch of the plan come last; other work's PRs are
+in its own plan.
 
 | Branch | Name | State |
 |---|---|---|
@@ -57,6 +60,16 @@ what was checked, and each review's fixes and what it left. Anything left open a
 | [2o](#2o--save-keeps-scroll) | save-keeps-scroll | Closed, not reproduced |
 | [2p](#2p--the-open-trip-in-the-database) | the open trip in the database | Dropped |
 | [2q](#2q--saved-trips-newest) | saved-trips-newest | Merged #248 |
+| [plan](#context) | grounded-agent-plan: the plan itself | Merged #188 |
+| [plan](#2a--trip-schema) | plan-follow-ups-done: 2a's schema audit | Merged #201 |
+| [plan](#2e--the-providers-leave-the-app-root) | contexts-audit: 2e | Merged #206 |
+| [plan](#2i--dependencies) | deps-plan: the dependencies, the README wrap-up | Merged #207 |
+| [plan](#2e-f--background-generation) | plan-background-generation: 2e-f and 2g | Merged #209 |
+| [plan](#2f--fix-string-tours) | park-tours-string: the string tours, parked | Merged #215 |
+| [doc](#2f--fix-string-tours) | models-comparison: `models-comparison.md` | Merged #217 |
+| [plan](#2o--save-keeps-scroll) | plan-2o-2p: 2o closed, 2p dropped, 2q–2u planned | Merged #247 |
+| doc | repo-tidy: `AGENTS.md` and the docs, tidied | Merged #251 |
+| [deps](#2i-b--renovate) | Renovate's own: `sharp`, `next`, the SDK, non-major, HeroUI | Merged #235, #241–#243, #249 |
 
 ## Context
 
@@ -396,6 +409,69 @@ production mode and loads it too.)
 `useConfirmOnPageExit` exists. Refine (branch 5), the SSE progress (branch 4) and MCP `plan_trip`
 (branch 7) all need the trip to exist on the server. Building them on the client-memory trip would
 mean writing them twice.
+
+#### The design branch 2 started from
+
+What's wrong today:
+- Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`
+  included. Weather and images are fetched from the browser during the form steps and carried in
+  context.
+- Every trip section reads from two sources (`trip?.city || formData?.city`, e.g. `WeatherSection`),
+  because one component tree serves both an unsaved trip (context) and a saved one (`useSingleSavedTrip`).
+- Saving sends the **whole `Prisma.TripCreateInput` from the client** to `createTripInDB`
+  (`useCreateTrip`), so anyone can write any row.
+- Saved trips are loaded in the browser by `useQuery` calling a server action, rather than rendered
+  on the server.
+
+Server (after the refactor):
+- Generation writes the `Trip` row (`saved: false`) as soon as the trip comes back, including the
+  Unsplash images (`fetchTripImage`), the resolved place and the weather summary. It returns `tripUrl`.
+- `/trips/[tripUrl]` and `/saved-trips/[id]` become server components that read the row (new
+  `getTripByUrl`, plus the existing `getSingleSavedTrip`) and pass `trip` as props to one `TripPage`.
+  The sections take props; there's no dual-source reading.
+- Current weather for the weather card is fetched in the page (server), with a short `revalidate`.
+- **The place, resolved once** (from the phase 1 wrap-up's review). The row stores the resolved
+  place: `countryCode`, `lat`, `lng` (added in 2a).
+  `fetchForecast` and `fetchWeather` take `{ lat, lon }` and never call `resolvePlace`; the page
+  fetches both from the row's coordinates in one server pass. The form's forecast uses
+  `cityCheck.place`, which step 2 already resolved. `countryCodeFromFlag` goes. Result: one
+  GeoNames call per spelling on the form, one in `generateTrip`, none on any trip page.
+  No backfill: every current row is deleted before 2a's schema lands (see below), so the
+  columns are required and there's no fallback geocoding.
+- Save and discard become `setTripSaved(tripUrl, saved)`, a flag, not a client-built payload.
+  `createTripInDB` leaves the client API.
+
+Client (stays):
+- The form: RHF, step navigation, the `useGeoNames` debounce, the comboboxes. `FormContext` moves
+  from `providers.tsx` into `src/app/form/layout.tsx`, scoped to `/form`.
+- `useTripGeneration`: the generate call (the SSE stream from branch 4), with `router.push` to
+  `/trips/[tripUrl]` when it finishes. A hook in the form page, not a context.
+- Interactive pieces only: save/discard buttons, refine box, `ToursCarousel`, `Reveal` and other
+  motion, the "Show more" on `/saved-trips`.
+- **Removed:** `TripContext`, `WeatherContext`, `ImageContext`, `useTripResponse`, `useWeather`,
+  `useImage`, `useCreateTrip`, `useSingleSavedTrip`, `useConfirmOnPageExit`. `providers.tsx` keeps
+  QueryClient, MotionProvider and Toaster.
+
+Tests: page logic as pure helpers (`loadTrip`), sections rendered with a fixture `trip` prop
+(`sections.test.tsx` gets simpler), an action test for `setTripSaved`. e2e: generate → refresh the
+trip page → still there; save → appears in saved trips.
+
+From the input audit (after #197; finding 5 was fixed in phase 1, see branch 1):
+1. **Saving checks nothing (high).** `createTripInDB` writes the whole client-built row, so a direct
+   call skips every limit. `setTripSaved(tripUrl, saved)` above replaces it; `createTripInDB` stays
+   server-only.
+2. **Passport is free text in the trusted facts (medium).** The request schema caps it at 100
+   characters on one line but doesn't check it against the country list. Check it with `oneOf`
+   against the countries, like the choice fields.
+3. **Required items allow line breaks (low).** One can fake a second line inside
+   `<traveller_note>`. Refuse them on the server as the name does, and on the form to match. The
+   note keeps its line breaks.
+4. **The image search takes the raw city (low).** `fetchTripImage` is its own server action with
+   no cap. It moves inside generation here, so search with GeoNames' name for the place.
+
+Left for a follow-up: rendering `/saved-trips`' first page on the server (the "Show more" query
+stays as it is), and updating CLAUDE.md's "four Context providers" architecture section, done in this
+branch's diff.
 
 #### 2a · trip-schema
 
@@ -1662,66 +1738,3 @@ its own, in this order (2h is independent and can land any time):
     a trip saved mid-browse no longer ends "Show more" one short. "Newest" is newest planned
     (`createdAt`), not newest saved; a `savedAt` waits with `answeredAt` for branch 3. Left: a
     keyset cursor on `(createdAt, id)` instead of `skip`, which would end the shifting pages.
-
-#### The design branch 2 started from
-
-What's wrong today:
-- Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`
-  included. Weather and images are fetched from the browser during the form steps and carried in
-  context.
-- Every trip section reads from two sources (`trip?.city || formData?.city`, e.g. `WeatherSection`),
-  because one component tree serves both an unsaved trip (context) and a saved one (`useSingleSavedTrip`).
-- Saving sends the **whole `Prisma.TripCreateInput` from the client** to `createTripInDB`
-  (`useCreateTrip`), so anyone can write any row.
-- Saved trips are loaded in the browser by `useQuery` calling a server action, rather than rendered
-  on the server.
-
-Server (after the refactor):
-- Generation writes the `Trip` row (`saved: false`) as soon as the trip comes back, including the
-  Unsplash images (`fetchTripImage`), the resolved place and the weather summary. It returns `tripUrl`.
-- `/trips/[tripUrl]` and `/saved-trips/[id]` become server components that read the row (new
-  `getTripByUrl`, plus the existing `getSingleSavedTrip`) and pass `trip` as props to one `TripPage`.
-  The sections take props; there's no dual-source reading.
-- Current weather for the weather card is fetched in the page (server), with a short `revalidate`.
-- **The place, resolved once** (from the phase 1 wrap-up's review). The row stores the resolved
-  place: `countryCode`, `lat`, `lng` (added in 2a).
-  `fetchForecast` and `fetchWeather` take `{ lat, lon }` and never call `resolvePlace`; the page
-  fetches both from the row's coordinates in one server pass. The form's forecast uses
-  `cityCheck.place`, which step 2 already resolved. `countryCodeFromFlag` goes. Result: one
-  GeoNames call per spelling on the form, one in `generateTrip`, none on any trip page.
-  No backfill: every current row is deleted before 2a's schema lands (see below), so the
-  columns are required and there's no fallback geocoding.
-- Save and discard become `setTripSaved(tripUrl, saved)`, a flag, not a client-built payload.
-  `createTripInDB` leaves the client API.
-
-Client (stays):
-- The form: RHF, step navigation, the `useGeoNames` debounce, the comboboxes. `FormContext` moves
-  from `providers.tsx` into `src/app/form/layout.tsx`, scoped to `/form`.
-- `useTripGeneration`: the generate call (the SSE stream from branch 4), with `router.push` to
-  `/trips/[tripUrl]` when it finishes. A hook in the form page, not a context.
-- Interactive pieces only: save/discard buttons, refine box, `ToursCarousel`, `Reveal` and other
-  motion, the "Show more" on `/saved-trips`.
-- **Removed:** `TripContext`, `WeatherContext`, `ImageContext`, `useTripResponse`, `useWeather`,
-  `useImage`, `useCreateTrip`, `useSingleSavedTrip`, `useConfirmOnPageExit`. `providers.tsx` keeps
-  QueryClient, MotionProvider and Toaster.
-
-Tests: page logic as pure helpers (`loadTrip`), sections rendered with a fixture `trip` prop
-(`sections.test.tsx` gets simpler), an action test for `setTripSaved`. e2e: generate → refresh the
-trip page → still there; save → appears in saved trips.
-
-From the input audit (after #197; finding 5 was fixed in phase 1, see branch 1):
-1. **Saving checks nothing (high).** `createTripInDB` writes the whole client-built row, so a direct
-   call skips every limit. `setTripSaved(tripUrl, saved)` above replaces it; `createTripInDB` stays
-   server-only.
-2. **Passport is free text in the trusted facts (medium).** The request schema caps it at 100
-   characters on one line but doesn't check it against the country list. Check it with `oneOf`
-   against the countries, like the choice fields.
-3. **Required items allow line breaks (low).** One can fake a second line inside
-   `<traveller_note>`. Refuse them on the server as the name does, and on the form to match. The
-   note keeps its line breaks.
-4. **The image search takes the raw city (low).** `fetchTripImage` is its own server action with
-   no cap. It moves inside generation here, so search with GeoNames' name for the place.
-
-Left for a follow-up: rendering `/saved-trips`' first page on the server (the "Show more" query
-stays as it is), and updating CLAUDE.md's "four Context providers" architecture section, done in this
-branch's diff.

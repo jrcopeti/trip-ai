@@ -31,7 +31,7 @@ prices and entry rules are its own knowledge.
 | Phase | What | State |
 |---|---|---|
 | 1 | The prompt on the server, new fields, new model | Done |
-| 2 | The server owns the trip, plus what using it turned up | 2r–2u left, then a README pass |
+| 2 | The server owns the trip, plus what using it turned up | 2r–2v left |
 | 3 | `agent-metrics`: record every call, rate-limit | Not started |
 | 4 | `agent-tools`: the loop, the tools, live progress | Not started |
 | 5 | `agent-refine`: change the trip from the trip page | Not started |
@@ -40,7 +40,7 @@ prices and entry rules are its own knowledge.
 
 ## Next up
 
-In this order: 2r → 2s → 2t → 2u-a → 2u-b → the README pass → phase 3. One branch each, from the
+In this order: 2r → 2s → 2t → 2u-a → 2u-b → 2v → phase 3. One branch each; 2r–2u are from the
 review of 2026-10-29.
 
 - **2r · `note-as-context`: the note is context for the trip.** The traveller's note is
@@ -76,8 +76,8 @@ review of 2026-10-29.
     each tick. `docs/generation.md`'s state tables gain `startedAt`. Tests: `generation.test`, the loader
     under fake timers (`docs/testing.md`). The planning toast off `/form` can show it too:
     decided in the branch.
-- **The README pass.** 2j's review once more, against what 2r–2u changed: the text, and the
-  screenshots at the sizes under "Rules".
+- **2v · `readme-phase-2-again`: the README, caught up once more.** 2j's review against what 2r–2u
+  changed: the text, and the screenshots at the sizes under "Rules".
 
 ## Phases 3–7
 
@@ -100,8 +100,7 @@ Each is split into reviewable sub-branches when it starts. Phase 4 will certainl
   an admin page.
 - From 2m-b: thinking tokens are output tokens, so `outputTokens` counts them; record
   `output_tokens_details.thinking_tokens` too, and retries (2m-b's broken-list retry is a second
-  call for one trip). 2m-b's measured baseline, one trip in Lisbon: about $0.095 and 65s with
-  thinking (production since #239), $0.025 and 22s without.
+  call for one trip). 2m-b's measured baseline is under "Expected cost".
 - Candidate, from 2p: `Trip.answeredAt DateTime?`, set by `setTripSaved`, if a metric needs
   discarded vs never answered or the time to an answer; `isTripOpen` would then read it rather
   than `saved`. Only when a report asks for it.
@@ -180,7 +179,8 @@ Each is split into reviewable sub-branches when it starts. Phase 4 will certainl
 
 ## Extras
 
-Found along the way and not scheduled as a branch. Each is open; "From" is its `DEVLOG.md` entry.
+Found along the way, worth doing and not scheduled as a branch. "From" is its `DEVLOG.md` entry.
+Edge cases never seen in production stay in their entries.
 
 | Item | From | Goes with |
 |---|---|---|
@@ -212,7 +212,7 @@ Found along the way and not scheduled as a branch. Each is open; "From" is its `
 | `useConfirmOnPageExit` is removed | It stays, asking before a reload while a generation is in flight | A reload or a closed tab ends the generation | 2c, 2e-f |
 | The browser fetches the forecast and sends it | The request says `byWeather` and the server fetches it | A crafted request could put any "forecast" into the prompt | 2e-e |
 | Zustand is not adopted | Adopted for the generation's store; the form stays on React Hook Form | One state stopped each review finding a new timing case | 2e-f |
-| No retry on a bad response | One retry on a list sent as broken text | 6 of 15 real runs broke; measured, a break costs under $0.015 without thinking | 2k, 2m-b |
+| No retry on a bad response | One retry on a list sent as broken text | 6 of 15 real runs broke. A break costs under $0.015 without thinking; with it, as production runs, a retry can cost up to about $0.095 and 80s | 2k, 2m-b |
 | A tour is three to five sentences | One paragraph of 110 to 130 words | Short beside older trips, then too tall at 390 | 1c-b, 2f |
 | The open trip moves to the database (2p) | Dropped; `localStorage` stays the guide | A cookie is as easy to shed, so it guards nothing the rate limit doesn't | 2p |
 | Answering jumps the page to the top (2o) | Closed, not reproduced | The page held its place at 1440 and 390 on every route to it | 2o |
@@ -231,7 +231,7 @@ a phase ends with a review of `README.md` against everything the phase changed, 
 a reader would care about: text and descriptions (features, how it works, stack, setup, env
 vars, commands) and screenshots of anything visible. Sub-branches such as 2b or 2d do not touch
 the README. A phase with nothing visible still gets the review and reports "no README change".
-Phase 2's is the README pass under "Next up".
+Phase 2's is its own branch, 2v.
 
 - Screenshots come from the Playwright MCP tools, saved in `public/screenshots/`, named
   `desktop-<page>[-<step>].png` / `mobile-<page>[-<step>].png`.

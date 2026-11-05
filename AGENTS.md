@@ -111,7 +111,8 @@ what you write; older code doesn't all meet them yet.
   shape; churn there is expected. A new piece of work gets a new folder. The plan in flight is
   `docs/grounded-agent/PLAN.md`; the others are records.
 - **`docs/grounded-agent/DEVLOG.md`** — what that plan's branches built, each review's findings and
-  what was measured, newest last. Its plan says what comes next; what a branch leaves open goes in both.
+  what was measured, new entries last. Its plan says what comes next; what a branch leaves open and
+  is worth doing goes in both.
 - **A folder's own `AGENTS.md`** — rules only that folder needs: `e2e/`, `prisma/`, `src/app/api/`.
   Each has a `CLAUDE.md` beside it that imports it, as Claude Code won't load it otherwise.
 

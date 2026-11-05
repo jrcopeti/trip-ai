@@ -1,6 +1,6 @@
 # Why `tours` arrived as a string: measurements (2m-b)
 
-The measurements behind 2m-b's fix. The decision and its status are in `DEVLOG.md` (2m-b); this
+The measurements behind 2m-b's fix. The decision is in `DEVLOG.md` (2m-b); this
 file is the evidence.
 
 ## The failure

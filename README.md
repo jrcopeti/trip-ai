@@ -167,7 +167,7 @@ flowchart LR
 | **One retry, only for a broken list** | A retry is a second paid call, so it is kept for the one failure measured as a random slip: a list sent as broken text. A second broken answer, or any other bad response, fails with the cause in the server log, and the traveller can try again. |
 | **Fixtures at the API boundary for e2e** | The external calls happen on the server, where `page.route` cannot reach them. `E2E_FIXTURES=1` makes those modules answer from fixtures, so CI needs no keys. |
 
-The design system in [`docs/design-notes.md`](docs/design-notes.md).
+The design system is in [`docs/design-notes.md`](docs/design-notes.md).
 
 ## Roadmap
 
