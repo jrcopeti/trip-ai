@@ -1,4 +1,62 @@
-# PLAN: trip-ai as a grounded agent
+# DEVLOG: trip-ai as a grounded agent
+
+What was built, branch by branch: how it came out, what its reviews found, what was measured. What
+comes next is in [`PLAN.md`](PLAN.md).
+
+Entries stand as written, so "today" means the day of the entry and a status inside one can be
+out of date. The index below holds each branch's final state.
+
+**Writing here:** a branch adds its entry at the end of the file when its work is staged, newest
+last, and adds a row to the index. An entry says what was built and how it differs from the plan,
+what was checked, and each review's fixes and what it left. Anything left open also goes in
+`PLAN.md`'s extras.
+
+## Index
+
+| Branch | Name | State |
+|---|---|---|
+| [1a](#1a--agent-fields-the-new-form-fields-and-columns) | agent-fields | Merged #189 |
+| [1a-a](#1a-a--agent-ages-finer-age-ranges-capped-by-whos-going) | agent-ages | Merged #193 |
+| [1b](#1b--agent-geonames-the-city-check-on-the-server) | agent-geonames | Merged #191 |
+| [1c-a](#1c-a--agent-prompt) | agent-prompt | Merged #194 |
+| [1c-b](#1c-b--agent-generate) | agent-generate | Merged #196 |
+| [1d](#1d--e2e-database-env-the-e2e-suite-never-reads-envs-database) | e2e-database-env | Merged #190 |
+| [—](#1--the-prompt-on-the-server-new-fields-new-model--split-into-1a-1b-1c) | geonames-tidy, agent-phase1-wrap-up, form-matches-server, fix-retry-city-toast, axios-to-fetch | Merged #192, #197–#200 |
+| [2a](#2a--trip-schema) | trip-schema | Merged #202 |
+| [2b](#2b--trip-write) | trip-write | Merged #203 |
+| [2c](#2c--trip-page-server) | trip-page-server | Merged #204 |
+| [2d](#2d--weather-by-coords) | weather-by-coords | Merged #208 |
+| [2e-a](#2e-a--form-scoped) | form-scoped | Merged #210 |
+| [2e-b](#2e-b--form-context-split) | form-context-split | Merged #211 |
+| [2e-c](#2e-c--form-state-dead) | form-state-dead | Merged #212 |
+| [2e-d](#2e-d--form-draft) | form-draft | Merged #213 |
+| [2e-e](#2e-e--server-forecast) | server-forecast | Merged #214 |
+| [2e-f](#2e-f--background-generation) | background-generation | Merged #218 |
+| [2e-g](#2e-g--one-open-trip) | one-open-trip | Merged #220 |
+| [2e-h](#2e-h--a-refactor-audit) | a refactor audit | No branch: nothing to refactor |
+| [2f](#2f--fix-string-tours) | fix-string-tours | Merged #216 |
+| [2g](#2g--trip-route) | trip-route | Merged #219 |
+| [2h-a](#2h-a--bundled-countries) | bundled-countries | Merged #221 |
+| [2h-b](#2h-b--request-checks) | request-checks | Merged #222 |
+| [2i-a](#2i-a--deps-minor) | deps-minor | Merged #223 |
+| [2i-a2](#2i-a2--heroui-3-2) | heroui-3-2, heroui-checkbox | Merged #224, #227 |
+| [2i-b](#2i-b--renovate) | renovate, renovate-npm-11 | Merged #225, #234 |
+| [2i-c](#2i-c--sdk-1) | sdk-1 | Merged #228 |
+| [2i-d](#2i-d--zod-4) | zod-4 | Merged #229 |
+| [2i-e](#2i-e--framer-motion-14) | framer-motion-14 | Merged #230 |
+| [2i-f](#2i-f--react-day-picker-10) | react-day-picker-10 | Merged #231 |
+| [2i-g](#2i-g--prisma-7) | prisma-7 | Merged #233 |
+| [2i-h](#2i-h--typescript-7) | typescript-7 | Merged #236 |
+| [2j](#2j--readme-phase-2) | readme-phase-2 | Merged #232 |
+| [2k](#2k--string-tours-caught) | string-tours-caught | Merged #238 |
+| [2l](#2l--trip-text-breaks) | trip-text-breaks | Merged #237 |
+| [2m-a](#2m-a--passport-entry) | passport-entry | Merged #239 |
+| [2m-b](#2m-b--string-tours) | string-tours | Merged #244 |
+| [2m-c](#2m-c--description-paragraphs) | description-paragraphs | Merged #245 |
+| [2n](#2n--second-photo) | second-photo | Merged #246 |
+| [2o](#2o--save-keeps-scroll) | save-keeps-scroll | Closed, not reproduced |
+| [2p](#2p--the-open-trip-in-the-database) | the open trip in the database | Dropped |
+| [2q](#2q--saved-trips-newest) | saved-trips-newest | Merged #248 |
 
 ## Context
 
@@ -56,27 +114,7 @@ lookup. `userName` is used only in the title. `flagUrl` and `agreement` never re
 - Out of scope this round: memory and RAG/embeddings. There are no accounts and no corpus yet, and web
   search covers freshness.
 
-## Branches (one PR each, per CLAUDE.md's checklist; stage and stop)
-
-This plan lives in `docs/grounded-agent/PLAN.md` and is updated as each
-branch lands. Each numbered branch is split into reviewable sub-branches (1a, 1b, …) when it
-starts, per CLAUDE.md's "Keep PRs small"; 2 and 4 will certainly need it.
-
-**README wrap-up, once per phase (2, 3, 4, 5, 6, 7), not per sub-branch.** The last branch of
-a phase ends with a review of `README.md` against everything the phase changed, folding in what
-a reader would care about: text and descriptions (features, how it works, stack, setup, env
-vars, commands) and screenshots of anything visible. Sub-branches such as 2b or 2d do not touch
-the README. A phase with nothing visible still gets the review and reports "no README change".
-Phase 2 gets its own last branch, 2j, which also catches up anything from phase 1 the README
-doesn't yet say.
-- Screenshots come from the Playwright MCP tools, saved in `public/screenshots/`, named
-  `desktop-<page>[-<step>].png` / `mobile-<page>[-<step>].png`.
-- **Laptop shots are all one size: a 1440 × 900 viewport, viewport capture, never full-page**,
-  so every desktop image is 1440 × 900. (Today's set varies from 668 to 1196 px tall; retake
-  those the phase touches; the rest in 2j.)
-- **Phone shots are 390 × 844, at most four in a row** (`width="24%"`; today's row uses 19%).
-  A set of more than four wraps onto another row.
-- Alt text says what is in frame; the README's captions say what the phase added.
+## What was built
 
 ### 1 · the prompt on the server, new fields, new model — split into 1a, 1b, 1c
 
@@ -138,7 +176,6 @@ Left from branch 1, for the branch named or for later:
   chips), and HeroUI's popover still fades out under reduced motion.
 - `submit_trip` returned `tours` as a string despite `strict: true` (seen in dev, 2026-10-15:
   "Expected array, received string"), so the trip failed with "invalid trip". Fixed in 2f.
-
 
 Too much for one reviewable PR (data model, form UI, GeoNames, prompt and model in one diff),
 so it ships as four branches. 1a, 1b and 1d are independent of each other; 1c needs 1a and 1b.
@@ -227,6 +264,9 @@ What it left is listed under branch 1's status above.
 
 #### 1c · the prompt on the server, the new model — split into 1c-a, 1c-b
 Request schema, prompt, model call and the form's wiring are too much for one PR. 1c-b needs 1c-a.
+
+##### 1c-a · agent-prompt
+
 - **1c-a · `agent-prompt`**: the pure modules, with no call site yet. `src/lib/agent/request.ts`
   (`TripRequestSchema`, plus `toTripRequest(inputs, countryCode, forecast)`, the browser-side
   builder) and `src/lib/agent/prompt.ts` (`buildSystemPrompt`, `buildTripMessage`), a
@@ -238,6 +278,9 @@ Request schema, prompt, model call and the form's wiring are too much for one PR
   trip"). It strips `<` and `>` from the note and items so they can't close `<traveller_note>`. The
   system prompt already names `submit_trip`, which 1c-b defines. The prompt and message are
   snapshot-tested, and the request and prompt tests pass under UTC−10 and UTC+14 too.
+
+##### 1c-b · agent-generate
+
 - **1c-b · `agent-generate`**: `generateTrip` (with `resolvePlace`, `submit_trip`, `strict`, stop
   reasons, the Zod-parsed output), then `processForm` and `TripContext` send a `TripRequest`. This
   removes 1a's bridge (the prompt strings in `processForm`). It also updates the `tripData`
@@ -354,6 +397,8 @@ production mode and loads it too.)
 (branch 7) all need the trip to exist on the server. Building them on the client-memory trip would
 mean writing them twice.
 
+#### 2a · trip-schema
+
 **2a · `trip-schema`: the `Trip` table, audited and reshaped.** First sub-branch of 2, before
 the refactor, so the refactor writes the new shape once. The user deletes every current row (local
 and Neon) when this lands, so there's no migration or backfill and no column has to stay nullable
@@ -412,6 +457,8 @@ uses `db push`, so it is left alone here.
 The rest of 2 (the server-owned trip) builds on this shape, in four sub-branches, each green on
 its own, in this order (2h is independent and can land any time):
 
+#### 2b · trip-write
+
 - **2b · `trip-write`: generation writes the row; save and discard flip a flag.**
   `generateTrip` makes the `tripUrl`, fetches the photos (searching GeoNames' name for the place,
   finding 4), writes the row (`saved: false`) from the checked request, the resolved place and the
@@ -431,6 +478,9 @@ its own, in this order (2h is independent and can land any time):
   and would read a day early in UTC; the user deletes them. Left for 2c: the generated route
   still reads `byWeather` from the form, so a weather trip whose forecast failed says "Planned
   by the forecast" until saved, then not (the row has `false`); reading it from the row fixes it.
+
+#### 2c · trip-page-server
+
 - **2c · `trip-page-server`: both trip routes render the row on the server.** `getTripByUrl`;
   `/trips/[tripUrl]` and `/saved-trips/[id]` read the row and pass `trip` to `TripPage`, whose
   sections take props: no dual-source reads, no `formData` on the trip page. Saved state comes from
@@ -453,6 +503,9 @@ its own, in this order (2h is independent and can land any time):
   `actions.test`, sections and closings rendered with props, a `TripPage` test; e2e: a
   refresh keeps a generated trip, a saved one comes back answered, unknown trip url and
   non-numeric saved id show their not-found pages.
+
+#### 2d · weather-by-coords
+
 - **2d · `weather-by-coords`: the place, resolved once.** `fetchWeather`/`fetchForecast` take
   `{ lat, lon }` and never call `resolvePlace`; the trip page fetches both on the server from the
   row (short `revalidate`); the form's forecast uses `cityCheck.place`. `WeatherContext` shrinks
@@ -480,6 +533,9 @@ its own, in this order (2h is independent and can land any time):
   on the server (UTC) and hydrate in the browser, so the names could disagree. `fetchForecast`
   gives each reading the response's `city.timezone`, and the card names the day in the
   destination's time, as the weather card already did.
+
+#### 2e · the providers leave the app root
+
 - **2e · the providers leave the app root — split 2e-a, 2e-b, 2e-c, 2e-d.** Born of an audit of the
   three contexts. Cost found: all three providers wrap every route but only `/form` reads them,
   so `FormProvider` runs `useForm`/`useFieldArray`/`useGeoNames` everywhere and `useCountries`
@@ -487,6 +543,9 @@ its own, in this order (2h is independent and can land any time):
   `FormContext` value is a new 23-field object each render, so all 13 `useFormData()` consumers
   re-render on every city keystroke (`cityCheck`, the provider-level `watch`). `TripContext` and
   `WeatherContext` are thin `useMutation` wrappers that change only on mutation status — fine.
+
+##### 2e-a · form-scoped
+
   - **2e-a · `form-scoped`: the providers move to `src/app/form/layout.tsx`.** `providers.tsx`
     keeps QueryClient, MotionProvider and Toaster. The `clearOnLeave`/`reset()` effect goes, since
     the provider unmounting resets the state — check the empty-step-1 flash during `router.replace`
@@ -509,6 +568,9 @@ its own, in this order (2h is independent and can land any time):
     second trip, while the first still redirected on landing. The mutation is keyed
     (`generateTripKey`) and `Form` shows the loader while `useIsMutating` finds one running, so
     coming back mid-generation shows the loader; that survives 2e-c's `useTripGeneration`.
+
+##### 2e-b · form-context-split
+
   - **2e-b · `form-context-split`: stop re-rendering everything on a keystroke.** Memoise the
     value and split it into steps (`currentStep, delta, stepValue, next, prev`), rhf (`control,
     errors, fields, append/insert/remove, setValue, handleSubmit`) and city (`cityCheck,
@@ -528,6 +590,9 @@ its own, in this order (2h is independent and can land any time):
     progress bar and step 1 rendered 10 times each before, 0 after; step 2, 11 both ways, its
     field included. Checked in the browser: the city check, the review after a change two steps
     back, 390 with reduced motion, no console errors.
+
+##### 2e-c · form-state-dead
+
   - **2e-c · `form-state-dead`: what nothing reads goes.** `formData`/`setFormData`/
     `FinalDataTypes`; `TripContext` becomes `useTripGeneration`; the form's forecast becomes a
     form-local hook (`WeatherContext` goes). CLAUDE.md's architecture section is rewritten.
@@ -542,6 +607,9 @@ its own, in this order (2h is independent and can land any time):
     `FetchResponseAIParams`. Behaviour unchanged. One test note: with no `setFormData`
     re-render, a `processForm` called directly shows the loader on TanStack's next notify, so
     `FormPending.test` waits for it; a real submit re-renders through RHF's `formState`.
+
+##### 2e-d · form-draft
+
   - **2e-d · `form-draft`: the answers survive leaving `/form`, and "Start over" clears them.**
     Since 2e-a, a nav link mid-form loses the answers (the layout unmounts); a reload always did.
     The answers (RHF values), the step and the weather choice are saved to `sessionStorage` as they
@@ -592,6 +660,9 @@ its own, in this order (2h is independent and can land any time):
     ref-based) and TanStack Query owns the server state; a store would mirror RHF's. What is left
     is `currentStep`, `prevStep` and `isWeatherSelected`. Revisit only for a draft that survives a
     refresh, or form state read across routes. (2e-d's draft is `sessionStorage` beside RHF, not a store.)
+
+#### 2e-e · server-forecast
+
 - **2e-e · `server-forecast`: the request says "by the weather"; the server fetches it.** Born of
   2e-c's review. The form fetches the forecast only to send it back in the request; nothing on the
   form shows it. What that costs today:
@@ -646,6 +717,9 @@ its own, in this order (2h is independent and can land any time):
     - *Half-hour offsets.* `local.hour()` drops the minutes, so at +5:30 "nearest midday" is
       off by 30 minutes, which only decides between two readings that would tie. Fix: measure in
       minutes, `Math.abs(local.hour() * 60 + local.minute() - 720)`.
+
+#### 2e-f · background-generation
+
 - **2e-f · `background-generation`: leaving the loader doesn't lose the trip.** From 2e-a's
   review. The loader covers the nav, so the way out mid-generation is the browser's Back, a soft
   navigation: no `beforeunload`, and the generation keeps running with nothing on screen saying so.
@@ -836,6 +910,9 @@ its own, in this order (2h is independent and can land any time):
       call settles afterwards.
     - Accepted: a browser without Fetch Metadata (Safari before 16.4, older Firefox) isn't
       origin-checked; the JSON preflight still blocks its cross-site requests.
+
+#### 2e-g · one-open-trip
+
 - **2e-g · `one-open-trip`: one unanswered trip at a time, per browser.** From 2e-f's review. **Status: merged (#220).**
   With the result toast capped at one, a traveller could generate trip after trip without ever
   looking at them. Rule: while a trip they generated is unanswered (neither "Yes, save it" nor
@@ -907,6 +984,9 @@ its own, in this order (2h is independent and can land any time):
       open-trip check also posts to `/form`.
     - Seen once in the e2e runs, and passing on rerun: `saved-trips.spec`'s "the detail page
       streams in the weather" (not touched here).
+
+#### 2f · fix-string-tours
+
 - **2f · `fix-string-tours`: a list sent as a string no longer loses the trip; longer tours.**
   The bug parked under branch 1, seen twice now (2026-10-15 and 2026-10-16, in dev): despite
   `strict: true`, `submit_trip` sometimes sends `tours` as its JSON text, so `TripDataSchema`
@@ -930,6 +1010,9 @@ its own, in this order (2h is independent and can land any time):
     own: lists left alone, broken JSON and prose left as strings, other fields untouched,
     non-object input passed through. The prompt test and snapshot carry the new count.
   - Sonnet 5.5 against Opus 5.5 on the same trip (cost, output, recommendation): `models-comparison.md`.
+
+#### 2g · trip-route
+
 - **2g · `trip-route`: a cancelled generation stops on the server.** Since 2e-f (PR #218) the
   form calls `POST /api/trip` with a `fetch` it aborts on Cancel, but the server still finishes
   the call: the whole output is billed, the photos fetched and the row written. 2g passes the
@@ -985,13 +1068,22 @@ its own, in this order (2h is independent and can land any time):
     `request.signal` on; the existing failures (refusal, `max_tokens`, no call, invalid trip) still
     throw from the stream's final message. e2e: Cancel leaves no row (the fixture path,
     `E2E_FIXTURES=1`, waits on the signal so a Cancel lands mid-call).
+
+#### 2e-h · a refactor audit
+
 - **2e-h · a refactor audit after 2e-g.** Found nothing worth refactoring, so no branch.
+
+#### 2h · the passport and required items
+
 - **2h · findings 2 and 3: the passport is a listed country; required items stay on one line —
   split 2h-a, 2h-b.** The country list is fetched in the browser today (`useCountries`, from
   flagcdn's `codes.json`), so the server has nothing to check the passport against. Fetching it
   on the server too would make every generation depend on flagcdn; the list is bundled instead,
   as one source for the form and the server. That move touches every test that mocks
   `useCountries`, so it is its own branch, first.
+
+##### 2h-a · bundled-countries
+
   - **2h-a · `bundled-countries`: the country list ships with the app.** `src/data/countries.ts`
     holds flagcdn's list as of the branch (306 codes, less the 50 US states, the EU and the UN:
     254, the UK's nations kept), as `Country[]` sorted by name, built by the filter
@@ -1009,6 +1101,9 @@ its own, in this order (2h is independent and can land any time):
     a local `Country` type shadowing the shared one; the `key` comment. Left as is: one lookup
     helper for the three `countries.find`s, and a pre-sorted source list. The passport list's
     UK nations went to 2h-b.
+
+##### 2h-b · request-checks
+
   - **2h-b · `request-checks`: the server refuses what the form can't send.**
     - Passport: a listed country, still optional. **Decided (2026-10-21): the UK's four nations
       are not passports** ("United Kingdom" covers a British one); the destination keeps them,
@@ -1045,6 +1140,9 @@ its own, in this order (2h is independent and can land any time):
       the schemas still refuse it, and Start over clears it. Also left: step 4 shows no message
       for the list's own cap (the step stops offering items at 10), the form not trimming a
       passport the combobox sets exactly, and a `Set` for `isPassport`.
+
+#### 2k · string-tours-caught
+
 - **2k · `string-tours-caught`: the list sent as a string, caught in production.** After 2h-b.
   On 2026-10-21 (the #220 deploy) one generation (`req_011CgFDwVfiV8gNm6phjUk9j`) failed with
   "invalid trip", and 2f's DIAG log caught the string: `tours` arrived as JSON text, 715
@@ -1067,6 +1165,9 @@ its own, in this order (2h is independent and can land any time):
     GeoNames (the form's city check, `POST /form`: "We couldn't check the city just now") and
     one to OpenWeather (in this generation: "generateTrip: no forecast", planned without one).
     If they recur, a shorter timeout with one retry on those fetches is the next step.
+
+#### 2i · dependencies
+
 - **2i · dependencies: Renovate keeps them current, a branch each for the breaking ones.**
   Evaluated: both. Nothing prompts an update today (no Dependabot or Renovate config), and
   `npm outdated` shows the lockfile behind — `next` 16.2.6 → 16.4.1, `react` 19.2.6 → 19.3.1,
@@ -1075,6 +1176,9 @@ its own, in this order (2h is independent and can land any time):
   code, not a merge button: Prisma 5 → 7, `@hookform/resolvers` 3 → 5 (tied to zod),
   `@anthropic-ai/sdk` 0.100 → 0.134 (pre-1.0, touches `anthropicApi.ts`), `framer-motion` 12 → 14,
   `react-day-picker` 9 → 10, `eslint` 9 → 10 (lint is already broken, so parked with it).
+
+##### 2i-a · deps-minor
+
   - **2i-a · `deps-minor`: clear the backlog by hand.** Every non-major bump in one PR, so
     Renovate's first PR isn't enormous. Run `deps-safe`; green is `npx next typegen && npx tsc
     --noEmit`, `npm test`, `npm run build`, `npm run test:e2e`; browser-check `/form`, a trip
@@ -1091,6 +1195,9 @@ its own, in this order (2h is independent and can land any time):
       `Radio.Content`; our chips (`ChoiceGroup`, `CustomCheckbox`) render no input under it, so
       11 form tests can't find a radio or checkbox. 2i-a2 moves the chips to `.Content` and
       browser-checks step 2.
+
+##### 2i-a2 · heroui-3-2
+
   - **2i-a2 · `heroui-3-2`: the chips on HeroUI 3.2.** Merged (#224). `@heroui/react` 3.2.6,
     installed by removing 3.0.5 first: its pinned React Aria subtree (`@react-aria/ssr` 3.10.0)
     made npm refuse 3.2.6's peers in place. `ChoiceGroup` and `CustomCheckbox` put the chip
@@ -1109,6 +1216,9 @@ its own, in this order (2h is independent and can land any time):
     - **The image stub fixed:** after the Vite 8.3.5 / Vitest 5.0.5 / Rolldown 1.2.15 bump,
       `resolveId` receives the stub's own `\0asset-stub:` id again and prefixed it twice, so every
       stubbed `src` carried the prefix (29 tests). It now returns an id already stubbed as is.
+
+##### 2i-b · renovate
+
   - **2i-b · `renovate`: `renovate.json`.** One weekly PR for all non-major bumps; separate PRs for
     `next`, `react`/`react-dom` + `@types`, `@heroui/react`, `@anthropic-ai/sdk`, `prisma` +
     `@prisma/client`; majors held behind the dependency dashboard until approved; security
@@ -1142,10 +1252,16 @@ its own, in this order (2h is independent and can land any time):
     - **Install order:** merge this branch, then install the Renovate GitHub app on the repo
       (the user, in the browser). With `renovate.json` already on `main` Renovate skips its
       onboarding PR, so its first PR is the `sharp` security fix, left for Renovate to open.
+
+##### The majors
+
   - **2i-c… · the majors, one branch each, by request, in this order:** `@anthropic-ai/sdk`
     (touches the agent, so it goes before 3–7 build on it), `@hookform/resolvers` with zod,
     `framer-motion`, `react-day-picker`, Prisma 7 (schema, client generation, the Neon
     adapter, the e2e push script). Each: plan note on what changed, tests with the change.
+
+##### 2i-c · sdk-1
+
     - **2i-c · `sdk-1`: `@anthropic-ai/sdk` 0.100.1 → 1.0.0.** Merged (#228). 1.0 sends API
       version `2026-10-21` (was `2023-06-01`) and the key as `Authorization: Bearer` (was
       `X-Api-Key`); `MessageParam` is a union per role; Text Completions, client-side compaction
@@ -1158,6 +1274,9 @@ its own, in this order (2h is independent and can land any time):
       the streamed `submit_trip` input with `finalMessage()`, and throws `APIUserAbortError` on an
       abort; type check, unit (1115), build, e2e (81; two `/form` city-check specs failed once
       and passed on rerun, GeoNames). No live call: e2e runs on fixtures.
+
+##### 2i-d · zod-4
+
     - **2i-d · `zod-4`: `zod` 3.25.76 → 4.6.7, `@hookform/resolvers` 3.10.0 → 5.9.2.** Merged
       (#229). One branch: six files use zod, and only `schema.ts` changes. Its two deprecated
       calls move on: `z.string().datetime()` → `z.iso.datetime()`, `z.ZodIssueCode.custom` →
@@ -1183,6 +1302,9 @@ its own, in this order (2h is independent and can land any time):
         `ajv` 6 moves under eslint, now that resolvers lists `ajv` 8 as an optional peer.
       - Checks: type check, unit (1118), build, e2e (81); `/form` at 390, step 1's errors
         and step 1 → 2 through the new resolver, no console messages.
+
+##### 2i-e · framer-motion-14
+
     - **2i-e · `framer-motion-14`: `framer-motion` 12.43.0 → 14.5.0.** Merged (#230). No code
       changes: 13.0 drops the optional `@emotion/is-prop-valid` peer (never installed) and 14.0
       removes internal APIs only; every import we use (`motion`, `AnimatePresence`,
@@ -1195,6 +1317,9 @@ its own, in this order (2h is independent and can land any time):
         failed once and passed on rerun, GeoNames). Browser: the landing at 1440 / 768 / 390, a
         saved trip's tours at 390 by button and by swipe, `/form` at 390 with reduced motion;
         no console errors.
+
+##### 2i-f · react-day-picker-10
+
     - **2i-f · `react-day-picker-10`: `react-day-picker` 9.14.0 → 10.0.2.** Done, committed (c71014d), with
       the review's fixes staged. No code changes for the bump itself; the calendar's circles and
       the clear fix below landed on this branch as asked, three concerns in one. 10.0 removes the APIs v9 deprecated (`fromDate`/`toDate`, `initialFocus`, the
@@ -1232,6 +1357,9 @@ its own, in this order (2h is independent and can land any time):
         classes move to `calendarClassNames`, the cell's from `getDefaultClassNames()`; the two
         variables that styled nothing go; `onChange` takes a `string`, so `undefined` can't come
         back; the comment becomes a pointer to gotcha 15.
+
+##### 2i-g · prisma-7
+
     - **2i-g · `prisma-7`: `prisma` and `@prisma/client` 5.22.0 → 7.10.1, `@prisma/adapter-pg`
       7.10.1.** Done, staged. One concern, one branch: the diff is wide (19 type imports) but
       mechanical. 7.10.1 is the newest stable: npm's `latest` tag points at 8.0.0-rc.25, and
@@ -1262,6 +1390,9 @@ its own, in this order (2h is independent and can land any time):
       - **Not checked: production.** The app on Neon through `pg` with `sslmode=require` (`pg`
         treats `require` as `verify-full`; Neon's certificates are valid) wasn't read from here.
         Check the Vercel preview: `/saved-trips` and a saved trip load.
+
+##### 2i-h · typescript-7
+
     - **2i-h · `typescript-7`: `typescript` 5.9.3 → 7.0.2.** Merged (#236). 7 is the native (Go)
       compiler: the package ships `tsc` and a version, no compiler API (`import ts from
       "typescript"` is only `{ version }`). `tsconfig.json` is unchanged and the type check finds
@@ -1287,6 +1418,9 @@ its own, in this order (2h is independent and can land any time):
         pass: nothing visible changed.
   - Order: 2i-a → 2i-b → majors. Independent of 2e/2h and of branches 3–7, except that the SDK
     major should land before 3.
+
+#### 2j · readme-phase-2
+
 - **2j · `readme-phase-2`: the README, caught up.** Review `README.md` against phases 1 and 2:
   the server-owned trip (refresh keeps it, save/discard), the new form fields and city check,
   weather by coordinates, the form-scoped providers, architecture and commands. Retake the
@@ -1303,11 +1437,17 @@ its own, in this order (2h is independent and can land any time):
     packing list and forecast, and the saved-trips wall. The form was filled in but never
     submitted, and nothing was written. The shots no longer used are removed (about,
     landing tours, form steps 1 and 3, tip, phone weather).
+
+#### From using the deployed app
+
 - **2l–2p · from using the deployed app (2026-10-22).** Six findings; five are branches below.
   - **The form draft stays in `sessionStorage`** (the sixth). It exists before any trip does, so a
     table for it could reference only the visitor, not a trip; a write per keystroke isn't worth a
     round trip; and once submitted, the trip row holds the request. Not in-memory state either: a
     reload would lose it.
+
+#### 2l · trip-text-breaks
+
 - **2l · `trip-text-breaks`: line breaks in the tip.** The closing's tip shows a literal `\n`
   (backslash, n): the model escapes the line breaks, 2k's kind of slip, and `<p>{tip}</p>` prints
   them. Seen only in the tip; the description and the tours (one paragraph each) never showed it.
@@ -1327,6 +1467,9 @@ its own, in this order (2h is independent and can land any time):
     a blank tip shows neither the eyebrow nor an empty block. Left: a single line break also
     starts a paragraph (the production tip separates its paragraphs with one written `\n`), and
     a literal backslash-n in real text (`C:\notes`) would split it.
+
+#### 2m-a · passport-entry
+
 - **2m-a · `passport-entry`: entry rules only when they apply.** The tip reminds the traveller to
   check entry rules even on a passport of the destination's own country, and on any other it says
   only "check the rules", which tells them nothing.
@@ -1373,6 +1516,9 @@ its own, in this order (2h is independent and can land any time):
     Rico and the US; the visa summary's rule excludes a home passport, so the two rules no longer
     overlap; `TERRITORY_OF` is a flat list, of inhabited territories only (no `um`). Left: a
     written `\n` handled at the boundary (`TripDataSchema`), as 2l decided against it.
+
+#### 2m-b · string-tours
+
 - **2m-b · `string-tours`: why the list arrives as a string, and one retry for it.** In 2m-a's
   real runs `tours` came back as JSON text that does not parse in 6 of 15 (2k's slip), and the
   trip fails. A retry is one answer, not the assumed one: find the cause first.
@@ -1425,6 +1571,9 @@ its own, in this order (2h is independent and can land any time):
     Tests first, with production's string of 2026-10-21 (715 characters, Split) as a fixture:
     asked again and written; two broken, two calls, the error; another invalid trip, one call;
     stopped before the second, one call and the signal's reason.
+
+#### 2m-c · description-paragraphs
+
 - **2m-c · `description-paragraphs`: the description shows its paragraphs.** It asks for up to
   three, but `DescriptionSection` renders one `<p>`, so real line breaks collapse into spaces.
   Render it with `paragraphs()`, as `Closing` does the tip. Tests: the paragraphs apart, a row
@@ -1436,6 +1585,9 @@ its own, in this order (2h is independent and can land any time):
     and the tip, and nothing when the text has no paragraphs, so a blank description leaves no
     empty block. Left: a written `\r\n` (never seen), a written `\n` in tour or object text
     (asked for as one paragraph; no slip measured there).
+
+#### 2n · second-photo
+
 - **2n · `second-photo`: a photo between the essentials and the weather,** styled like the third
   (`PhotoSection`).
   - Planned: `unsplashApi` keeps six photos; `PhotoSection` renders twice, the third photo after
@@ -1468,6 +1620,9 @@ its own, in this order (2h is independent and can land any time):
   - **Parked, from the review:** the trip's own photos after the first fade in from the first
     one's blur, as only one is stored. Fix: a blur per photo (`placeholders[]` from
     `fetchTripImage`, a schema change, six plaiceholder fetches per trip); its own branch.
+
+#### 2o · save-keeps-scroll
+
 - **2o · `save-keeps-scroll`: answering keeps the page where it is.** After "Yes, save it" or
   "No, thanks" the trip page jumps to the top.
   - Cause unconfirmed. Suspect: `useSaveTrip`'s `router.refresh()` re-renders `TripPage`,
@@ -1480,6 +1635,9 @@ its own, in this order (2h is independent and can land any time):
     page held its place (`scrollY` unchanged, no scroll event) for Yes and No, at 1440 and 390,
     reached by direct load, by `/form`'s View and by the form's redirect. Production no longer
     jumps either. No fix and no test; if it comes back, start from the suspect above.
+
+#### 2p · the open trip in the database
+
 - **2p · the open trip in the database — dropped (2026-10-29).** Planned as 2p-a (an anonymous
   `trip-ai-visitor` cookie on each row, `answeredAt`, `getOpenTrip`, a 409 from `POST /api/trip`
   while one is open) and 2p-b (the client on `getOpenTrip`, `src/lib/openTrip.ts` gone). 2p-a was
@@ -1490,7 +1648,9 @@ its own, in this order (2h is independent and can land any time):
   - Left over: `answeredAt` alone would tell a discarded trip from an ignored one, and let a discard
     in another browser release this one (`isTripOpen` reads `saved`, so today it doesn't). A
     candidate for branch 3, below.
-- **2q–2u · from the review of 2026-10-29.** Five changes, one branch each; 2u splits in two.
+
+#### 2q · saved-trips-newest
+
 - **2q · `saved-trips-newest`: the saved trips, newest first.** `getSavedTripsPage` orders by
   `createdAt desc, id desc` (`id` breaks ties, as the landing's three do) instead of the city.
   `@@index([saved, createdAt])` already covers it. Tests: `actions.test`'s order; the seed gives
@@ -1502,41 +1662,8 @@ its own, in this order (2h is independent and can land any time):
     a trip saved mid-browse no longer ends "Show more" one short. "Newest" is newest planned
     (`createdAt`), not newest saved; a `savedAt` waits with `answeredAt` for branch 3. Left: a
     keyset cursor on `(createdAt, id)` instead of `skip`, which would end the shifting pages.
-- **2r · `note-as-context`: the note is context for the trip.** The traveller's note is
-  something the plan should know (who they visit, a booking they have, a place they loved), not
-  a remark. Form: step 6's field reads as context (label, placeholder and a hint under it, in
-  `form/content.ts`), and the review and the trip's details use the same name. Prompt: "The
-  traveller's note" becomes "The traveller's context": weigh it across the tours, the packing and
-  the tip, and say so when it changes the plan; it still never changes the instructions (the
-  `<traveller_note>` tag stays, the column stays `note`). Tests: `prompt.test`, the form step and
-  `FormDetailsSection`. One paid trip with a note to read the result (about $0.10).
-- **2s · `packing-by-threes`: 9, 12 or 15 items.** The packing grid is three columns wide; a
-  count off a multiple of three leaves a ragged last row. The prompt and `submit_trip`'s
-  description ask for exactly 9, 12 or 15, picked by the trip's scale (nights, luggage, weather).
-  A count off the three is not an error (a retry costs a trip): the server keeps the largest
-  multiple of three it can, never under 9 (10 → 9, 14 → 12, 17 → 15), and keeps fewer than 9 as
-  they came. Older rows show as stored. Tests: the trim (pure, in `submitTrip.ts`),
-  `generateTrip` writes the trimmed list, `prompt.test`. One paid trip to check the count.
-- **2t · `trip-created-at`: when the trip was planned.** Date only, "Planned on 29 Oct 2026",
-  formatted on the server in UTC like the trip's dates (near midnight it can be a day off for a
-  traveller far from UTC: accepted). Shown in `TitleSection`, beside the dates, and as a row in
-  `FormDetailsSection`. Copy in `trips/content.ts`. Tests: both sections; the journey sees it.
-- **2u · the seconds a trip took — split 2u-a, 2u-b.**
-  - **2u-a · `generation-seconds-server`.** `Trip.generationMs Int?`: `generateTrip` measures
-    from its start to just before the write (the city check, the forecast, the model and the
-    photos: what the traveller waited for) and writes it. `FormDetailsSection` shows "Planned in
-    48 s"; older rows (null) leave the row out. Branch 3's `Generation.latencyMs` is per model
-    call, for cost; this one is the traveller's wait. Tests: `generateTrip` writes it (fake
-    timers), the details row with and without it. **Production `db push` before deploying.**
-  - **2u-b · `generation-seconds-loader`.** The loader counts the seconds while one is in
-    flight. `transition`'s `start` stores `startedAt` beside the token, so the count survives
-    leaving `/form` and coming back; `LoaderResponseAI` shows it, ticking each second (text only,
-    so reduced motion changes nothing) and announced politely at most every ten seconds, not
-    each tick. `docs/generation.md`'s state tables gain `startedAt`. Tests: `generation.test`, the loader
-    under fake timers (`docs/testing.md`). The planning toast off `/form` can show it too:
-    decided in the branch.
-- **Order from here:** 2l → 2m-a → 2m-b → 2m-c → 2n → 2o (closed) → 2p (dropped) → 2q (done) → 2r → 2s → 2t → 2u-a → 2u-b, then 2j's README once more, and branch 3.
-  (2h-a, 2h-b, 2k, 2l, 2m-a and 2m-b merged; 2i's planned majors merged, TypeScript 7 the last.)
+
+#### The design branch 2 started from
 
 What's wrong today:
 - Four app-wide providers (`src/app/providers.tsx`) wrap every route, the landing and `/about`
@@ -1598,122 +1725,3 @@ From the input audit (after #197; finding 5 was fixed in phase 1, see branch 1):
 Left for a follow-up: rendering `/saved-trips`' first page on the server (the "Show more" query
 stays as it is), and updating CLAUDE.md's "four Context providers" architecture section, done in this
 branch's diff.
-
-### 3 · `agent-metrics`: record every call, rate-limit
-- Prisma model `Generation`: id, createdAt, kind (`generate` | `refine` | `eval` | `mcp`), model,
-  inputTokens, outputTokens, cacheReadTokens, cacheWriteTokens, webSearches, webFetches,
-  toolCalls Json, iterations, latencyMs, costUsd Decimal, stopReason, ok, error, tripUrl?, ipHash.
-- `src/lib/agent/cost.ts`: a pricing table (Sonnet 5.5 input, output, cache read/write, $ per web
-  search) and `costOf(usage)`, unit-tested.
-- `recordGeneration()` is called from a `finally` in the agent, so failures are logged too — and
-  stopped ones (2g): `ok: false`, `stopReason: "aborted"`, and the usage that had arrived. A stream
-  stopped early may never report its final usage, so that row's cost is an estimate.
-- Rate limit: count `Generation` rows by `ipHash` in the last hour (e.g. 5 per hour), and return a
-  typed error the form shows as a toast. No Redis. Stopped generations count, or starting and
-  stopping would get around it.
-- `scripts/usage-report.ts` (`npm run usage`): trips, $ per trip (p50/p95), seconds per trip
-  (p50/p95), cache hit rate, failures by stop reason. A script, not a page, since there's no auth for
-  an admin page.
-- From 2m-b: thinking tokens are output tokens, so `outputTokens` counts them; record
-  `output_tokens_details.thinking_tokens` too, and retries (2m-b's broken-list retry is a second
-  call for one trip). 2m-b's measured baseline, one trip in Lisbon: about $0.095 and 65s with
-  thinking (production since #239), $0.025 and 22s without.
-- Candidate, from 2p: `Trip.answeredAt DateTime?`, set by `setTripSaved`, if a metric needs
-  discarded vs never answered or the time to an answer; `isTripOpen` would then read it rather
-  than `saved`. Only when a report asks for it.
-- README wrap-up (see Branches), in this phase's last branch.
-
-### 4 · `agent-tools`: the loop, the tools, live progress
-- `src/lib/agent/loop.ts`: a manual loop (so each iteration's usage and the progress events can be
-  captured) with at most 8 iterations, `task_budget` (beta) as a token ceiling, and a 150s wall clock.
-  Parallel tool results go back in one user message; a failed tool returns `is_error: true`.
-- Tools in `src/lib/agent/tools/`, each a Zod schema plus a handler, with unit tests against mocked
-  HTTP:
-  - `get_forecast`: reuses `fetchForecast` (`openWeatherApi.ts`), which already fetches at
-    `resolvePlace`'s lat/lng, and **summarises** it per day
-    (min/max °C, conditions, rain).
-  - `get_climate`: Open-Meteo climate API, typical weather for the trip's dates. Used when the start
-    is more than 5 days away.
-  - `search_places`: Google Places (New) Text Search with a field mask (name, address, location,
-    rating, priceLevel, openingHours, googleMapsUri). New env var `GOOGLE_PLACES_KEY`.
-  - Server tools `web_search_20260209` (max_uses 5) and `web_fetch_20260209` (max_uses 3), for
-    events, prices, and **entry requirements for the passport**, cited from official sources where
-    possible.
-- `submit_trip` gains: each tour has `place {name, address, lat, lng, mapsUrl}`, `bestTime`,
-  `estCost`; plus `weatherSummary`, `entryRequirements {summary, sources[]}` (only when a passport
-  is given), and `sources[] {title, url}`. Prisma columns: `sources Json?`, `entryRequirements Json?`;
-  `tours Json` already holds the richer shape.
-- Streaming: the route answers in server-sent events (`done`, `error`, and `step`; moved here from
-  2g, which kept the JSON response); the loop runs inside it and emits `step` events
-  ("Checking the weather in Lisbon…"), with `maxDuration = 300`. `LoaderResponseAI` and 2e-f's
-  toast show the real steps in place of the canned ones.
-- Stopping: the request's `signal` reaches every iteration's Claude call and every tool's HTTP
-  call, and the loop checks it between iterations — or Stop would end only the first call.
-- Trip page: each tour card shows its address and a "map" link; a Sources section; an entry-requirements
-  card. Read `docs/design-notes.md` first.
-- e2e: the fixture path (`E2E_FIXTURES=1`) returns a fixture stream with the new fields.
-- README wrap-up (see Branches), in this phase's last branch.
-
-### 5 · `agent-refine`: change the trip from the trip page
-- `refineTrip({ trip, instruction })` is stateless: the current trip JSON plus the request go to the
-  same loop and tools, and a revised trip comes back through `submit_trip`. No conversation history is
-  stored, which avoids replaying thinking blocks. The revised trip overwrites the `Trip` row
-  (from branch 2) and the page calls `router.refresh()`.
-- UI: a text field and button below the tours ("Swap something, add a rainy-day option…"), at most
-  5 refinements per trip, with the SSE progress. Logged as `kind: refine`.
-- Tests: the route validates the instruction (length, presence); a component test for the box; an e2e
-  test on the fixture path.
-- README wrap-up (see Branches), in this phase's last branch. Shots of the live progress loader and the trip's places and sources.
-
-### 6 · `agent-evals`
-- Follow the claude-api skill's `shared/evals/build-eval.md`. `evals/cases.json` has about 20
-  requests: a near date (forecast) and a far date (climate), a family with kids 0–5, a winter city, a
-  beach, a small town, a passport that needs a visa, a low budget, and an injection attempt in the note.
-- Code graders: schema valid, 5 distinct tours, places resolved (has a mapsUrl), packing fits the
-  weather (cold → warm layer), entry requirements present when a passport is set, the injected
-  instruction ignored, the name at most twice outside the title.
-- LLM judge (`claude-opus-5-5`): groundedness against the cited sources; fit to who's going, pace and
-  interests; voice (second person, each tour's reason tied to the inputs, no repetitive narration).
-- `npm run eval` writes a report: score per case, plus **$ and seconds per case** from `Generation`
-  rows (`kind: eval`). Real API spend, so **ask before each run**, with the cost estimated first.
-- From 2m-b (`string-tours-results.md`): its harness (variants, raw inputs kept) is a start for
-  the runner, and its checks are candidate code graders: the calendar (1 May 2030 is Labour Day:
-  thinking trips say so, others never), the entry rule stated when a foreign passport is set,
-  tours within 110 to 130 words, no written `\n`. `validTripRequest` (Lisbon) is one case.
-  Decide thinking and effort here: whether the thinking's quality is worth 4× the cost and 3×
-  the time, and whether `low`/`medium` (a third shorter) hold.
-- README wrap-up (see Branches), in this phase's last branch.
-
-### 7 · `agent-mcp`: trip-ai as an MCP server
-- `src/app/api/mcp/route.ts` using `@modelcontextprotocol/sdk` (Streamable HTTP), with tools
-  `plan_trip` (calls the agent function 2g split out, not the HTTP route; logged as `kind: mcp`), `list_saved_trips` and `get_saved_trip`
-  (reusing `getSavedTripsPage` and `getSingleSavedTrip` from `src/db/actions.ts`).
-- Bearer-token auth (`MCP_TOKEN`), since `plan_trip` spends money, and the same rate limit.
-- README: how to add it to Claude Desktop / Claude Code.
-- Later, not in this plan: connect remote MCP servers to the agent (Messages API MCP connector, beta
-  `mcp-client-2025-11-20`) once there's one worth using.
-- README wrap-up (see Branches), in this phase's last branch. Also the final pass: the feature list and stack matched to what shipped, MCP setup.
-
-## Reused as-is
-`fetchForecast` (`src/app/api/openWeatherApi.ts`), `useGeoNames` city validation, `TOUR_KINDS`
-(`src/lib/tourKinds.ts`), `transformInputsToFinalData` (`src/lib/formData.ts`), `useE2EFixtures`
-(`src/app/api/e2eFixtures.ts`), `getSavedTripsPage` and `getSingleSavedTrip` (`src/db/actions.ts`),
-the `src/test/fixtures/` set (extended, not duplicated).
-
-## Expected cost (to be measured in branch 3)
-Rough: 30–60k input tokens (search results included), about 6k output, about 5 searches comes to
-roughly $0.15–0.25 a trip on Sonnet 5.5, and 30–90s. The usage report and evals replace this guess
-with real numbers. Measured in 2m-b for today's single call (no tools): about $0.095 and 65s with
-thinking, $0.025 and 22s without.
-
-## Verification (each branch)
-- `npx next typegen && npx tsc --noEmit`, `npm test`, `npm run build`, and `npm run test:e2e` against
-  the local `trip-ai-e2e-pg` container (never Neon).
-- Unit tests: prompt builder, request schema, cost calc, each tool handler (mocked HTTP), loop
-  behaviour with a mocked `@anthropic-ai/sdk` (iteration cap, `is_error` results, refusal,
-  `max_tokens`).
-- One real generation per branch from 4 on, **with permission**, against a local DB; check the
-  `Generation` row (tokens, $, latency) and the trip's sources.
-- Playwright MCP: form step 1 (new fields), the live progress loader, the trip page with
-  places/sources/entry card, the refine box, at 1440/768/390 plus reduced motion and console errors.
-- Stage, report, wait for review. No commits, pushes or `db push` to production without asking.

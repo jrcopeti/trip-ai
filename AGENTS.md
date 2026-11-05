@@ -64,8 +64,8 @@ Every piece of work is one branch off `main`, one PR:
 5. When the change is visible, verify it in a browser at 1440, 768 and **390** wide, with
    `prefers-reduced-motion: reduce`, and check the console for hydration errors. In Claude
    Code, the `verify-in-browser` skill has the steps.
-6. Update the work's plan (`docs/<topic>/PLAN.md`), and `docs/design-notes.md` when the
-   visual system changed.
+6. Update the work's plan (`docs/<topic>/PLAN.md`), its `DEVLOG.md` if it has one, and
+   `docs/design-notes.md` when the visual system changed.
 7. **Stage the work and stop.** No commit, no push, no PR — see the working agreement.
    Leave the branch checked out.
 
@@ -110,8 +110,11 @@ what you write; older code doesn't all meet them yet.
   the relevant plan at the start of a task and keep it updated as the work changes
   shape; churn there is expected. A new piece of work gets a new folder. The plan in flight is
   `docs/grounded-agent/PLAN.md`; the others are records.
+- **`docs/grounded-agent/DEVLOG.md`** — what that plan's branches built, each review's findings and
+  what was measured, newest last. Its plan says what comes next; what a branch leaves open goes in both.
 - **A folder's own `AGENTS.md`** — rules only that folder needs: `e2e/`, `prisma/`, `src/app/api/`.
   Each has a `CLAUDE.md` beside it that imports it, as Claude Code won't load it otherwise.
 
 A durable decision goes beside what it governs, in one of the above. A plan records its work,
-including where that work stands; nothing else repeats its status.
+including where that work stands, and a devlog's index each finished branch's state; nothing else
+repeats its status.
