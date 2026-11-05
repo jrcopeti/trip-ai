@@ -1,6 +1,6 @@
 # Why `tours` arrived as a string: measurements (2m-b)
 
-The measurements behind 2m-b's fix. The decision and its status are in `PLAN.md` (2m-b); this
+The measurements behind 2m-b's fix. The decision is in `DEVLOG.md` (2m-b); this
 file is the evidence.
 
 ## The failure
@@ -241,7 +241,7 @@ the first `effort-medium` runs, and $0.21 for the rest of the two effort levels:
   setting makes Sonnet 5.5 think, so the thinking can't be counted on to protect the list; the
   retry protects it whatever the prompt does: cheap without thinking, up to a whole trip again
   with it (a case not seen in 36). The thinking stays for the trip's quality, and branch 6
-  weighs it against its cost across many cases. `PLAN.md` (2m-b) has the build.
+  weighs it against its cost across many cases. `DEVLOG.md` (2m-b) has the build.
 - **The two ways that were weighed:**
   - **Keep the thinking, on purpose:** production as it is (0 in 36), at 4× the cost and 3× the
     time, with the setting made explicit so a prompt change can't switch it off. Not shown to

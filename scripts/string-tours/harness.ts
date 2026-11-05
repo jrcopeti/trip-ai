@@ -1,7 +1,7 @@
 /**
  * Makes the production trip call N times per variant, writes no row, and keeps each raw input in
  * `scripts/string-tours/runs/` with its outcome, tokens and where a list sent as text breaks.
- * Every run is a paid call; `--dry` and `--print` call nothing. Usage: `PLAN.md`, 2m-b.
+ * Every run is a paid call; `--dry` and `--print` call nothing. Usage: `DEVLOG.md`, 2m-b.
  */
 // First: the prompt's imports reach the travel photos.
 import "./stubImages";

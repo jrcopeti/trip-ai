@@ -2,7 +2,7 @@
 
 One trip request generated on each model, 2026-10-16, to decide whether a stronger model is
 worth its price while `submit_trip` intermittently sends `tours` as a string (see 2f in
-`PLAN.md`). One trip per model: this is a reading of two outputs, not a measurement of
+`DEVLOG.md`). One trip per model: this is a reading of two outputs, not a measurement of
 quality or of failure rates. Branch 6's evals are where that gets measured.
 
 ## The request
