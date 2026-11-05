@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "skills": {
+    "adversarial-tester": {
+      "source": "dmoka/skills",
+      "sourceType": "github",
+      "skillPath": "skills/adversarial-tester/SKILL.md",
+      "computedHash": "13f7daf4554467b503c6abe5dffc3b437bd8a8a5f352fc31683b6ff6d3f8f987"
+    },
+    "agent-safety-audit": {
+      "source": "dmoka/skills",
+      "sourceType": "github",
+      "skillPath": "skills/agent-safety-audit/SKILL.md",
+      "computedHash": "f9d01eb47cbff53540bdfebb287840652aec29d5191cafdd02fbbf31a9441269"
+    },
+    "bug-triage": {
+      "source": "dmoka/skills",
+      "sourceType": "github",
+      "skillPath": "skills/bug-triage/SKILL.md",
+      "computedHash": "898e895e4fc307eaae8a979b0164086b97267d23f49cd50b1ea2a3a78b9ddcdc"
+    },
+    "grill-me": {
+      "source": "dmoka/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grill-me/SKILL.md",
+      "computedHash": "9b52a2d23dfb4a924a646fe5cc52ee5fd2646fbbf10ba254c93c909997a3a74f"
+    },
+    "legacy-testing": {
+      "source": "dmoka/skills",
+      "sourceType": "github",
+      "skillPath": "skills/legacy-testing/SKILL.md",
+      "computedHash": "900efda41c224a5cd8c817b5b25269d7a8b40117c2c2df7c1adec2c502a3d78c"
+    },
+    "mutation-testing": {
+      "source": "dmoka/skills",
+      "sourceType": "github",
+      "skillPath": "skills/mutation-testing/SKILL.md",
+      "computedHash": "2c60d24382d1164221fc8613a2bbdea4f9e2aa4c0d974cfa3cac9eb6975ee81e"
+    },
+    "pr-tour": {
+      "source": "dmoka/skills",
+      "sourceType": "github",
+      "skillPath": "skills/pr-tour/SKILL.md",
+      "computedHash": "bb404acaddb02bf27370170d92e21ee7da22d9635c5d8c0723a44a12bb76c195"
+    },
+    "pr-triage": {
+      "source": "dmoka/skills",
+      "sourceType": "github",
+      "skillPath": "skills/pr-triage/SKILL.md",
+      "computedHash": "f8c980c7d71791b1c2b26cb412c1a99683f2e8d56898aa4ebdaa3d52bdd65cac"
+    },
+    "quicke2e": {
+      "source": "dmoka/quicke2e",
+      "sourceType": "github",
+      "skillPath": "skill/quicke2e/SKILL.md",
+      "computedHash": "54fdedf10cf65849e0d036caf6a100e07b8148ce0703625bb13a5632f87f6dbd"
+    },
+    "write-great-skill": {
+      "source": "dmoka/skills",
+      "sourceType": "github",
+      "skillPath": "skills/write-great-skill/SKILL.md",
+      "computedHash": "7904f663ae919bd98160899838fe7097a8f5aa78863c9f8e2f29e93191aa627c"
+    }
+  }
+}

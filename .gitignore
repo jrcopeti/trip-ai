@@ -59,3 +59,6 @@ next-env.d.ts
 
 # Claude Code, per machine
 .claude/settings.local.json
+
+# The pr-tour and pr-triage skills write their review pages here
+.pr-review/
