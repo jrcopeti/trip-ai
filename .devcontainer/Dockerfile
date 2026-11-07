@@ -1,7 +1,7 @@
 # Trip AI sandbox. Based on Anthropic's reference dev container:
 # https://github.com/anthropics/claude-code/tree/main/.devcontainer (MIT)
 # Changes: Node 24 (as CI), bash instead of zsh, pinned Claude Code, Playwright's browsers.
-FROM node:24-bookworm
+FROM node:24.22.2-bookworm
 
 ARG TZ
 ENV TZ="$TZ"
