@@ -164,18 +164,18 @@ flowchart LR
 | **The form sends a choice, not data** | The request says `byWeather: true` and the server fetches the forecast. The browser has no route to OpenWeather, and the prompt sees one midday reading per day instead of 40 noisy three-hour entries. |
 | **A cross-site guard without CORS** | `POST /api/trip` requires `application/json`, which a cross-site page cannot send without a preflight that fails, and it rejects any `Sec-Fetch-Site` but `same-origin`. |
 | **A pure state machine for the generation** | Cancel, supersede, land on another page and fail are hard to get right with scattered `useState`. One pure function plus a test table across every state made those cases testable. |
-| **No retry on a bad model response** | A retry is a second paid call. A failure is logged with the raw output, and the traveller can try again. |
+| **One retry, only for a broken list** | A retry is a second paid call, so it is kept for the one failure measured as a random slip: a list sent as broken text. A second broken answer, or any other bad response, fails with the cause in the server log, and the traveller can try again. |
 | **Fixtures at the API boundary for e2e** | The external calls happen on the server, where `page.route` cannot reach them. `E2E_FIXTURES=1` makes those modules answer from fixtures, so CI needs no keys. |
 
-The longer reasoning lives in [`docs/grounded-agent/PLAN.md`](docs/grounded-agent/PLAN.md),
-and the design system in [`docs/design-notes.md`](docs/design-notes.md).
+The design system is in [`docs/design-notes.md`](docs/design-notes.md).
 
 ## Roadmap
 
-The work is planned in phases, each a series of small PRs
-([`docs/grounded-agent/PLAN.md`](docs/grounded-agent/PLAN.md)). Phases 1 and 2 have shipped:
-the prompt on the server, the new form fields, Sonnet 5.5, and the server-owned trip.
+The work is planned in phases, each a series of small PRs.
+[`docs/grounded-agent/PLAN.md`](docs/grounded-agent/PLAN.md) says what comes next.
 
+2. **The rest of phase 2.** The traveller's note as context for the plan, a packing list of 9, 12
+   or 15 items, and the date a trip was planned and the seconds it took.
 3. **Metrics and a rate limit.** Every call recorded with its tokens, cost and latency, plus a
    per-IP hourly limit.
 4. **An agent with tools.** A loop with forecast, climate normals, Google Places and web
