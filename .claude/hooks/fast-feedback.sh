@@ -5,7 +5,8 @@
 # Hermes: pre_verify (shell hooks cannot feed back after each edit; this checks the edited
 #         files when the agent wants to finish; per-edit feedback needs a Python plugin).
 # Why: the agent sees its mistake seconds after making it, not twenty edits later.
-TYPECHECK_CMD=${TYPECHECK_CMD:-"npx tsc --noEmit --pretty false"}   # 🙋 project typecheck (errors are filtered to the edited file)
+# typegen first: without .next/types, tsc reports PageProps and route types as missing.
+TYPECHECK_CMD=${TYPECHECK_CMD:-"npx next typegen >/dev/null && npx tsc --noEmit --pretty false"}   # 🙋 project typecheck (errors are filtered to the edited file)
 LINT_CMD=${LINT_CMD:-""}                                           # 🙋 optional, gets the file path appended, e.g. "npx eslint"
 EXT_RE='\.(ts|tsx|mts|cts)$'                                      # only check these files
 

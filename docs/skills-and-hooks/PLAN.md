@@ -13,7 +13,7 @@ Skills and hooks share this branch by the owner's decision, against the one-conc
 
 ## The skills
 
-Copied unchanged from `ticket-bay/.claude/skills`. `ticket-bay` keeps them out of git through its
+Copied from `ticket-bay/.claude/skills`, unchanged except `quicke2e` (below). `ticket-bay` keeps them out of git through its
 `.git/info/exclude`; here they are tracked, by the owner's decision: a clone has them, and an update
 shows up as a diff to review. A branch without them deletes them from disk while it is checked out.
 
@@ -26,9 +26,17 @@ shows up as a diff to review. A branch without them deletes them from disk while
   `beautiful-mermaid.mjs`. They are the bulk of this diff.
 - **Nine of them are also personal skills on the Mac.** Claude Code prefers the personal copy, so an
   update to one of the two can drift unseen. All nine are identical today. `quicke2e` is only here.
+- **`quicke2e` runs on port 3100, the e2e database with API fixtures,** served by `scripts/serve-e2e.sh`,
+  which `verify-in-browser` starts too. Its own text said
+  `localhost:3000`, which is `npm run dev` on production and the paid APIs; it submits forms and runs
+  attack cases. This is the one edit to a copied skill, and `npx skills update` undoes it: the diff
+  shows it, and the edit goes back in.
 - **Some examples still name TicketBay.** They are examples; the steps don't depend on it.
 - **`AGENTS.md` beats a skill.** `bug-triage` says to commit and open a PR, and `legacy-testing` says
-  to run without stopping. The working agreement still holds: stage and stop.
+  to run without stopping. The working agreement still holds: stage and stop. `quicke2e` writes to a
+  database and sends page content to a hosted model, so it runs only on port 3100 (above).
+  `pr-tour` and `pr-triage` read PRs with `gh` and say they never comment, label or approve.
+- **`verify-in-browser` and the hooks.** Its stale-CSS fix, `rm -rf .next`, is refused (below).
 
 ## The hooks
 
@@ -38,10 +46,10 @@ From `ai-agent-engineer-course-kit/m2/five-hooks`; what each does is in its head
 | --- | --- | --- |
 | `block-dangerous.sh` | PreToolUse | As shipped |
 | `protect-secrets.sh` | PreToolUse | As shipped |
-| `fast-feedback.sh` | PostToolUse | As shipped: `tsc`, no lint, as `npm run lint` is broken |
+| `fast-feedback.sh` | PostToolUse | `next typegen` before `tsc`, as `npm run typecheck` does: bare `tsc` reports route types missing after `rm -rf .next` or a new route. No lint, as `npm run lint` is broken |
 | `test-gate.sh` | Stop | Reports, never blocks: red is a `systemMessage` to the owner, and the agent stops. `TEST_CMD` is `npm test`; the kit's `test:unit` doesn't exist here |
 | `session-context.sh` | SessionStart | As shipped. No `docs/decisions.md` here, so it loads git state only |
-| `notify.sh` (bonus B) | Stop, Notification | On, with macOS's Ping in place of the kit's Glass; no `NTFY_TOPIC` |
+| `notify.sh` (bonus B) | Stop, Notification | On, with macOS's Rebound alert tone, the one Claude Code's own notifications play here, in place of the kit's Glass; no `NTFY_TOPIC` |
 | `protect-test-config.sh` (bonus A) | none | Off, as shipped: it also blocks changes the owner asks for |
 
 ## What the hooks change here
@@ -65,6 +73,12 @@ From `ai-agent-engineer-course-kit/m2/five-hooks`; what each does is in its head
   file has unstaged changes, and reports that file's errors. About 2 seconds.
 - **Hooks are pattern checks.** A command built in a variable or a file gets past them. The box and
   review stay the real limits.
+- **`protect-secrets` misses a recursive search and a built name.** `grep -r API_KEY .` reads `.env`
+  and `.env.local` and prints the match, and `cat $(ls -a | grep env)` names them only at run time.
+  The box, which mounts both empty, and the dev database are what close this.
+- **`protect-secrets` expands globs in the command, and keeps it.** The expansion is what blocks
+  `grep X .e*` and `cat .env*`; `set -f` would let them through. The cost is a bare `.*` word, as in
+  a `grep` pattern, being refused. A relative glob after a `cd` matches from the hook's own folder.
 - **The box can edit these hooks.** `.claude/` is writable there, and the Mac runs the hooks at its
   next session, before any review. `.devcontainer/README.md` lists it with the other such paths.
 

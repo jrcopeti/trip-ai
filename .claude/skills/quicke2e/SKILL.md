@@ -12,10 +12,14 @@ Division of labour. Do not blur it:
 
 ## 1. Map the app
 
-Ask for the base URL if you do not have it. Then:
+In trip-ai, the base URL is `http://localhost:3100`, never `:3000`: `npm run dev` there uses `.env`'s
+production database and the paid APIs. Start the server with
+`scripts/serve-e2e.sh` (the local e2e database, API fixtures),
+pass `--reset "npm run --silent seed:e2e"` to every `discover` and `run`, and stop it with that script's
+`--stop` when done. Then:
 
 ```bash
-npx quicke2e discover http://localhost:3000 --start / -o quicke2e.map.json
+npx quicke2e discover http://localhost:3100 --start / -o quicke2e.map.json
 ```
 
 - Full crawl is the default on localhost: it submits forms. Use a throwaway database (`--reset "<cmd>"` to restore seed data).
@@ -29,7 +33,7 @@ npx quicke2e discover http://localhost:3000 --start / -o quicke2e.map.json
 // login.mjs: `TEST_EMAIL=... TEST_PASSWORD=... node login.mjs` writes auth.json (credentials from env, never in the spec)
 import { chromium } from "playwright";
 const b = await chromium.launch(); const p = await b.newPage();
-await p.goto("http://localhost:3000/sign-in");
+await p.goto("http://localhost:3100/sign-in");
 await p.getByLabel("Email").fill(process.env.TEST_EMAIL);
 await p.getByLabel("Password").fill(process.env.TEST_PASSWORD);
 await p.getByRole("button", { name: /sign in/i }).click();
@@ -37,7 +41,7 @@ await p.waitForURL((u) => !u.pathname.includes("sign-in"));
 await p.context().storageState({ path: "auth.json" }); await b.close();
 ```
 
-- Crawl with it: `npx quicke2e discover http://localhost:3000 --storage auth.json`. Without it, the map has only the signed-out pages.
+- Crawl with it: `npx quicke2e discover http://localhost:3100 --storage auth.json`. Without it, the map has only the signed-out pages.
 - In each flow that needs the login: `storageState: "auth.json"`. One file per role (`customer.json`, `admin.json`).
 - Re-run `login.mjs` after every database reset: a reseed deletes the sessions, and a stale `auth.json` sends every run to the sign-in page.
 - A cookie banner or welcome dialog in front of the login form: accept or close it in `login.mjs` before filling the form. The saved `auth.json` then also stores the consent, so the runs start without the banner.
@@ -142,8 +146,8 @@ api key, card number, token, …) are always kept out.
 ## 5. Check, then run
 
 ```bash
-npx quicke2e check quicke2e.spec.mjs --base http://localhost:3000     # rejects WEAK_ASSERTION specs
-npx quicke2e run quicke2e.spec.mjs --base http://localhost:3000 --map quicke2e.map.json --runs 3
+npx quicke2e check quicke2e.spec.mjs --base http://localhost:3100     # rejects WEAK_ASSERTION specs
+npx quicke2e run quicke2e.spec.mjs --base http://localhost:3100 --map quicke2e.map.json --runs 3
 ```
 
 A `WEAK_ASSERTION` means the assertion already holds on the start page: rewrite the assertion, never add `--allow-weak` to make it go away.
