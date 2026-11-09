@@ -12,6 +12,6 @@ event=$(jq -r '.hook_event_name // "Stop"' <<<"$input")
 msg=$([ "$event" = "Notification" ] && jq -r '.message // "Claude needs you"' <<<"$input" || echo "Claude is done")
 repo=$(basename "$(jq -r '.cwd // "."' <<<"$input")")
 
-if command -v afplay >/dev/null 2>&1; then afplay /System/Library/Sounds/Glass.aiff >/dev/null 2>&1 & fi
+if command -v afplay >/dev/null 2>&1; then afplay /System/Library/Sounds/Ping.aiff >/dev/null 2>&1 & fi
 if [ -n "$NTFY_TOPIC" ]; then curl -s -m 5 -d "$repo: $msg" "https://ntfy.sh/$NTFY_TOPIC" >/dev/null 2>&1 & fi
 exit 0

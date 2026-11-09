@@ -14,7 +14,8 @@ Skills and hooks share this branch by the owner's decision, against the one-conc
 ## The skills
 
 Copied unchanged from `ticket-bay/.claude/skills`. `ticket-bay` keeps them out of git through its
-`.git/info/exclude`; here they are tracked, as a skill the box can't see is no use to it.
+`.git/info/exclude`; here they are tracked, by the owner's decision: a clone has them, and an update
+shows up as a diff to review. A branch without them deletes them from disk while it is checked out.
 
 `adversarial-tester`, `agent-safety-audit`, `bug-triage`, `grill-me`, `legacy-testing`,
 `mutation-testing`, `pr-tour`, `pr-triage`, `quicke2e`, `write-great-skill`.
@@ -38,9 +39,9 @@ From `ai-agent-engineer-course-kit/m2/five-hooks`; what each does is in its head
 | `block-dangerous.sh` | PreToolUse | As shipped |
 | `protect-secrets.sh` | PreToolUse | As shipped |
 | `fast-feedback.sh` | PostToolUse | As shipped: `tsc`, no lint, as `npm run lint` is broken |
-| `test-gate.sh` | Stop | `TEST_CMD` is `npm test`; the kit's `test:unit` doesn't exist here |
+| `test-gate.sh` | Stop | Reports, never blocks: red is a `systemMessage` to the owner, and the agent stops. `TEST_CMD` is `npm test`; the kit's `test:unit` doesn't exist here |
 | `session-context.sh` | SessionStart | As shipped. No `docs/decisions.md` here, so it loads git state only |
-| `notify.sh` (bonus B) | Stop, Notification | On, as shipped: a sound, no `NTFY_TOPIC` |
+| `notify.sh` (bonus B) | Stop, Notification | On, with macOS's Ping in place of the kit's Glass; no `NTFY_TOPIC` |
 | `protect-test-config.sh` (bonus A) | none | Off, as shipped: it also blocks changes the owner asks for |
 
 ## What the hooks change here
@@ -52,6 +53,12 @@ From `ai-agent-engineer-course-kit/m2/five-hooks`; what each does is in its head
 - **The gates read the whole command, quoted text included.** A commit message or `grep` naming a
   force push or `DROP TABLE` is refused, as is the kit README's own check once the hook is live. To
   test a hook, pipe its JSON in from a script file.
+- **`test-gate` reports instead of blocking, by the owner's decision.** The kit's block kept the agent
+  from stopping on a red test written first, made it fix review findings, and twice made it "fix" code
+  over timeouts on a loaded machine. Red now reaches the owner only; the agent isn't told.
+  An agent that runs unattended, as the Hermes employee will, needs the block back: it takes the
+  kit's original `test-gate.sh` (`decision: block`, three rounds), registered on Hermes's `pre_verify`,
+  with `TEST_CMD` set to `npm test`. This repo's copy sends only `systemMessage`; the kit has Hermes read `decision` and `reason`.
 - **`test-gate` runs on every stop while the tree is dirty,** about 30 to 40 seconds. Staged work
   waiting for review counts as dirty, so a question answered during a review waits for the suite.
 - **`fast-feedback` treats any `>` as a write,** so `2>/dev/null` or `2>&1` runs `tsc` while a `.ts`
@@ -63,7 +70,7 @@ From `ai-agent-engineer-course-kit/m2/five-hooks`; what each does is in its head
 
 ## Verified
 
-Each gate on block and allow, `fast-feedback` red and clean, `test-gate` red, its round limit and
-green, `session-context`, `notify`. `block-dangerous` also refused a real tool call in the session
+Each gate on block and allow, `fast-feedback` red and clean, `test-gate` red, green and without
+`jq`, `session-context`, `notify`. `block-dangerous` also refused a real tool call in the session
 that installed it. Not verified: the hooks and skills running in the box, and the ten skills' own
 workflows, which are unchanged copies.
