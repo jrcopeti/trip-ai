@@ -275,6 +275,35 @@ with "Reopen in Container".
 Setup, the limits and the `--docker` details are in
 [`.devcontainer/README.md`](.devcontainer/README.md).
 
+## Hooks and skills
+
+Claude Code loads these from `.claude/`, on your machine and in the box. Why each is set up the way
+it is, and what it can't stop, is in [`docs/skills-and-hooks/PLAN.md`](docs/skills-and-hooks/PLAN.md).
+
+**Hooks** (`.claude/hooks/`, wired in `.claude/settings.json`)
+
+- `block-dangerous` refuses `rm -rf`, force pushes, and dropping or truncating database objects.
+- `protect-secrets` refuses reads, edits and commands that touch `.env` or `.env.*`, except the examples.
+- `fast-feedback` type-checks each edited `.ts` file and hands its errors straight back to the agent.
+- `test-gate` runs `npm test` when the agent stops with a dirty tree, and warns you if it's red.
+- `session-context` starts each session with the branch, `git status` and the last commits.
+- `notify` plays a sound when the agent is done or waiting for you.
+- `protect-test-config` refuses changes to test, CI and agent config. Off while you review each diff; on when the agent works unattended.
+
+**Skills** (`.claude/skills/`)
+
+- `verify-in-browser` checks a visible change at 390, 768 and 1440, on the e2e database.
+- `quicke2e` invents and runs exploratory browser tests, on the e2e database.
+- `bug-triage` turns a bug report into a failing test, a fix and a PR.
+- `adversarial-tester` attacks a PR or a green suite from a fresh agent, to find what breaks.
+- `mutation-testing` finds the bugs your tests would miss.
+- `legacy-testing` puts tests around untested code before it changes.
+- `pr-tour` turns one PR into a guided reading order.
+- `pr-triage` ranks open PRs by how much review attention each needs.
+- `agent-safety-audit` checks whether an agent setup can leak data.
+- `write-great-skill` writes or improves a skill.
+- `grill-me` interviews you about a plan until every branch of it is decided.
+
 ## Tests
 
 ```bash

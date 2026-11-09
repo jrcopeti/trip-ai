@@ -50,7 +50,7 @@ From `ai-agent-engineer-course-kit/m2/five-hooks`; what each does is in its head
 | `test-gate.sh` | Stop | Reports, never blocks: red is a `systemMessage` to the owner, and the agent stops. `TEST_CMD` is `npm test`; the kit's `test:unit` doesn't exist here |
 | `session-context.sh` | SessionStart | As shipped. No `docs/decisions.md` here, so it loads git state only |
 | `notify.sh` (bonus B) | Stop, Notification | On, with macOS's Rebound alert tone, the one Claude Code's own notifications play here, in place of the kit's Glass; no `NTFY_TOPIC` |
-| `protect-test-config.sh` (bonus A) | none | Off, as shipped: it also blocks changes the owner asks for |
+| `protect-test-config.sh` (bonus A) | none | Off while the owner reviews each diff: it also blocks changes the owner asks for. On for unattended runs (below) |
 
 ## What the hooks change here
 
@@ -67,6 +67,8 @@ From `ai-agent-engineer-course-kit/m2/five-hooks`; what each does is in its head
   An agent that runs unattended, as the Hermes employee will, needs the block back: it takes the
   kit's original `test-gate.sh` (`decision: block`, three rounds), registered on Hermes's `pre_verify`,
   with `TEST_CMD` set to `npm test`. This repo's copy sends only `systemMessage`; the kit has Hermes read `decision` and `reason`.
+  The same run turns on `protect-test-config`, so a red suite can't be made green by editing
+  `vitest.config.ts`, the workflows or the hooks: the block is what tempts an agent to try.
 - **`test-gate` runs on every stop while the tree is dirty,** about 30 to 40 seconds. Staged work
   waiting for review counts as dirty, so a question answered during a review waits for the suite.
 - **`fast-feedback` treats any `>` as a write,** so `2>/dev/null` or `2>&1` runs `tsc` while a `.ts`
