@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# verify-in-browser.sh — serves a production build on port 3100, on the local e2e database and API fixtures.
-# Usage: verify-in-browser.sh [--skip-build]   reseeds the database, builds and starts the server
-#        verify-in-browser.sh --stop           stops the server this script started
+# serve-e2e.sh — serves a production build on port 3100, on the local e2e database and API fixtures.
+# Usage: serve-e2e.sh [--skip-build]   reseeds the database, builds and starts the server
+#        serve-e2e.sh --stop           stops the server this script started
 set -euo pipefail
 
-cd "$(dirname "$0")/../../../.."
+cd "$(dirname "$0")/.."
 
 PORT=3100
 CONTAINER=trip-ai-e2e-pg

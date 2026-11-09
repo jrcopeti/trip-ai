@@ -9,7 +9,7 @@ Check the pages a change touches, then report. The job ends with the report and 
 
 ## Steps
 
-1. **Start the server.** Run `.claude/skills/verify-in-browser/scripts/verify-in-browser.sh`. Add `--skip-build` only when no source file changed since the last build. Done when it prints `Ready: http://localhost:3100`.
+1. **Start the server.** Run `scripts/serve-e2e.sh`. Add `--skip-build` only when no source file changed since the last build. Done when it prints `Ready: http://localhost:3100`.
 2. **List the pages the change touches.** Reach each one from the table below. Done when every page has a route and a way to reach it.
 3. **Check each page at each width,** in the order 390, 768, 1440, with `browser_resize` then `browser_navigate`:
    - `browser_evaluate` with `() => document.documentElement.scrollWidth > document.documentElement.clientWidth`. It must return `false`.
@@ -20,7 +20,7 @@ Check the pages a change touches, then report. The job ends with the report and 
    Done when every page has a snapshot, an overflow result and a viewed screenshot at all three widths.
 4. **Check reduced motion.** Run `browser_emulate_media` with `reducedMotion: "reduce"`, reload at 390, and compare the snapshot with step 3. The content must be the same; only the movement goes. Then run it with `reducedMotion: null`. Done when each page has been compared.
 5. **Read the console.** Run `browser_console_messages` with `level: "warning"` and `all: true`. Done when you've listed every hydration error and any other error or warning.
-6. **Stop the server.** Run `.claude/skills/verify-in-browser/scripts/verify-in-browser.sh --stop`. Done when it prints `Stopped`.
+6. **Stop the server.** Run `scripts/serve-e2e.sh --stop`. Done when it prints `Stopped`.
 7. **Report what you saw,** one row per page and width, with the screenshot path and any problem. Fix nothing unless fixing it was already the task. Done when every claim has a snapshot or screenshot behind it.
 
 | Page | How to reach it |
