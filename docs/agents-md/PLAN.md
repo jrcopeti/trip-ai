@@ -33,3 +33,17 @@ What it left, split by concern:
     prop into state: make it controlled and give its two tests a wrapper that feeds the value back. The
     others are false alarms or harmless, so disable each inline with its reason: `ToursCarousel`, `Intro`,
     `SiteNav`, `useGeoNames`, and the warning in `FormContext`.
+
+## `agents-md-project-only`
+
+`AGENTS.md` keeps only the rules that hold in this repo alone: the database warnings, this repo's
+scripts, docs and skill, and the folder `AGENTS.md`s. The rules that hold in every project
+(committing, branching, PR size, checks before staging, descriptions and comments, plans and devlogs)
+moved to the owner's brain as guidelines, which Claude Code reads through the global `CLAUDE.md`.
+
+- Commits, pushes and outward-facing actions now rest on the brain's "stage the work and stop"
+  guideline, not on `AGENTS.md`.
+- The brain's branch rule allows a worktree when it is open in the editor, so the "no worktree" line
+  went with the rest.
+- An agent that doesn't load the owner's global instructions (Codex, a CI job, a cloud routine) sees
+  only these rules. Give it the brain's guidelines before it runs here.

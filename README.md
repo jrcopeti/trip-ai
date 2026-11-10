@@ -232,8 +232,8 @@ After a Prisma schema change: `npx prisma generate`, then `npx prisma db push`. 
 to whatever `DATABASE_URL` resolves to, so check it first;** for the e2e database, use
 `npm run db:push:e2e`.
 
-The repo's rules for coding agents moved from `CLAUDE.md` to [`AGENTS.md`](AGENTS.md), so any agent
-that reads that file can follow them. `CLAUDE.md` now only imports it.
+[`AGENTS.md`](AGENTS.md) holds the rules for coding agents that hold only in this repo; `CLAUDE.md`
+only imports it. The rules that hold in every project come from the owner's global instructions.
 
 ## The box
 
